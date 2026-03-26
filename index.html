@@ -506,6 +506,24 @@ textarea{resize:vertical;min-height:70px}
     <div class="stat c-purple"><div class="lbl">Humor</div><div class="val" id="hs-mood">—</div><div class="sub">hoje</div></div>
   </div>
 
+  <!-- INSIGHTS CARD -->
+  <div class="card gap" id="insights-card" style="border-left:3px solid var(--accent);display:none">
+    <div class="sh" style="margin-bottom:8px">
+      <h2 style="font-size:14px">✨ Insights da semana</h2>
+      <button class="ib" onclick="gerarInsights()" title="Atualizar">🔄</button>
+    </div>
+    <div id="insights-lista" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <!-- ALERTA DE GASTOS -->
+  <div id="alerta-gastos" style="display:none;background:var(--rdim);border:1px solid var(--red);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:20px">⚠️</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
+    </div>
+  </div>
+
   <div class="g2 gap">
     <!-- Agenda de hoje -->
     <div class="card">
@@ -552,7 +570,7 @@ textarea{resize:vertical;min-height:70px}
       </div>
       <div style="display:flex;gap:7px;align-items:center">
         <input type="number" id="h-fin-val" placeholder="Valor (R$)" step="0.01" min="0" style="flex:1">
-        <input type="text" id="h-fin-desc" placeholder="Descrição" style="flex:1.4">
+        <input type="text" id="h-fin-desc" placeholder="Descrição" style="flex:1.4" oninput="autoCatDespesa(this.value)">
         <button class="btn btn-sm" style="background:var(--gdim);color:var(--green);border:1.5px solid var(--green);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('entrada')" title="Entrada">+</button>
         <button class="btn btn-sm" style="background:var(--rdim);color:var(--red);border:1.5px solid var(--red);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('despesa')" title="Despesa">−</button>
       </div>
@@ -564,6 +582,19 @@ textarea{resize:vertical;min-height:70px}
       <div class="sh"><h2>📊 Metas de tracking</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
       <div id="h-tracking"></div>
     </div>
+  </div>
+
+  <!-- RELATÓRIO SEMANAL -->
+  <div class="card gap" style="border-left:3px solid var(--purple)">
+    <div class="sh">
+      <h2>📄 Relatório semanal</h2>
+      <span id="relatorio-semana" style="font-size:11px;color:var(--text3)"></span>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Gera um PDF com análise completa da semana: hábitos, treinos, humor, água, sono, finanças e insights.</p>
+    <button class="btn btn-p" onclick="gerarRelatorio()" style="width:100%;justify-content:center;gap:8px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Gerar relatório da semana
+    </button>
   </div>
 
   <!-- MAPA MUSCULAR HOME -->
@@ -1323,7 +1354,7 @@ textarea{resize:vertical;min-height:70px}
   <div class="card gap">
     <h2>📝 Lançar movimentação</h2>
     <div class="row">
-      <div class="fg" style="flex:2"><label>Descrição</label><input id="dep-desc" type="text" placeholder="Ex: Almoço, Uber, Supermercado..."></div>
+      <div class="fg" style="flex:2"><label>Descrição</label><input id="dep-desc" type="text" placeholder="Ex: Almoço, Uber, Supermercado..." oninput="autoCatDespesa(this.value)"></div>
       <div class="fg"><label>Tipo</label>
         <select id="dep-tipo" onchange="toggleDepTipo()">
           <option value="despesa">📤 Despesa</option>
@@ -1915,6 +1946,14 @@ function refreshHome() {
 
   // Home Mapa Muscular
   renderMapaHome();
+
+  // Automações
+  gerarInsights();
+  verificarAlertaGastos();
+
+  // Label semana no relatório
+  const rs = $('relatorio-semana');
+  if (rs) { const d7 = new Date(); d7.setDate(d7.getDate()-6); rs.textContent = `${d7.getDate()}/${d7.getMonth()+1} – ${new Date().getDate()}/${new Date().getMonth()+1}`; }
 }
 
 function mudaPrioHome(id, prio) {
@@ -2295,6 +2334,7 @@ function saveCorpoDiario() {
   save('corpo_d', dados);
   loadCorpoDiario();
   renderHistorico();
+  atualizarMetaHidratacaoAutomatica();
 }
 
 function loadCorpoDiario() {
@@ -3263,6 +3303,8 @@ function addDespesa() {
   $('dep-desc').value = ''; $('dep-val').value = ''; $('dep-notas').value = '';
   renderFinancas();
   renderDespesas();
+  verificarAlertaGastos();
+  refreshHome();
 }
 
 function openExpModal(id) {
@@ -3678,6 +3720,267 @@ function bkTextTab(btn, id) {
   btn.classList.add('on'); $(id).classList.add('on');
 }
 
+// ══════════════════════════════════════════
+// AUTO-CATEGORIZAÇÃO DE DESPESAS
+// ══════════════════════════════════════════
+const catRules = [
+  { words:['ifood','rappi','uber eats','delivery','pizza','hambur','sushi','restaurante','almoço','jantar','lanche','café','padaria','mcdonalds','burger','subway','bistro'], cat:'Alimentação' },
+  { words:['uber','99','taxi','ônibus','metrô','combustível','gasolina','estacion','pedágio','passagem','posto'], cat:'Transporte' },
+  { words:['farmácia','remédio','médico','consulta','exame','hospital','dentista','academia','pilates','plano de saúde','unimed'], cat:'Saúde' },
+  { words:['netflix','spotify','amazon prime','disney','youtube','hbo','crunchyroll','assinatura','mensalidade'], cat:'Assinaturas' },
+  { words:['amazon','mercado livre','shopee','roupa','tênis','camisa','calça','magazine','zara','c&a'], cat:'Roupas' },
+  { words:['aluguel','condomínio','luz','energia','água','internet','telefone','gás','iptu'], cat:'Moradia' },
+  { words:['curso','livro','udemy','faculdade','escola','material escolar'], cat:'Educação' },
+  { words:['cinema','teatro','show','viagem','hotel','parque','lazer','bar','balada'], cat:'Lazer' },
+];
+function autoCatDespesa(desc) {
+  if (!desc || desc.length < 3) return;
+  const lower = desc.toLowerCase();
+  for (const rule of catRules) {
+    if (rule.words.some(w => lower.includes(w))) {
+      const sel = $('dep-cat');
+      if (sel) sel.value = rule.cat;
+      return;
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// META DE HIDRATAÇÃO AUTOMÁTICA
+// ══════════════════════════════════════════
+function calcMetaHidratacao(pesoKg) {
+  if (!pesoKg || pesoKg < 20) return null;
+  return Math.round(pesoKg * 35 / 100) * 100;
+}
+function atualizarMetaHidratacaoAutomatica() {
+  // Pega o peso do input atual OU o último peso registrado em qualquer dia
+  const pesoInput = parseFloat($('cp-peso')?.value);
+  let peso = pesoInput;
+  if (!peso) {
+    const corpoD = load('corpo_d', {});
+    const dias = Object.keys(corpoD).sort().reverse();
+    for (const d of dias) {
+      const p = parseFloat((corpoD[d]||{}).peso);
+      if (p > 0) { peso = p; break; }
+    }
+  }
+  if (!peso) return;
+  const meta = calcMetaHidratacao(peso);
+  if (!meta) return;
+  const metaAtual = load('agua_meta', 2000);
+  if (meta === metaAtual) return;
+  save('agua_meta', meta);
+  renderAguaDisplay();
+  refreshHome();
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--blue);border-radius:var(--rs);padding:10px 18px;z-index:9000;font-size:12px;color:var(--blue);box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap';
+  banner.textContent = `💧 Meta de água ajustada: ${meta}ml (${peso}kg × 35ml/kg)`;
+  document.body.appendChild(banner);
+  setTimeout(() => banner.remove(), 4000);
+}
+
+// ══════════════════════════════════════════
+// ALERTAS DE GASTOS
+// ══════════════════════════════════════════
+function verificarAlertaGastos() {
+  const cfg = load('fin_cfg', {});
+  const renda = cfg.renda || 0;
+  const totalFixo = (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
+  const livre = renda - totalFixo;
+  if (!livre || livre <= 0) return;
+  const mesAtual = today().substring(0, 7);
+  const gastado = load('despesas', [])
+    .filter(d => d.data.startsWith(mesAtual) && d.tipo === 'despesa')
+    .reduce((s, d) => s + d.val, 0);
+  const pct = Math.round((gastado / livre) * 100);
+  const el = $('alerta-gastos');
+  if (!el) return;
+  if (pct >= 100) {
+    el.style.display = 'flex';
+    $('alerta-gastos-txt').textContent = `Orçamento livre esgotado — ${pct}% utilizado`;
+    $('alerta-gastos-sub').textContent = `Gastou ${fmtBRL(gastado)} de ${fmtBRL(livre)} disponíveis este mês`;
+  } else if (pct >= 80) {
+    el.style.display = 'flex';
+    $('alerta-gastos-txt').textContent = `Atenção: ${pct}% do orçamento livre já foi usado`;
+    $('alerta-gastos-sub').textContent = `Restam ${fmtBRL(livre - gastado)} para o resto do mês`;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════
+// INSIGHTS INTELIGENTES
+// ══════════════════════════════════════════
+function gerarInsights() {
+  const card = $('insights-card');
+  const lista = $('insights-lista');
+  if (!card || !lista) return;
+  const insights = [];
+  const corpoD = load('corpo_d', {});
+  const aguaD  = load('agua', {});
+  const exercs = load('exercicios', []);
+  const mente  = load('mente', []);
+  const aguaMeta = load('agua_meta', 2000);
+  const dias7 = [];
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dias7.push(localDateStr(d)); }
+
+  // Sono médio e impacto no humor
+  const sonoVals = dias7.map(d => parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
+  if (sonoVals.length >= 3) {
+    const media = sonoVals.reduce((a,b) => a+b,0) / sonoVals.length;
+    const boaNoite = dias7.filter(d => parseFloat((corpoD[d]||{}).sono) >= 7.5);
+    const humorBom = ['😁','😊','🤩','💪','🧘'];
+    const boas = boaNoite.filter(d => {
+      const m = mente.find(m => m.tipo==='humor' && m.data===d);
+      return m && humorBom.includes(m.mood);
+    });
+    if (boaNoite.length > 0 && boas.length / boaNoite.length >= 0.6)
+      insights.push({ icon:'😴', cor:'var(--purple)', txt:`Nos dias com 7.5h+ de sono, seu humor foi positivo em ${Math.round(boas.length/boaNoite.length*100)}% das vezes.` });
+    else if (media < 6.5)
+      insights.push({ icon:'⚠️', cor:'var(--accent)', txt:`Você dormiu em média ${media.toFixed(1)}h esta semana. O recomendado é 7–9h para boa recuperação.` });
+    else
+      insights.push({ icon:'✅', cor:'var(--green)', txt:`Bom sono esta semana — média de ${media.toFixed(1)}h por noite.` });
+  }
+
+  // Sequência de treinos
+  const treinoDias = [...new Set(exercs.map(e => e.date))].sort().reverse();
+  let seq = 0;
+  for (const d of [...dias7].reverse()) { if (treinoDias.includes(d)) seq++; else break; }
+  if (seq >= 3) insights.push({ icon:'🔥', cor:'var(--orange)', txt:`Você está em uma sequência de ${seq} dias consecutivos de treino!` });
+
+  // Hidratação
+  const mediaAgua = Math.round(dias7.reduce((s,d) => s+(aguaD[d]||0),0) / 7);
+  if (mediaAgua > 0) {
+    const pct = Math.round((mediaAgua / aguaMeta) * 100);
+    if (pct >= 90) insights.push({ icon:'💧', cor:'var(--blue)', txt:`Excelente hidratação! Média de ${mediaAgua}ml/dia (${pct}% da meta).` });
+    else if (pct < 60) insights.push({ icon:'💧', cor:'var(--red)', txt:`Hidratação baixa esta semana: ${mediaAgua}ml/dia — só ${pct}% da meta de ${aguaMeta}ml.` });
+  }
+
+  // Grupos sem treino
+  const muscFreq = {};
+  exercs.filter(e => dias7.includes(e.date)).forEach(e => (e.musculos||[]).forEach(m => { muscFreq[m]=(muscFreq[m]||0)+1; }));
+  const todos = ['peito','costas','ombros','biceps','triceps','abdomen','quadriceps','gluteos','isquiotibiais','panturrilha'];
+  const semTreino = todos.filter(m => !muscFreq[m]);
+  const muscLabels = { peito:'Peito', costas:'Costas', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
+  if (semTreino.length >= 3) insights.push({ icon:'💪', cor:'var(--text3)', txt:`Grupos sem treino esta semana: ${semTreino.slice(0,4).map(m=>muscLabels[m]).join(', ')}.` });
+
+  // Humor dominante
+  const moodsRecentes = mente.filter(m => m.tipo==='humor').slice(0,14);
+  if (moodsRecentes.length >= 5) {
+    const freq = {};
+    moodsRecentes.forEach(m => { freq[m.mood]=(freq[m.mood]||0)+1; });
+    const top = Object.entries(freq).sort((a,b) => b[1]-a[1])[0];
+    if (top) insights.push({ icon:top[0], cor:'var(--accent)', txt:`Humor mais frequente nas últimas 2 semanas: ${top[0]} (${top[1]} registros).` });
+  }
+
+  // Gastos
+  const cfg = load('fin_cfg',{});
+  const livre = (cfg.renda||0) - (cfg.fixos||[]).reduce((s,f)=>s+f.val,0);
+  if (livre > 0) {
+    const gastado = load('despesas',[]).filter(d=>d.data.startsWith(today().substring(0,7))&&d.tipo==='despesa').reduce((s,d)=>s+d.val,0);
+    const pct = Math.round((gastado/livre)*100);
+    if (pct >= 80) insights.push({ icon:'💸', cor:'var(--red)', txt:`Você já usou ${pct}% do orçamento livre deste mês (${fmtBRL(gastado)} de ${fmtBRL(livre)}).` });
+  }
+
+  if (!insights.length) insights.push({ icon:'📊', cor:'var(--text3)', txt:'Continue registrando seus dados para receber insights personalizados!' });
+
+  lista.innerHTML = insights.map((ins,i) => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;${i<insights.length-1?'border-bottom:1px solid var(--border)':''}">
+      <span style="font-size:18px;flex-shrink:0">${ins.icon}</span>
+      <span style="font-size:13px;color:var(--text2);line-height:1.55">${ins.txt}</span>
+    </div>`).join('');
+  card.style.display = 'block';
+}
+
+// ══════════════════════════════════════════
+// RELATÓRIO SEMANAL PDF
+// ══════════════════════════════════════════
+function gerarRelatorio() {
+  const btn = event?.target?.closest('button');
+  if (btn) { btn.textContent = '⏳ Gerando...'; btn.disabled = true; }
+
+  const dias7 = [];
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); dias7.push(localDateStr(d)); }
+  const corpoD   = load('corpo_d', {});
+  const aguaD    = load('agua', {});
+  const exercs   = load('exercicios', []).filter(e => dias7.includes(e.date));
+  const mente    = load('mente', []);
+  const habitos  = load('habitos', []);
+  const rot      = load('rot_checks', {});
+  const aguaMeta = load('agua_meta', 2000);
+  const cfg      = load('fin_cfg', {});
+  const renda    = cfg.renda || 0;
+  const fixos    = (cfg.fixos||[]).reduce((s,f)=>s+f.val,0);
+  const mes      = today().substring(0,7);
+  const despMes  = load('despesas',[]).filter(d=>d.data.startsWith(mes)&&d.tipo==='despesa').reduce((s,d)=>s+d.val,0);
+  const entrMes  = load('despesas',[]).filter(d=>d.data.startsWith(mes)&&d.tipo==='entrada').reduce((s,d)=>s+d.val,0);
+
+  // Stats
+  const hFatos = dias7.reduce((s,d)=>{ const hj=habitos.filter(h=>habitHoje(h)); const ch=rot[d]||{}; return s+hj.filter(h=>ch[h.id]).length; },0);
+  const hPoss  = habitos.length * 7;
+  const pctH   = hPoss > 0 ? Math.round(hFatos/hPoss*100) : 0;
+  const sonoVals = dias7.map(d=>parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
+  const mediaSono = sonoVals.length ? (sonoVals.reduce((a,b)=>a+b,0)/sonoVals.length).toFixed(1) : '—';
+  const mediaAgua = Math.round(dias7.reduce((s,d)=>s+(aguaD[d]||0),0)/7);
+  const pesoVals  = dias7.map(d=>parseFloat((corpoD[d]||{}).peso)).filter(Boolean);
+  const ultimoPeso = pesoVals.length ? pesoVals[pesoVals.length-1] : null;
+  const numTreinos = [...new Set(exercs.map(e=>e.date))].length;
+  const totalKcal  = exercs.reduce((s,e)=>s+(e.kcal||0),0);
+  const moodFreq   = {};
+  mente.filter(m=>m.tipo==='humor'&&dias7.includes(m.data)).forEach(m=>{moodFreq[m.mood]=(moodFreq[m.mood]||0)+1;});
+  const topMood = Object.entries(moodFreq).sort((a,b)=>b[1]-a[1])[0];
+
+  // Insights text
+  const ins = [];
+  if (sonoVals.length>=3) { const m=parseFloat(mediaSono); ins.push(m>=7?`✅ Sono consistente: média de ${mediaSono}h.`:`⚠️ Sono abaixo do ideal: ${mediaSono}h/noite (recomendado: 7–9h).`); }
+  const pctAgua = Math.round((mediaAgua/aguaMeta)*100);
+  if (mediaAgua>0) ins.push(pctAgua>=90?`💧 Hidratação excelente: ${mediaAgua}ml/dia.`:`💧 Hidratação abaixo da meta: ${mediaAgua}ml/dia (meta: ${aguaMeta}ml).`);
+  ins.push(numTreinos>=4?`🔥 Semana muito ativa: ${numTreinos} treinos!`:numTreinos===0?`⚠️ Nenhum treino registrado.`:`💪 ${numTreinos} treinos na semana.`);
+  if (renda>0) { const pGastos=Math.round((despMes/(renda-fixos))*100); if(pGastos>=80) ins.push(`💸 Atenção: ${pGastos}% do orçamento livre já foi gasto.`); }
+
+  const html=`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>EH Tracker — Relatório</title>
+  <style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a2e;padding:28px;max-width:780px;margin:0 auto}
+  .hd{background:linear-gradient(135deg,#f97316,#ec4899,#a855f7);color:#fff;padding:24px 28px;border-radius:14px;margin-bottom:22px}
+  .hd h1{font-size:24px;font-weight:900}.hd p{font-size:13px;opacity:.85;margin-top:5px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+  .sc{background:#fff;border-radius:10px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+  .sc .l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#999;margin-bottom:3px}
+  .sc .v{font-size:22px;font-weight:700;font-family:'Courier New',monospace}.sc .s{font-size:10px;color:#bbb;margin-top:1px}
+  .sec{background:#fff;border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+  .sec h2{font-size:13px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;text-transform:uppercase;letter-spacing:.5px;color:#666}
+  .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f8f8f8;font-size:12px}.row:last-child{border:none}
+  .row .k{color:#888}.row .v{font-weight:600}
+  .ins{background:#fafafa;border-left:3px solid #f97316;padding:9px 12px;border-radius:0 6px 6px 0;margin-bottom:7px;font-size:12px;line-height:1.5}
+  .ft{text-align:center;color:#ccc;font-size:10px;margin-top:22px}
+  @media print{body{padding:12px}@page{margin:12mm}}</style></head><body>
+  <div class="hd"><h1>EH Tracker — Relatório Semanal</h1><p>${dias7[0]} → ${dias7[6]} · Eduardo Hackenhaar</p></div>
+  <div class="grid">
+    <div class="sc"><div class="l">Hábitos</div><div class="v" style="color:#4caf82">${pctH}%</div><div class="s">${hFatos}/${hPoss} concluídos</div></div>
+    <div class="sc"><div class="l">Treinos</div><div class="v" style="color:#e0883c">${numTreinos}</div><div class="s">${totalKcal>0?totalKcal+' kcal total':'dias ativos'}</div></div>
+    <div class="sc"><div class="l">Água/dia</div><div class="v" style="color:#5c8de0">${mediaAgua}</div><div class="s">ml · meta ${aguaMeta}ml</div></div>
+    <div class="sc"><div class="l">Sono</div><div class="v" style="color:#9b72e0">${mediaSono}</div><div class="s">h por noite</div></div>
+    <div class="sc"><div class="l">Peso</div><div class="v" style="color:#c9a84c">${ultimoPeso||'—'}</div><div class="s">kg último reg.</div></div>
+    <div class="sc"><div class="l">Humor top</div><div class="v">${topMood?topMood[0]:'—'}</div><div class="s">${topMood?topMood[1]+' registros':'sem dados'}</div></div>
+  </div>
+  <div class="sec"><h2>💰 Finanças</h2>
+    <div class="row"><span class="k">Renda mensal</span><span class="v">${fmtBRL(renda)}</span></div>
+    <div class="row"><span class="k">Gastos fixos</span><span class="v">${fmtBRL(fixos)}</span></div>
+    <div class="row"><span class="k">Orçamento livre</span><span class="v">${fmtBRL(renda-fixos)}</span></div>
+    <div class="row"><span class="k">Gastos este mês</span><span class="v" style="color:#e05c6a">${fmtBRL(despMes)}</span></div>
+    <div class="row"><span class="k">Entradas extras</span><span class="v" style="color:#4caf82">${fmtBRL(entrMes)}</span></div>
+    <div class="row"><span class="k">Disponível restante</span><span class="v">${fmtBRL(renda-fixos-despMes+entrMes)}</span></div>
+  </div>
+  <div class="sec"><h2>🏋️ Treinos</h2>${exercs.length?exercs.map(e=>`<div class="row"><span class="k">${e.date} · ${e.nome}</span><span class="v">${[e.sr,e.kg?e.kg+'kg':'',e.dur?e.dur+'min':'',e.kcal?'🔥'+e.kcal:''].filter(Boolean).join(' · ')}</span></div>`).join(''):'<p style="color:#bbb;font-size:12px">Nenhum treino registrado</p>'}</div>
+  <div class="sec"><h2>✨ Insights</h2>${ins.map(i=>`<div class="ins">${i}</div>`).join('')}</div>
+  <div class="ft">Gerado em ${new Date().toLocaleString('pt-BR')} · EH Tracker Pessoal</div>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(()=>w.print(), 600); }
+  else alert('Permita pop-ups para gerar o PDF.');
+  if (btn) { btn.textContent='✅ Gerado!'; btn.disabled=false; setTimeout(()=>{ btn.textContent='Gerar relatório da semana'; },3000); }
+}
+
 // ──────────────────────────────────
 // SUPABASE CREDENTIAL MANAGEMENT
 // ──────────────────────────────────
@@ -3747,6 +4050,9 @@ function updateSbStatusArea() {
   renderReceitas();
   renderCompras();
   renderFinancas();
+  // Automações no início
+  atualizarMetaHidratacaoAutomatica();
+  verificarAlertaGastos();
 
   // Supabase: if connected, pull first THEN render everything
   if (_sbReady) {
