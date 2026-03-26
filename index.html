@@ -13,10 +13,11 @@
 <meta name="theme-color" content="#0d0f14">
 
 <!-- Ícone para tela inicial (iOS e Android) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d0f14'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' font-family='Georgia,serif' fill='%23c9a84c' font-weight='bold'>EH</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23f97316'/><stop offset='50%25' stop-color='%23ec4899'/><stop offset='100%25' stop-color='%23a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(%23g)'/><text y='.85em' font-size='56' x='50%25' text-anchor='middle' font-family='Georgia,serif' fill='white' font-weight='bold'>EH</text></svg>">
 
 <!-- Manifest inline via JS (evita arquivo externo) -->
 <script>
+  const _iconSvg = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='#f97316'/><stop offset='50%' stop-color='#ec4899'/><stop offset='100%' stop-color='#a855f7'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(#g)'/><text y='.85em' font-size='56' x='50%' text-anchor='middle' font-family='Georgia,serif' fill='white' font-weight='bold'>EH</text></svg>`);
   const _manifest = {
     name: 'EH Tracker Pessoal',
     short_name: 'EH Tracker',
@@ -24,11 +25,12 @@
     start_url: '.',
     display: 'standalone',
     background_color: '#0d0f14',
-    theme_color: '#0d0f14',
-    icons: [{
-      src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d0f14'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' font-family='Georgia,serif' fill='%23c9a84c' font-weight='bold'>EH</text></svg>",
-      sizes: '192x192', type: 'image/svg+xml'
-    }]
+    theme_color: '#f97316',
+    icons: [
+      { src: _iconSvg, sizes: '192x192', type: 'image/svg+xml' },
+      { src: _iconSvg, sizes: '512x512', type: 'image/svg+xml' },
+      { src: _iconSvg, sizes: '180x180', type: 'image/svg+xml' },
+    ]
   };
   const _blob = new Blob([JSON.stringify(_manifest)], {type:'application/manifest+json'});
   const _mlink = document.createElement('link');
@@ -57,7 +59,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 /* ── SIDEBAR ── */
 .sidebar{width:var(--sb);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 20px;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
 .sidebar::-webkit-scrollbar{display:none}
-.logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--accent);font-weight:900;margin-bottom:14px;letter-spacing:-.5px;flex-shrink:0}
+.logo{display:flex;align-items:center;justify-content:center;margin-bottom:10px;flex-shrink:0}
 .nb{width:50px;height:44px;border:none;background:transparent;border-radius:var(--rs);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);transition:all .2s;flex-shrink:0;margin-bottom:1px}
 .nb:hover{background:var(--bg3);color:var(--text2)}
 .nb.on{background:var(--adim);color:var(--accent)}
@@ -392,7 +394,19 @@ textarea{resize:vertical;min-height:70px}
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
-  <div class="logo">EH</div>
+  <div class="logo">
+    <svg viewBox="0 0 40 40" width="36" height="36" style="display:block">
+      <defs>
+        <linearGradient id="logo-g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f97316"/>
+          <stop offset="50%" stop-color="#ec4899"/>
+          <stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx="9" fill="url(#logo-g)"/>
+      <text x="20" y="28" text-anchor="middle" font-family="Georgia,serif" font-size="18" font-weight="bold" fill="white">EH</text>
+    </svg>
+  </div>
   <button class="nb on" onclick="go('home')" id="n-home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Início</span></button>
   <button class="nb" onclick="go('agenda')" id="n-agenda">
@@ -1619,16 +1633,28 @@ function subscribeRealtime() {
 
 // Push ALL localStorage keys to Supabase (used by manual sync button)
 async function pushAllToSupabase() {
-  if (!_sb) { alert('Supabase não configurado.'); return; }
+  if (!_sb) { alert('Supabase não configurado. Vá em Backup → Configurar.'); return; }
+  const btn = event?.target?.closest('button');
+  if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
-  const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
-  const rows = BK_KEYS.map(k => {
-    const raw = localStorage.getItem('eh2_' + k);
-    return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
-  }).filter(Boolean);
-  const { error } = await _sb.from('tracker_data').upsert(rows, { onConflict: 'key' });
-  setSyncStatus(error ? 'error' : 'ok');
-  if (error) alert('Erro ao sincronizar: ' + error.message);
+  try {
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
+    const rows = BK_KEYS.map(k => {
+      const raw = localStorage.getItem('eh2_' + k);
+      return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
+    }).filter(Boolean);
+    console.log(`[Supabase] Enviando ${rows.length} chaves:`, rows.map(r => r.key));
+    const { error } = await _sb.from('tracker_data').upsert(rows, { onConflict: 'key' });
+    if (error) throw error;
+    setSyncStatus('ok');
+    if (btn) { btn.textContent = '✅ Enviado!'; setTimeout(() => { btn.textContent = '⬆️ Forçar upload'; btn.disabled = false; }, 2500); }
+    console.log('[Supabase] Upload concluído com sucesso.');
+  } catch(e) {
+    console.error('[Supabase push error]', e.message);
+    setSyncStatus('error');
+    if (btn) { btn.textContent = '❌ Erro'; btn.disabled = false; setTimeout(() => { btn.textContent = '⬆️ Forçar upload'; }, 3000); }
+    alert('Erro ao enviar: ' + e.message);
+  }
 }
 
 // ──────────────────────────────────
@@ -3730,10 +3756,14 @@ function updateSbStatusArea() {
     splash.id = 'sb-splash';
     splash.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px';
     splash.innerHTML = `
-      <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--accent)">EH</div>
+      <svg viewBox="0 0 60 60" width="60" height="60">
+        <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f97316"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
+        <rect width="60" height="60" rx="14" fill="url(#sg)"/>
+        <text x="30" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="bold" fill="white">EH</text>
+      </svg>
       <div style="font-size:13px;color:var(--text3)">Sincronizando dados...</div>
       <div style="width:48px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
-        <div style="height:100%;width:40%;background:var(--accent);border-radius:2px;animation:sb-slide 1s ease-in-out infinite alternate"></div>
+        <div style="height:100%;width:40%;background:linear-gradient(90deg,#f97316,#ec4899,#a855f7);border-radius:2px;animation:sb-slide 1s ease-in-out infinite alternate"></div>
       </div>`;
     const style = document.createElement('style');
     style.textContent = '@keyframes sb-slide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}';
