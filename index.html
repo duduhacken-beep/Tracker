@@ -1377,7 +1377,7 @@ textarea{resize:vertical;min-height:70px}
 
     <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-g btn-sm" onclick="pushAllToSupabase()" style="flex:1;justify-content:center">⬆️ Forçar upload</button>
-      <button class="btn btn-g btn-sm" onclick="pullFromSupabase().then(reRenderAll)" style="flex:1;justify-content:center">⬇️ Baixar do servidor</button>
+      <button class="btn btn-g btn-sm" onclick="forcePullAndRender()" style="flex:1;justify-content:center">⬇️ Baixar do servidor</button>
       <button class="btn btn-g btn-sm" onclick="toggleSbForm()" style="flex:1;justify-content:center" id="sb-config-btn">⚙️ Configurar</button>
     </div>
 
@@ -1563,26 +1563,39 @@ const localDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStar
 // and merge into localStorage (Supabase wins on conflict)
 // ──────────────────────────────────
 async function pullFromSupabase() {
-  if (!_sb) { setSyncStatus('off'); return; }
+  if (!_sb) { setSyncStatus('off'); return false; }
   setSyncStatus('syncing');
   try {
     const { data, error } = await _sb.from('tracker_data').select('key, value, updated_at');
     if (error) throw error;
-    if (!data?.length) { setSyncStatus('ok'); return; }
-
-    data.forEach(row => {
-      const lsRaw = localStorage.getItem('eh2_' + row.key);
-      // Simple conflict resolution: Supabase wins (most recent device to sync wins)
-      _lsSave(row.key, row.value);
-    });
-
+    if (!data?.length) {
+      console.log('[Supabase] Nenhum dado encontrado no servidor ainda.');
+      setSyncStatus('ok');
+      return false;
+    }
+    console.log(`[Supabase] ${data.length} chaves recebidas:`, data.map(r => r.key));
+    // Write all keys from Supabase into localStorage
+    data.forEach(row => { _lsSave(row.key, row.value); });
     setSyncStatus('ok');
-    // Re-render everything after pulling
-    reRenderAll();
+    return true;
   } catch (e) {
-    console.warn('[Supabase pull]', e.message);
+    console.error('[Supabase pull error]', e.message);
     setSyncStatus('error');
+    return false;
   }
+}
+
+async function forcePullAndRender() {
+  const btn = document.querySelector('[onclick*="pullFromSupabase"]');
+  if (btn) { btn.textContent = '⏳ Baixando...'; btn.disabled = true; }
+  const got = await pullFromSupabase();
+  reRenderAll();
+  if (btn) {
+    btn.textContent = got ? '✅ Dados carregados!' : '⬇️ Baixar do servidor';
+    btn.disabled = false;
+    if (got) setTimeout(() => { btn.textContent = '⬇️ Baixar do servidor'; }, 3000);
+  }
+  return got;
 }
 
 // ──────────────────────────────────
@@ -3709,18 +3722,38 @@ function updateSbStatusArea() {
   renderCompras();
   renderFinancas();
 
-  // Supabase: pull latest data then subscribe to realtime
+  // Supabase: if connected, pull first THEN render everything
   if (_sbReady) {
-    pullFromSupabase().then(() => subscribeRealtime());
     setSyncStatus('syncing');
+    // Show a subtle loading overlay while pulling
+    const splash = document.createElement('div');
+    splash.id = 'sb-splash';
+    splash.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px';
+    splash.innerHTML = `
+      <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--accent)">EH</div>
+      <div style="font-size:13px;color:var(--text3)">Sincronizando dados...</div>
+      <div style="width:48px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:40%;background:var(--accent);border-radius:2px;animation:sb-slide 1s ease-in-out infinite alternate"></div>
+      </div>`;
+    const style = document.createElement('style');
+    style.textContent = '@keyframes sb-slide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(splash);
+
+    pullFromSupabase().then(got => {
+      // Always re-render after pull attempt (got or not)
+      reRenderAll();
+      subscribeRealtime();
+      // Fade out splash
+      splash.style.transition = 'opacity .4s';
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 450);
+    }).catch(() => {
+      reRenderAll();
+      splash.remove();
+    });
   } else {
     setSyncStatus('off');
-    // Check if credentials saved in localStorage
-    const savedUrl = localStorage.getItem('sb_url');
-    const savedKey = localStorage.getItem('sb_key');
-    if (savedUrl && savedKey) {
-      // Reload to apply — shouldn't happen on fresh open, but safeguard
-    }
   }
   updateSbStatusArea();
 
