@@ -1,0 +1,3769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EH — Tracker</title>
+
+<!-- PWA: adicionar à tela inicial -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EH Tracker">
+<meta name="theme-color" content="#0d0f14">
+
+<!-- Ícone para tela inicial (iOS e Android) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d0f14'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' font-family='Georgia,serif' fill='%23c9a84c' font-weight='bold'>EH</text></svg>">
+
+<!-- Manifest inline via JS (evita arquivo externo) -->
+<script>
+  const _manifest = {
+    name: 'EH Tracker Pessoal',
+    short_name: 'EH Tracker',
+    description: 'Tracker pessoal de Eduardo Hackenhaar',
+    start_url: '.',
+    display: 'standalone',
+    background_color: '#0d0f14',
+    theme_color: '#0d0f14',
+    icons: [{
+      src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d0f14'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' font-family='Georgia,serif' fill='%23c9a84c' font-weight='bold'>EH</text></svg>",
+      sizes: '192x192', type: 'image/svg+xml'
+    }]
+  };
+  const _blob = new Blob([JSON.stringify(_manifest)], {type:'application/manifest+json'});
+  const _mlink = document.createElement('link');
+  _mlink.rel = 'manifest';
+  _mlink.href = URL.createObjectURL(_blob);
+  document.currentScript.after(_mlink);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0f14;--bg2:#13151c;--bg3:#1a1d27;
+  --card:#1e2130;--card2:#252840;--border:#2e3250;
+  --accent:#c9a84c;--accent2:#e8c97a;--adim:rgba(201,168,76,.13);
+  --green:#4caf82;--gdim:rgba(76,175,130,.13);
+  --red:#e05c6a;--rdim:rgba(224,92,106,.13);
+  --blue:#5c8de0;--bdim:rgba(92,141,224,.13);
+  --purple:#9b72e0;--pdim:rgba(155,114,224,.13);
+  --orange:#e0883c;--odim:rgba(224,136,60,.13);
+  --teal:#3cbdb8;--tdim:rgba(60,189,184,.13);
+  --text:#e8eaf2;--text2:#9aa0bc;--text3:#5a6080;
+  --r:14px;--rs:8px;--sb:66px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow-x:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sb);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0 20px;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.logo{font-family:'Playfair Display',serif;font-size:17px;color:var(--accent);font-weight:900;margin-bottom:14px;letter-spacing:-.5px;flex-shrink:0}
+.nb{width:50px;height:44px;border:none;background:transparent;border-radius:var(--rs);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);transition:all .2s;flex-shrink:0;margin-bottom:1px}
+.nb:hover{background:var(--bg3);color:var(--text2)}
+.nb.on{background:var(--adim);color:var(--accent)}
+.nb svg{width:16px;height:16px}
+.nb span{font-size:7.5px;font-weight:700;letter-spacing:.2px;line-height:1}
+
+
+/* ── TYPE ── */
+.page{display:none}
+.page.on{display:block}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.main{margin-left:var(--sb);flex:1;padding:26px 30px;max-width:calc(100vw - var(--sb));overflow-x:hidden}
+h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700}
+h2{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;margin-bottom:12px}
+h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:9px}
+.psub{color:var(--text3);font-size:13px;margin:3px 0 22px}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.gap{margin-bottom:18px}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.stat .lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.stat .val{font-size:24px;font-weight:700;font-family:'DM Mono',monospace;margin:3px 0 2px}
+.stat .sub{font-size:11px;color:var(--text3)}
+.c-gold .val{color:var(--accent)}.c-green .val{color:var(--green)}.c-blue .val{color:var(--blue)}.c-purple .val{color:var(--purple)}.c-orange .val{color:var(--orange)}.c-teal .val{color:var(--teal)}
+
+/* ── PROGRESS ── */
+.pb{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:7px}
+.pf{height:100%;border-radius:2px;background:var(--accent);transition:width .4s}
+.pf.g{background:var(--green)}.pf.b{background:var(--blue)}.pf.p{background:var(--purple)}.pf.o{background:var(--orange)}
+
+/* ── INPUTS ── */
+input,textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border-color .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+textarea{resize:vertical;min-height:70px}
+.fg{margin-bottom:11px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+.row{display:flex;gap:8px;align-items:flex-start}
+.row>*{flex:1}
+
+/* ── BUTTONS ── */
+.btn{padding:8px 16px;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.btn-p{background:var(--accent);color:#0d0f14}
+.btn-p:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-g{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-g:hover{background:var(--bg3)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.ib{width:26px;height:26px;border:none;background:transparent;cursor:pointer;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text3);font-size:13px;padding:0;flex-shrink:0}
+.ib:hover{background:var(--bg3);color:var(--text2)}
+.ib.del:hover{background:var(--rdim);color:var(--red)}
+.ib.edt:hover{background:var(--adim);color:var(--accent)}
+.ib.chk:hover{background:var(--gdim);color:var(--green)}
+
+/* ── TAGS ── */
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.ta{background:var(--adim);color:var(--accent)}.tg{background:var(--gdim);color:var(--green)}.tr{background:var(--rdim);color:var(--red)}.tb{background:var(--bdim);color:var(--blue)}.tp{background:var(--pdim);color:var(--purple)}.to{background:var(--odim);color:var(--orange)}.tt{background:var(--tdim);color:var(--teal)}
+
+/* ── CHECKLIST ── */
+.ci{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)}
+.ci:last-child{border-bottom:none}
+.cb{width:17px;height:17px;border:2px solid var(--border);border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;background:transparent;font-size:9px;color:transparent}
+.cb.on{background:var(--green);border-color:var(--green);color:#fff}
+.cb:hover:not(.on){border-color:var(--accent)}
+.cl{flex:1;font-size:13px}
+.cl.x{text-decoration:line-through;color:var(--text3)}
+
+/* ── EVENT ── */
+.evi{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.evi:last-child{border-bottom:none}
+.evi-t{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);min-width:48px;padding-top:2px;line-height:1.4}
+.evi-n{font-size:13px;font-weight:500}
+.evi-m{font-size:11px;color:var(--text3);margin-top:1px}
+.evi.done .evi-n{text-decoration:line-through;color:var(--text3)}
+
+/* ── DAYS SELECTOR ── */
+.days-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.db{min-width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;padding:0 5px}
+.db.on{background:var(--adim);border-color:var(--accent);color:var(--accent)}
+.db:hover:not(.on){border-color:var(--text3)}
+
+/* ── MOOD ── */
+.mrow{display:flex;gap:7px;flex-wrap:wrap}
+.mb{width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:transparent;cursor:pointer;font-size:20px;transition:all .2s}
+.mb:hover,.mb.on{border-color:var(--accent);background:var(--adim);transform:scale(1.1)}
+
+/* ── SUB TABS ── */
+.stabs{display:flex;gap:2px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:0}
+.stab{padding:7px 14px;border:none;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.stab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.sp{display:none}.sp.on{display:block}
+
+/* ── JOURNAL ── */
+.je{background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:8px;border-left:3px solid var(--purple);position:relative}
+.je.humor{border-left-color:var(--accent)}.je.grat{border-left-color:var(--green)}.je.diary{border-left-color:var(--purple)}
+.jm{font-size:10px;color:var(--text3);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.jt{font-size:13px;line-height:1.6}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:var(--border);margin:16px 0}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center}
+.overlay.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:26px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal h2{margin-bottom:18px}
+.mfooter{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+/* ── HOME HEADER ── */
+.hh{margin-bottom:22px}
+.hh-name{font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:3px}
+.hh-greet{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;line-height:1}
+.hh-date{color:var(--text3);font-size:12px;margin-top:4px}
+
+/* ── SEC HEADER ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sh h2{margin-bottom:0}
+
+/* ── MUSCLE MAP ── */
+.mmap-wrap{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;padding:12px 0}
+.mmap-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mmap-lbl{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.mmap-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:center}
+.mll{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.mlld{width:10px;height:10px;border-radius:3px}
+
+/* ── MUSCLE CHIPS ── */
+.mchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.mc{padding:3px 9px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;transition:all .2s}
+.mc.on{border-color:var(--orange);background:var(--odim);color:var(--orange)}
+
+/* ── EX ENTRY ── */
+.ex-e{padding:11px 0;border-bottom:1px solid var(--border)}
+.ex-e:last-child{border-bottom:none}
+.ex-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.ex-nm{font-size:14px;font-weight:600}
+.ex-dt{font-size:11px;color:var(--text3)}
+.ex-det{font-size:12px;color:var(--text2);margin-top:3px}
+.ex-ms{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+
+/* ── TRACKING GOAL ── */
+.tgi{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border)}
+.tgi:last-child{border-bottom:none}
+.tgi-info{flex:1}
+.tgi-nm{font-size:14px;font-weight:500}
+.tgi-sub{font-size:11px;color:var(--text3)}
+.tgi-ctr{display:flex;align-items:center;gap:7px}
+.tgi-ctr button{width:26px;height:26px;border:1.5px solid var(--border);background:transparent;border-radius:6px;cursor:pointer;color:var(--text2);font-size:15px;display:inline-flex;align-items:center;justify-content:center;transition:all .2s}
+.tgi-ctr button:hover{border-color:var(--accent);color:var(--accent)}
+.tgi-n{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--accent);min-width:34px;text-align:center}
+
+/* ── GAMES ── */
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.gc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:13px;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;transition:all .2s}
+.gc:hover{border-color:var(--border);transform:translateY(-2px)}
+.gc-ico{font-size:30px;text-align:center}
+.gc-nm{font-size:12px;font-weight:600;text-align:center;line-height:1.3}
+.gc-pl{font-size:10px;color:var(--text3);text-align:center}
+.gc-del{position:absolute;top:6px;right:6px;opacity:0;transition:opacity .2s}
+.gc:hover .gc-del{opacity:1}
+
+/* ── LIST ITEMS ── */
+.li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.li:last-child{border-bottom:none}
+.li-info{flex:1}
+.li-nm{font-size:13px;font-weight:600}
+.li-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.li.done .li-nm{text-decoration:line-through;color:var(--text3)}
+
+/* ── JJ ── */
+.jj-nm{font-size:13px;font-weight:500;flex:1}
+.jj-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── WATER ── */
+.water-val{font-family:'DM Mono',monospace;font-size:38px;font-weight:700;color:var(--blue);line-height:1}
+.water-meta{display:flex;align-items:center;gap:8px;margin-top:12px}
+.water-meta input{width:100px;text-align:center;font-size:18px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* ── PRIORITY DOT ── */
+.pd{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.pd.a{background:var(--red)}.pd.m{background:var(--accent)}.pd.b{background:var(--green)}
+
+/* ── COMPRA CHECK ── */
+.ci.compra.done .cl{text-decoration:line-through;color:var(--text3)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:26px;color:var(--text3);font-size:13px}
+.empty .ei{font-size:26px;margin-bottom:7px}
+
+/* ── HISTORY TABLE ── */
+.htable{width:100%;border-collapse:collapse;font-size:12px}
+.htable th{text-align:left;padding:7px 10px;border-bottom:2px solid var(--border);color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+.htable td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.htable tr:last-child td{border-bottom:none}
+.htable tr:hover td{background:rgba(255,255,255,.02)}
+.htable td.num{font-family:'DM Mono',monospace;color:var(--text2)}
+.htable td.today-row{background:var(--adim)}
+.bar-cell{display:flex;align-items:center;gap:7px}
+.mini-bar{height:6px;border-radius:3px;background:var(--border);min-width:60px;flex:1;overflow:hidden}
+.mini-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+
+/* ── FINANCE ── */
+.fin-saldo{font-family:'DM Mono',monospace;font-size:42px;font-weight:700;line-height:1;letter-spacing:-1px}
+.fin-saldo.pos{color:var(--green)}.fin-saldo.neg{color:var(--red)}.fin-saldo.zero{color:var(--accent)}
+.fin-row{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.fin-row:last-child{border-bottom:none}
+.fin-info{flex:1}
+.fin-nm{font-size:13px;font-weight:500}
+.fin-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.fin-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--red);white-space:nowrap;padding-top:1px}
+.fin-val.rec{color:var(--green)}
+.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.gasto-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.gasto-bar-lbl{font-size:11px;color:var(--text2);min-width:100px}
+.gasto-bar-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:70px;text-align:right}
+.fix-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border)}
+.fix-item:last-child{border-bottom:none}
+.fix-nm{flex:1;font-size:13px}
+.fix-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--red)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* ── TABLET ── */
+@media(max-width:900px){
+  .g3,.g4{grid-template-columns:1fr 1fr}
+}
+
+/* ── MOBILE ── */
+@media(max-width:640px){
+  :root{--sb:0px}
+
+  /* Bottom nav */
+  .sidebar{
+    width:100%;height:60px;
+    top:auto;bottom:0;left:0;right:0;
+    flex-direction:row;justify-content:flex-start;
+    padding:0;border-right:none;border-top:1px solid var(--border);
+    overflow-x:scroll;overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+    gap:0;
+    scrollbar-width:none;
+  }
+  .sidebar::-webkit-scrollbar{display:none}
+  .logo{display:none}
+  .nb{
+    width:54px;height:60px;min-width:54px;
+    border-radius:0;margin:0;
+    gap:3px;flex-shrink:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .nb.on{border-bottom:2px solid var(--accent);background:var(--adim)}
+  .nb svg{width:18px;height:18px}
+  .nb span{font-size:8px}
+
+  /* Main content */
+  .main{
+    margin-left:0;
+    padding:14px 14px 80px;
+    max-width:100vw;
+  }
+
+  /* Grids collapse */
+  .g2,.g3,.g4{grid-template-columns:1fr;gap:10px}
+
+  /* Form rows stack */
+  .row{flex-direction:column;gap:0}
+  .row>.fg{margin-bottom:10px}
+
+  /* Bigger touch targets */
+  .cb{width:22px;height:22px;border-radius:5px}
+  input,textarea,select{font-size:16px;padding:10px 12px} /* 16px prevents iOS zoom */
+  .btn{padding:10px 18px}
+  .btn-sm{padding:9px 14px;font-size:13px}
+  .ib{width:34px;height:34px;font-size:16px}
+
+  /* Typography */
+  h1{font-size:22px}
+  .hh-greet{font-size:24px}
+
+  /* Cards tighter */
+  .card,.stat{padding:14px}
+
+  /* Stat grid 2-col on mobile */
+  .g4{grid-template-columns:1fr 1fr}
+
+  /* Horizontal scroll for table */
+  #hist-table{overflow-x:auto}
+  .htable{min-width:600px}
+
+  /* Muscle map smaller */
+  .mmap-wrap{gap:12px}
+  .mmap-wrap svg{width:100px!important}
+
+  /* Sub-tabs scroll */
+  .stabs{overflow-x:auto;gap:0;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .stab{white-space:nowrap;flex-shrink:0;padding:7px 12px}
+
+  /* Section header stack */
+  .sh{flex-wrap:wrap;gap:6px}
+
+  /* Finance saldo smaller */
+  .fin-saldo{font-size:30px}
+
+  /* Water val smaller */
+  .water-val{font-size:28px}
+
+  /* Hide modal padding on mobile */
+  .modal{padding:18px;width:100%;max-width:100%;border-radius:var(--r) var(--r) 0 0;position:fixed;bottom:0;left:0;max-height:85vh}
+  .overlay{align-items:flex-end}
+
+  /* Game grid 2-col */
+  .gg{grid-template-columns:repeat(2,1fr)}
+
+  /* Muscle chips wrap nicely */
+  .mchips{gap:4px}
+  .mc{font-size:11px;padding:5px 10px}
+
+  /* Home header */
+  .hh{margin-bottom:16px}
+  .gap{margin-bottom:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">EH</div>
+  <button class="nb on" onclick="go('home')" id="n-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Início</span></button>
+  <button class="nb" onclick="go('agenda')" id="n-agenda">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Agenda</span></button>
+  <button class="nb" onclick="go('rotina')" id="n-rotina">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg><span>Rotina</span></button>
+  <button class="nb" onclick="go('tarefas')" id="n-tarefas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Tarefas</span></button>
+  <button class="nb" onclick="go('corpo')" id="n-corpo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
+  <button class="nb" onclick="go('jj')" id="n-jj">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2 2 4-4"/></svg><span>Jiu Jitsu</span></button>
+  <button class="nb" onclick="go('mente')" id="n-mente">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3c-4.627 0-7.5 3.5-7.5 7a7 7 0 003.5 6h8A7 7 0 0019.5 10c0-3.5-2.873-7-7.5-7z"/></svg><span>Mente</span></button>
+  <button class="nb" onclick="go('evolucao')" id="n-evolucao">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Evolução</span></button>
+  <button class="nb" onclick="go('games')" id="n-games">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4M15 11h.01M17 13h.01"/></svg><span>Games</span></button>
+  <button class="nb" onclick="go('cursos')" id="n-cursos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span>Cursos</span></button>
+  <button class="nb" onclick="go('receitas')" id="n-receitas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
+  <button class="nb" onclick="go('compras')" id="n-compras">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Compras</span></button>
+  <button class="nb" onclick="go('financas')" id="n-financas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
+  <button class="nb" onclick="go('backup')" id="n-backup">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
+</nav>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Editar evento</h2>
+    <div class="fg"><label>Nome</label><input id="m-nome" type="text"></div>
+    <div class="row">
+      <div class="fg"><label>Data & Hora</label><input id="m-dt" type="datetime-local"></div>
+      <div class="fg"><label>Categoria</label>
+        <select id="m-cat">
+          <option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Notas</label><input id="m-notas" type="text" placeholder="Opcional..."></div>
+    <input type="hidden" id="m-id">
+    <div class="mfooter">
+      <button class="btn btn-g btn-sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-p btn-sm" onclick="saveModal()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE EDIT MODAL -->
+<div class="overlay" id="modal-exp">
+  <div class="modal">
+    <h2>Editar despesa</h2>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Descrição</label><input id="me-desc" type="text"></div>
+      <div class="fg"><label>Categoria</label>
+        <select id="me-cat">
+          <option>Alimentação</option><option>Moradia</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Roupas</option><option>Assinaturas</option><option>Investimentos</option><option>Outro</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Valor (R$)</label><input id="me-val" type="number" step="0.01" min="0"></div>
+      <div class="fg"><label>Data</label><input id="me-data" type="date"></div>
+    </div>
+    <div class="fg"><label>Notas</label><input id="me-notas" type="text" placeholder="Opcional..."></div>
+    <input type="hidden" id="me-id">
+    <div class="mfooter">
+      <button class="btn btn-g btn-sm" onclick="closeExpModal()">Cancelar</button>
+      <button class="btn btn-p btn-sm" onclick="saveExpModal()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+
+<!-- ════════════════ HOME ════════════════ -->
+<section class="page on" id="page-home">
+  <div class="hh">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="hh-name">Eduardo Hackenhaar</div>
+        <div class="hh-greet" id="h-greet">Bom dia</div>
+        <div class="hh-date" id="h-date"></div>
+      </div>
+      <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;margin-top:4px;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);transition:all .2s"></div>
+    </div>
+  </div>
+
+  <div class="g4 gap">
+    <div class="stat c-green"><div class="lbl">Rotina hoje</div><div class="val" id="hs-rot">0/0</div><div class="sub">hábitos do dia</div></div>
+    <div class="stat c-blue"><div class="lbl">Água</div><div class="val" id="hs-agua">0ml</div><div class="sub">de <span id="hs-agua-meta">2000</span>ml</div></div>
+    <div class="stat c-gold"><div class="lbl">Tarefas</div><div class="val" id="hs-tar">0</div><div class="sub">pendentes no total</div></div>
+    <div class="stat c-purple"><div class="lbl">Humor</div><div class="val" id="hs-mood">—</div><div class="sub">hoje</div></div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- Agenda de hoje -->
+    <div class="card">
+      <div class="sh"><h2>📅 Agenda de hoje</h2></div>
+      <div id="h-agenda"></div>
+    </div>
+    <!-- Rotina de hoje -->
+    <div class="card">
+      <div class="sh"><h2>🔄 Rotina de hoje</h2></div>
+      <div id="h-rotina"></div>
+    </div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- Tarefas -->
+    <div class="card">
+      <div class="sh"><h2>✅ Tarefas pendentes</h2></div>
+      <div id="h-tarefas"></div>
+    </div>
+    <!-- Diário rápido -->
+    <div class="card">
+      <div class="sh"><h2>📓 Diário rápido</h2></div>
+      <textarea id="h-diario-input" placeholder="Como está sendo seu dia? Pensamentos, reflexões..." style="min-height:90px;margin-bottom:10px"></textarea>
+      <button class="btn btn-p btn-sm" onclick="addDiarioRapido()">+ Registrar</button>
+      <div class="div"></div>
+      <div id="h-diario-preview"></div>
+    </div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- FINANÇAS RÁPIDO -->
+    <div class="card">
+      <div class="sh"><h2>💰 Finanças</h2><button class="btn btn-g btn-sm" onclick="go('financas')">Ver tudo →</button></div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Saldo atual</div>
+          <div class="fin-saldo zero" id="h-saldo" style="font-size:28px">R$ 0,00</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Livre este mês</div>
+          <div id="h-livre" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--accent)">R$ 0,00</div>
+          <div class="pb" style="margin-top:5px"><div class="pf g" id="h-livre-pb" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <input type="number" id="h-fin-val" placeholder="Valor (R$)" step="0.01" min="0" style="flex:1">
+        <input type="text" id="h-fin-desc" placeholder="Descrição" style="flex:1.4">
+        <button class="btn btn-sm" style="background:var(--gdim);color:var(--green);border:1.5px solid var(--green);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('entrada')" title="Entrada">+</button>
+        <button class="btn btn-sm" style="background:var(--rdim);color:var(--red);border:1.5px solid var(--red);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('despesa')" title="Despesa">−</button>
+      </div>
+      <div id="h-fin-recent" style="margin-top:12px"></div>
+    </div>
+
+    <!-- TRACKING DIÁRIO -->
+    <div class="card">
+      <div class="sh"><h2>📊 Metas de tracking</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
+      <div id="h-tracking"></div>
+    </div>
+  </div>
+
+  <!-- MAPA MUSCULAR HOME -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>🗺️ Mapa muscular</h2>
+      <button class="btn btn-g btn-sm" onclick="go('corpo')">Ver tudo →</button>
+    </div>
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+      <div id="home-mapa-svgs" style="display:flex;gap:12px;flex-shrink:0">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Frente</span>
+          <svg viewBox="0 0 120 280" width="72" style="overflow:visible">
+            <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
+              <ellipse cx="60" cy="16" rx="14" ry="16"/><rect x="54" y="30" width="12" height="10" rx="3"/>
+              <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
+              <path d="M32 44 Q12 58 10 90 L10 130 L22 132 L28 90 L38 48 Z"/>
+              <path d="M88 44 Q108 58 110 90 L110 130 L98 132 L92 90 L82 48 Z"/>
+              <ellipse cx="14" cy="136" rx="8" ry="10"/><ellipse cx="106" cy="136" rx="8" ry="10"/>
+            </g>
+            <path data-m="trapezio" class="msh" d="M42 42 Q60 56 78 42 Q70 48 60 50 Q50 48 42 42Z" fill="#252840"/>
+            <ellipse data-m="ombros" class="msh" cx="24" cy="54" rx="12" ry="10" fill="#252840"/>
+            <ellipse data-m="ombros" class="msh" cx="96" cy="54" rx="12" ry="10" fill="#252840"/>
+            <path data-m="peito" class="msh" d="M36 50 Q34 64 40 76 Q48 80 58 76 L58 58 Q48 52 36 50Z" fill="#252840"/>
+            <path data-m="peito" class="msh" d="M84 50 Q86 64 80 76 Q72 80 62 76 L62 58 Q72 52 84 50Z" fill="#252840"/>
+            <path data-m="biceps" class="msh" d="M14 62 Q8 72 10 90 Q16 102 24 88 Q26 72 22 62Z" fill="#252840"/>
+            <path data-m="biceps" class="msh" d="M106 62 Q112 72 110 90 Q104 102 96 88 Q94 72 98 62Z" fill="#252840"/>
+            <path data-m="antebraco" class="msh" d="M10 102 Q6 114 8 126 L20 128 Q20 116 16 104Z" fill="#252840"/>
+            <path data-m="antebraco" class="msh" d="M110 102 Q114 114 112 126 L100 128 Q100 116 104 104Z" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="46" y="82" width="12" height="10" rx="2" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="62" y="82" width="12" height="10" rx="2" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="46" y="95" width="12" height="10" rx="2" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="62" y="95" width="12" height="10" rx="2" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="46" y="108" width="12" height="10" rx="2" fill="#252840"/>
+            <rect data-m="abdomen" class="msh" x="62" y="108" width="12" height="10" rx="2" fill="#252840"/>
+            <path data-m="quadriceps" class="msh" d="M46 162 Q44 178 46 198 L54 198 Q54 178 52 162Z" fill="#252840"/>
+            <path data-m="quadriceps" class="msh" d="M74 162 Q76 178 74 198 L66 198 Q66 178 68 162Z" fill="#252840"/>
+            <path data-m="quadriceps" class="msh" d="M40 164 Q36 180 38 200 L46 200 Q46 178 44 164Z" fill="#252840"/>
+            <path data-m="quadriceps" class="msh" d="M80 164 Q84 180 82 200 L74 200 Q74 178 76 164Z" fill="#252840"/>
+            <path data-m="panturrilha" class="msh" d="M40 212 Q38 228 40 246 L52 246 Q52 228 44 212Z" fill="#252840"/>
+            <path data-m="panturrilha" class="msh" d="M80 212 Q82 228 80 246 L68 246 Q68 228 76 212Z" fill="#252840"/>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Costas</span>
+          <svg viewBox="0 0 120 280" width="72" style="overflow:visible">
+            <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
+              <ellipse cx="60" cy="16" rx="14" ry="16"/><rect x="54" y="30" width="12" height="10" rx="3"/>
+              <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
+              <path d="M32 44 Q12 58 10 90 L10 130 L22 132 L28 90 L38 48 Z"/>
+              <path d="M88 44 Q108 58 110 90 L110 130 L98 132 L92 90 L82 48 Z"/>
+              <ellipse cx="14" cy="136" rx="8" ry="10"/><ellipse cx="106" cy="136" rx="8" ry="10"/>
+            </g>
+            <path data-m="trapezio" class="msh" d="M40 42 Q60 60 80 42 Q72 50 60 54 Q48 50 40 42Z" fill="#252840"/>
+            <path data-m="trapezio" class="msh" d="M36 54 Q60 68 84 54 Q74 62 60 66 Q46 62 36 54Z" fill="#252840"/>
+            <ellipse data-m="ombros" class="msh" cx="24" cy="56" rx="12" ry="10" fill="#252840"/>
+            <ellipse data-m="ombros" class="msh" cx="96" cy="56" rx="12" ry="10" fill="#252840"/>
+            <path data-m="costas" class="msh" d="M32 72 Q26 90 28 114 L40 118 Q42 96 38 74Z" fill="#252840"/>
+            <path data-m="costas" class="msh" d="M88 72 Q94 90 92 114 L80 118 Q78 96 82 74Z" fill="#252840"/>
+            <path data-m="costas" class="msh" d="M50 78 Q48 96 50 118 L70 118 Q72 96 70 78Z" fill="#252840"/>
+            <path data-m="triceps" class="msh" d="M14 62 Q8 74 10 92 Q16 98 22 94 Q26 76 22 62Z" fill="#252840"/>
+            <path data-m="triceps" class="msh" d="M106 62 Q112 74 110 92 Q104 98 98 94 Q94 76 98 62Z" fill="#252840"/>
+            <path data-m="antebraco" class="msh" d="M10 94 Q6 108 8 126 L20 126 Q18 112 14 96Z" fill="#252840"/>
+            <path data-m="antebraco" class="msh" d="M110 94 Q114 108 112 126 L100 126 Q102 112 106 96Z" fill="#252840"/>
+            <path data-m="gluteos" class="msh" d="M36 140 Q32 152 36 166 L50 166 Q52 152 48 140Z" fill="#252840"/>
+            <path data-m="gluteos" class="msh" d="M84 140 Q88 152 84 166 L70 166 Q68 152 72 140Z" fill="#252840"/>
+            <path data-m="isquiotibiais" class="msh" d="M38 166 Q34 186 36 206 L50 206 Q50 186 44 166Z" fill="#252840"/>
+            <path data-m="isquiotibiais" class="msh" d="M82 166 Q86 186 84 206 L70 206 Q70 186 76 166Z" fill="#252840"/>
+            <path data-m="panturrilha" class="msh" d="M36 212 Q34 228 38 246 L50 246 Q48 228 42 212Z" fill="#252840"/>
+            <path data-m="panturrilha" class="msh" d="M84 212 Q86 228 82 246 L70 246 Q72 228 78 212Z" fill="#252840"/>
+          </svg>
+        </div>
+      </div>
+      <div style="flex:1;min-width:120px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Últimos 7 dias</div>
+        <div id="h-mapa-muscular"></div>
+      </div>
+    </div>
+    <!-- Mini chart -->
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px">Evolução — 14 dias</span>
+        <div style="display:flex;gap:8px">
+          <span style="font-size:10px;color:var(--accent)">⚖️ Peso</span>
+          <span style="font-size:10px;color:var(--blue)">💧 Água</span>
+          <span style="font-size:10px;color:var(--purple)">😴 Sono</span>
+        </div>
+      </div>
+      <div style="position:relative;height:100px">
+        <canvas id="h-mini-chart" style="width:100%;height:100px"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ AGENDA ════════════════ -->
+<section class="page" id="page-agenda">
+  <h1>Agenda</h1><p class="psub">Compromissos e eventos</p>
+
+  <div class="card gap">
+    <h3>Adicionar evento</h3>
+    <div class="row"><div class="fg" style="flex:2"><label>Nome do evento</label><input id="ev-n" type="text" placeholder="Reunião, médico, academia..."></div><div class="fg"><label>Categoria</label><select id="ev-cat"><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select></div></div>
+    <div class="row"><div class="fg"><label>Data & Hora</label><input id="ev-dt" type="datetime-local"></div><div class="fg"><label>Notas</label><input id="ev-no" type="text" placeholder="Opcional..."></div></div>
+    <button class="btn btn-p btn-sm" onclick="addEvento()">+ Adicionar evento</button>
+  </div>
+
+  <div class="card">
+    <div class="sh"><h2>Todos os eventos</h2>
+      <select id="ev-filter" onchange="renderAgenda()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos</option><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option></select>
+    </div>
+    <div id="lista-eventos"></div>
+  </div>
+</section>
+
+<!-- ════════════════ ROTINA ════════════════ -->
+<section class="page" id="page-rotina">
+  <h1>Rotina Diária</h1><p class="psub">Hábitos e checklist — <span id="rot-date"></span></p>
+
+  <div class="card gap">
+    <h3>Adicionar hábito</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Nome do hábito</label><input id="rot-n" type="text" placeholder="Ex: Meditar, ler, academia..."></div>
+      <div class="fg"><label>Período</label><select id="rot-p"><option value="manha">☀️ Manhã</option><option value="tarde">🌤 Tarde</option><option value="noite">🌙 Noite</option><option value="dia">📅 Dia todo</option></select></div>
+    </div>
+    <div class="fg">
+      <label>Dias da semana (deixe em branco = todos os dias)</label>
+      <div class="days-row" id="days-sel">
+        <button type="button" class="db" data-d="0">Dom</button>
+        <button type="button" class="db" data-d="1">Seg</button>
+        <button type="button" class="db" data-d="2">Ter</button>
+        <button type="button" class="db" data-d="3">Qua</button>
+        <button type="button" class="db" data-d="4">Qui</button>
+        <button type="button" class="db" data-d="5">Sex</button>
+        <button type="button" class="db" data-d="6">Sáb</button>
+        <button type="button" class="db" data-d="lastday" style="min-width:90px">Último do mês</button>
+      </div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addHabito()">+ Adicionar</button>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="card gap"><h2>☀️ Manhã</h2><div id="rot-manha"></div></div>
+    <div class="card gap"><h2>🌤 Tarde</h2><div id="rot-tarde"></div></div>
+    <div class="card gap"><h2>🌙 Noite</h2><div id="rot-noite"></div></div>
+    <div class="card"><h2>📅 Dia todo</h2><div id="rot-dia"></div></div>
+  </div>
+</section>
+
+<!-- ════════════════ TAREFAS ════════════════ -->
+<section class="page" id="page-tarefas">
+  <h1>Tarefas</h1><p class="psub">Organize e priorize suas ações</p>
+
+  <div class="card gap">
+    <h3>Nova tarefa</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Descrição</label><input id="tar-n" type="text" placeholder="Descrição da tarefa..."></div>
+      <div class="fg"><label>Prioridade</label><select id="tar-p"><option value="a">🔴 Alta</option><option value="m" selected>🟡 Média</option><option value="b">🟢 Baixa</option></select></div>
+      <div class="fg"><label>Categoria</label><select id="tar-c"><option>Trabalho</option><option>Pessoal</option><option>Saúde</option><option>Estudos</option><option>Casa</option><option>Finanças</option></select></div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addTarefa()">+ Adicionar</button>
+  </div>
+
+  <div class="g2">
+    <div class="card"><div class="sh"><h2>Pendentes</h2><span class="tag tr" id="tar-cp">0</span></div><div id="tar-pend"></div></div>
+    <div class="card"><div class="sh"><h2>Concluídas</h2><span class="tag tg" id="tar-cd">0</span></div><div id="tar-done"></div></div>
+  </div>
+</section>
+
+<!-- ════════════════ CORPO ════════════════ -->
+<section class="page" id="page-corpo">
+  <h1>Corpo</h1><p class="psub">Saúde física, treino e mapa muscular</p>
+
+  <div class="g4 gap" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat c-blue"><div class="lbl">Água hoje</div><div class="val" id="cp-agua-v">0ml</div><div class="sub">meta: <span id="cp-agua-meta-lbl">2000</span>ml</div><div class="pb"><div class="pf b" id="cp-agua-pb" style="width:0%"></div></div></div>
+    <div class="stat c-green"><div class="lbl">Sono</div><div class="val" id="cp-sono-v">—</div><div class="sub">horas ontem</div></div>
+    <div class="stat c-gold"><div class="lbl">Peso</div><div class="val" id="cp-peso-v">—</div><div class="sub">kg último reg.</div></div>
+    <div class="stat c-orange"><div class="lbl">Exercício</div><div class="val" id="cp-exc-v">—</div><div class="sub">min hoje</div></div>
+    <div class="stat c-purple"><div class="lbl">Kcal gastas</div><div class="val" id="cp-kcal-v">—</div><div class="sub">hoje</div></div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- ÁGUA -->
+    <div class="card">
+      <h2>💧 Água</h2>
+      <div class="water-val" id="agua-total">0 ml</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Meta: <strong id="agua-meta-show">2000 ml</strong></div>
+      <div class="pb" style="margin-top:8px"><div class="pf b" id="agua-pb-big" style="width:0%"></div></div>
+      <div class="water-meta">
+        <input type="number" id="agua-add-ml" placeholder="ml" style="width:100px;text-align:center" min="1">
+        <button class="btn btn-p btn-sm" onclick="addAgua()">+ Adicionar</button>
+        <button class="btn btn-g btn-sm" onclick="resetAgua()">Zerar</button>
+      </div>
+      <div class="fg" style="margin-top:14px"><label>Meta diária (ml)</label><input type="number" id="agua-meta-inp" placeholder="2000" onchange="saveAguaMeta()"></div>
+    </div>
+
+    <!-- DADOS DO DIA -->
+    <div class="card">
+      <h2>📊 Dados diários</h2>
+      <div class="row">
+        <div class="fg"><label>Sono (horas)</label><input type="number" id="cp-sono" placeholder="7.5" step="0.5" onchange="saveCorpoDiario()"></div>
+        <div class="fg"><label>Peso (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
+      </div>
+      <div class="fg"><label>Notas do dia</label><textarea id="cp-notas" placeholder="Como você se sentiu..." onchange="saveCorpoDiario()"></textarea></div>
+      <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
+    </div>
+  </div>
+
+  <!-- EXERCÍCIOS — TREINO COMPLETO -->
+  <div class="card gap">
+    <h2>🏋️ Montar Treino</h2>
+
+    <!-- Fila de exercícios adicionados -->
+    <div id="treino-fila" style="margin-bottom:12px"></div>
+
+    <!-- Formulário para adicionar um exercício à fila -->
+    <div style="background:var(--bg3);border-radius:var(--rs);padding:13px;border:1px solid var(--border)">
+      <h3 style="margin-bottom:10px">Adicionar exercício</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Exercício</label><input id="ex-nome" type="text" placeholder="Ex: Supino plano..." list="ex-preset"><datalist id="ex-preset"></datalist></div>
+        <div class="fg"><label>Séries × Reps</label><input id="ex-sr" type="text" placeholder="4x10"></div>
+        <div class="fg"><label>Carga (kg)</label><input id="ex-kg" type="number" placeholder="60" step="0.5"></div>
+        <div class="fg"><label>Duração (min)</label><input id="ex-dur" type="number" placeholder="45" oninput="estimarKcal()"></div>
+      </div>
+      <div class="row">
+        <div class="fg"><label>Seu peso (kg)</label><input id="ex-peso-corpo" type="number" placeholder="75" step="0.5" oninput="estimarKcal()"></div>
+        <div class="fg"><label>Kcal estimadas</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="ex-kcal" type="number" placeholder="—" step="1" style="flex:1">
+            <span style="font-size:10px;color:var(--text3);white-space:nowrap" id="ex-kcal-hint"></span>
+          </div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Músculos trabalhados</label>
+        <div class="mchips" id="mc-sel">
+          <button type="button" class="mc" data-m="peito">Peito</button>
+          <button type="button" class="mc" data-m="ombros">Ombros</button>
+          <button type="button" class="mc" data-m="biceps">Bíceps</button>
+          <button type="button" class="mc" data-m="triceps">Tríceps</button>
+          <button type="button" class="mc" data-m="abdomen">Abdômen</button>
+          <button type="button" class="mc" data-m="antebraco">Antebraço</button>
+          <button type="button" class="mc" data-m="costas">Costas</button>
+          <button type="button" class="mc" data-m="trapezio">Trapézio</button>
+          <button type="button" class="mc" data-m="quadriceps">Quadríceps</button>
+          <button type="button" class="mc" data-m="gluteos">Glúteos</button>
+          <button type="button" class="mc" data-m="isquiotibiais">Isquiotibiais</button>
+          <button type="button" class="mc" data-m="panturrilha">Panturrilha</button>
+        </div>
+      </div>
+      <div class="fg"><label>Notas</label><input id="ex-notas" type="text" placeholder="Observações..."></div>
+      <button class="btn btn-g btn-sm" onclick="adicionarNaFila()" style="width:100%;justify-content:center">+ Adicionar à lista</button>
+    </div>
+
+    <!-- Resumo e botão de lançar -->
+    <div id="treino-resumo" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px;border:1px solid var(--border);margin-top:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:700;color:var(--text2)">Total do treino</span>
+        <div style="display:flex;gap:12px">
+          <span style="font-size:12px;color:var(--orange);font-family:'DM Mono',monospace" id="treino-total-dur">0 min</span>
+          <span style="font-size:12px;color:var(--purple);font-family:'DM Mono',monospace" id="treino-total-kcal">0 kcal</span>
+        </div>
+      </div>
+    </div>
+    <button id="treino-lancar-btn" class="btn btn-p btn-sm" onclick="lancarTreino()" style="display:none;width:100%;justify-content:center;margin-top:2px">🏋️ Lançar treino completo</button>
+  </div>
+
+  <!-- EXERCÍCIO LOG -->
+  <div class="card gap">
+    <div class="sh"><h2>📋 Log de treinos (últimos 7 dias)</h2></div>
+    <div id="ex-log"></div>
+  </div>
+
+  <!-- MAPA MUSCULAR -->
+  <div class="card">
+    <div class="sh"><h2>🗺️ Mapa Muscular</h2><span style="font-size:11px;color:var(--text3)">Últimos 7 dias</span></div>
+    <div class="mmap-wrap">
+      <div class="mmap-col">
+        <div class="mmap-lbl">Frente</div>
+        <svg id="svg-front" viewBox="0 0 120 280" width="130" style="overflow:visible">
+          <!-- Silhouette front -->
+          <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
+            <!-- Head -->
+            <ellipse cx="60" cy="16" rx="14" ry="16"/>
+            <!-- Neck -->
+            <rect x="54" y="30" width="12" height="10" rx="3"/>
+            <!-- Torso -->
+            <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
+            <!-- Arms -->
+            <path d="M32 44 Q12 58 10 90 L10 130 L22 132 L28 90 L38 48 Z"/>
+            <path d="M88 44 Q108 58 110 90 L110 130 L98 132 L92 90 L82 48 Z"/>
+            <!-- Hands -->
+            <ellipse cx="14" cy="136" rx="8" ry="10"/>
+            <ellipse cx="106" cy="136" rx="8" ry="10"/>
+          </g>
+          <!-- === MUSCLES FRONT === -->
+          <!-- Trapezius upper (front visible) -->
+          <path id="f-trap" class="ms" data-g="trapezio" d="M42 42 Q60 56 78 42 Q70 48 60 50 Q50 48 42 42Z" opacity=".7" fill="#252840"/>
+          <!-- Deltoids front -->
+          <ellipse id="f-delt-l" class="ms" data-g="ombros" cx="24" cy="54" rx="12" ry="10" opacity=".75" fill="#252840"/>
+          <ellipse id="f-delt-r" class="ms" data-g="ombros" cx="96" cy="54" rx="12" ry="10" opacity=".75" fill="#252840"/>
+          <!-- Pec major left -->
+          <path id="f-pec-l" class="ms" data-g="peito" d="M36 50 Q34 64 40 76 Q48 80 58 76 L58 58 Q48 52 36 50Z" opacity=".75" fill="#252840"/>
+          <!-- Pec major right -->
+          <path id="f-pec-r" class="ms" data-g="peito" d="M84 50 Q86 64 80 76 Q72 80 62 76 L62 58 Q72 52 84 50Z" opacity=".75" fill="#252840"/>
+          <!-- Serratus anterior -->
+          <path id="f-serr-l" class="ms" data-g="peito" d="M36 76 Q32 86 34 100 L40 100 Q38 86 40 76Z" opacity=".5" fill="#252840"/>
+          <path id="f-serr-r" class="ms" data-g="peito" d="M84 76 Q88 86 86 100 L80 100 Q82 86 80 76Z" opacity=".5" fill="#252840"/>
+          <!-- Biceps -->
+          <path id="f-bic-l" class="ms" data-g="biceps" d="M14 62 Q8 72 10 90 Q10 100 16 102 Q22 100 24 88 Q26 72 22 62Z" opacity=".75" fill="#252840"/>
+          <path id="f-bic-r" class="ms" data-g="biceps" d="M106 62 Q112 72 110 90 Q110 100 104 102 Q98 100 96 88 Q94 72 98 62Z" opacity=".75" fill="#252840"/>
+          <!-- Brachioradialis (forearm top) -->
+          <path id="f-brad-l" class="ms" data-g="antebraco" d="M10 102 Q6 114 8 126 L16 128 Q18 116 16 104Z" opacity=".75" fill="#252840"/>
+          <path id="f-brad-r" class="ms" data-g="antebraco" d="M110 102 Q114 114 112 126 L104 128 Q102 116 104 104Z" opacity=".75" fill="#252840"/>
+          <!-- Wrist flexors (forearm inner) -->
+          <path id="f-flex-l" class="ms" data-g="antebraco" d="M16 104 Q14 116 14 130 L22 132 Q22 118 20 106Z" opacity=".6" fill="#252840"/>
+          <path id="f-flex-r" class="ms" data-g="antebraco" d="M104 104 Q106 116 106 130 L98 132 Q98 118 100 106Z" opacity=".6" fill="#252840"/>
+          <!-- Abs (6-pack) -->
+          <rect id="f-abs-1l" class="ms" data-g="abdomen" x="46" y="82" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <rect id="f-abs-1r" class="ms" data-g="abdomen" x="62" y="82" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <rect id="f-abs-2l" class="ms" data-g="abdomen" x="46" y="95" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <rect id="f-abs-2r" class="ms" data-g="abdomen" x="62" y="95" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <rect id="f-abs-3l" class="ms" data-g="abdomen" x="46" y="108" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <rect id="f-abs-3r" class="ms" data-g="abdomen" x="62" y="108" width="12" height="10" rx="3" opacity=".75" fill="#252840"/>
+          <!-- Obliques -->
+          <path id="f-obl-l" class="ms" data-g="abdomen" d="M38 88 Q36 104 38 120 L44 118 Q42 104 42 90Z" opacity=".6" fill="#252840"/>
+          <path id="f-obl-r" class="ms" data-g="abdomen" d="M82 88 Q84 104 82 120 L76 118 Q78 104 78 90Z" opacity=".6" fill="#252840"/>
+          <!-- Hip flexors -->
+          <path id="f-hip-l" class="ms" data-g="quadriceps" d="M40 148 Q38 158 40 166 L50 164 Q50 154 46 148Z" opacity=".6" fill="#252840"/>
+          <path id="f-hip-r" class="ms" data-g="quadriceps" d="M80 148 Q82 158 80 166 L70 164 Q70 154 74 148Z" opacity=".6" fill="#252840"/>
+          <!-- Quads (3 heads visible) -->
+          <path id="f-rec-l" class="ms" data-g="quadriceps" d="M46 162 Q44 178 46 198 L54 198 Q54 178 52 162Z" opacity=".75" fill="#252840"/>
+          <path id="f-rec-r" class="ms" data-g="quadriceps" d="M74 162 Q76 178 74 198 L66 198 Q66 178 68 162Z" opacity=".75" fill="#252840"/>
+          <path id="f-vas-l" class="ms" data-g="quadriceps" d="M40 164 Q36 180 38 200 L46 200 Q46 178 44 164Z" opacity=".65" fill="#252840"/>
+          <path id="f-vas-r" class="ms" data-g="quadriceps" d="M80 164 Q84 180 82 200 L74 200 Q74 178 76 164Z" opacity=".65" fill="#252840"/>
+          <!-- Knee/patella area -->
+          <ellipse id="f-knee-l" class="ms" data-g="quadriceps" cx="44" cy="206" rx="8" ry="6" opacity=".4" fill="#252840"/>
+          <ellipse id="f-knee-r" class="ms" data-g="quadriceps" cx="76" cy="206" rx="8" ry="6" opacity=".4" fill="#252840"/>
+          <!-- Tibialis anterior (shin) -->
+          <path id="f-tib-l" class="ms" data-g="panturrilha" d="M40 212 Q38 228 40 246 L46 246 Q46 228 44 212Z" opacity=".65" fill="#252840"/>
+          <path id="f-tib-r" class="ms" data-g="panturrilha" d="M80 212 Q82 228 80 246 L74 246 Q74 228 76 212Z" opacity=".65" fill="#252840"/>
+          <!-- Calf (gastrocnemius) -->
+          <path id="f-gast-l" class="ms" data-g="panturrilha" d="M44 212 Q42 226 44 244 L52 244 Q52 226 50 212Z" opacity=".55" fill="#252840"/>
+          <path id="f-gast-r" class="ms" data-g="panturrilha" d="M76 212 Q78 226 76 244 L68 244 Q68 226 70 212Z" opacity=".55" fill="#252840"/>
+        </svg>
+      </div>
+      <div class="mmap-col">
+        <div class="mmap-lbl">Costas</div>
+        <svg id="svg-back" viewBox="0 0 120 280" width="130" style="overflow:visible">
+          <!-- Silhouette back -->
+          <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
+            <ellipse cx="60" cy="16" rx="14" ry="16"/>
+            <rect x="54" y="30" width="12" height="10" rx="3"/>
+            <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
+            <path d="M32 44 Q12 58 10 90 L10 130 L22 132 L28 90 L38 48 Z"/>
+            <path d="M88 44 Q108 58 110 90 L110 130 L98 132 L92 90 L82 48 Z"/>
+            <ellipse cx="14" cy="136" rx="8" ry="10"/>
+            <ellipse cx="106" cy="136" rx="8" ry="10"/>
+          </g>
+          <!-- === MUSCLES BACK === -->
+          <!-- Trapezius (full — upper + mid + lower) -->
+          <path id="b-trap-u" class="ms" data-g="trapezio" d="M40 42 Q60 60 80 42 Q72 50 60 54 Q48 50 40 42Z" opacity=".8" fill="#252840"/>
+          <path id="b-trap-m" class="ms" data-g="trapezio" d="M36 54 Q60 68 84 54 Q74 62 60 66 Q46 62 36 54Z" opacity=".65" fill="#252840"/>
+          <path id="b-trap-l2" class="ms" data-g="trapezio" d="M40 66 Q48 74 60 76 Q52 78 44 76 Q40 72 40 66Z" opacity=".5" fill="#252840"/>
+          <path id="b-trap-r2" class="ms" data-g="trapezio" d="M80 66 Q72 74 60 76 Q68 78 76 76 Q80 72 80 66Z" opacity=".5" fill="#252840"/>
+          <!-- Rear delts -->
+          <ellipse id="b-delt-l" class="ms" data-g="ombros" cx="24" cy="56" rx="12" ry="10" opacity=".75" fill="#252840"/>
+          <ellipse id="b-delt-r" class="ms" data-g="ombros" cx="96" cy="56" rx="12" ry="10" opacity=".75" fill="#252840"/>
+          <!-- Infraspinatus / Rhomboids -->
+          <path id="b-infra-l" class="ms" data-g="costas" d="M36 62 Q32 72 34 84 L44 82 Q44 70 40 62Z" opacity=".7" fill="#252840"/>
+          <path id="b-infra-r" class="ms" data-g="costas" d="M84 62 Q88 72 86 84 L76 82 Q76 70 80 62Z" opacity=".7" fill="#252840"/>
+          <!-- Lats -->
+          <path id="b-lat-l" class="ms" data-g="costas" d="M32 72 Q26 90 28 114 L40 118 Q42 96 38 74Z" opacity=".8" fill="#252840"/>
+          <path id="b-lat-r" class="ms" data-g="costas" d="M88 72 Q94 90 92 114 L80 118 Q78 96 82 74Z" opacity=".8" fill="#252840"/>
+          <!-- Erector spinae -->
+          <path id="b-erect-l" class="ms" data-g="costas" d="M50 78 Q48 96 50 118 L56 118 Q56 96 54 78Z" opacity=".7" fill="#252840"/>
+          <path id="b-erect-r" class="ms" data-g="costas" d="M70 78 Q72 96 70 118 L64 118 Q64 96 66 78Z" opacity=".7" fill="#252840"/>
+          <!-- Lower back / Lumbar -->
+          <path id="b-low" class="ms" data-g="costas" d="M46 118 Q44 130 46 140 L74 140 Q76 130 74 118Z" opacity=".65" fill="#252840"/>
+          <!-- Triceps -->
+          <path id="b-tri-l" class="ms" data-g="triceps" d="M14 62 Q8 74 10 92 Q16 98 22 94 Q26 76 22 62Z" opacity=".8" fill="#252840"/>
+          <path id="b-tri-r" class="ms" data-g="triceps" d="M106 62 Q112 74 110 92 Q104 98 98 94 Q94 76 98 62Z" opacity=".8" fill="#252840"/>
+          <!-- Forearm extensors (back of forearm) -->
+          <path id="b-ext-l" class="ms" data-g="antebraco" d="M10 94 Q6 108 8 126 L16 126 Q16 110 14 96Z" opacity=".75" fill="#252840"/>
+          <path id="b-ext-r" class="ms" data-g="antebraco" d="M110 94 Q114 108 112 126 L104 126 Q104 110 106 96Z" opacity=".75" fill="#252840"/>
+          <!-- Wrist extensors -->
+          <path id="b-wext-l" class="ms" data-g="antebraco" d="M14 96 Q12 110 14 128 L20 128 Q20 112 18 98Z" opacity=".6" fill="#252840"/>
+          <path id="b-wext-r" class="ms" data-g="antebraco" d="M106 96 Q108 110 106 128 L100 128 Q100 112 102 98Z" opacity=".6" fill="#252840"/>
+          <!-- Glutes (max + med) -->
+          <path id="b-glut-max-l" class="ms" data-g="gluteos" d="M36 140 Q32 152 36 166 L50 166 Q52 152 48 140Z" opacity=".8" fill="#252840"/>
+          <path id="b-glut-max-r" class="ms" data-g="gluteos" d="M84 140 Q88 152 84 166 L70 166 Q68 152 72 140Z" opacity=".8" fill="#252840"/>
+          <path id="b-glut-med-l" class="ms" data-g="gluteos" d="M34 136 Q30 146 34 154 L40 152 Q40 142 36 136Z" opacity=".55" fill="#252840"/>
+          <path id="b-glut-med-r" class="ms" data-g="gluteos" d="M86 136 Q90 146 86 154 L80 152 Q80 142 84 136Z" opacity=".55" fill="#252840"/>
+          <!-- Hamstrings (biceps femoris + semitend) -->
+          <path id="b-ham-bf-l" class="ms" data-g="isquiotibiais" d="M38 166 Q34 186 36 206 L44 206 Q44 186 40 166Z" opacity=".8" fill="#252840"/>
+          <path id="b-ham-bf-r" class="ms" data-g="isquiotibiais" d="M82 166 Q86 186 84 206 L76 206 Q76 186 80 166Z" opacity=".8" fill="#252840"/>
+          <path id="b-ham-st-l" class="ms" data-g="isquiotibiais" d="M48 166 Q46 186 48 206 L56 206 Q56 186 52 166Z" opacity=".65" fill="#252840"/>
+          <path id="b-ham-st-r" class="ms" data-g="isquiotibiais" d="M72 166 Q74 186 72 206 L64 206 Q64 186 68 166Z" opacity=".65" fill="#252840"/>
+          <!-- Gastrocnemius (calf) -->
+          <path id="b-gas-l" class="ms" data-g="panturrilha" d="M36 212 Q34 228 38 246 L46 246 Q46 228 42 212Z" opacity=".8" fill="#252840"/>
+          <path id="b-gas-r" class="ms" data-g="panturrilha" d="M84 212 Q86 228 82 246 L74 246 Q74 228 78 212Z" opacity=".8" fill="#252840"/>
+          <!-- Soleus -->
+          <path id="b-sol-l" class="ms" data-g="panturrilha" d="M42 218 Q40 232 42 248 L50 248 Q50 232 48 218Z" opacity=".55" fill="#252840"/>
+          <path id="b-sol-r" class="ms" data-g="panturrilha" d="M78 218 Q80 232 78 248 L70 248 Q70 232 72 218Z" opacity=".55" fill="#252840"/>
+        </svg>
+      </div>
+    </div>
+    <div class="mmap-legend" id="mmap-legend"></div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">Quanto mais alaranjado, mais treinado nos últimos 7 dias</div>
+  </div>
+
+  <!-- HISTÓRICO DIÁRIO -->
+  <div class="card">
+    <div class="sh">
+      <h2>📈 Histórico de dados diários</h2>
+      <select id="hist-range" onchange="renderHistorico()" style="width:auto;font-size:11px;padding:5px 10px">
+        <option value="14">Últimos 14 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+        <option value="all">Tudo</option>
+      </select>
+    </div>
+    <div id="hist-table" style="overflow-x:auto;margin-top:4px"></div>
+  </div>
+
+  <!-- GRÁFICO DE EVOLUÇÃO -->
+  <div class="card">
+    <div class="sh">
+      <h2>📊 Gráfico de evolução</h2>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-sm chart-toggle on" data-key="peso" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(201,168,76,.15);color:var(--accent);border:1px solid var(--accent)">⚖️ Peso</button>
+        <button class="btn btn-sm chart-toggle on" data-key="sono" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(155,114,224,.15);color:var(--purple);border:1px solid var(--purple)">😴 Sono</button>
+        <button class="btn btn-sm chart-toggle on" data-key="agua" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(92,141,224,.15);color:var(--blue);border:1px solid var(--blue)">💧 Água</button>
+        <button class="btn btn-sm chart-toggle on" data-key="kcal" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(155,114,224,.15);color:var(--purple);border:1px solid var(--purple)">🔥 Kcal</button>
+      </div>
+    </div>
+    <div style="position:relative;height:220px;margin-top:12px">
+      <canvas id="hist-chart" style="width:100%;height:220px"></canvas>
+    </div>
+    <div id="hist-chart-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;justify-content:center"></div>
+  </div>
+</section>
+
+<!-- ════════════════ JIU JITSU ════════════════ -->
+<section class="page" id="page-jj">
+  <h1>🥋 Jiu Jitsu</h1><p class="psub">Meu jogo, técnicas, finalizações e videoaulas</p>
+
+  <div class="stabs">
+    <button class="stab on" onclick="jjTab(this,'jj-meujogo')">Meu Jogo</button>
+    <button class="stab" onclick="jjTab(this,'jj-videos')">Videoaulas</button>
+  </div>
+
+  <!-- Meu Jogo -->
+  <div class="sp on" id="jj-meujogo">
+    <div class="card">
+      <h2>Descreva seu jogo</h2>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Suas posições favoritas, pontos fortes, áreas de desenvolvimento...</p>
+      <div class="fg"><label>Meu jogo em geral</label><textarea id="jj-geral" style="min-height:120px" placeholder="Ex: Jogo de guarda aberta, prefiro finalizar com triângulo e omoplata..."></textarea></div>
+      <div class="row">
+        <div class="fg"><label>Guarda favorita</label><input id="jj-guarda-fav" type="text" placeholder="Ex: Guarda de garra, De la Riva..."></div>
+        <div class="fg"><label>Posição de topo favorita</label><input id="jj-topo-fav" type="text" placeholder="Ex: Meia guarda, Passagem de leg drag..."></div>
+      </div>
+      <div class="row">
+        <div class="fg"><label>Ponto forte</label><input id="jj-forte" type="text" placeholder="Ex: Jogo de costas, pressão..."></div>
+        <div class="fg"><label>Área a desenvolver</label><input id="jj-fraco" type="text" placeholder="Ex: Leg locks, wrestling..."></div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="saveJJ()">💾 Salvar meu jogo</button>
+    </div>
+  </div>
+
+  <!-- Finalizações -->
+  <!-- Videoaulas -->
+  <div class="sp" id="jj-videos">
+    <div class="card gap">
+      <h3>Adicionar videoaula</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Título</label><input id="jjv-titulo" type="text" placeholder="Ex: Como fazer o triângulo de guarda fechada..."></div>
+        <div class="fg"><label>Instrutor / Canal</label><input id="jjv-inst" type="text" placeholder="Ex: Gustavo Gasperin, Bernardo Faria..."></div>
+      </div>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Link (YouTube, etc)</label><input id="jjv-link" type="url" placeholder="https://youtube.com/..."></div>
+        <div class="fg"><label>Técnica principal</label><input id="jjv-tecnica" type="text" placeholder="Ex: Triângulo, Leg drag..."></div>
+      </div>
+      <div class="fg"><label>Notas</label><input id="jjv-notas" type="text" placeholder="Pontos-chave que aprendeu..."></div>
+      <button class="btn btn-p btn-sm" onclick="addVideo()">+ Adicionar videoaula</button>
+    </div>
+    <div class="card"><h2>Biblioteca de videoaulas</h2><div id="lista-videos"></div></div>
+  </div>
+
+</section>
+
+<!-- ════════════════ MENTE ════════════════ -->
+<section class="page" id="page-mente">
+  <h1>Mente</h1><p class="psub">Saúde mental, emoções e reflexões</p>
+
+  <div class="stabs">
+    <button class="stab on" onclick="menteTab(this,'m-humor')">😊 Humor</button>
+    <button class="stab" onclick="menteTab(this,'m-grat')">🙏 Gratidão</button>
+    <button class="stab" onclick="menteTab(this,'m-diario')">📓 Diário</button>
+  </div>
+
+  <!-- Humor -->
+  <div class="sp on" id="m-humor">
+    <div class="card gap">
+      <h2>Como você está se sentindo?</h2>
+      <div class="mrow" id="mood-row">
+        <button class="mb" data-m="😁">😁</button><button class="mb" data-m="😊">😊</button><button class="mb" data-m="😐">😐</button><button class="mb" data-m="😔">😔</button>
+        <button class="mb" data-m="😢">😢</button><button class="mb" data-m="😤">😤</button><button class="mb" data-m="😰">😰</button><button class="mb" data-m="🤩">🤩</button>
+        <button class="mb" data-m="😴">😴</button><button class="mb" data-m="🤒">🤒</button><button class="mb" data-m="🧘">🧘</button><button class="mb" data-m="💪">💪</button>
+      </div>
+      <div class="fg" style="margin-top:14px"><label>Nota (opcional)</label><input id="mood-nota" type="text" placeholder="O que está influenciando seu humor?"></div>
+      <button class="btn btn-p btn-sm" onclick="saveMood()">Registrar humor</button>
+    </div>
+    <div class="card"><h2>Histórico de humor</h2><div id="lista-humor"></div></div>
+  </div>
+
+  <!-- Gratidão -->
+  <div class="sp" id="m-grat">
+    <div class="card gap">
+      <h2>3 coisas pelas quais sou grato hoje</h2>
+      <div class="fg"><label>1.</label><input id="g1" type="text" placeholder="Eu sou grato por..."></div>
+      <div class="fg"><label>2.</label><input id="g2" type="text" placeholder="Eu sou grato por..."></div>
+      <div class="fg"><label>3.</label><input id="g3" type="text" placeholder="Eu sou grato por..."></div>
+      <button class="btn btn-p btn-sm" onclick="saveGrat()">💾 Salvar gratidão</button>
+    </div>
+    <div class="card"><h2>Histórico de gratidão</h2><div id="lista-grat"></div></div>
+  </div>
+
+  <!-- Diário -->
+  <div class="sp" id="m-diario">
+    <div class="card gap">
+      <h2>Escreva seus pensamentos</h2>
+      <div class="fg"><label>Entrada de hoje</label><textarea id="diario-txt" style="min-height:130px" placeholder="Como foi seu dia? O que aprendeu? O que quer melhorar?"></textarea></div>
+      <button class="btn btn-p btn-sm" onclick="saveDiario()">+ Adicionar entrada</button>
+    </div>
+    <div class="card"><h2>Entradas recentes</h2><div id="lista-diario"></div></div>
+  </div>
+</section>
+
+<!-- ════════════════ EVOLUÇÃO ════════════════ -->
+<section class="page" id="page-evolucao">
+  <h1>Evolução Pessoal</h1><p class="psub">Metas anuais e tracking de hábitos de longo prazo</p>
+
+  <div class="stabs">
+    <button class="stab on" onclick="evolTab(this,'ev-anual')">🎯 Metas Anuais</button>
+    <button class="stab" onclick="evolTab(this,'ev-track')">📊 Tracking Diário</button>
+    <button class="stab" onclick="evolTab(this,'ev-conq')">🏆 Conquistas</button>
+  </div>
+
+  <!-- Metas Anuais -->
+  <div class="sp on" id="ev-anual">
+    <div class="card gap">
+      <h3>Nova meta anual</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Meta</label><input id="ma-nome" type="text" placeholder="Ex: Ler 12 livros, Correr uma maratona..."></div>
+        <div class="fg"><label>Categoria</label><select id="ma-cat"><option>Saúde</option><option>Carreira</option><option>Educação</option><option>Financeiro</option><option>Relacionamentos</option><option>Espiritual</option><option>Criatividade</option><option>Outro</option></select></div>
+        <div class="fg"><label>Prazo</label><input id="ma-prazo" type="date"></div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="addMetaAnual()">+ Adicionar meta</button>
+    </div>
+    <div class="card"><h2>Minhas metas de <span id="ano-atual"></span></h2><div id="lista-ma"></div></div>
+  </div>
+
+  <!-- Tracking Diário -->
+  <div class="sp" id="ev-track">
+    <div class="card gap">
+      <h3>Nova meta de tracking</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Descrição</label><input id="mt-nome" type="text" placeholder="Ex: Me exercitar por 245 dias no ano, Ler por 30 min em 200 dias..."></div>
+        <div class="fg"><label>Meta (número)</label><input id="mt-target" type="number" placeholder="245"></div>
+        <div class="fg"><label>Unidade</label><input id="mt-unidade" type="text" placeholder="dias, sessões, horas..."></div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="addMetaTracking()">+ Adicionar</button>
+    </div>
+    <div class="card"><h2>Metas de tracking</h2><div id="lista-mt"></div></div>
+  </div>
+
+  <!-- Conquistas -->
+  <div class="sp" id="ev-conq">
+    <div class="card gap">
+      <h3>Registrar conquista</h3>
+      <div class="fg"><label>Conquista ou aprendizado</label><input id="cq-txt" type="text" placeholder="Ex: Completei meu primeiro mês de exercícios diários!"></div>
+      <div class="fg"><label>Categoria</label><select id="cq-cat"><option>Saúde</option><option>Carreira</option><option>Educação</option><option>Financeiro</option><option>Relacionamentos</option><option>Pessoal</option><option>Jiu Jitsu</option></select></div>
+      <button class="btn btn-p btn-sm" onclick="addConquista()">🏆 Registrar</button>
+    </div>
+    <div class="card"><h2>Minhas conquistas</h2><div id="lista-cq"></div></div>
+  </div>
+</section>
+
+<!-- ════════════════ GAMES ════════════════ -->
+<section class="page" id="page-games">
+  <h1>🎮 Games</h1><p class="psub">Sua coleção e lista de jogos para jogar</p>
+
+  <div class="card gap">
+    <h3>Adicionar jogo</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Nome do jogo</label><input id="gm-nome" type="text" placeholder="Ex: Hollow Knight, Elden Ring..."></div>
+      <div class="fg"><label>Plataforma</label><select id="gm-plat"><option>PC</option><option>PlayStation 5</option><option>PlayStation 4</option><option>Xbox</option><option>Nintendo Switch</option><option>Mobile</option><option>Retro</option></select></div>
+      <div class="fg"><label>Status</label><select id="gm-status"><option>Quero jogar</option><option>Jogando</option><option>Pausado</option><option>Zerado</option><option>100%</option><option>Abandonado</option></select></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Gênero</label><input id="gm-genero" type="text" placeholder="RPG, Ação, Indie..."></div>
+      <div class="fg"><label>Ícone/Emoji</label><input id="gm-ico" type="text" placeholder="🎮" maxlength="4" style="width:80px;text-align:center;font-size:24px"></div>
+      <div class="fg"><label>Notas</label><input id="gm-notas" type="text" placeholder="Recomendado por, observações..."></div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addGame()">+ Adicionar jogo</button>
+  </div>
+
+  <div class="card">
+    <div class="sh"><h2>Coleção</h2>
+      <select id="gm-filter" onchange="renderGames()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos</option><option>Quero jogar</option><option>Jogando</option><option>Zerado</option><option>100%</option><option>Pausado</option><option>Abandonado</option></select>
+    </div>
+    <div class="gg" id="lista-games"></div>
+  </div>
+</section>
+
+<!-- ════════════════ CURSOS ════════════════ -->
+<section class="page" id="page-cursos">
+  <h1>📚 Cursos</h1><p class="psub">Cursos que quer fazer ou está fazendo</p>
+
+  <div class="card gap">
+    <h3>Adicionar curso</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Nome do curso</label><input id="cu-nome" type="text" placeholder="Ex: Python para Data Science..."></div>
+      <div class="fg"><label>Plataforma</label><input id="cu-plat" type="text" placeholder="Udemy, Coursera, YouTube..."></div>
+      <div class="fg"><label>Status</label><select id="cu-status"><option>Quero fazer</option><option>Em andamento</option><option>Pausado</option><option>Concluído</option></select></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Link</label><input id="cu-link" type="url" placeholder="https://..."></div>
+      <div class="fg"><label>Área</label><input id="cu-area" type="text" placeholder="Programação, Marketing, Design..."></div>
+      <div class="fg"><label>Progresso (%)</label><input id="cu-pct" type="number" min="0" max="100" value="0"></div>
+    </div>
+    <div class="fg"><label>Notas</label><input id="cu-notas" type="text" placeholder="Motivação, aplicação..."></div>
+    <button class="btn btn-p btn-sm" onclick="addCurso()">+ Adicionar curso</button>
+  </div>
+
+  <div class="card"><h2>Meus cursos</h2><div id="lista-cursos"></div></div>
+</section>
+
+<!-- ════════════════ RECEITAS ════════════════ -->
+<section class="page" id="page-receitas">
+  <h1>🍳 Receitas</h1><p class="psub">Receitas que quer experimentar</p>
+
+  <div class="card gap">
+    <h3>Adicionar receita</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Nome da receita</label><input id="rc-nome" type="text" placeholder="Ex: Risoto de cogumelos, Bolo de cenoura..."></div>
+      <div class="fg"><label>Categoria</label><select id="rc-cat"><option>Almoço/Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Sobremesa</option><option>Bebida</option><option>Fitness</option></select></div>
+      <div class="fg"><label>Dificuldade</label><select id="rc-dif"><option>Fácil</option><option>Médio</option><option>Difícil</option></select></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Link/fonte</label><input id="rc-link" type="url" placeholder="https://... (opcional)"></div>
+      <div class="fg"><label>Tempo estimado</label><input id="rc-tempo" type="text" placeholder="30 min, 1h..."></div>
+    </div>
+    <div class="fg"><label>Notas / ingredientes-chave</label><textarea id="rc-notas" placeholder="Anote ingredientes especiais, dicas..."></textarea></div>
+    <button class="btn btn-p btn-sm" onclick="addReceita()">+ Adicionar receita</button>
+  </div>
+
+  <div class="card"><div class="sh"><h2>Minhas receitas</h2>
+    <select id="rc-filter" onchange="renderReceitas()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todas</option><option>Almoço/Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Sobremesa</option><option>Fitness</option></select>
+  </div><div id="lista-receitas"></div></div>
+</section>
+
+<!-- ════════════════ COMPRAS ════════════════ -->
+<section class="page" id="page-compras">
+  <h1>🛒 Lista de Compras</h1><p class="psub">Itens que precisa comprar</p>
+
+  <div class="card gap">
+    <h3>Adicionar item</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Item</label><input id="cp-item" type="text" placeholder="Ex: Whey protein, Notebook, Tênis..."></div>
+      <div class="fg"><label>Categoria</label><select id="cp-cat"><option>Alimentação</option><option>Suplementos</option><option>Roupas</option><option>Tecnologia</option><option>Casa</option><option>Saúde</option><option>Livros</option><option>Outro</option></select></div>
+      <div class="fg"><label>Prioridade</label><select id="cp-prio"><option value="a">🔴 Alta</option><option value="m" selected>🟡 Média</option><option value="b">🟢 Baixa</option></select></div>
+      <div class="fg"><label>Preço est. (R$)</label><input id="cp-preco" type="number" placeholder="0.00" step="0.01"></div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addCompra()">+ Adicionar</button>
+  </div>
+
+  <div class="card">
+    <div class="sh"><h2>Lista de compras</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:var(--text3)">Total: <strong id="cp-total" style="color:var(--accent);font-family:'DM Mono',monospace">R$ 0,00</strong></span>
+        <button class="btn btn-g btn-sm" onclick="clearDoneCompras()">Limpar concluídas</button>
+      </div>
+    </div>
+    <div id="lista-compras"></div>
+  </div>
+</section>
+
+<!-- ════════════════ FINANÇAS ════════════════ -->
+<section class="page" id="page-financas">
+  <h1>💰 Finanças</h1><p class="psub">Planejamento mensal e controle de despesas</p>
+
+  <!-- SALDO E RESUMO -->
+  <div class="g3 gap">
+    <div class="stat" style="border-color:var(--green)">
+      <div class="lbl">Renda mensal</div>
+      <div class="val" id="fin-renda-v" style="color:var(--green)">R$ 0,00</div>
+      <div class="sub">total de entradas</div>
+    </div>
+    <div class="stat" style="border-color:var(--red)">
+      <div class="lbl">Gastos fixos</div>
+      <div class="val" id="fin-fixos-v" style="color:var(--red)">R$ 0,00</div>
+      <div class="sub">comprometido/mês</div>
+    </div>
+    <div class="stat" style="border-color:var(--accent)">
+      <div class="lbl">Livre por mês</div>
+      <div class="val" id="fin-livre-v">R$ 0,00</div>
+      <div class="sub">após gastos fixos</div>
+    </div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- CALCULADORA MENSAL -->
+    <div class="card">
+      <h2>📊 Calculadora mensal</h2>
+      <div class="fg"><label>Renda mensal (R$)</label><input type="number" id="fin-renda" placeholder="5000.00" step="0.01" onchange="saveFinConfig()"></div>
+      <div class="div"></div>
+      <div class="sh" style="margin-bottom:10px"><h3 style="margin:0">Gastos fixos</h3><button class="btn btn-g btn-sm" onclick="addGastoFixo()">+ Adicionar</button></div>
+      <div id="lista-fixos"></div>
+      <div class="div"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+        <span style="font-size:13px;font-weight:600">Total fixo:</span>
+        <span id="fin-total-fixo" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--red);font-weight:700">R$ 0,00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--border)">
+        <span style="font-size:14px;font-weight:700">Saldo livre:</span>
+        <span id="fin-calc-livre" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700">R$ 0,00</span>
+      </div>
+    </div>
+
+    <!-- SALDO ATUAL -->
+    <div class="card">
+      <h2>💳 Saldo atual</h2>
+      <div class="fin-saldo zero" id="fin-saldo-big">R$ 0,00</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Saldo disponível agora</div>
+      <div class="div"></div>
+      <div class="fg"><label>Definir saldo (R$)</label><input type="number" id="fin-saldo-inp" placeholder="3500.00" step="0.01"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-p btn-sm" onclick="setSaldo()">💾 Salvar saldo</button>
+        <button class="btn btn-g btn-sm" onclick="ajustarSaldo()">± Ajustar</button>
+      </div>
+      <div class="div"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Despesas este mês</div>
+          <div id="fin-mes-gasto" style="font-family:'DM Mono',monospace;font-size:16px;color:var(--red);font-weight:700">R$ 0,00</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Entradas este mês</div>
+          <div id="fin-mes-entr" style="font-family:'DM Mono',monospace;font-size:16px;color:var(--green);font-weight:700">R$ 0,00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANÇAR DESPESA / ENTRADA -->
+  <div class="card gap">
+    <h2>📝 Lançar movimentação</h2>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Descrição</label><input id="dep-desc" type="text" placeholder="Ex: Almoço, Uber, Supermercado..."></div>
+      <div class="fg"><label>Tipo</label>
+        <select id="dep-tipo" onchange="toggleDepTipo()">
+          <option value="despesa">📤 Despesa</option>
+          <option value="entrada">📥 Entrada</option>
+        </select>
+      </div>
+      <div class="fg"><label>Categoria</label>
+        <select id="dep-cat">
+          <option>Alimentação</option><option>Moradia</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Roupas</option><option>Assinaturas</option><option>Investimentos</option><option>Salário</option><option>Freelance</option><option>Outro</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Valor (R$)</label><input id="dep-val" type="number" step="0.01" min="0" placeholder="0.00"></div>
+      <div class="fg"><label>Data</label><input id="dep-data" type="date"></div>
+      <div class="fg"><label>Notas</label><input id="dep-notas" type="text" placeholder="Opcional..."></div>
+    </div>
+    <button class="btn btn-p btn-sm" onclick="addDespesa()">+ Lançar</button>
+  </div>
+
+  <!-- EXTRATO -->
+  <div class="card">
+    <div class="sh">
+      <h2>📋 Extrato</h2>
+      <div style="display:flex;gap:6px;align-items:center">
+        <select id="dep-filter-mes" onchange="renderDespesas()" style="width:auto;font-size:11px;padding:5px 10px"></select>
+        <select id="dep-filter-cat" onchange="renderDespesas()" style="width:auto;font-size:11px;padding:5px 10px">
+          <option value="">Todas categorias</option>
+          <option>Alimentação</option><option>Moradia</option><option>Transporte</option><option>Saúde</option><option>Educação</option><option>Lazer</option><option>Roupas</option><option>Assinaturas</option><option>Investimentos</option><option>Salário</option><option>Freelance</option>
+        </select>
+        <button class="btn btn-g btn-sm" onclick="clearExtrato()">Limpar mês</button>
+      </div>
+    </div>
+    <div id="lista-despesas"></div>
+  </div>
+
+  <!-- DISTRIBUIÇÃO POR CATEGORIA -->
+  <div class="card">
+    <h2>🍕 Gastos por categoria (mês atual)</h2>
+    <div id="fin-catbars"></div>
+  </div>
+
+</section>
+
+<!-- ════════════════ BACKUP ════════════════ -->
+<section class="page" id="page-backup">
+  <h1>☁️ Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
+
+  <!-- SUPABASE SYNC -->
+  <div class="card gap" id="sb-config-card">
+    <div class="sh">
+      <h2>🔄 Sync em tempo real</h2>
+      <div id="sync-status-big"></div>
+    </div>
+
+    <div id="sb-status-area">
+      <!-- preenchido por JS -->
+    </div>
+
+    <div id="sb-form" style="display:none">
+      <div class="fg"><label>Supabase URL</label><input id="sb-url-inp" type="text" placeholder="https://xyzxyz.supabase.co"></div>
+      <div class="fg"><label>Anon Key</label><input id="sb-key-inp" type="text" placeholder="eyJhbGci..."></div>
+      <button class="btn btn-p btn-sm" onclick="salvarCredenciais()" style="width:100%;justify-content:center">💾 Salvar e conectar</button>
+    </div>
+
+    <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="pushAllToSupabase()" style="flex:1;justify-content:center">⬆️ Forçar upload</button>
+      <button class="btn btn-g btn-sm" onclick="pullFromSupabase().then(reRenderAll)" style="flex:1;justify-content:center">⬇️ Baixar do servidor</button>
+      <button class="btn btn-g btn-sm" onclick="toggleSbForm()" style="flex:1;justify-content:center" id="sb-config-btn">⚙️ Configurar</button>
+    </div>
+
+    <!-- GUIA PASSO A PASSO -->
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.4px;user-select:none">📖 Como configurar o Supabase (passo a passo)</summary>
+      <div style="margin-top:12px;font-size:12px;line-height:1.8;color:var(--text2)">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">1. Criar conta gratuita</strong><br>
+            Acesse <a href="https://supabase.com" target="_blank" style="color:var(--blue)">supabase.com</a> → clique em <em>Start your project</em> → faça login com GitHub.
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">2. Criar um projeto</strong><br>
+            Clique em <em>New project</em> → dê um nome (ex: "meu-tracker") → escolha a região mais próxima (South America) → defina uma senha e clique <em>Create new project</em>. Aguarde ~1 min.
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">3. Criar a tabela</strong><br>
+            No menu lateral, clique em <em>SQL Editor</em> → clique em <em>New query</em> → cole o código abaixo e clique <em>Run</em>:
+            <pre style="background:#0d0f14;padding:10px;border-radius:6px;margin-top:8px;overflow-x:auto;font-size:10px;color:#4ade80">create table tracker_data (
+  key text primary key,
+  value jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table tracker_data enable row level security;
+
+create policy "acesso total"
+  on tracker_data for all
+  using (true)
+  with check (true);</pre>
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">4. Copiar suas credenciais</strong><br>
+            No menu lateral, clique em <em>Project Settings</em> → <em>API</em>. Você vai ver:<br>
+            • <strong>Project URL</strong> → copie para o campo URL acima<br>
+            • <strong>anon public</strong> (em Project API Keys) → copie para o campo Key acima
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--green)">
+            <strong style="color:var(--text)">5. Conectar</strong><br>
+            Cole os dois valores nos campos acima e clique em <em>Salvar e conectar</em>. O tracker vai fazer o upload dos seus dados existentes automaticamente. Abra em outro dispositivo e os dados aparecem na hora! 🎉
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <!-- RESUMO -->
+  <div class="card gap">
+    <h2>📊 Resumo dos dados salvos</h2>
+    <div id="bk-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="card gap">
+    <h2>📤 Exportar</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Gera um arquivo <strong style="color:var(--text)">.json</strong> com todos os seus dados. Salve e transfira para outro dispositivo.</p>
+    <button class="btn btn-p" onclick="exportarDados()" style="width:100%;justify-content:center;font-size:15px;padding:14px;gap:10px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Exportar backup (.json)
+    </button>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="card gap">
+    <h2>📥 Importar</h2>
+    <div style="background:var(--rdim);border:1px solid var(--red);border-radius:var(--rs);padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--red);line-height:1.5">
+      ⚠️ Importar vai <strong>substituir</strong> todos os dados atuais. Exporte primeiro se quiser guardar o que tem.
+    </div>
+    <button class="btn btn-p" onclick="$('bk-file').click()" style="width:100%;justify-content:center;font-size:15px;padding:14px;gap:10px;background:var(--bg3);color:var(--text);border:2px dashed var(--border)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Selecionar arquivo .json
+    </button>
+    <input type="file" accept=".json" id="bk-file" style="display:none" onchange="importarDados(this)">
+    <div id="bk-import-status" style="margin-top:12px"></div>
+  </div>
+
+  <!-- COPIAR / COLAR TEXTO (mobile-friendly) -->
+  <div class="card">
+    <h2>📋 Transferir via texto</h2>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Alternativa quando não dá para transferir arquivo. Copie o texto num dispositivo e cole no outro.</p>
+    <div class="stabs" style="margin-bottom:14px">
+      <button class="stab on" onclick="bkTextTab(this,'bk-copy-pane')">Copiar texto</button>
+      <button class="stab" onclick="bkTextTab(this,'bk-paste-pane')">Colar texto</button>
+    </div>
+    <div class="sp on" id="bk-copy-pane">
+      <button class="btn btn-g btn-sm" onclick="gerarTextoBackup()" style="margin-bottom:10px;width:100%;justify-content:center">Gerar texto</button>
+      <textarea id="bk-text-out" style="min-height:100px;font-family:'DM Mono',monospace;font-size:10px" readonly placeholder="Clique em 'Gerar texto'..."></textarea>
+      <button class="btn btn-p btn-sm" onclick="copiarTexto()" style="margin-top:8px;width:100%;justify-content:center">📋 Copiar tudo</button>
+    </div>
+    <div class="sp" id="bk-paste-pane">
+      <textarea id="bk-text-in" style="min-height:100px;font-family:'DM Mono',monospace;font-size:10px" placeholder="Cole aqui o texto do outro dispositivo..."></textarea>
+      <button class="btn btn-p btn-sm" onclick="importarTexto()" style="margin-top:8px;width:100%;justify-content:center">📥 Restaurar</button>
+      <div id="bk-paste-status" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ══════════════════════════════════════════════════
+//  ⚙️  SUPABASE CONFIG — cole suas credenciais aqui
+// ══════════════════════════════════════════════════
+const SUPABASE_URL  = localStorage.getItem('sb_url')  || '';   // ex: 'https://xyzxyz.supabase.co'
+const SUPABASE_KEY  = localStorage.getItem('sb_key')  || '';   // ex: 'eyJhbGci...'
+// ══════════════════════════════════════════════════
+
+const _sbReady = SUPABASE_URL && SUPABASE_KEY;
+const _sb = _sbReady
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
+// ──────────────────────────────────
+// SYNC STATUS UI
+// ──────────────────────────────────
+function setSyncStatus(state) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.dataset.state = state;
+  const states = {
+    off:     { dot:'#5a6080', label:'Offline',       spin: false },
+    syncing: { dot:'#c9a84c', label:'Sincronizando', spin: true  },
+    ok:      { dot:'#4caf82', label:'Sincronizado',  spin: false },
+    error:   { dot:'#e05c6a', label:'Erro sync',     spin: false },
+  };
+  const s = states[state] || states.off;
+  const anim = s.spin
+    ? `style="display:inline-block;animation:spin .8s linear infinite"`
+    : `style="display:inline-block"`;
+  el.innerHTML = `
+    <span ${anim}>
+      <svg width="7" height="7" viewBox="0 0 7 7">
+        <circle cx="3.5" cy="3.5" r="3.5" fill="${s.dot}"/>
+      </svg>
+    </span>
+    <span style="font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.3px">${s.label}</span>`;
+  if (state === 'ok') {
+    el.style.borderColor = '#4caf82';
+    setTimeout(() => { el.style.borderColor = 'var(--border)'; }, 2000);
+  } else if (state === 'error') {
+    el.style.borderColor = '#e05c6a';
+  } else {
+    el.style.borderColor = 'var(--border)';
+  }
+}
+
+// ──────────────────────────────────
+// UTILS  — save/load with Supabase sync
+// ──────────────────────────────────
+const $ = id => document.getElementById(id);
+
+// localStorage as always — fast & offline
+const _lsSave = (k, v) => localStorage.setItem('eh2_' + k, JSON.stringify(v));
+const _lsLoad = (k, d) => { try { const v = localStorage.getItem('eh2_' + k); return v !== null ? JSON.parse(v) : d; } catch { return d; } };
+
+// save: write localStorage immediately, then push to Supabase async
+function save(k, v) {
+  _lsSave(k, v);
+  if (!_sb) return;
+  setSyncStatus('syncing');
+  _sb.from('tracker_data')
+    .upsert({ key: k, value: v, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    .then(({ error }) => {
+      setSyncStatus(error ? 'error' : 'ok');
+      if (error) console.warn('[Supabase save]', error.message);
+      // Reset to ok after 3s
+      if (!error) setTimeout(() => setSyncStatus('ok'), 3000);
+    });
+}
+
+// load: always from localStorage (fast)
+const load = (k, d) => _lsLoad(k, d);
+
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const localDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+// ──────────────────────────────────
+// INITIAL PULL  — on startup, fetch all keys from Supabase
+// and merge into localStorage (Supabase wins on conflict)
+// ──────────────────────────────────
+async function pullFromSupabase() {
+  if (!_sb) { setSyncStatus('off'); return; }
+  setSyncStatus('syncing');
+  try {
+    const { data, error } = await _sb.from('tracker_data').select('key, value, updated_at');
+    if (error) throw error;
+    if (!data?.length) { setSyncStatus('ok'); return; }
+
+    data.forEach(row => {
+      const lsRaw = localStorage.getItem('eh2_' + row.key);
+      // Simple conflict resolution: Supabase wins (most recent device to sync wins)
+      _lsSave(row.key, row.value);
+    });
+
+    setSyncStatus('ok');
+    // Re-render everything after pulling
+    reRenderAll();
+  } catch (e) {
+    console.warn('[Supabase pull]', e.message);
+    setSyncStatus('error');
+  }
+}
+
+// ──────────────────────────────────
+// REALTIME SUBSCRIPTION
+// Listen for changes made on another device
+// ──────────────────────────────────
+function subscribeRealtime() {
+  if (!_sb) return;
+  _sb.channel('tracker-sync')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tracker_data' }, payload => {
+      const { key, value } = payload.new || {};
+      if (!key) return;
+      _lsSave(key, value);
+      setSyncStatus('ok');
+      reRenderAll();
+    })
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') setSyncStatus('ok');
+    });
+}
+
+// Push ALL localStorage keys to Supabase (used by manual sync button)
+async function pushAllToSupabase() {
+  if (!_sb) { alert('Supabase não configurado.'); return; }
+  setSyncStatus('syncing');
+  const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
+  const rows = BK_KEYS.map(k => {
+    const raw = localStorage.getItem('eh2_' + k);
+    return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
+  }).filter(Boolean);
+  const { error } = await _sb.from('tracker_data').upsert(rows, { onConflict: 'key' });
+  setSyncStatus(error ? 'error' : 'ok');
+  if (error) alert('Erro ao sincronizar: ' + error.message);
+}
+
+// ──────────────────────────────────
+// RE-RENDER ALL  — called after realtime update
+// ──────────────────────────────────
+function reRenderAll() {
+  refreshHome();
+  renderAgenda();
+  renderRotina();
+  renderTarefas();
+  loadCorpoDiario();
+  renderAguaDisplay();
+  renderExLog();
+  updateMuscleDiagram();
+  renderMapaHome();
+  renderHistorico();
+  renderHumor(); renderGrat(); renderDiario();
+  renderMetasAnuais(); renderMetasTracking(); renderConquistas();
+  renderGames(); renderCursos(); renderReceitas(); renderCompras();
+  renderFinancas();
+}
+
+// ──────────────────────────────────
+// ANIMATE NUMBER  (motion/react port → vanilla JS)
+// Easing: ease-out cubic — fast start, smooth finish
+// ──────────────────────────────────
+const _animRunning = {};
+function animateNumber(el, target, opts = {}) {
+  if (!el) return;
+  const {
+    duration = 900,   // ms
+    decimals = 0,
+    prefix = '',
+    suffix = '',
+    separator = false  // true → format with thousands dots
+  } = opts;
+
+  // Cancel any in-progress animation on this element
+  if (_animRunning[el.id]) cancelAnimationFrame(_animRunning[el.id]);
+
+  const from = parseFloat(el.dataset.animFrom ?? 0) || 0;
+  const start = performance.now();
+
+  // ease-out cubic
+  const ease = t => 1 - Math.pow(1 - t, 3);
+
+  const fmt = n => {
+    const fixed = n.toFixed(decimals);
+    const formatted = separator
+      ? fixed.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+      : fixed;
+    return prefix + formatted + suffix;
+  };
+
+  const tick = now => {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const value = from + (target - from) * ease(progress);
+    el.textContent = fmt(value);
+    if (progress < 1) {
+      _animRunning[el.id] = requestAnimationFrame(tick);
+    } else {
+      el.textContent = fmt(target);
+      el.dataset.animFrom = target;
+      delete _animRunning[el.id];
+    }
+  };
+
+  _animRunning[el.id] = requestAnimationFrame(tick);
+}
+
+// Shorthand: animate an element by id
+function animN(id, target, opts) {
+  animateNumber($( id), target, opts);
+}
+const now = () => new Date();
+const fmtDt = s => { const d = new Date(s); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const fmtTime = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const catColor = { Trabalho:'tb', Saúde:'tg', Pessoal:'ta', Social:'tp', Educação:'ta', Outro:'tb', Financeiro:'ta', Relacionamentos:'tp', Espiritual:'tp', Criatividade:'to', Carreira:'tb' };
+const prioClass = { a:'pd a', m:'pd m', b:'pd b' };
+const prioTag = { a:'tr', m:'ta', b:'tg' };
+const finCatColors = {
+  Alimentação:'#e07c3c',Moradia:'#5c8de0',Transporte:'#3cbdb8',Saúde:'#4caf82',
+  Educação:'#9b72e0',Lazer:'#c9a84c',Roupas:'#e05c6a',Assinaturas:'#7c9be0',
+  Investimentos:'#4caf82',Salário:'#4caf82',Freelance:'#c9a84c',Outro:'#5a6080'
+};
+function fmtBRL(v) {
+  return 'R$ ' + Math.abs(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+// ──────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────
+function go(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
+  $('page-' + p).classList.add('on');
+  const navBtn = $('n-' + p);
+  navBtn.classList.add('on');
+  // On mobile, scroll the bottom nav so the active button is visible
+  if (window.innerWidth <= 640) {
+    navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  }
+  if (p === 'home') refreshHome();
+  if (p === 'corpo') { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); }
+  if (p === 'financas') { renderFinancas(); }
+  if (p === 'backup') { bkStats(); }
+}
+
+// ──────────────────────────────────
+// HOME
+// ──────────────────────────────────
+function refreshHome() {
+  const d = new Date();
+  const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const h = d.getHours();
+  const greet = h < 12 ? 'Bom dia ☀️' : h < 18 ? 'Boa tarde 🌤' : 'Boa noite 🌙';
+  $('h-greet').textContent = greet;
+  $('h-date').textContent = `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+  $('rot-date').textContent = `${d.getDate()} de ${meses[d.getMonth()]}`;
+
+  // Rotina stat
+  const habitos = load('habitos', []).filter(h => habitHoje(h));
+  const checks = load('rot_checks', {})[today()] || {};
+  const doneH = habitos.filter(h => checks[h.id]).length;
+  $('hs-rot').textContent = `${doneH}/${habitos.length}`;
+
+  // Água stat
+  const aguaHoje = load('agua', {})[today()] || 0;
+  const aguaMeta = load('agua_meta', 2000);
+  animN('hs-agua', aguaHoje, { suffix: 'ml', duration: 800 });
+  $('hs-agua-meta').textContent = aguaMeta;
+
+  // Tarefas stat — todas as tarefas abertas, independente do dia
+  const todasTarefas = load('tarefas', []);
+  const pendentes = todasTarefas.filter(t => !t.done);
+  animN('hs-tar', pendentes.length, { duration: 700 });
+  $('hs-tar').closest('.stat').querySelector('.sub').textContent = 'tarefas abertas';
+
+  // Mood stat
+  const mente = load('mente', []);
+  const moods = mente.filter(m => m.tipo === 'humor' && m.data === today());
+  $('hs-mood').textContent = moods.length ? moods[moods.length - 1].mood : '—';
+
+  // Home Agenda — mostra eventos de hoje, ou o próximo evento futuro se não houver
+  const todosEventos = load('eventos', []).sort((a, b) => a.dt.localeCompare(b.dt));
+  const eventos = todosEventos.filter(e => e.dt.split('T')[0] === today());
+  const hag = $('h-agenda');
+  if (eventos.length) {
+    hag.innerHTML = eventos.map(e => `
+      <div class="evi${e.done ? ' done' : ''}">
+        <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
+        <div class="evi-t">${fmtDt(e.dt).split(' ')[1]}</div>
+        <div class="evi-info"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
+        <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
+      </div>`).join('');
+  } else {
+    const proximo = todosEventos.find(e => !e.done && e.dt > new Date(new Date() - 0).toLocaleString('sv').replace(' ','T').slice(0,16));
+    if (proximo) {
+      hag.innerHTML = `<div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Próximo evento</div>
+        <div class="evi">
+          <div class="evi-t" style="min-width:56px">${fmtDt(proximo.dt)}</div>
+          <div class="evi-info"><div class="evi-n">${proximo.nome}</div><div class="evi-m"><span class="tag ${catColor[proximo.cat]||'tb'}">${proximo.cat}</span>${proximo.notas ? ' · ' + proximo.notas : ''}</div></div>
+          <button class="ib edt" onclick="openEdit(${proximo.id})">✏️</button>
+        </div>`;
+    } else {
+      hag.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento agendado</div>';
+    }
+  }
+
+  // Home Rotina — ordenada por período (manhã → tarde → noite → dia)
+  const hr = $('h-rotina');
+  const periodoOrder = { manha: 0, tarde: 1, noite: 2, dia: 3 };
+  const habitosOrdenados = [...habitos].sort((a, b) => (periodoOrder[a.periodo] ?? 4) - (periodoOrder[b.periodo] ?? 4));
+  if (!habitosOrdenados.length) hr.innerHTML = '<div class="empty"><div class="ei">🔄</div>Nenhum hábito para hoje</div>';
+  else hr.innerHTML = habitosOrdenados.map(h => `
+    <div class="ci">
+      <div class="cb${checks[h.id] ? ' on' : ''}" onclick="toggleHabito(${h.id})">${checks[h.id] ? '✓' : ''}</div>
+      <span class="cl${checks[h.id] ? ' x' : ''}">${h.nome}</span>
+      <span style="font-size:10px;color:var(--text3)">${{manha:'☀️',tarde:'🌤',noite:'🌙',dia:'📅'}[h.periodo]}</span>
+    </div>`).join('');
+
+  // Home Tarefas — todas as pendentes ordenadas por prioridade
+  const ht = $('h-tarefas');
+  const prioOrder = { a: 0, m: 1, b: 2 };
+  const pend = load('tarefas', []).filter(t => !t.done).sort((a, b) => (prioOrder[a.prio] ?? 1) - (prioOrder[b.prio] ?? 1));
+  if (!pend.length) ht.innerHTML = '<div class="empty"><div class="ei">✅</div>Nenhuma tarefa pendente!</div>';
+  else ht.innerHTML = pend.map(t => `
+    <div class="ci">
+      <div class="cb${t.done ? ' on' : ''}" onclick="toggleTarefa(${t.id})">${t.done ? '✓' : ''}</div>
+      <div class="${prioClass[t.prio]}"></div>
+      <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        <select onchange="mudaPrioHome(${t.id},this.value)" style="font-size:10px;padding:2px 4px;width:auto;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2)">
+          <option value="a"${t.prio==='a'?' selected':''}>🔴</option>
+          <option value="m"${t.prio==='m'?' selected':''}>🟡</option>
+          <option value="b"${t.prio==='b'?' selected':''}>🟢</option>
+        </select>
+      </div>
+    </div>`).join('');
+
+  // Home diário preview
+  const dp = $('h-diario-preview');
+  const diarios = load('mente', []).filter(m => m.tipo === 'diario').slice(0, 2);
+  if (!diarios.length) dp.innerHTML = '<div style="font-size:12px;color:var(--text3)">Nenhuma entrada ainda hoje.</div>';
+  else dp.innerHTML = diarios.map(d => `<div class="je diary"><div class="jm"><span>${d.data} ${d.hora}</span></div><div class="jt">${d.texto}</div></div>`).join('');
+
+  // Home Finanças
+  const cfg = load('fin_cfg', {});
+  const saldo = cfg.saldo || 0;
+  const renda = cfg.renda || 0;
+  const totalFixo = (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
+  const livre = renda - totalFixo;
+  const mesAtual = today().substring(0, 7);
+  const despMes = load('despesas', []).filter(d => d.data.startsWith(mesAtual) && d.tipo === 'despesa').reduce((s, d) => s + d.val, 0);
+  const hSaldo = $('h-saldo');
+  hSaldo.className = 'fin-saldo ' + (saldo > 0 ? 'pos' : saldo < 0 ? 'neg' : 'zero');
+  animateNumber(hSaldo, Math.abs(saldo), { prefix: saldo < 0 ? '- R$ ' : 'R$ ', decimals: 2, separator: true, duration: 900 });
+  animateNumber($('h-livre'), Math.abs(livre), { prefix: livre < 0 ? '- R$ ' : 'R$ ', decimals: 2, separator: true, duration: 900 });
+  const livrePct = livre > 0 && renda > 0 ? Math.min(100, Math.round(((livre - despMes) / livre) * 100)) : 0;
+  $('h-livre-pb').style.width = Math.max(0, livrePct) + '%';
+  const recent = load('despesas', []).slice(0, 3);
+  const hfr = $('h-fin-recent');
+  if (!recent.length) hfr.innerHTML = '';
+  else hfr.innerHTML = recent.map(d => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:12px;color:var(--text2)">${d.desc}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${d.tipo==='entrada'?'var(--green)':'var(--red)'}">${d.tipo==='entrada'?'+':'−'}${fmtBRL(d.val)}</span>
+    </div>`).join('');
+
+  // Home Tracking — com botões +/-
+  const ht2 = $('h-tracking');
+  const tracking = load('metas_t', []).filter(m => m.ano === new Date().getFullYear());
+  if (!tracking.length) {
+    ht2.innerHTML = '<div class="empty"><div class="ei">📊</div>Nenhuma meta de tracking cadastrada</div>';
+  } else {
+    ht2.innerHTML = tracking.map(m => {
+      const pct = Math.min(100, Math.round((m.atual / m.target) * 100));
+      const restante = m.target - m.atual;
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px">
+          <span style="font-size:13px;font-weight:500;flex:1">${m.nome}</span>
+          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
+            <button onclick="adjTrackHome(${m.id},-1)" style="width:24px;height:24px;border:1.5px solid var(--border);background:transparent;border-radius:5px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">−</button>
+            <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);min-width:54px;text-align:center">${m.atual}/${m.target}</span>
+            <button onclick="adjTrackHome(${m.id},1)" style="width:24px;height:24px;border:1.5px solid var(--border);background:transparent;border-radius:5px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">+</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="pb" style="flex:1;margin:0"><div class="pf g" style="width:${pct}%"></div></div>
+          <span style="font-size:10px;color:var(--text3);min-width:32px;text-align:right">${pct}%</span>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">${restante > 0 ? `Faltam ${restante} ${m.unidade}` : '✅ Meta concluída!'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Home Mapa Muscular
+  renderMapaHome();
+}
+
+function mudaPrioHome(id, prio) {
+  const tarefas = load('tarefas', []);
+  const t = tarefas.find(t => t.id === id);
+  if (t) t.prio = prio;
+  save('tarefas', tarefas);
+  renderTarefas();
+  refreshHome();
+}
+
+function adjTrackHome(id, delta) {
+  const list = load('metas_t', []);
+  const m = list.find(m => m.id === id);
+  if (m) m.atual = Math.max(0, Math.min(m.target, (m.atual || 0) + delta));
+  save('metas_t', list);
+  refreshHome();
+  renderMetasTracking();
+}
+
+function renderMapaHome() {
+  const cont = $('h-mapa-muscular');
+  if (!cont) return;
+  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+  const cutoff = localDateStr(sevenAgo);
+  const exs = load('exercicios', []).filter(e => e.date >= cutoff);
+  const freq = {};
+  exs.forEach(e => (e.musculos || []).forEach(m => { freq[m] = (freq[m] || 0) + 1; }));
+  const maxFreq = Math.max(1, ...Object.values(freq));
+  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiot.', panturrilha:'Panturrilha' };
+  const homeContainer = $('home-mapa-svgs');
+  if (homeContainer) {
+    homeContainer.querySelectorAll('.msh').forEach(el => { el.setAttribute('fill','#252840'); el.setAttribute('opacity','0.6'); });
+    Object.entries(freq).forEach(([muscle, count]) => {
+      const ratio = count / maxFreq;
+      const r = Math.round(37 + ratio*(230-37)), g = Math.round(42 + ratio*(110-42)), b2 = Math.round(56 + ratio*(30-56));
+      homeContainer.querySelectorAll(`[data-m="${muscle}"]`).forEach(el => {
+        el.setAttribute('fill', `rgb(${r},${g},${b2})`);
+        el.setAttribute('opacity', '0.85');
+      });
+    });
+  }
+  const trained = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0, 4);
+  if (!trained.length) { cont.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">Registre treinos para ver o mapa</div>'; return; }
+  cont.innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">' + trained.map(([m, c]) => {
+    const ratio = c / maxFreq;
+    const r2 = Math.round(37 + ratio*(230-37)), g2 = Math.round(42 + ratio*(110-42)), b3 = Math.round(56 + ratio*(30-56));
+    return `<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)"><div style="width:9px;height:9px;border-radius:2px;background:rgb(${r2},${g2},${b3})"></div>${muscLabels[m]||m}: ${c}x</div>`;
+  }).join('') + '</div>';
+  renderHomeMiniChart();
+}
+
+let _homeMiniChart = null;
+function renderHomeMiniChart() {
+  const canvas = $('h-mini-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const corpoD = load('corpo_d', {});
+  const aguaD  = load('agua', {});
+  const dias = 14;
+  const dates = [];
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    dates.push(localDateStr(d));
+  }
+  const labels   = dates.map(d => { const [,m,dd] = d.split('-'); return `${dd}/${m}`; });
+  const pesoVals = dates.map(d => parseFloat((corpoD[d]||{}).peso) || null);
+  const aguaVals = dates.map(d => aguaD[d] || null);
+  const sonoVals = dates.map(d => parseFloat((corpoD[d]||{}).sono) || null);
+  if (_homeMiniChart) { _homeMiniChart.destroy(); _homeMiniChart = null; }
+  _homeMiniChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label:'Peso', data: pesoVals, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.08)', yAxisID:'yp', tension:.4, pointRadius:2, spanGaps:true, borderWidth:1.5 },
+        { label:'Água', data: aguaVals, borderColor:'#5c8de0', backgroundColor:'rgba(92,141,224,.08)', yAxisID:'ya', tension:.4, pointRadius:2, spanGaps:true, borderWidth:1.5 },
+        { label:'Sono', data: sonoVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'ys', tension:.4, pointRadius:2, spanGaps:true, borderWidth:1.5 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false }, tooltip:{ mode:'index', intersect:false, bodyFont:{size:10}, titleFont:{size:10} } },
+      scales: {
+        x:  { ticks:{ color:'#5a6080', font:{size:8}, maxRotation:0, maxTicksLimit:7 }, grid:{ color:'rgba(46,50,80,.4)' } },
+        yp: { display:false, position:'left' },
+        ya: { display:false, position:'right' },
+        ys: { display:false, position:'right' },
+      }
+    }
+  });
+}
+
+function addDiarioRapido() {
+  const txt = $('h-diario-input').value.trim();
+  if (!txt) return;
+  const mente = load('mente', []);
+  mente.unshift({ id: Date.now(), tipo: 'diario', texto: txt, data: today(), hora: fmtTime() });
+  save('mente', mente);
+  $('h-diario-input').value = '';
+  refreshHome();
+  renderDiario();
+}
+
+function hFinLancar(tipo) {
+  const val = parseFloat($('h-fin-val').value);
+  const desc = $('h-fin-desc').value.trim() || (tipo === 'entrada' ? 'Entrada rápida' : 'Despesa rápida');
+  if (!val || val <= 0) { $('h-fin-val').focus(); return; }
+  const desp = load('despesas', []);
+  desp.unshift({ id: Date.now(), desc, tipo, cat: tipo === 'entrada' ? 'Outro' : 'Outro', val, data: today(), notas: '' });
+  save('despesas', desp);
+  const cfg = load('fin_cfg', {});
+  cfg.saldo = (cfg.saldo || 0) + (tipo === 'entrada' ? val : -val);
+  save('fin_cfg', cfg);
+  $('h-fin-val').value = '';
+  $('h-fin-desc').value = '';
+  refreshHome();
+  // Flash feedback
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓';
+  setTimeout(() => btn.textContent = orig, 800);
+}
+
+// ──────────────────────────────────
+// MODAL (Editar evento)
+// ──────────────────────────────────
+function openEdit(id) {
+  const ev = load('eventos', []).find(e => e.id === id);
+  if (!ev) return;
+  $('m-id').value = id;
+  $('m-nome').value = ev.nome;
+  $('m-dt').value = ev.dt;
+  $('m-cat').value = ev.cat;
+  $('m-notas').value = ev.notas || '';
+  $('modal-title').textContent = 'Editar evento';
+  $('modal').classList.add('on');
+}
+function closeModal() { $('modal').classList.remove('on'); }
+function saveModal() {
+  const id = parseInt($('m-id').value);
+  const eventos = load('eventos', []);
+  const ev = eventos.find(e => e.id === id);
+  if (!ev) return;
+  ev.nome = $('m-nome').value;
+  ev.dt = $('m-dt').value;
+  ev.cat = $('m-cat').value;
+  ev.notas = $('m-notas').value;
+  eventos.sort((a, b) => a.dt.localeCompare(b.dt));
+  save('eventos', eventos);
+  closeModal();
+  renderAgenda();
+  refreshHome();
+}
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+
+// ──────────────────────────────────
+// AGENDA
+// ──────────────────────────────────
+function addEvento() {
+  const nome = $('ev-n').value.trim();
+  const dt = $('ev-dt').value;
+  if (!nome || !dt) return alert('Preencha nome e data/hora.');
+  const eventos = load('eventos', []);
+  eventos.push({ id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false });
+  eventos.sort((a, b) => a.dt.localeCompare(b.dt));
+  save('eventos', eventos);
+  $('ev-n').value = ''; $('ev-dt').value = ''; $('ev-no').value = '';
+  renderAgenda();
+}
+
+function toggleEvento(id) {
+  const eventos = load('eventos', []);
+  const e = eventos.find(e => e.id === id);
+  if (e) e.done = !e.done;
+  save('eventos', eventos);
+  renderAgenda();
+  refreshHome();
+}
+
+function delEvento(id) {
+  save('eventos', load('eventos', []).filter(e => e.id !== id));
+  renderAgenda(); refreshHome();
+}
+
+function renderAgenda() {
+  const filter = $('ev-filter').value;
+  const eventos = load('eventos', []).filter(e => !filter || e.cat === filter);
+  const cont = $('lista-eventos');
+  if (!eventos.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento</div>'; return; }
+  cont.innerHTML = eventos.map(e => `
+    <div class="evi${e.done ? ' done' : ''}">
+      <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
+      <div class="evi-t">${fmtDt(e.dt)}</div>
+      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
+      <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
+      <button class="ib del" onclick="delEvento(${e.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// ROTINA
+// ──────────────────────────────────
+// Day selector
+document.querySelectorAll('#days-sel .db').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('on'));
+});
+
+function getSelectedDays() {
+  return [...document.querySelectorAll('#days-sel .db.on')].map(b => {
+    const d = b.dataset.d;
+    return d === 'lastday' ? 'lastday' : parseInt(d);
+  });
+}
+
+function habitHoje(h) {
+  if (!h.dias || h.dias.length === 0) return true;
+  const d = new Date();
+  const dow = d.getDay();
+  if (h.dias.includes(dow)) return true;
+  if (h.dias.includes('lastday')) {
+    const tom = new Date(d); tom.setDate(tom.getDate() + 1);
+    if (tom.getMonth() !== d.getMonth()) return true;
+  }
+  return false;
+}
+
+function daysLabel(dias) {
+  if (!dias || dias.length === 0) return 'Todo dia';
+  const names = {0:'Dom',1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex',6:'Sáb','lastday':'Últ.mês'};
+  return dias.map(d => names[d] || d).join(', ');
+}
+
+function addHabito() {
+  const nome = $('rot-n').value.trim();
+  if (!nome) return;
+  const habitos = load('habitos', []);
+  habitos.push({ id: Date.now(), nome, periodo: $('rot-p').value, dias: getSelectedDays() });
+  save('habitos', habitos);
+  $('rot-n').value = '';
+  document.querySelectorAll('#days-sel .db').forEach(b => b.classList.remove('on'));
+  renderRotina();
+  refreshHome();
+}
+
+function toggleHabito(id) {
+  const t = today();
+  const checks = load('rot_checks', {});
+  if (!checks[t]) checks[t] = {};
+  checks[t][id] = !checks[t][id];
+  save('rot_checks', checks);
+  renderRotina();
+  refreshHome();
+}
+
+function delHabito(id) {
+  save('habitos', load('habitos', []).filter(h => h.id !== id));
+  renderRotina(); refreshHome();
+}
+
+function renderRotina() {
+  const t = today();
+  const habitos = load('habitos', []);
+  const checks = load('rot_checks', {})[t] || {};
+  ['manha','tarde','noite','dia'].forEach(p => {
+    const list = habitos.filter(h => h.periodo === p);
+    const cont = $('rot-' + p);
+    if (!list.length) { cont.innerHTML = '<div class="empty" style="padding:12px 0">Nenhum hábito</div>'; return; }
+    cont.innerHTML = list.map(h => `
+      <div class="ci">
+        <div class="cb${checks[h.id] ? ' on' : ''}" onclick="toggleHabito(${h.id})">${checks[h.id] ? '✓' : ''}</div>
+        <span class="cl${checks[h.id] ? ' x' : ''}" style="flex:1">${h.nome}</span>
+        <span style="font-size:10px;color:var(--text3);margin-right:4px">${daysLabel(h.dias)}</span>
+        <button class="ib del" onclick="delHabito(${h.id})">×</button>
+      </div>`).join('');
+  });
+}
+
+// ──────────────────────────────────
+// TAREFAS
+// ──────────────────────────────────
+function addTarefa() {
+  const nome = $('tar-n').value.trim();
+  if (!nome) return;
+  const tarefas = load('tarefas', []);
+  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c').value, done: false, data: today() });
+  save('tarefas', tarefas);
+  $('tar-n').value = '';
+  renderTarefas(); refreshHome();
+}
+
+function toggleTarefa(id) {
+  const tarefas = load('tarefas', []);
+  const t = tarefas.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  save('tarefas', tarefas);
+  renderTarefas(); refreshHome();
+}
+
+function delTarefa(id) {
+  save('tarefas', load('tarefas', []).filter(t => t.id !== id));
+  renderTarefas(); refreshHome();
+}
+
+function renderTarefas() {
+  const tarefas = load('tarefas', []);
+  const pend = tarefas.filter(t => !t.done);
+  const done = tarefas.filter(t => t.done);
+  $('tar-cp').textContent = pend.length;
+  $('tar-cd').textContent = done.length;
+  const rl = (list, el, showPrio) => {
+    if (!list.length) { $(el).innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa</div>'; return; }
+    $(el).innerHTML = list.map(t => `
+      <div class="ci">
+        <div class="cb${t.done ? ' on' : ''}" onclick="toggleTarefa(${t.id})">${t.done ? '✓' : ''}</div>
+        <div class="${prioClass[t.prio]}"></div>
+        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}</span>
+        ${showPrio ? `<select onchange="mudaPrioHome(${t.id},this.value)" style="font-size:10px;padding:2px 4px;width:auto;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2)">
+          <option value="a"${t.prio==='a'?' selected':''}>🔴 Alta</option>
+          <option value="m"${t.prio==='m'?' selected':''}>🟡 Média</option>
+          <option value="b"${t.prio==='b'?' selected':''}>🟢 Baixa</option>
+        </select>` : `<span class="tag ${prioTag[t.prio]}" style="font-size:9px">${t.cat}</span>`}
+        <button class="ib del" onclick="delTarefa(${t.id})">×</button>
+      </div>`).join('');
+  };
+  rl(pend, 'tar-pend', true);
+  rl(done, 'tar-done', false);
+}
+
+// ──────────────────────────────────
+// CORPO - ÁGUA
+// ──────────────────────────────────
+function addAgua() {
+  const ml = parseInt($('agua-add-ml').value);
+  if (!ml || ml <= 0) return;
+  const agua = load('agua', {});
+  agua[today()] = (agua[today()] || 0) + ml;
+  save('agua', agua);
+  $('agua-add-ml').value = '';
+  renderAguaDisplay();
+  renderHistorico();
+  refreshHome();
+}
+
+function resetAgua() {
+  const agua = load('agua', {});
+  agua[today()] = 0;
+  save('agua', agua);
+  renderAguaDisplay();
+  refreshHome();
+}
+
+function saveAguaMeta() {
+  const meta = parseInt($('agua-meta-inp').value) || 2000;
+  save('agua_meta', meta);
+  renderAguaDisplay();
+}
+
+function renderAguaDisplay() {
+  const atual = load('agua', {})[today()] || 0;
+  const meta = load('agua_meta', 2000);
+  animateNumber($('agua-total'), atual, { suffix: ' ml', duration: 800 });
+  $('agua-meta-show').textContent = meta + ' ml';
+  $('agua-meta-inp').value = meta;
+  const pct = Math.min(100, (atual / meta) * 100);
+  $('agua-pb-big').style.width = pct + '%';
+  animateNumber($('cp-agua-v'), atual, { suffix: 'ml', duration: 700 });
+  $('cp-agua-meta-lbl').textContent = meta;
+  $('cp-agua-pb').style.width = pct + '%';
+}
+
+// ──────────────────────────────────
+// CORPO - DIÁRIO
+// ──────────────────────────────────
+function saveCorpoDiario() {
+  const t = today();
+  const dados = load('corpo_d', {});
+  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value };
+  save('corpo_d', dados);
+  loadCorpoDiario();
+  renderHistorico();
+}
+
+function loadCorpoDiario() {
+  const t = today();
+  const d = load('corpo_d', {})[t] || {};
+  if (d.sono) $('cp-sono').value = d.sono;
+  if (d.peso) $('cp-peso').value = d.peso;
+  if (d.notas) $('cp-notas').value = d.notas;
+  if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
+  else $('cp-sono-v').textContent = '—';
+  if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
+  else $('cp-peso-v').textContent = '—';
+  renderAguaDisplay();
+}
+
+// ──────────────────────────────────
+// CORPO - EXERCÍCIOS
+// ──────────────────────────────────
+const exPresets = ['Supino plano','Supino inclinado','Crucifixo','Desenvolvimento','Elevação lateral','Remada curvada','Pulldown','Barra fixa','Agachamento','Leg press','Extensão de pernas','Flexão de pernas','Stiff','Levantamento terra','Rosca direta','Rosca martelo','Tríceps testa','Tríceps corda','Abdominal','Prancha','Panturrilha','Hip thrust','Corrida','Ciclismo','Natação','Jiu Jitsu','Basquete'];
+const exToMuscle = {
+  'supino plano':['peito','ombros','triceps'],'supino inclinado':['peito','ombros','triceps'],'crucifixo':['peito'],'desenvolvimento':['ombros','triceps'],'elevação lateral':['ombros'],'remada curvada':['costas','biceps','trapezio'],'pulldown':['costas','biceps'],'barra fixa':['costas','biceps'],'agachamento':['quadriceps','gluteos','isquiotibiais'],'leg press':['quadriceps','gluteos'],'extensão de pernas':['quadriceps'],'flexão de pernas':['isquiotibiais'],'stiff':['isquiotibiais','gluteos','costas'],'levantamento terra':['costas','gluteos','isquiotibiais','trapezio'],'rosca direta':['biceps'],'rosca martelo':['biceps','antebraco'],'tríceps testa':['triceps'],'tríceps corda':['triceps'],'abdominal':['abdomen'],'prancha':['abdomen','costas'],'panturrilha':['panturrilha'],'hip thrust':['gluteos','isquiotibiais'],'corrida':['quadriceps','isquiotibiais','panturrilha'],'ciclismo':['quadriceps','isquiotibiais','gluteos'],'natação':['costas','ombros','peito','triceps','biceps'],
+  'jiu jitsu':['costas','abdomen','quadriceps','isquiotibiais','gluteos','biceps','triceps','antebraco','ombros','trapezio'],
+  'basquete':['quadriceps','panturrilha','isquiotibiais','gluteos','abdomen','ombros']
+};
+
+// Populate datalist
+const dl = $('ex-preset');
+exPresets.forEach(e => { const o = document.createElement('option'); o.value = e; dl.appendChild(o); });
+
+// MET values for kcal estimation (kcal/kg/hour)
+const exMET = {
+  'supino plano':4,'supino inclinado':4,'crucifixo':3.5,'desenvolvimento':4,'elevação lateral':3,
+  'remada curvada':5,'pulldown':5,'barra fixa':6,'agachamento':6,'leg press':5,
+  'extensão de pernas':3.5,'flexão de pernas':3.5,'stiff':5,'levantamento terra':6,
+  'rosca direta':3,'rosca martelo':3,'tríceps testa':3,'tríceps corda':3,
+  'abdominal':3.5,'prancha':4,'panturrilha':3,'hip thrust':5,
+  'corrida':9,'ciclismo':7,'natação':8,'jiu jitsu':10,'basquete':8
+};
+
+function estimarKcal() {
+  const nome = ($('ex-nome').value || '').toLowerCase();
+  const dur = parseFloat($('ex-dur').value) || 0;
+  // Try to get weight from corpo data or from input
+  const pesoInp = parseFloat($('ex-peso-corpo').value);
+  const pesoCorpo = pesoInp || parseFloat((load('corpo_d',{})[today()]||{}).peso) || 75;
+  if (!dur) { $('ex-kcal').value = ''; $('ex-kcal-hint').textContent = ''; return; }
+  const met = exMET[nome] || 5;
+  const kcal = Math.round(met * pesoCorpo * (dur / 60));
+  $('ex-kcal').value = kcal;
+  $('ex-kcal-hint').textContent = `MET ${met} · ${pesoCorpo}kg`;
+}
+
+// Auto-select muscles from exercise name
+$('ex-nome').addEventListener('change', function() {
+  const key = this.value.toLowerCase();
+  const muscles = exToMuscle[key] || [];
+  document.querySelectorAll('#mc-sel .mc').forEach(c => {
+    c.classList.toggle('on', muscles.includes(c.dataset.m));
+  });
+  if (!$('ex-dur').value) {
+    const durMap = { corrida: 30, ciclismo: 45, natação: 45, 'jiu jitsu': 90, basquete: 60 };
+    if (durMap[key]) $('ex-dur').value = durMap[key];
+  }
+  estimarKcal();
+});
+
+document.querySelectorAll('#mc-sel .mc').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+
+// ── TREINO QUEUE ──
+let treinoFila = [];
+
+function adicionarNaFila() {
+  const nome = $('ex-nome').value.trim();
+  if (!nome) { $('ex-nome').focus(); return; }
+  const musculos = [...document.querySelectorAll('#mc-sel .mc.on')].map(c => c.dataset.m);
+  const dur = parseInt($('ex-dur').value) || 0;
+  const kcal = parseInt($('ex-kcal').value) || 0;
+  treinoFila.push({ nome, sr: $('ex-sr').value, kg: $('ex-kg').value, dur, kcal, musculos, notas: $('ex-notas').value });
+  // Reset form fields
+  $('ex-nome').value = ''; $('ex-sr').value = ''; $('ex-kg').value = '';
+  $('ex-dur').value = ''; $('ex-kcal').value = ''; $('ex-kcal-hint').textContent = ''; $('ex-notas').value = '';
+  document.querySelectorAll('#mc-sel .mc').forEach(c => c.classList.remove('on'));
+  renderTreinoFila();
+}
+
+function removerDaFila(idx) {
+  treinoFila.splice(idx, 1);
+  renderTreinoFila();
+}
+
+function renderTreinoFila() {
+  const cont = $('treino-fila');
+  const resumo = $('treino-resumo');
+  const btn = $('treino-lancar-btn');
+  if (!treinoFila.length) {
+    cont.innerHTML = '';
+    resumo.style.display = 'none';
+    btn.style.display = 'none';
+    return;
+  }
+  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
+  cont.innerHTML = treinoFila.map((e, i) => `
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px;border:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">
+          ${e.sr ? e.sr : ''}${e.kg ? ' · ' + e.kg + 'kg' : ''}${e.dur ? ' · ' + e.dur + 'min' : ''}${e.kcal ? ' · <span style="color:var(--purple)">🔥 ' + e.kcal + ' kcal</span>' : ''}
+        </div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">
+          ${e.musculos.map(m => `<span class="tag to" style="font-size:9px">${muscLabels[m]||m}</span>`).join('')}
+        </div>
+      </div>
+      <button class="ib del" onclick="removerDaFila(${i})">×</button>
+    </div>`).join('');
+  const totalDur = treinoFila.reduce((s, e) => s + e.dur, 0);
+  const totalKcal = treinoFila.reduce((s, e) => s + e.kcal, 0);
+  $('treino-total-dur').textContent = totalDur + ' min';
+  $('treino-total-kcal').textContent = totalKcal + ' kcal';
+  resumo.style.display = 'block';
+  btn.style.display = 'flex';
+}
+
+function lancarTreino() {
+  if (!treinoFila.length) return;
+  const exs = load('exercicios', []);
+  const now = Date.now();
+  treinoFila.forEach((e, i) => {
+    exs.unshift({ id: now + i, date: today(), nome: e.nome, sr: e.sr, kg: e.kg, dur: e.dur, kcal: e.kcal, musculos: e.musculos, notas: e.notas });
+  });
+  save('exercicios', exs);
+  treinoFila = [];
+  renderTreinoFila();
+  renderExLog(); updateMuscleDiagram(); renderHistorico(); renderMapaHome(); renderHistChart();
+  const todayExs = load('exercicios', []).filter(e => e.date === today());
+  const totalDur = todayExs.reduce((s, e) => s + (e.dur || 0), 0);
+  const totalKcal = todayExs.reduce((s, e) => s + (e.kcal || 0), 0);
+  if (totalDur) animateNumber($('cp-exc-v'), totalDur, { suffix: ' min', duration: 800 });
+  else $('cp-exc-v').textContent = '—';
+  if ($('cp-kcal-v') && totalKcal) animateNumber($('cp-kcal-v'), totalKcal, { suffix: ' kcal', duration: 900 });
+  else if ($('cp-kcal-v')) $('cp-kcal-v').textContent = '—';
+  // Flash feedback
+  const btn = $('treino-lancar-btn');
+  btn.textContent = '✅ Treino lançado!';
+  setTimeout(() => { btn.style.display = 'none'; btn.textContent = '🏋️ Lançar treino completo'; }, 2000);
+}
+
+// Keep addExercicio as alias for backward compatibility
+function addExercicio() { adicionarNaFila(); }
+
+function delEx(id) {
+  save('exercicios', load('exercicios', []).filter(e => e.id !== id));
+  renderExLog(); updateMuscleDiagram(); renderMapaHome(); renderHistChart();
+}
+
+function renderExLog() {
+  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+  const cutoff = localDateStr(sevenAgo);
+  const exs = load('exercicios', []).filter(e => e.date >= cutoff);
+  const cont = $('ex-log');
+  if (!exs.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏋️</div>Nenhum treino nos últimos 7 dias</div>'; return; }
+  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
+  cont.innerHTML = exs.map(e => `
+    <div class="ex-e">
+      <div class="ex-top">
+        <div>
+          <div class="ex-nm">${e.nome}</div>
+          <div class="ex-det">${e.date}${e.sr ? ' · ' + e.sr : ''}${e.kg ? ' · ' + e.kg + ' kg' : ''}${e.dur ? ' · ' + e.dur + 'min' : ''}${e.kcal ? ' · <span style="color:var(--purple);font-weight:600">🔥 ' + e.kcal + ' kcal</span>' : ''}${e.notas ? ' · ' + e.notas : ''}</div>
+          <div class="ex-ms">${(e.musculos || []).map(m => `<span class="tag to">${muscLabels[m]||m}</span>`).join('')}</div>
+        </div>
+        <button class="ib del" onclick="delEx(${e.id})">×</button>
+      </div>
+    </div>`).join('');
+  // Update duration + kcal stats
+  const todayExs = exs.filter(e => e.date === today());
+  const totalDur = todayExs.reduce((s, e) => s + (e.dur || 0), 0);
+  const totalKcal = todayExs.reduce((s, e) => s + (e.kcal || 0), 0);
+  $('cp-exc-v').textContent = totalDur ? totalDur + ' min' : '—';
+  if ($('cp-kcal-v')) $('cp-kcal-v').textContent = totalKcal ? totalKcal + ' kcal' : '—';
+}
+
+// ──────────────────────────────────
+// MUSCLE DIAGRAM
+// ──────────────────────────────────
+const muscleElems = {
+  peito:        ['f-pec-l','f-pec-r','f-serr-l','f-serr-r'],
+  ombros:       ['f-delt-l','f-delt-r','b-delt-l','b-delt-r'],
+  biceps:       ['f-bic-l','f-bic-r'],
+  triceps:      ['b-tri-l','b-tri-r'],
+  abdomen:      ['f-abs-1l','f-abs-1r','f-abs-2l','f-abs-2r','f-abs-3l','f-abs-3r','f-obl-l','f-obl-r'],
+  antebraco:    ['f-brad-l','f-brad-r','f-flex-l','f-flex-r','b-ext-l','b-ext-r','b-wext-l','b-wext-r'],
+  costas:       ['b-lat-l','b-lat-r','b-erect-l','b-erect-r','b-low','b-infra-l','b-infra-r'],
+  trapezio:     ['b-trap-u','b-trap-m','b-trap-l2','b-trap-r2'],
+  quadriceps:   ['f-rec-l','f-rec-r','f-vas-l','f-vas-r','f-hip-l','f-hip-r','f-knee-l','f-knee-r'],
+  gluteos:      ['b-glut-max-l','b-glut-max-r','b-glut-med-l','b-glut-med-r'],
+  isquiotibiais:['b-ham-bf-l','b-ham-bf-r','b-ham-st-l','b-ham-st-r'],
+  panturrilha:  ['f-tib-l','f-tib-r','f-gast-l','f-gast-r','b-gas-l','b-gas-r','b-sol-l','b-sol-r'],
+};
+
+function muscleColor(ratio) {
+  if (ratio <= 0) return '#252840';
+  const r = Math.round(37 + ratio * (230 - 37));
+  const g = Math.round(42 + ratio * (110 - 42));
+  const b = Math.round(56 + ratio * (30 - 56));
+  return `rgb(${r},${g},${b})`;
+}
+
+function updateMuscleDiagram() {
+  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+  const cutoff = localDateStr(sevenAgo);
+  const exs = load('exercicios', []).filter(e => e.date >= cutoff);
+
+  // Count frequency per muscle
+  const freq = {};
+  exs.forEach(e => (e.musculos || []).forEach(m => { freq[m] = (freq[m] || 0) + 1; }));
+  const maxFreq = Math.max(1, ...Object.values(freq));
+
+  // Apply colors — scope only to corpo SVGs to avoid conflict with home mini-map
+  document.querySelectorAll('#svg-front .ms, #svg-back .ms').forEach(el => {
+    el.setAttribute('fill', '#252840');
+    el.setAttribute('opacity', '0.7');
+  });
+
+  Object.entries(muscleElems).forEach(([muscle, ids]) => {
+    const count = freq[muscle] || 0;
+    const ratio = count / maxFreq;
+    const color = muscleColor(ratio);
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.setAttribute('fill', color); el.setAttribute('opacity', ratio > 0 ? '0.85' : '0.6'); }
+    });
+  });
+
+  // Legend
+  const legend = $('mmap-legend');
+  const trained = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
+  if (!trained.length) { legend.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center">Registre treinos para ver o mapa muscular</div>'; return; }
+  legend.innerHTML = trained.map(([m, c]) => `<div class="mll"><div class="mlld" style="background:${muscleColor(c/maxFreq)}"></div>${muscLabels[m]||m}: ${c}x</div>`).join('');
+}
+
+// ──────────────────────────────────
+// JIU JITSU
+// ──────────────────────────────────
+function jjTab(btn, id) {
+  document.querySelectorAll('#page-jj .stab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#page-jj .sp').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
+}
+
+function saveJJ() {
+  const jj = load('jj', {});
+  jj.geral = $('jj-geral').value;
+  jj.guardaFav = $('jj-guarda-fav').value;
+  jj.topoFav = $('jj-topo-fav').value;
+  jj.forte = $('jj-forte').value;
+  jj.fraco = $('jj-fraco').value;
+  save('jj', jj);
+  alert('Salvo! ✅');
+}
+
+function loadJJ() {
+  const jj = load('jj', {});
+  if (jj.geral) $('jj-geral').value = jj.geral;
+  if (jj.guardaFav) $('jj-guarda-fav').value = jj.guardaFav;
+  if (jj.topoFav) $('jj-topo-fav').value = jj.topoFav;
+  if (jj.forte) $('jj-forte').value = jj.forte;
+  if (jj.fraco) $('jj-fraco').value = jj.fraco;
+}
+
+const nivelTag = { 'Estudando':'tb', 'Treinando':'ta', 'Confortável':'tg', 'Arma principal':'tp', 'Preferida':'tp' };
+
+function addFinalizacao() {
+  const nome = $('jjf-nome').value.trim();
+  if (!nome) return;
+  const list = load('jj_finais', []);
+  list.unshift({ id: Date.now(), nome, cat: $('jjf-cat').value, nivel: $('jjf-nivel').value, notas: $('jjf-notas').value });
+  save('jj_finais', list);
+  $('jjf-nome').value = ''; $('jjf-notas').value = '';
+  renderFinalizacoes();
+}
+
+function delFinal(id) { save('jj_finais', load('jj_finais', []).filter(x => x.id !== id)); renderFinalizacoes(); }
+
+function renderFinalizacoes() {
+  const list = load('jj_finais', []);
+  const cont = $('lista-final');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma finalização adicionada</div>'; return; }
+  cont.innerHTML = list.map(f => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${f.nome} <span class="tag ${nivelTag[f.nivel]||'ta'}">${f.nivel}</span></div>
+        <div class="li-sub">${f.cat}${f.notas ? ' · ' + f.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delFinal(${f.id})">×</button>
+    </div>`).join('');
+}
+
+function addPassagem() {
+  const nome = $('jjg-nome').value.trim();
+  if (!nome) return;
+  const list = load('jj_passagens', []);
+  list.unshift({ id: Date.now(), nome, guarda: $('jjg-guarda').value, nivel: $('jjg-nivel').value, notas: $('jjg-notas').value });
+  save('jj_passagens', list);
+  $('jjg-nome').value = ''; $('jjg-guarda').value = ''; $('jjg-notas').value = '';
+  renderPassagens();
+}
+
+function delPassagem(id) { save('jj_passagens', load('jj_passagens', []).filter(x => x.id !== id)); renderPassagens(); }
+
+function renderPassagens() {
+  const list = load('jj_passagens', []);
+  const cont = $('lista-passagens');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma passagem adicionada</div>'; return; }
+  cont.innerHTML = list.map(p => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${p.nome} <span class="tag ${nivelTag[p.nivel]||'ta'}">${p.nivel}</span></div>
+        <div class="li-sub">${p.guarda ? 'Da ' + p.guarda : ''}${p.notas ? ' · ' + p.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delPassagem(${p.id})">×</button>
+    </div>`).join('');
+}
+
+function addVideo() {
+  const titulo = $('jjv-titulo').value.trim();
+  if (!titulo) return;
+  const list = load('jj_videos', []);
+  list.unshift({ id: Date.now(), titulo, inst: $('jjv-inst').value, link: $('jjv-link').value, tecnica: $('jjv-tecnica').value, notas: $('jjv-notas').value });
+  save('jj_videos', list);
+  $('jjv-titulo').value = ''; $('jjv-inst').value = ''; $('jjv-link').value = ''; $('jjv-tecnica').value = ''; $('jjv-notas').value = '';
+  renderVideos();
+}
+
+function delVideo(id) { save('jj_videos', load('jj_videos', []).filter(x => x.id !== id)); renderVideos(); }
+
+function renderVideos() {
+  const list = load('jj_videos', []);
+  const cont = $('lista-videos');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🎬</div>Nenhuma videoaula adicionada</div>'; return; }
+  cont.innerHTML = list.map(v => `
+    <div class="li">
+      <div style="font-size:22px">🎬</div>
+      <div class="li-info">
+        <div class="li-nm">${v.link ? `<a href="${v.link}" target="_blank" style="color:var(--accent);text-decoration:none">${v.titulo}</a>` : v.titulo}</div>
+        <div class="li-sub">${v.inst ? v.inst + (v.tecnica ? ' · ' + v.tecnica : '') : v.tecnica || ''}${v.notas ? ' — ' + v.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delVideo(${v.id})">×</button>
+    </div>`).join('');
+}
+
+function addTreinoJJ() {
+  const data = $('jjt-data').value || today();
+  const tema = $('jjt-tema').value.trim();
+  if (!tema) return alert('Descreva o que foi praticado.');
+  const list = load('jj_treinos', []);
+  list.unshift({ id: Date.now(), data, dur: $('jjt-dur').value, faixa: $('jjt-faixa').value, tema, notas: $('jjt-notas').value });
+  save('jj_treinos', list);
+  $('jjt-data').value = ''; $('jjt-dur').value = ''; $('jjt-tema').value = ''; $('jjt-notas').value = '';
+  renderTreinosJJ();
+}
+
+function delTreinoJJ(id) { save('jj_treinos', load('jj_treinos', []).filter(x => x.id !== id)); renderTreinosJJ(); }
+
+function renderTreinosJJ() {
+  const list = load('jj_treinos', []);
+  const cont = $('lista-treinos-jj');
+  const faixaCor = { Branca:'tb', Cinza:'tb', Amarela:'ta', Laranja:'to', Verde:'tg', Azul:'tb', Roxa:'tp', Marrom:'ta', Preta:'tb' };
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhum treino registrado</div>'; return; }
+  cont.innerHTML = list.map(t => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${t.data} — ${t.tema} <span class="tag ${faixaCor[t.faixa]||'tb'}">${t.faixa}</span>${t.dur ? ' · ' + t.dur + 'min' : ''}</div>
+        <div class="li-sub">${t.notas || ''}</div>
+      </div>
+      <button class="ib del" onclick="delTreinoJJ(${t.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// MENTE
+// ──────────────────────────────────
+function menteTab(btn, id) {
+  document.querySelectorAll('#page-mente .stab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#page-mente .sp').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
+}
+
+function setMood(btn) {
+  document.querySelectorAll('.mb').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+document.querySelectorAll('.mb').forEach(b => b.addEventListener('click', () => setMood(b)));
+
+function saveMood() {
+  const sel = document.querySelector('.mb.on');
+  if (!sel) return alert('Selecione um humor!');
+  const mente = load('mente', []);
+  mente.unshift({ id: Date.now(), tipo: 'humor', mood: sel.dataset.m, nota: $('mood-nota').value, data: today(), hora: fmtTime() });
+  save('mente', mente);
+  $('mood-nota').value = '';
+  document.querySelectorAll('.mb').forEach(b => b.classList.remove('on'));
+  renderHumor(); refreshHome();
+}
+
+function saveGrat() {
+  const g1 = $('g1').value.trim();
+  if (!g1) return alert('Escreva ao menos uma gratidão.');
+  const mente = load('mente', []);
+  mente.unshift({ id: Date.now(), tipo: 'gratidao', items: [$('g1').value, $('g2').value, $('g3').value].filter(Boolean), data: today(), hora: fmtTime() });
+  save('mente', mente);
+  $('g1').value = ''; $('g2').value = ''; $('g3').value = '';
+  renderGrat();
+}
+
+function saveDiario() {
+  const txt = $('diario-txt').value.trim();
+  if (!txt) return;
+  const mente = load('mente', []);
+  mente.unshift({ id: Date.now(), tipo: 'diario', texto: txt, data: today(), hora: fmtTime() });
+  save('mente', mente);
+  $('diario-txt').value = '';
+  renderDiario(); refreshHome();
+}
+
+function delMente(id) {
+  save('mente', load('mente', []).filter(m => m.id !== id));
+  renderHumor(); renderGrat(); renderDiario(); refreshHome();
+}
+
+function renderHumor() {
+  const list = load('mente', []).filter(m => m.tipo === 'humor');
+  const cont = $('lista-humor');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">😊</div>Nenhum registro</div>'; return; }
+  cont.innerHTML = list.slice(0, 20).map(m => `
+    <div class="je humor">
+      <div class="jm"><span>${m.data} ${m.hora}</span><button class="ib del" onclick="delMente(${m.id})">×</button></div>
+      <div class="jt">${m.mood} ${m.nota ? '— ' + m.nota : ''}</div>
+    </div>`).join('');
+}
+
+function renderGrat() {
+  const list = load('mente', []).filter(m => m.tipo === 'gratidao');
+  const cont = $('lista-grat');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🙏</div>Nenhum registro</div>'; return; }
+  cont.innerHTML = list.slice(0, 20).map(m => `
+    <div class="je grat">
+      <div class="jm"><span>${m.data} ${m.hora}</span><button class="ib del" onclick="delMente(${m.id})">×</button></div>
+      <div class="jt">${m.items.map((g, i) => `${i+1}. ${g}`).join('<br>')}</div>
+    </div>`).join('');
+}
+
+function renderDiario() {
+  const list = load('mente', []).filter(m => m.tipo === 'diario');
+  const cont = $('lista-diario');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">📓</div>Nenhuma entrada</div>'; return; }
+  cont.innerHTML = list.slice(0, 20).map(m => `
+    <div class="je diary">
+      <div class="jm"><span>${m.data} ${m.hora}</span><button class="ib del" onclick="delMente(${m.id})">×</button></div>
+      <div class="jt" style="white-space:pre-wrap">${m.texto}</div>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// EVOLUÇÃO
+// ──────────────────────────────────
+function evolTab(btn, id) {
+  document.querySelectorAll('#page-evolucao .stab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#page-evolucao .sp').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
+}
+
+function addMetaAnual() {
+  const nome = $('ma-nome').value.trim();
+  if (!nome) return;
+  const list = load('metas_a', []);
+  list.push({ id: Date.now(), nome, cat: $('ma-cat').value, prazo: $('ma-prazo').value, done: false, ano: new Date().getFullYear() });
+  save('metas_a', list);
+  $('ma-nome').value = ''; $('ma-prazo').value = '';
+  renderMetasAnuais();
+}
+
+function toggleMetaAnual(id) {
+  const list = load('metas_a', []);
+  const m = list.find(m => m.id === id);
+  if (m) m.done = !m.done;
+  save('metas_a', list);
+  renderMetasAnuais();
+}
+
+function delMetaAnual(id) { save('metas_a', load('metas_a', []).filter(m => m.id !== id)); renderMetasAnuais(); }
+
+function renderMetasAnuais() {
+  const ano = new Date().getFullYear();
+  $('ano-atual').textContent = ano;
+  const list = load('metas_a', []).filter(m => m.ano === ano);
+  const cont = $('lista-ma');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🎯</div>Nenhuma meta anual</div>'; return; }
+  cont.innerHTML = list.map(m => `
+    <div class="ci">
+      <div class="cb${m.done ? ' on' : ''}" onclick="toggleMetaAnual(${m.id})">${m.done ? '✓' : ''}</div>
+      <span class="cl${m.done ? ' x' : ''}" style="flex:1">${m.nome}</span>
+      <span class="tag ${catColor[m.cat]||'ta'}">${m.cat}</span>
+      ${m.prazo ? `<span style="font-size:10px;color:var(--text3)">até ${m.prazo}</span>` : ''}
+      <button class="ib del" onclick="delMetaAnual(${m.id})">×</button>
+    </div>`).join('');
+}
+
+function addMetaTracking() {
+  const nome = $('mt-nome').value.trim();
+  const target = parseInt($('mt-target').value);
+  if (!nome || !target) return alert('Preencha nome e meta.');
+  const list = load('metas_t', []);
+  list.push({ id: Date.now(), nome, target, atual: 0, unidade: $('mt-unidade').value || 'vezes', ano: new Date().getFullYear() });
+  save('metas_t', list);
+  $('mt-nome').value = ''; $('mt-target').value = ''; $('mt-unidade').value = '';
+  renderMetasTracking();
+}
+
+function adjustTracking(id, delta) {
+  const list = load('metas_t', []);
+  const m = list.find(m => m.id === id);
+  if (m) { m.atual = Math.max(0, Math.min(m.target, (m.atual || 0) + delta)); }
+  save('metas_t', list);
+  renderMetasTracking();
+}
+
+function setTrackingVal(id, val) {
+  const list = load('metas_t', []);
+  const m = list.find(m => m.id === id);
+  if (m) m.atual = Math.max(0, Math.min(m.target, parseInt(val) || 0));
+  save('metas_t', list);
+  renderMetasTracking();
+}
+
+function delMetaTracking(id) { save('metas_t', load('metas_t', []).filter(m => m.id !== id)); renderMetasTracking(); }
+
+function renderMetasTracking() {
+  const list = load('metas_t', []).filter(m => m.ano === new Date().getFullYear());
+  const cont = $('lista-mt');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">📊</div>Nenhuma meta de tracking</div>'; return; }
+  cont.innerHTML = list.map(m => {
+    const pct = Math.min(100, Math.round((m.atual / m.target) * 100));
+    return `<div class="tgi">
+      <div class="tgi-info">
+        <div class="tgi-nm">${m.nome}</div>
+        <div class="tgi-sub">${m.atual} / ${m.target} ${m.unidade} · ${pct}%</div>
+        <div class="pb" style="margin-top:5px"><div class="pf g" style="width:${pct}%"></div></div>
+      </div>
+      <div class="tgi-ctr">
+        <button onclick="adjustTracking(${m.id}, -1)">−</button>
+        <input type="number" class="tgi-n" value="${m.atual}" min="0" max="${m.target}" onchange="setTrackingVal(${m.id}, this.value)" style="width:50px;text-align:center;background:transparent;border:none;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--accent)">
+        <button onclick="adjustTracking(${m.id}, 1)">+</button>
+      </div>
+      <button class="ib del" onclick="delMetaTracking(${m.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function addConquista() {
+  const txt = $('cq-txt').value.trim();
+  if (!txt) return;
+  const list = load('conquistas', []);
+  list.unshift({ id: Date.now(), txt, cat: $('cq-cat').value, data: today() });
+  save('conquistas', list);
+  $('cq-txt').value = '';
+  renderConquistas();
+}
+
+function delConquista(id) { save('conquistas', load('conquistas', []).filter(c => c.id !== id)); renderConquistas(); }
+
+function renderConquistas() {
+  const list = load('conquistas', []);
+  const cont = $('lista-cq');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏆</div>Nenhuma conquista ainda</div>'; return; }
+  cont.innerHTML = list.map(c => `
+    <div class="li">
+      <div style="font-size:20px">🏆</div>
+      <div class="li-info"><div class="li-nm">${c.txt}</div><div class="li-sub">${c.cat} · ${c.data}</div></div>
+      <button class="ib del" onclick="delConquista(${c.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// GAMES
+// ──────────────────────────────────
+const statusCor = { 'Quero jogar':'tb', 'Jogando':'tg', 'Pausado':'ta', 'Zerado':'tp', '100%':'to', 'Abandonado':'tr' };
+
+function addGame() {
+  const nome = $('gm-nome').value.trim();
+  if (!nome) return;
+  const list = load('games', []);
+  list.unshift({ id: Date.now(), nome, plat: $('gm-plat').value, status: $('gm-status').value, genero: $('gm-genero').value, ico: $('gm-ico').value || '🎮', notas: $('gm-notas').value });
+  save('games', list);
+  $('gm-nome').value = ''; $('gm-ico').value = ''; $('gm-genero').value = ''; $('gm-notas').value = '';
+  renderGames();
+}
+
+function delGame(id) { save('games', load('games', []).filter(g => g.id !== id)); renderGames(); }
+
+function changeGameStatus(id, val) {
+  const list = load('games', []);
+  const g = list.find(g => g.id === id);
+  if (g) g.status = val;
+  save('games', list);
+  renderGames();
+}
+
+function renderGames() {
+  const filter = $('gm-filter').value;
+  const list = load('games', []).filter(g => !filter || g.status === filter);
+  const cont = $('lista-games');
+  if (!list.length) { cont.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">🎮</div>Nenhum jogo adicionado</div>'; return; }
+  cont.innerHTML = list.map(g => `
+    <div class="gc">
+      <div class="gc-del"><button class="ib del" onclick="delGame(${g.id})">×</button></div>
+      <div class="gc-ico">${g.ico}</div>
+      <div class="gc-nm">${g.nome}</div>
+      <div class="gc-pl">${g.plat}${g.genero ? ' · ' + g.genero : ''}</div>
+      <select onchange="changeGameStatus(${g.id}, this.value)" style="font-size:10px;padding:3px 6px;text-align:center">
+        ${['Quero jogar','Jogando','Pausado','Zerado','100%','Abandonado'].map(s => `<option${g.status===s?' selected':''}>${s}</option>`).join('')}
+      </select>
+      ${g.notas ? `<div style="font-size:10px;color:var(--text3);text-align:center">${g.notas}</div>` : ''}
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// CURSOS
+// ──────────────────────────────────
+const curStatusCor = { 'Quero fazer':'tb', 'Em andamento':'to', 'Pausado':'ta', 'Concluído':'tg' };
+
+function addCurso() {
+  const nome = $('cu-nome').value.trim();
+  if (!nome) return;
+  const list = load('cursos', []);
+  list.unshift({ id: Date.now(), nome, plat: $('cu-plat').value, status: $('cu-status').value, link: $('cu-link').value, area: $('cu-area').value, pct: parseInt($('cu-pct').value) || 0, notas: $('cu-notas').value });
+  save('cursos', list);
+  $('cu-nome').value = ''; $('cu-plat').value = ''; $('cu-link').value = ''; $('cu-area').value = ''; $('cu-pct').value = 0; $('cu-notas').value = '';
+  renderCursos();
+}
+
+function updateCursoPct(id, val) {
+  const list = load('cursos', []);
+  const c = list.find(c => c.id === id);
+  if (c) c.pct = parseInt(val) || 0;
+  save('cursos', list);
+}
+
+function delCurso(id) { save('cursos', load('cursos', []).filter(c => c.id !== id)); renderCursos(); }
+
+function renderCursos() {
+  const list = load('cursos', []);
+  const cont = $('lista-cursos');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">📚</div>Nenhum curso adicionado</div>'; return; }
+  cont.innerHTML = list.map(c => `
+    <div class="li">
+      <div style="font-size:22px">📚</div>
+      <div class="li-info">
+        <div class="li-nm">${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--accent);text-decoration:none">${c.nome}</a>` : c.nome} <span class="tag ${curStatusCor[c.status]||'ta'}">${c.status}</span></div>
+        <div class="li-sub">${c.plat || ''}${c.area ? ' · ' + c.area : ''}${c.notas ? ' · ' + c.notas : ''}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+          <div class="pb" style="flex:1;margin-top:0"><div class="pf b" style="width:${c.pct}%"></div></div>
+          <input type="range" min="0" max="100" value="${c.pct}" onchange="updateCursoPct(${c.id},this.value)" style="width:80px;accent-color:var(--accent)">
+          <span style="font-size:10px;color:var(--blue);font-family:'DM Mono',monospace">${c.pct}%</span>
+        </div>
+      </div>
+      <button class="ib del" onclick="delCurso(${c.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// RECEITAS
+// ──────────────────────────────────
+const difCor = { Fácil:'tg', Médio:'ta', Difícil:'tr' };
+
+function addReceita() {
+  const nome = $('rc-nome').value.trim();
+  if (!nome) return;
+  const list = load('receitas', []);
+  list.unshift({ id: Date.now(), nome, cat: $('rc-cat').value, dif: $('rc-dif').value, link: $('rc-link').value, tempo: $('rc-tempo').value, notas: $('rc-notas').value, feita: false });
+  save('receitas', list);
+  $('rc-nome').value = ''; $('rc-link').value = ''; $('rc-tempo').value = ''; $('rc-notas').value = '';
+  renderReceitas();
+}
+
+function toggleReceita(id) {
+  const list = load('receitas', []);
+  const r = list.find(r => r.id === id);
+  if (r) r.feita = !r.feita;
+  save('receitas', list);
+  renderReceitas();
+}
+
+function delReceita(id) { save('receitas', load('receitas', []).filter(r => r.id !== id)); renderReceitas(); }
+
+function renderReceitas() {
+  const filter = $('rc-filter').value;
+  const list = load('receitas', []).filter(r => !filter || r.cat === filter);
+  const cont = $('lista-receitas');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🍳</div>Nenhuma receita adicionada</div>'; return; }
+  const catEmoji = { 'Almoço/Jantar':'🍽️', 'Café da manhã':'☕', 'Lanche':'🥪', 'Sobremesa':'🍰', 'Bebida':'🥤', 'Fitness':'💪' };
+  cont.innerHTML = list.map(r => `
+    <div class="li${r.feita ? ' done' : ''}">
+      <div style="font-size:22px">${catEmoji[r.cat]||'🍳'}</div>
+      <div class="li-info">
+        <div class="li-nm">${r.link ? `<a href="${r.link}" target="_blank" style="color:var(--accent);text-decoration:none">${r.nome}</a>` : r.nome} <span class="tag ${difCor[r.dif]||'ta'}">${r.dif}</span>${r.feita ? ' <span class="tag tg">Feita ✓</span>' : ''}</div>
+        <div class="li-sub">${r.cat}${r.tempo ? ' · ' + r.tempo : ''}${r.notas ? ' · ' + r.notas : ''}</div>
+      </div>
+      <button class="ib ${r.feita ? 'del' : 'chk'}" onclick="toggleReceita(${r.id})">${r.feita ? '↩' : '✓'}</button>
+      <button class="ib del" onclick="delReceita(${r.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// COMPRAS
+// ──────────────────────────────────
+function addCompra() {
+  const item = $('cp-item').value.trim();
+  if (!item) return;
+  const list = load('compras', []);
+  list.unshift({ id: Date.now(), item, cat: $('cp-cat').value, prio: $('cp-prio').value, preco: parseFloat($('cp-preco').value) || 0, done: false });
+  save('compras', list);
+  $('cp-item').value = ''; $('cp-preco').value = '';
+  renderCompras();
+}
+
+function toggleCompra(id) {
+  const list = load('compras', []);
+  const c = list.find(c => c.id === id);
+  if (c) c.done = !c.done;
+  save('compras', list);
+  renderCompras();
+}
+
+function delCompra(id) { save('compras', load('compras', []).filter(c => c.id !== id)); renderCompras(); }
+
+function clearDoneCompras() {
+  save('compras', load('compras', []).filter(c => !c.done));
+  renderCompras();
+}
+
+function renderCompras() {
+  const list = load('compras', []);
+  const cont = $('lista-compras');
+  const total = list.filter(c => !c.done).reduce((s, c) => s + c.preco, 0);
+  $('cp-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🛒</div>Lista vazia</div>'; return; }
+  const sorted = [...list].sort((a, b) => { const po = { a: 0, m: 1, b: 2 }; return po[a.prio] - po[b.prio]; });
+  cont.innerHTML = sorted.map(c => `
+    <div class="ci compra${c.done ? ' done' : ''}">
+      <div class="cb${c.done ? ' on' : ''}" onclick="toggleCompra(${c.id})">${c.done ? '✓' : ''}</div>
+      <div class="${prioClass[c.prio]}"></div>
+      <span class="cl${c.done ? ' x' : ''}" style="flex:1">${c.item}</span>
+      <span class="tag ${catColor[c.cat]||'tb'}" style="font-size:9px">${c.cat}</span>
+      ${c.preco > 0 ? `<span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)">R$${c.preco.toFixed(2)}</span>` : ''}
+      <button class="ib del" onclick="delCompra(${c.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// CORPO - HISTÓRICO DIÁRIO
+// ──────────────────────────────────
+function renderHistorico() {
+  const rangeVal = $('hist-range') ? $('hist-range').value : '14';
+  const corpoD = load('corpo_d', {});
+  const aguaD = load('agua', {});
+  const exsAll = load('exercicios', []);
+  const aguaMeta = load('agua_meta', 2000);
+
+  // Build set of all dates across all data sources
+  const allDates = new Set([...Object.keys(corpoD), ...Object.keys(aguaD), ...exsAll.map(e => e.date)]);
+  let dates = [...allDates].sort().reverse();
+
+  if (rangeVal !== 'all') {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - parseInt(rangeVal));
+    const cutoffStr = localDateStr(cutoff);
+    dates = dates.filter(d => d >= cutoffStr);
+  }
+
+  // Fill missing days in range for continuity
+  if (rangeVal !== 'all' && dates.length > 0) {
+    const days = parseInt(rangeVal);
+    const filled = [];
+    for (let i = 0; i < days; i++) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      filled.push(localDateStr(d));
+    }
+    const merged = [...new Set([...filled, ...dates])].sort().reverse();
+    dates = merged.slice(0, days);
+  }
+
+  const cont = $('hist-table');
+  if (!dates.length) {
+    cont.innerHTML = '<div class="empty"><div class="ei">📈</div>Nenhum dado registrado ainda</div>';
+    return;
+  }
+
+  // Max values for bar scaling
+  const maxAgua = Math.max(aguaMeta, ...dates.map(d => aguaD[d] || 0));
+  const maxPeso = Math.max(...dates.map(d => parseFloat((corpoD[d] || {}).peso) || 0).filter(Boolean));
+  const maxSono = 12;
+  const maxEx = Math.max(30, ...dates.map(d => {
+    return exsAll.filter(e => e.date === d).reduce((s, e) => s + (e.dur || 0), 0);
+  }));
+
+  const fmtDate = s => {
+    const [y, m, dd] = s.split('-');
+    const weekDays = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    const dow = new Date(s + 'T12:00:00').getDay();
+    return `<span style="color:var(--text3);font-size:10px">${weekDays[dow]}</span> ${dd}/${m}`;
+  };
+
+  const tdBar = (val, max, color, unit) => {
+    if (!val) return `<td class="num" style="color:var(--text3)">—</td>`;
+    const pct = Math.min(100, (val / max) * 100);
+    return `<td><div class="bar-cell"><span class="num">${val}${unit}</span><div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div></div></div></td>`;
+  };
+
+  const t = today();
+  let rows = dates.map(d => {
+    const cd = corpoD[d] || {};
+    const agua = aguaD[d] || 0;
+    const exsDia = exsAll.filter(e => e.date === d);
+    const durTotal = exsDia.reduce((s, e) => s + (e.dur || 0), 0);
+    const kcalTotal = exsDia.reduce((s, e) => s + (e.kcal || 0), 0);
+    const exercNomes = exsDia.map(e => e.nome).join(', ') || '';
+    const isToday = d === t;
+    const pesoVal = parseFloat(cd.peso) || 0;
+    const sonoVal = parseFloat(cd.sono) || 0;
+    const aguaOk = agua >= aguaMeta;
+
+    return `<tr${isToday ? ' class="today-row"' : ''}>
+      <td style="white-space:nowrap;font-weight:${isToday?'700':'400'}">${fmtDate(d)}${isToday ? ' <span style="font-size:9px;color:var(--accent)">hoje</span>' : ''}</td>
+      ${tdBar(agua || null, maxAgua, aguaOk ? 'var(--green)' : 'var(--blue)', 'ml')}
+      ${pesoVal ? `<td class="num">${pesoVal} kg</td>` : '<td class="num" style="color:var(--text3)">—</td>'}
+      ${sonoVal ? tdBar(sonoVal, maxSono, 'var(--purple)', 'h') : '<td class="num" style="color:var(--text3)">—</td>'}
+      ${durTotal ? tdBar(durTotal, maxEx, 'var(--orange)', 'min') : '<td class="num" style="color:var(--text3)">—</td>'}
+      ${kcalTotal ? `<td class="num" style="color:var(--purple)">${kcalTotal}</td>` : '<td class="num" style="color:var(--text3)">—</td>'}
+      <td style="font-size:11px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${exercNomes}</td>
+      <td style="font-size:11px;color:var(--text3)">${cd.notas || ''}</td>
+      <td style="white-space:nowrap">
+        <button class="ib edt" title="Editar dia" onclick="editHistoricoDay('${d}')">✏️</button>
+        <button class="ib del" title="Excluir dia" onclick="delHistoricoDay('${d}')">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  cont.innerHTML = `<table class="htable">
+    <thead><tr>
+      <th>Data</th><th>💧 Água</th><th>⚖️ Peso</th><th>😴 Sono</th><th>🏋️ Treino</th><th>🔥 Kcal</th><th>Exercícios</th><th>Notas</th><th></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+  renderHistChart();
+}
+
+// ──────────────────────────────────
+// CORPO - DELETAR DIA DO HISTÓRICO
+// ──────────────────────────────────
+function delHistoricoDay(d) {
+  if (!confirm(`Excluir todos os dados de ${d}? (água, peso, sono, notas e exercícios do dia)`)) return;
+  const cd = load('corpo_d', {}); delete cd[d]; save('corpo_d', cd);
+  const ag = load('agua', {}); delete ag[d]; save('agua', ag);
+  save('exercicios', load('exercicios', []).filter(e => e.date !== d));
+  renderHistorico(); renderExLog(); updateMuscleDiagram(); renderAguaDisplay(); loadCorpoDiario();
+}
+
+function editHistoricoDay(d) {
+  const cd = load('corpo_d', {})[d] || {};
+  const aguaD = load('agua', {})[d] || 0;
+  const novoAgua = prompt(`Água (ml) — ${d}:`, aguaD);
+  if (novoAgua === null) return;
+  const novoPeso = prompt(`Peso (kg) — ${d}:`, cd.peso || '');
+  if (novoPeso === null) return;
+  const novoSono = prompt(`Sono (horas) — ${d}:`, cd.sono || '');
+  if (novoSono === null) return;
+  const novasNotas = prompt(`Notas — ${d}:`, cd.notas || '');
+  if (novasNotas === null) return;
+
+  // Save agua
+  const ag = load('agua', {});
+  const ml = parseFloat(novoAgua);
+  if (!isNaN(ml) && ml >= 0) ag[d] = ml; else delete ag[d];
+  save('agua', ag);
+
+  // Save corpo_d
+  const corpo = load('corpo_d', {});
+  corpo[d] = { peso: novoPeso, sono: novoSono, notas: novasNotas };
+  save('corpo_d', corpo);
+
+  renderHistorico(); renderAguaDisplay(); loadCorpoDiario();
+}
+
+// ──────────────────────────────────
+// FINANÇAS
+// ──────────────────────────────────
+function saveFinConfig() {
+  const renda = parseFloat($('fin-renda').value) || 0;
+  const cfg = load('fin_cfg', {});
+  cfg.renda = renda;
+  save('fin_cfg', cfg);
+  renderFinancas();
+}
+
+function addGastoFixo() {
+  const nome = prompt('Nome do gasto fixo:');
+  if (!nome) return;
+  const val = parseFloat(prompt('Valor (R$):'));
+  if (!val || isNaN(val)) return;
+  const cfg = load('fin_cfg', {});
+  if (!cfg.fixos) cfg.fixos = [];
+  cfg.fixos.push({ id: Date.now(), nome, val });
+  save('fin_cfg', cfg);
+  renderFinancas();
+}
+
+function delGastoFixo(id) {
+  const cfg = load('fin_cfg', {});
+  cfg.fixos = (cfg.fixos || []).filter(f => f.id !== id);
+  save('fin_cfg', cfg);
+  renderFinancas();
+}
+
+function setSaldo() {
+  const val = parseFloat($('fin-saldo-inp').value);
+  if (isNaN(val)) return alert('Digite um valor válido.');
+  const cfg = load('fin_cfg', {});
+  cfg.saldo = val;
+  save('fin_cfg', cfg);
+  $('fin-saldo-inp').value = '';
+  renderFinancas();
+}
+
+function ajustarSaldo() {
+  const val = parseFloat(prompt('Ajuste de saldo (use negativo para subtrair):\nEx: +500 ou -200'));
+  if (isNaN(val)) return;
+  const cfg = load('fin_cfg', {});
+  cfg.saldo = (cfg.saldo || 0) + val;
+  save('fin_cfg', cfg);
+  renderFinancas();
+}
+
+function addDespesa() {
+  const desc = $('dep-desc').value.trim();
+  const val = parseFloat($('dep-val').value);
+  if (!desc || !val || val <= 0) return alert('Preencha descrição e valor.');
+  const desp = load('despesas', []);
+  desp.unshift({
+    id: Date.now(),
+    desc,
+    tipo: $('dep-tipo').value,
+    cat: $('dep-cat').value,
+    val,
+    data: $('dep-data').value || today(),
+    notas: $('dep-notas').value
+  });
+  save('despesas', desp);
+  // Adjust saldo
+  const cfg = load('fin_cfg', {});
+  if ($('dep-tipo').value === 'despesa') {
+    cfg.saldo = (cfg.saldo || 0) - val;
+  } else {
+    cfg.saldo = (cfg.saldo || 0) + val;
+  }
+  save('fin_cfg', cfg);
+  $('dep-desc').value = ''; $('dep-val').value = ''; $('dep-notas').value = '';
+  renderFinancas();
+  renderDespesas();
+}
+
+function openExpModal(id) {
+  const d = load('despesas', []).find(d => d.id === id);
+  if (!d) return;
+  $('me-id').value = id;
+  $('me-desc').value = d.desc;
+  $('me-cat').value = d.cat;
+  $('me-val').value = d.val;
+  $('me-data').value = d.data;
+  $('me-notas').value = d.notas || '';
+  $('modal-exp').classList.add('on');
+}
+function closeExpModal() { $('modal-exp').classList.remove('on'); }
+function saveExpModal() {
+  const id = parseInt($('me-id').value);
+  const desp = load('despesas', []);
+  const d = desp.find(d => d.id === id);
+  if (!d) return;
+  const oldVal = d.val;
+  const newVal = parseFloat($('me-val').value) || d.val;
+  // Adjust saldo for the difference
+  const cfg = load('fin_cfg', {});
+  const diff = newVal - oldVal;
+  if (d.tipo === 'despesa') cfg.saldo = (cfg.saldo || 0) - diff;
+  else cfg.saldo = (cfg.saldo || 0) + diff;
+  save('fin_cfg', cfg);
+  d.desc = $('me-desc').value;
+  d.cat = $('me-cat').value;
+  d.val = newVal;
+  d.data = $('me-data').value;
+  d.notas = $('me-notas').value;
+  save('despesas', desp);
+  closeExpModal();
+  renderFinancas();
+  renderDespesas();
+}
+$('modal-exp').addEventListener('click', e => { if (e.target === $('modal-exp')) closeExpModal(); });
+
+function delDespesa(id) {
+  const desp = load('despesas', []);
+  const d = desp.find(d => d.id === id);
+  if (!d) return;
+  // Reverse the saldo effect
+  const cfg = load('fin_cfg', {});
+  if (d.tipo === 'despesa') cfg.saldo = (cfg.saldo || 0) + d.val;
+  else cfg.saldo = (cfg.saldo || 0) - d.val;
+  save('fin_cfg', cfg);
+  save('despesas', desp.filter(x => x.id !== id));
+  renderFinancas();
+  renderDespesas();
+}
+
+function clearExtrato() {
+  const mes = $('dep-filter-mes').value;
+  if (!mes) return;
+  if (!confirm(`Excluir todas as movimentações de ${mes}?`)) return;
+  // Before deleting, reverse saldo effects
+  const cfg = load('fin_cfg', {});
+  const toDelete = load('despesas', []).filter(d => d.data.startsWith(mes));
+  toDelete.forEach(d => {
+    if (d.tipo === 'despesa') cfg.saldo = (cfg.saldo || 0) + d.val;
+    else cfg.saldo = (cfg.saldo || 0) - d.val;
+  });
+  save('fin_cfg', cfg);
+  save('despesas', load('despesas', []).filter(d => !d.data.startsWith(mes)));
+  renderFinancas();
+  renderDespesas();
+}
+
+function renderFinancas() {
+  const cfg = load('fin_cfg', {});
+  const renda = cfg.renda || 0;
+  const fixos = cfg.fixos || [];
+  const saldo = cfg.saldo || 0;
+  const totalFixo = fixos.reduce((s, f) => s + f.val, 0);
+  const livre = renda - totalFixo;
+
+  // Load configs into inputs
+  if (renda && $('fin-renda')) $('fin-renda').value = renda;
+
+  // Summary stats — animated
+  animateNumber($('fin-renda-v'), renda, { prefix: 'R$ ', decimals: 2, separator: true, duration: 800 });
+  animateNumber($('fin-fixos-v'), totalFixo, { prefix: 'R$ ', decimals: 2, separator: true, duration: 800 });
+  const lvEl = $('fin-livre-v');
+  lvEl.style.color = livre >= 0 ? 'var(--green)' : 'var(--red)';
+  animateNumber(lvEl, Math.abs(livre), { prefix: livre < 0 ? '- R$ ' : 'R$ ', decimals: 2, separator: true, duration: 850 });
+  animateNumber($('fin-total-fixo'), totalFixo, { prefix: 'R$ ', decimals: 2, separator: true, duration: 700 });
+  const clEl = $('fin-calc-livre');
+  clEl.style.color = livre >= 0 ? 'var(--green)' : 'var(--red)';
+  animateNumber(clEl, Math.abs(livre), { prefix: livre < 0 ? '- R$ ' : 'R$ ', decimals: 2, separator: true, duration: 850 });
+
+  // Saldo display — animated
+  const sbEl = $('fin-saldo-big');
+  sbEl.className = 'fin-saldo ' + (saldo > 0 ? 'pos' : saldo < 0 ? 'neg' : 'zero');
+  animateNumber(sbEl, Math.abs(saldo), { prefix: saldo < 0 ? '- R$ ' : 'R$ ', decimals: 2, separator: true, duration: 1000 });
+
+  // Gastos fixos list
+  const lf = $('lista-fixos');
+  if (!fixos.length) lf.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:8px 0">Nenhum gasto fixo cadastrado</div>';
+  else lf.innerHTML = fixos.map(f => `
+    <div class="fix-item">
+      <span class="fix-nm">${f.nome}</span>
+      <span class="fix-val">- ${fmtBRL(f.val)}</span>
+      <button class="ib del" onclick="delGastoFixo(${f.id})">×</button>
+    </div>`).join('');
+
+  // This month stats — animated
+  const mesAtual = today().substring(0, 7);
+  const desp = load('despesas', []).filter(d => d.data.startsWith(mesAtual));
+  const totalGasto = desp.filter(d => d.tipo === 'despesa').reduce((s, d) => s + d.val, 0);
+  const totalEntr = desp.filter(d => d.tipo === 'entrada').reduce((s, d) => s + d.val, 0);
+  animateNumber($('fin-mes-gasto'), totalGasto, { prefix: '- R$ ', decimals: 2, separator: true, duration: 800 });
+  animateNumber($('fin-mes-entr'), totalEntr, { prefix: '+ R$ ', decimals: 2, separator: true, duration: 800 });
+
+  renderCatBars(desp);
+  populateMesFilter();
+  renderDespesas();
+}
+
+function renderCatBars(desp) {
+  const cont = $('fin-catbars');
+  const bycat = {};
+  desp.filter(d => d.tipo === 'despesa').forEach(d => {
+    bycat[d.cat] = (bycat[d.cat] || 0) + d.val;
+  });
+  const sorted = Object.entries(bycat).sort((a, b) => b[1] - a[1]);
+  if (!sorted.length) { cont.innerHTML = '<div class="empty"><div class="ei">📊</div>Nenhum gasto registrado este mês</div>'; return; }
+  const maxVal = sorted[0][1];
+  cont.innerHTML = sorted.map(([cat, val]) => {
+    const pct = (val / maxVal) * 100;
+    const color = finCatColors[cat] || '#5a6080';
+    return `<div class="gasto-bar">
+      <div class="gasto-bar-lbl">${cat}</div>
+      <div class="mini-bar" style="flex:1"><div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="gasto-bar-val">${fmtBRL(val)}</div>
+    </div>`;
+  }).join('');
+}
+
+function populateMesFilter() {
+  const sel = $('dep-filter-mes');
+  const desp = load('despesas', []);
+  const meses = [...new Set(desp.map(d => d.data.substring(0, 7)))].sort().reverse();
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Todos os meses</option>` + meses.map(m => {
+    const [y, mo] = m.split('-');
+    const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `<option value="${m}"${m === cur ? ' selected' : ''}>${nomes[parseInt(mo)-1]} ${y}</option>`;
+  }).join('');
+  // Default to current month if nothing selected
+  if (!sel.value) {
+    const mesAtual = today().substring(0, 7);
+    if (meses.includes(mesAtual)) sel.value = mesAtual;
+  }
+}
+
+function renderDespesas() {
+  const filterMes = $('dep-filter-mes') ? $('dep-filter-mes').value : '';
+  const filterCat = $('dep-filter-cat') ? $('dep-filter-cat').value : '';
+  let desp = load('despesas', []);
+  if (filterMes) desp = desp.filter(d => d.data.startsWith(filterMes));
+  if (filterCat) desp = desp.filter(d => d.cat === filterCat);
+  const cont = $('lista-despesas');
+  if (!desp.length) { cont.innerHTML = '<div class="empty"><div class="ei">💸</div>Nenhuma movimentação encontrada</div>'; return; }
+  cont.innerHTML = desp.map(d => {
+    const isDesp = d.tipo === 'despesa';
+    const color = finCatColors[d.cat] || '#5a6080';
+    return `<div class="fin-row">
+      <div class="cat-dot" style="background:${color};margin-top:5px"></div>
+      <div class="fin-info">
+        <div class="fin-nm">${d.desc}</div>
+        <div class="fin-sub">${d.data} · ${d.cat}${d.notas ? ' · ' + d.notas : ''}</div>
+      </div>
+      <div class="fin-val${isDesp ? '' : ' rec'}">${isDesp ? '- ' : '+ '}${fmtBRL(d.val)}</div>
+      <button class="ib edt" onclick="openExpModal(${d.id})">✏️</button>
+      <button class="ib del" onclick="delDespesa(${d.id})">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ──────────────────────────────────
+// HISTÓRICO — GRÁFICO
+// ──────────────────────────────────
+let histChartInstance = null;
+let chartActiveLines = { peso: true, sono: true, agua: true, kcal: true };
+
+function toggleChartLine(btn) {
+  const key = btn.dataset.key;
+  chartActiveLines[key] = !chartActiveLines[key];
+  btn.style.opacity = chartActiveLines[key] ? '1' : '0.35';
+  renderHistChart();
+}
+
+function renderHistChart() {
+  const canvas = $('hist-chart');
+  if (!canvas) return;
+  const rangeVal = $('hist-range') ? $('hist-range').value : '14';
+  const corpoD = load('corpo_d', {});
+  const aguaD = load('agua', {});
+  const exsAll = load('exercicios', []);
+
+  // Build date list (same logic as renderHistorico)
+  const allDates = new Set([...Object.keys(corpoD), ...Object.keys(aguaD), ...exsAll.map(e => e.date)]);
+  let dates = [...allDates].sort();
+  if (rangeVal !== 'all') {
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(rangeVal));
+    const cutoffStr = localDateStr(cutoff);
+    dates = dates.filter(d => d >= cutoffStr);
+    // Fill with empty days
+    const days = parseInt(rangeVal);
+    const filled = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      filled.push(localDateStr(d));
+    }
+    dates = [...new Set([...filled, ...dates])].sort().slice(-days);
+  }
+  if (!dates.length) return;
+
+  const labels = dates.map(d => { const [,m,dd] = d.split('-'); return `${dd}/${m}`; });
+
+  // Build datasets - each on its own Y axis (normalized 0-100 for display)
+  const pesoVals  = dates.map(d => parseFloat((corpoD[d]||{}).peso) || null);
+  const sonoVals  = dates.map(d => parseFloat((corpoD[d]||{}).sono) || null);
+  const aguaVals  = dates.map(d => aguaD[d] || null);
+  const kcalVals  = dates.map(d => exsAll.filter(e => e.date === d).reduce((s,e) => s+(e.kcal||0), 0) || null);
+
+  const datasets = [
+    { key:'peso',  label:'Peso (kg)',   data: pesoVals, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.08)', yAxisID:'y1', tension:.4, pointRadius:3, spanGaps:true },
+    { key:'sono',  label:'Sono (h)',    data: sonoVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'y2', tension:.4, pointRadius:3, spanGaps:true },
+    { key:'agua',  label:'Água (ml)',   data: aguaVals, borderColor:'#5c8de0', backgroundColor:'rgba(92,141,224,.08)', yAxisID:'y3', tension:.4, pointRadius:3, spanGaps:true },
+    { key:'kcal',  label:'Kcal',        data: kcalVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'y4', tension:.4, pointRadius:3, spanGaps:true },
+  ].filter(ds => chartActiveLines[ds.key]);
+
+  if (histChartInstance) { histChartInstance.destroy(); histChartInstance = null; }
+
+  histChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { title: (items) => items[0].label } }
+      },
+      scales: {
+        x: { ticks: { color:'#5a6080', font:{ size:9 }, maxRotation:45 }, grid: { color:'rgba(46,50,80,.5)' } },
+        y1: { display: chartActiveLines.peso,  position:'left',  ticks:{ color:'#c9a84c', font:{size:9} }, grid:{ color:'rgba(46,50,80,.3)' } },
+        y2: { display: chartActiveLines.sono,  position:'right', ticks:{ color:'#9b72e0', font:{size:9} }, grid:{ display:false } },
+        y3: { display: chartActiveLines.agua,  position:'right', ticks:{ color:'#5c8de0', font:{size:9} }, grid:{ display:false } },
+        y4: { display: chartActiveLines.kcal,  position:'right', ticks:{ color:'#9b72e0', font:{size:9} }, grid:{ display:false } },
+      }
+    }
+  });
+
+  // Legend
+  const leg = $('hist-chart-legend');
+  if (leg) {
+    leg.innerHTML = [
+      {key:'peso',  color:'#c9a84c', label:'Peso (kg)'},
+      {key:'sono',  color:'#9b72e0', label:'Sono (h)'},
+      {key:'agua',  color:'#5c8de0', label:'Água (ml)'},
+      {key:'kcal',  color:'#9b72e0', label:'Kcal treino'},
+    ].map(l => `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);opacity:${chartActiveLines[l.key]?1:.4}">
+      <div style="width:20px;height:2px;background:${l.color};border-radius:1px"></div>${l.label}
+    </div>`).join('');
+  }
+}
+
+// ──────────────────────────────────
+// BACKUP
+// ──────────────────────────────────
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
+
+function bkStats() {
+  const cont = $('bk-stats');
+  if (!cont) return;
+  const labels = { habitos:'Hábitos', eventos:'Eventos', tarefas:'Tarefas', exercicios:'Treinos', mente:'Diário', metas_a:'Metas', games:'Games', cursos:'Cursos', receitas:'Receitas', compras:'Compras', despesas:'Despesas', conquistas:'Conquistas' };
+  const items = Object.entries(labels).map(([k, lbl]) => {
+    const v = load(k, []);
+    const count = Array.isArray(v) ? v.length : (typeof v === 'object' ? Object.keys(v).length : '—');
+    return `<div style="background:var(--bg3);border-radius:var(--rs);padding:10px 8px;text-align:center">
+      <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)">${count}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${lbl}</div>
+    </div>`;
+  });
+  cont.innerHTML = items.join('');
+}
+
+function exportarDados() {
+  const data = {};
+  BK_KEYS.forEach(k => {
+    const raw = localStorage.getItem('eh2_' + k);
+    if (raw !== null) data[k] = JSON.parse(raw);
+  });
+  const d = new Date();
+  const fileName = `eh-backup-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  const json = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), data }, null, 2);
+
+  // Try standard download first
+  try {
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    mostrarStatus('bk-import-status', `✅ Download iniciado: <strong>${fileName}</strong>. Se não aparecer, use a opção "Copiar texto" abaixo.`, 'green');
+  } catch(e) {
+    mostrarStatus('bk-import-status', '⚠️ Download automático não suportado. Use "Copiar texto" abaixo.', 'orange');
+  }
+
+  // Always populate the textarea as fallback (mobile-safe)
+  const ta = $('bk-text-out');
+  if (ta) {
+    ta.value = json;
+    // Switch to copy tab so user sees it
+    const copyTab = document.querySelector('#page-backup .stab');
+    if (copyTab) { bkTextTab(copyTab, 'bk-copy-pane'); }
+  }
+}
+
+function importarDados(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      aplicarImport(parsed);
+    } catch {
+      mostrarStatus('bk-import-status', '❌ Arquivo inválido. Certifique-se de que é um backup gerado por este app.', 'red');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function aplicarImport(parsed) {
+  const data = parsed.data || parsed; // suporta v1 e v2
+  let count = 0;
+  BK_KEYS.forEach(k => {
+    if (data[k] !== undefined) {
+      localStorage.setItem('eh2_' + k, JSON.stringify(data[k]));
+      count++;
+    }
+  });
+  mostrarStatus('bk-import-status', `✅ ${count} categorias restauradas com sucesso! Recarregando...`, 'green');
+  setTimeout(() => location.reload(), 1500);
+}
+
+function gerarTextoBackup() {
+  const data = {};
+  BK_KEYS.forEach(k => {
+    const raw = localStorage.getItem('eh2_' + k);
+    if (raw !== null) data[k] = JSON.parse(raw);
+  });
+  const json = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), data });
+  $('bk-text-out').value = json;
+}
+
+function copiarTexto() {
+  const txt = $('bk-text-out').value;
+  if (!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = event.target;
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => btn.textContent = '📋 Copiar tudo', 2000);
+  }).catch(() => {
+    $('bk-text-out').select();
+    document.execCommand('copy');
+  });
+}
+
+function importarTexto() {
+  const txt = $('bk-text-in').value.trim();
+  if (!txt) { mostrarStatus('bk-paste-status', '⚠️ Cole o texto do backup primeiro.', 'orange'); return; }
+  try {
+    const parsed = JSON.parse(txt);
+    aplicarImport(parsed);
+    $('bk-paste-status') && mostrarStatus('bk-paste-status', '✅ Restaurando...', 'green');
+  } catch {
+    mostrarStatus('bk-paste-status', '❌ Texto inválido. Verifique se copiou corretamente.', 'red');
+  }
+}
+
+function mostrarStatus(elId, msg, type) {
+  const el = $(elId);
+  if (!el) return;
+  const colors = { red: 'var(--red)', green: 'var(--green)', orange: 'var(--orange)' };
+  el.innerHTML = `<div style="padding:10px 13px;border-radius:var(--rs);background:var(--bg3);border:1px solid ${colors[type]||'var(--border)'};font-size:13px;color:${colors[type]||'var(--text2)'}">${msg}</div>`;
+}
+
+function bkDragOver(e) { e.preventDefault(); }
+function bkDragLeave() {}
+function bkDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer?.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try { aplicarImport(JSON.parse(ev.target.result)); }
+    catch { mostrarStatus('bk-import-status', '❌ Arquivo inválido.', 'red'); }
+  };
+  reader.readAsText(file);
+}
+
+function bkTextTab(btn, id) {
+  document.querySelectorAll('#page-backup .stab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#page-backup .sp').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
+}
+
+// ──────────────────────────────────
+// SUPABASE CREDENTIAL MANAGEMENT
+// ──────────────────────────────────
+function toggleSbForm() {
+  const f = $('sb-form');
+  if (!f) return;
+  const visible = f.style.display !== 'none';
+  f.style.display = visible ? 'none' : 'block';
+  if (!visible) {
+    if ($('sb-url-inp')) $('sb-url-inp').value = localStorage.getItem('sb_url') || '';
+    if ($('sb-key-inp')) $('sb-key-inp').value = localStorage.getItem('sb_key') || '';
+  }
+}
+
+function salvarCredenciais() {
+  const url = ($('sb-url-inp').value || '').trim();
+  const key = ($('sb-key-inp').value || '').trim();
+  if (!url || !key) { alert('Preencha URL e Key.'); return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  alert('✅ Credenciais salvas! A página vai recarregar para conectar.');
+  location.reload();
+}
+
+function updateSbStatusArea() {
+  const area = $('sb-status-area');
+  if (!area) return;
+  const savedUrl = localStorage.getItem('sb_url');
+  if (_sbReady || savedUrl) {
+    const displayUrl = (SUPABASE_URL || savedUrl || '').replace('https://', '').split('.')[0];
+    area.innerHTML = `<div style="background:var(--gdim);border:1px solid var(--green);border-radius:var(--rs);padding:10px 13px;font-size:12px;color:var(--green);line-height:1.6">
+      <strong>Conectado</strong> ao projeto <code style="background:rgba(0,0,0,.2);padding:1px 5px;border-radius:3px">${displayUrl}</code><br>
+      <span style="color:var(--text3)">Qualquer alteração é sincronizada automaticamente em todos os dispositivos.</span>
+    </div>`;
+  } else {
+    area.innerHTML = `<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--text3);text-align:center;line-height:1.7">
+      Supabase não configurado.<br>
+      <span style="color:var(--text2)">Clique em <strong>⚙️ Configurar</strong> e siga o guia para ativar o sync.</span>
+    </div>`;
+  }
+}
+
+// ──────────────────────────────────
+// INIT
+// ──────────────────────────────────
+(function init() {
+  refreshHome();
+  renderAgenda();
+  renderRotina();
+  renderTarefas();
+  loadCorpoDiario();
+  renderAguaDisplay();
+  renderExLog();
+  updateMuscleDiagram();
+  renderHistorico();
+  renderHistChart();
+  loadJJ();
+  renderVideos();
+  renderHumor();
+  renderGrat();
+  renderDiario();
+  renderMetasAnuais();
+  renderMetasTracking();
+  renderConquistas();
+  renderGames();
+  renderCursos();
+  renderReceitas();
+  renderCompras();
+  renderFinancas();
+
+  // Supabase: pull latest data then subscribe to realtime
+  if (_sbReady) {
+    pullFromSupabase().then(() => subscribeRealtime());
+    setSyncStatus('syncing');
+  } else {
+    setSyncStatus('off');
+    // Check if credentials saved in localStorage
+    const savedUrl = localStorage.getItem('sb_url');
+    const savedKey = localStorage.getItem('sb_key');
+    if (savedUrl && savedKey) {
+      // Reload to apply — shouldn't happen on fresh open, but safeguard
+    }
+  }
+  updateSbStatusArea();
+
+  // PWA: register inline service worker for offline support
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE = 'eh-tracker-v1';
+      self.addEventListener('install', e => {
+        e.waitUntil(caches.open(CACHE).then(c => c.addAll(['.'])));
+        self.skipWaiting();
+      });
+      self.addEventListener('fetch', e => {
+        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+      });
+    `;
+    const swBlob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl).catch(() => {});
+  }
+
+  // PWA: capture install prompt for Android
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    const banner = document.getElementById('install-banner');
+    if (banner) {
+      banner.style.display = 'flex';
+      banner.querySelector('#install-btn').onclick = () => {
+        e.prompt();
+        e.userChoice.then(() => { banner.style.display = 'none'; });
+      };
+    }
+  });
+})();
+</script>
+<!-- PWA Install Banner (Android Chrome) -->
+<div id="install-banner" style="display:none;position:fixed;bottom:70px;left:12px;right:12px;background:var(--card);border:1px solid var(--accent);border-radius:var(--r);padding:14px 16px;z-index:500;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.5)">
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700;color:var(--text)">Adicionar à tela inicial</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:2px">Acesse o EH Tracker como um app</div>
+  </div>
+  <button id="install-btn" class="btn btn-p btn-sm">Instalar</button>
+  <button onclick="document.getElementById('install-banner').style.display='none'" class="ib del">×</button>
+</div>
+
+</body>
+</html>
