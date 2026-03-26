@@ -417,8 +417,7 @@ textarea{resize:vertical;min-height:70px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Tarefas</span></button>
   <button class="nb" onclick="go('corpo')" id="n-corpo">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
-  <button class="nb" onclick="go('jj')" id="n-jj">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2 2 4-4"/></svg><span>Jiu Jitsu</span></button>
+  
   <button class="nb" onclick="go('mente')" id="n-mente">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3c-4.627 0-7.5 3.5-7.5 7a7 7 0 003.5 6h8A7 7 0 0019.5 10c0-3.5-2.873-7-7.5-7z"/></svg><span>Mente</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
@@ -1038,52 +1037,7 @@ textarea{resize:vertical;min-height:70px}
 </section>
 
 <!-- ════════════════ JIU JITSU ════════════════ -->
-<section class="page" id="page-jj">
-  <h1>🥋 Jiu Jitsu</h1><p class="psub">Meu jogo, técnicas, finalizações e videoaulas</p>
 
-  <div class="stabs">
-    <button class="stab on" onclick="jjTab(this,'jj-meujogo')">Meu Jogo</button>
-    <button class="stab" onclick="jjTab(this,'jj-videos')">Videoaulas</button>
-  </div>
-
-  <!-- Meu Jogo -->
-  <div class="sp on" id="jj-meujogo">
-    <div class="card">
-      <h2>Descreva seu jogo</h2>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Suas posições favoritas, pontos fortes, áreas de desenvolvimento...</p>
-      <div class="fg"><label>Meu jogo em geral</label><textarea id="jj-geral" style="min-height:120px" placeholder="Ex: Jogo de guarda aberta, prefiro finalizar com triângulo e omoplata..."></textarea></div>
-      <div class="row">
-        <div class="fg"><label>Guarda favorita</label><input id="jj-guarda-fav" type="text" placeholder="Ex: Guarda de garra, De la Riva..."></div>
-        <div class="fg"><label>Posição de topo favorita</label><input id="jj-topo-fav" type="text" placeholder="Ex: Meia guarda, Passagem de leg drag..."></div>
-      </div>
-      <div class="row">
-        <div class="fg"><label>Ponto forte</label><input id="jj-forte" type="text" placeholder="Ex: Jogo de costas, pressão..."></div>
-        <div class="fg"><label>Área a desenvolver</label><input id="jj-fraco" type="text" placeholder="Ex: Leg locks, wrestling..."></div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="saveJJ()">💾 Salvar meu jogo</button>
-    </div>
-  </div>
-
-  <!-- Finalizações -->
-  <!-- Videoaulas -->
-  <div class="sp" id="jj-videos">
-    <div class="card gap">
-      <h3>Adicionar videoaula</h3>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Título</label><input id="jjv-titulo" type="text" placeholder="Ex: Como fazer o triângulo de guarda fechada..."></div>
-        <div class="fg"><label>Instrutor / Canal</label><input id="jjv-inst" type="text" placeholder="Ex: Gustavo Gasperin, Bernardo Faria..."></div>
-      </div>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Link (YouTube, etc)</label><input id="jjv-link" type="url" placeholder="https://youtube.com/..."></div>
-        <div class="fg"><label>Técnica principal</label><input id="jjv-tecnica" type="text" placeholder="Ex: Triângulo, Leg drag..."></div>
-      </div>
-      <div class="fg"><label>Notas</label><input id="jjv-notas" type="text" placeholder="Pontos-chave que aprendeu..."></div>
-      <button class="btn btn-p btn-sm" onclick="addVideo()">+ Adicionar videoaula</button>
-    </div>
-    <div class="card"><h2>Biblioteca de videoaulas</h2><div id="lista-videos"></div></div>
-  </div>
-
-</section>
 
 <!-- ════════════════ MENTE ════════════════ -->
 <section class="page" id="page-mente">
