@@ -234,7 +234,9 @@ textarea{resize:vertical;min-height:70px}
 .li-sub{font-size:11px;color:var(--text3);margin-top:2px}
 .li.done .li-nm{text-decoration:line-through;color:var(--text3)}
 
-
+/* ── JJ ── */
+.jj-nm{font-size:13px;font-weight:500;flex:1}
+.jj-sub{font-size:11px;color:var(--text3);margin-top:2px}
 
 /* ── WATER ── */
 .water-val{font-family:'DM Mono',monospace;font-size:38px;font-weight:700;color:var(--blue);line-height:1}
@@ -415,9 +417,8 @@ textarea{resize:vertical;min-height:70px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Tarefas</span></button>
   <button class="nb" onclick="go('corpo')" id="n-corpo">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
-
-  <button class="nb" onclick="go('ordens')" id="n-ordens">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 7h8M8 12h8M8 17h5"/></svg><span>Ordens</span></button>
+  <button class="nb" onclick="go('jj')" id="n-jj">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2 2 4-4"/></svg><span>Jiu Jitsu</span></button>
   <button class="nb" onclick="go('mente')" id="n-mente">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3c-4.627 0-7.5 3.5-7.5 7a7 7 0 003.5 6h8A7 7 0 0019.5 10c0-3.5-2.873-7-7.5-7z"/></svg><span>Mente</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
@@ -1037,27 +1038,51 @@ textarea{resize:vertical;min-height:70px}
 </section>
 
 <!-- ════════════════ JIU JITSU ════════════════ -->
-<!-- ════════════════ ORDENS ════════════════ -->
-<section class="page" id="page-ordens">
-  <h1>📋 Ordens</h1><p class="psub">Comandos agendados para execução automática pelo Cowork</p>
+<section class="page" id="page-jj">
+  <h1>🥋 Jiu Jitsu</h1><p class="psub">Meu jogo, técnicas, finalizações e videoaulas</p>
 
-  <div class="card gap">
-    <h3>Nova ordem</h3>
-    <div class="row">
-      <div class="fg" style="flex:3"><label>Ordem</label><input id="ord-texto" type="text" placeholder="Ex: Leia as notícias do site X e me envie um resumo em PDF..."></div>
+  <div class="stabs">
+    <button class="stab on" onclick="jjTab(this,'jj-meujogo')">Meu Jogo</button>
+    <button class="stab" onclick="jjTab(this,'jj-videos')">Videoaulas</button>
+  </div>
+
+  <!-- Meu Jogo -->
+  <div class="sp on" id="jj-meujogo">
+    <div class="card">
+      <h2>Descreva seu jogo</h2>
+      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Suas posições favoritas, pontos fortes, áreas de desenvolvimento...</p>
+      <div class="fg"><label>Meu jogo em geral</label><textarea id="jj-geral" style="min-height:120px" placeholder="Ex: Jogo de guarda aberta, prefiro finalizar com triângulo e omoplata..."></textarea></div>
+      <div class="row">
+        <div class="fg"><label>Guarda favorita</label><input id="jj-guarda-fav" type="text" placeholder="Ex: Guarda de garra, De la Riva..."></div>
+        <div class="fg"><label>Posição de topo favorita</label><input id="jj-topo-fav" type="text" placeholder="Ex: Meia guarda, Passagem de leg drag..."></div>
+      </div>
+      <div class="row">
+        <div class="fg"><label>Ponto forte</label><input id="jj-forte" type="text" placeholder="Ex: Jogo de costas, pressão..."></div>
+        <div class="fg"><label>Área a desenvolver</label><input id="jj-fraco" type="text" placeholder="Ex: Leg locks, wrestling..."></div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="saveJJ()">💾 Salvar meu jogo</button>
     </div>
-    <button class="btn btn-p btn-sm" onclick="addOrdem()">＋ Adicionar ordem</button>
   </div>
 
-  <div class="card">
-    <div class="sh"><h2>⏳ Pendentes</h2><span id="ord-pend-count" style="font-size:12px;color:var(--text3)">0</span></div>
-    <div id="lista-ordens-pendentes"></div>
+  <!-- Finalizações -->
+  <!-- Videoaulas -->
+  <div class="sp" id="jj-videos">
+    <div class="card gap">
+      <h3>Adicionar videoaula</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Título</label><input id="jjv-titulo" type="text" placeholder="Ex: Como fazer o triângulo de guarda fechada..."></div>
+        <div class="fg"><label>Instrutor / Canal</label><input id="jjv-inst" type="text" placeholder="Ex: Gustavo Gasperin, Bernardo Faria..."></div>
+      </div>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Link (YouTube, etc)</label><input id="jjv-link" type="url" placeholder="https://youtube.com/..."></div>
+        <div class="fg"><label>Técnica principal</label><input id="jjv-tecnica" type="text" placeholder="Ex: Triângulo, Leg drag..."></div>
+      </div>
+      <div class="fg"><label>Notas</label><input id="jjv-notas" type="text" placeholder="Pontos-chave que aprendeu..."></div>
+      <button class="btn btn-p btn-sm" onclick="addVideo()">+ Adicionar videoaula</button>
+    </div>
+    <div class="card"><h2>Biblioteca de videoaulas</h2><div id="lista-videos"></div></div>
   </div>
 
-  <div class="card">
-    <div class="sh"><h2>✅ Concluídas</h2><span id="ord-done-count" style="font-size:12px;color:var(--text3)">0</span></div>
-    <div id="lista-ordens-concluidas"></div>
-  </div>
 </section>
 
 <!-- ════════════════ MENTE ════════════════ -->
@@ -1372,7 +1397,51 @@ textarea{resize:vertical;min-height:70px}
     <div id="fin-catbars"></div>
   </div>
 
+  <!-- RELATÓRIOS DA CARTEIRA -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>📁 Relatórios da carteira</h2>
+      <button class="btn btn-p btn-sm" onclick="abrirModalRelatorio()">+ Novo relatório</button>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6">Salve snapshots mensais: saldo, patrimônio, investimentos e notas. Acesse e compare ao longo do tempo.</p>
+    <div id="lista-relatorios-carteira"></div>
+  </div>
+
 </section>
+
+<!-- MODAL RELATÓRIO CARTEIRA -->
+<div class="overlay" id="modal-relatorio">
+  <div class="modal" style="width:520px">
+    <h2>📁 Salvar relatório da carteira</h2>
+    <input type="hidden" id="mr-id">
+    <div class="row">
+      <div class="fg"><label>Título</label><input id="mr-titulo" type="text" placeholder="Ex: Fevereiro 2025, Q1 2025..."></div>
+      <div class="fg"><label>Data de referência</label><input id="mr-data" type="month"></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Saldo em conta (R$)</label><input id="mr-saldo" type="number" step="0.01" placeholder="0,00"></div>
+      <div class="fg"><label>Patrimônio total (R$)</label><input id="mr-patrimonio" type="number" step="0.01" placeholder="0,00"></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Investimentos (R$)</label><input id="mr-invest" type="number" step="0.01" placeholder="0,00"></div>
+      <div class="fg"><label>Dívidas (R$)</label><input id="mr-dividas" type="number" step="0.01" placeholder="0,00"></div>
+    </div>
+    <div class="fg"><label>Renda do período (R$)</label><input id="mr-renda" type="number" step="0.01" placeholder="0,00"></div>
+    <div class="fg"><label>Gastos do período (R$)</label><input id="mr-gastos" type="number" step="0.01" placeholder="0,00"></div>
+    <div class="fg"><label>Notas e análise pessoal</label><textarea id="mr-notas" style="min-height:90px" placeholder="Como foi o mês financeiramente? Metas atingidas, aprendizados, próximos passos..."></textarea></div>
+    <div class="fg">
+      <label>Arquivo de extrato (PDF, imagem — opcional)</label>
+      <div id="mr-arquivo-area" style="border:1.5px dashed var(--border);border-radius:var(--rs);padding:14px;text-align:center;cursor:pointer;color:var(--text3);font-size:12px" onclick="$('mr-arquivo-inp').click()">
+        <div id="mr-arquivo-nome">📎 Clique para anexar um arquivo</div>
+      </div>
+      <input type="file" id="mr-arquivo-inp" accept=".pdf,.png,.jpg,.jpeg" style="display:none" onchange="onArquivoRelatorio(this)">
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-g" onclick="$('modal-relatorio').classList.remove('on')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarRelatorioCarteira()">💾 Salvar relatório</button>
+    </div>
+  </div>
+</div>
 
 <!-- ════════════════ BACKUP ════════════════ -->
 <section class="page" id="page-backup">
@@ -1644,7 +1713,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['ordens','habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -1677,7 +1746,6 @@ function reRenderAll() {
   updateMuscleDiagram();
   renderMapaHome();
   renderHistorico();
-  renderOrdens();
   renderHumor(); renderGrat(); renderDiario();
   renderMetasAnuais(); renderMetasTracking(); renderConquistas();
   renderGames(); renderCursos(); renderReceitas(); renderCompras();
@@ -2552,64 +2620,141 @@ function updateMuscleDiagram() {
 }
 
 // ──────────────────────────────────
-// ORDENS
+// JIU JITSU
 // ──────────────────────────────────
-function addOrdem() {
-  const texto = $('ord-texto').value.trim();
-  if (!texto) return;
-  const list = load('ordens', []);
-  list.unshift({ id: Date.now(), texto, criado: new Date().toLocaleString('pt-BR'), status: 'pendente' });
-  save('ordens', list);
-  $('ord-texto').value = '';
-  renderOrdens();
+function jjTab(btn, id) {
+  document.querySelectorAll('#page-jj .stab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#page-jj .sp').forEach(s => s.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
 }
 
-function concluirOrdem(id) {
-  const list = load('ordens', []);
-  const item = list.find(o => o.id === id);
-  if (item) { item.status = 'concluida'; item.concluido = new Date().toLocaleString('pt-BR'); }
-  save('ordens', list);
-  renderOrdens();
+function saveJJ() {
+  const jj = load('jj', {});
+  jj.geral = $('jj-geral').value;
+  jj.guardaFav = $('jj-guarda-fav').value;
+  jj.topoFav = $('jj-topo-fav').value;
+  jj.forte = $('jj-forte').value;
+  jj.fraco = $('jj-fraco').value;
+  save('jj', jj);
+  alert('Salvo! ✅');
 }
 
-function delOrdem(id) {
-  save('ordens', load('ordens', []).filter(o => o.id !== id));
-  renderOrdens();
+function loadJJ() {
+  const jj = load('jj', {});
+  if (jj.geral) $('jj-geral').value = jj.geral;
+  if (jj.guardaFav) $('jj-guarda-fav').value = jj.guardaFav;
+  if (jj.topoFav) $('jj-topo-fav').value = jj.topoFav;
+  if (jj.forte) $('jj-forte').value = jj.forte;
+  if (jj.fraco) $('jj-fraco').value = jj.fraco;
 }
 
-function renderOrdens() {
-  const list = load('ordens', []);
-  const pendentes = list.filter(o => o.status === 'pendente');
-  const concluidas = list.filter(o => o.status === 'concluida');
-  const contP = $('lista-ordens-pendentes');
-  const contC = $('lista-ordens-concluidas');
-  $('ord-pend-count').textContent = pendentes.length;
-  $('ord-done-count').textContent = concluidas.length;
-  if (!pendentes.length) {
-    contP.innerHTML = '<div class="empty"><div class="ei">📋</div>Nenhuma ordem pendente</div>';
-  } else {
-    contP.innerHTML = pendentes.map(o => `
-      <div class="li">
-        <div class="li-info">
-          <div class="li-nm">${o.texto}</div>
-          <div class="li-sub">Adicionada em ${o.criado}</div>
-        </div>
-        <button class="ib" onclick="concluirOrdem(${o.id})" title="Marcar como concluída" style="color:var(--accent)">✓</button>
-        <button class="ib del" onclick="delOrdem(${o.id})">×</button>
-      </div>`).join('');
-  }
-  if (!concluidas.length) {
-    contC.innerHTML = '<div class="empty"><div class="ei">✅</div>Nenhuma ordem concluída ainda</div>';
-  } else {
-    contC.innerHTML = concluidas.map(o => `
-      <div class="li">
-        <div class="li-info">
-          <div class="li-nm" style="opacity:.6">${o.texto}</div>
-          <div class="li-sub">Concluída em ${o.concluido || '—'}</div>
-        </div>
-        <button class="ib del" onclick="delOrdem(${o.id})">×</button>
-      </div>`).join('');
-  }
+const nivelTag = { 'Estudando':'tb', 'Treinando':'ta', 'Confortável':'tg', 'Arma principal':'tp', 'Preferida':'tp' };
+
+function addFinalizacao() {
+  const nome = $('jjf-nome').value.trim();
+  if (!nome) return;
+  const list = load('jj_finais', []);
+  list.unshift({ id: Date.now(), nome, cat: $('jjf-cat').value, nivel: $('jjf-nivel').value, notas: $('jjf-notas').value });
+  save('jj_finais', list);
+  $('jjf-nome').value = ''; $('jjf-notas').value = '';
+  renderFinalizacoes();
+}
+
+function delFinal(id) { save('jj_finais', load('jj_finais', []).filter(x => x.id !== id)); renderFinalizacoes(); }
+
+function renderFinalizacoes() {
+  const list = load('jj_finais', []);
+  const cont = $('lista-final');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma finalização adicionada</div>'; return; }
+  cont.innerHTML = list.map(f => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${f.nome} <span class="tag ${nivelTag[f.nivel]||'ta'}">${f.nivel}</span></div>
+        <div class="li-sub">${f.cat}${f.notas ? ' · ' + f.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delFinal(${f.id})">×</button>
+    </div>`).join('');
+}
+
+function addPassagem() {
+  const nome = $('jjg-nome').value.trim();
+  if (!nome) return;
+  const list = load('jj_passagens', []);
+  list.unshift({ id: Date.now(), nome, guarda: $('jjg-guarda').value, nivel: $('jjg-nivel').value, notas: $('jjg-notas').value });
+  save('jj_passagens', list);
+  $('jjg-nome').value = ''; $('jjg-guarda').value = ''; $('jjg-notas').value = '';
+  renderPassagens();
+}
+
+function delPassagem(id) { save('jj_passagens', load('jj_passagens', []).filter(x => x.id !== id)); renderPassagens(); }
+
+function renderPassagens() {
+  const list = load('jj_passagens', []);
+  const cont = $('lista-passagens');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma passagem adicionada</div>'; return; }
+  cont.innerHTML = list.map(p => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${p.nome} <span class="tag ${nivelTag[p.nivel]||'ta'}">${p.nivel}</span></div>
+        <div class="li-sub">${p.guarda ? 'Da ' + p.guarda : ''}${p.notas ? ' · ' + p.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delPassagem(${p.id})">×</button>
+    </div>`).join('');
+}
+
+function addVideo() {
+  const titulo = $('jjv-titulo').value.trim();
+  if (!titulo) return;
+  const list = load('jj_videos', []);
+  list.unshift({ id: Date.now(), titulo, inst: $('jjv-inst').value, link: $('jjv-link').value, tecnica: $('jjv-tecnica').value, notas: $('jjv-notas').value });
+  save('jj_videos', list);
+  $('jjv-titulo').value = ''; $('jjv-inst').value = ''; $('jjv-link').value = ''; $('jjv-tecnica').value = ''; $('jjv-notas').value = '';
+  renderVideos();
+}
+
+function delVideo(id) { save('jj_videos', load('jj_videos', []).filter(x => x.id !== id)); renderVideos(); }
+
+function renderVideos() {
+  const list = load('jj_videos', []);
+  const cont = $('lista-videos');
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🎬</div>Nenhuma videoaula adicionada</div>'; return; }
+  cont.innerHTML = list.map(v => `
+    <div class="li">
+      <div style="font-size:22px">🎬</div>
+      <div class="li-info">
+        <div class="li-nm">${v.link ? `<a href="${v.link}" target="_blank" style="color:var(--accent);text-decoration:none">${v.titulo}</a>` : v.titulo}</div>
+        <div class="li-sub">${v.inst ? v.inst + (v.tecnica ? ' · ' + v.tecnica : '') : v.tecnica || ''}${v.notas ? ' — ' + v.notas : ''}</div>
+      </div>
+      <button class="ib del" onclick="delVideo(${v.id})">×</button>
+    </div>`).join('');
+}
+
+function addTreinoJJ() {
+  const data = $('jjt-data').value || today();
+  const tema = $('jjt-tema').value.trim();
+  if (!tema) return alert('Descreva o que foi praticado.');
+  const list = load('jj_treinos', []);
+  list.unshift({ id: Date.now(), data, dur: $('jjt-dur').value, faixa: $('jjt-faixa').value, tema, notas: $('jjt-notas').value });
+  save('jj_treinos', list);
+  $('jjt-data').value = ''; $('jjt-dur').value = ''; $('jjt-tema').value = ''; $('jjt-notas').value = '';
+  renderTreinosJJ();
+}
+
+function delTreinoJJ(id) { save('jj_treinos', load('jj_treinos', []).filter(x => x.id !== id)); renderTreinosJJ(); }
+
+function renderTreinosJJ() {
+  const list = load('jj_treinos', []);
+  const cont = $('lista-treinos-jj');
+  const faixaCor = { Branca:'tb', Cinza:'tb', Amarela:'ta', Laranja:'to', Verde:'tg', Azul:'tb', Roxa:'tp', Marrom:'ta', Preta:'tb' };
+  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhum treino registrado</div>'; return; }
+  cont.innerHTML = list.map(t => `
+    <div class="li">
+      <div class="li-info">
+        <div class="li-nm">${t.data} — ${t.tema} <span class="tag ${faixaCor[t.faixa]||'tb'}">${t.faixa}</span>${t.dur ? ' · ' + t.dur + 'min' : ''}</div>
+        <div class="li-sub">${t.notas || ''}</div>
+      </div>
+      <button class="ib del" onclick="delTreinoJJ(${t.id})">×</button>
+    </div>`).join('');
 }
 
 // ──────────────────────────────────
@@ -3322,6 +3467,7 @@ function renderFinancas() {
   renderCatBars(desp);
   populateMesFilter();
   renderDespesas();
+  renderRelatoriosCarteira();
 }
 
 function renderCatBars(desp) {
@@ -3478,7 +3624,7 @@ function renderHistChart() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -3620,7 +3766,164 @@ function bkTextTab(btn, id) {
 }
 
 // ══════════════════════════════════════════
-// AUTO-CATEGORIZAÇÃO DE DESPESAS
+// RELATÓRIOS DA CARTEIRA
+// ══════════════════════════════════════════
+let _mrArquivoB64 = null;
+let _mrArquivoNome = null;
+let _mrArquivoTipo = null;
+
+function abrirModalRelatorio(id) {
+  // Reset form
+  $('mr-id').value = '';
+  $('mr-titulo').value = '';
+  $('mr-data').value = today().substring(0,7);
+  $('mr-saldo').value = '';
+  $('mr-patrimonio').value = '';
+  $('mr-invest').value = '';
+  $('mr-dividas').value = '';
+  $('mr-renda').value = '';
+  $('mr-gastos').value = '';
+  $('mr-notas').value = '';
+  $('mr-arquivo-nome').textContent = '📎 Clique para anexar um arquivo';
+  _mrArquivoB64 = null; _mrArquivoNome = null; _mrArquivoTipo = null;
+
+  if (id) {
+    // Edit mode
+    const rel = (load('relatorios_carteira', [])).find(r => r.id === id);
+    if (!rel) return;
+    $('mr-id').value = id;
+    $('mr-titulo').value = rel.titulo || '';
+    $('mr-data').value = rel.data || '';
+    $('mr-saldo').value = rel.saldo || '';
+    $('mr-patrimonio').value = rel.patrimonio || '';
+    $('mr-invest').value = rel.invest || '';
+    $('mr-dividas').value = rel.dividas || '';
+    $('mr-renda').value = rel.renda || '';
+    $('mr-gastos').value = rel.gastos || '';
+    $('mr-notas').value = rel.notas || '';
+    if (rel.arquivoNome) {
+      $('mr-arquivo-nome').textContent = `📎 ${rel.arquivoNome}`;
+      _mrArquivoB64 = rel.arquivoB64;
+      _mrArquivoNome = rel.arquivoNome;
+      _mrArquivoTipo = rel.arquivoTipo;
+    }
+  } else {
+    // Auto-fill with current month data
+    const cfg = load('fin_cfg', {});
+    $('mr-saldo').value = cfg.saldo || '';
+    const mes = today().substring(0,7);
+    const desp = load('despesas',[]).filter(d=>d.data.startsWith(mes));
+    const gastoMes = desp.filter(d=>d.tipo==='despesa').reduce((s,d)=>s+d.val,0);
+    const rendaMes = desp.filter(d=>d.tipo==='entrada').reduce((s,d)=>s+d.val,0) + (cfg.renda||0);
+    if (gastoMes) $('mr-gastos').value = gastoMes.toFixed(2);
+    if (rendaMes) $('mr-renda').value = rendaMes.toFixed(2);
+  }
+
+  $('modal-relatorio').classList.add('on');
+}
+
+function onArquivoRelatorio(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { alert('Arquivo muito grande. Máximo 3MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    _mrArquivoB64 = e.target.result;
+    _mrArquivoNome = file.name;
+    _mrArquivoTipo = file.type;
+    $('mr-arquivo-nome').textContent = `📎 ${file.name} (${(file.size/1024).toFixed(0)}KB)`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvarRelatorioCarteira() {
+  const titulo = $('mr-titulo').value.trim() || `Relatório ${$('mr-data').value}`;
+  const rel = {
+    id: parseInt($('mr-id').value) || Date.now(),
+    titulo,
+    data: $('mr-data').value,
+    saldo: parseFloat($('mr-saldo').value) || 0,
+    patrimonio: parseFloat($('mr-patrimonio').value) || 0,
+    invest: parseFloat($('mr-invest').value) || 0,
+    dividas: parseFloat($('mr-dividas').value) || 0,
+    renda: parseFloat($('mr-renda').value) || 0,
+    gastos: parseFloat($('mr-gastos').value) || 0,
+    notas: $('mr-notas').value.trim(),
+    arquivoB64: _mrArquivoB64,
+    arquivoNome: _mrArquivoNome,
+    arquivoTipo: _mrArquivoTipo,
+    criadoEm: new Date().toISOString(),
+  };
+  const lista = load('relatorios_carteira', []);
+  const idx = lista.findIndex(r => r.id === rel.id);
+  if (idx >= 0) lista[idx] = rel; else lista.unshift(rel);
+  lista.sort((a,b) => b.data.localeCompare(a.data));
+  save('relatorios_carteira', lista);
+  $('modal-relatorio').classList.remove('on');
+  renderRelatoriosCarteira();
+}
+
+function delRelatorioCarteira(id) {
+  if (!confirm('Excluir este relatório?')) return;
+  save('relatorios_carteira', load('relatorios_carteira',[]).filter(r => r.id !== id));
+  renderRelatoriosCarteira();
+}
+
+function abrirArquivoRelatorio(id) {
+  const rel = load('relatorios_carteira',[]).find(r => r.id === id);
+  if (!rel?.arquivoB64) return;
+  const a = document.createElement('a');
+  a.href = rel.arquivoB64;
+  a.download = rel.arquivoNome || 'extrato';
+  a.click();
+}
+
+function renderRelatoriosCarteira() {
+  const cont = $('lista-relatorios-carteira');
+  if (!cont) return;
+  const lista = load('relatorios_carteira', []);
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty"><div class="ei">📁</div>Nenhum relatório salvo ainda</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(r => {
+    const patrimLiq = r.patrimonio - r.dividas;
+    const economia = r.renda - r.gastos;
+    return `
+    <div style="background:var(--bg3);border-radius:var(--rs);padding:14px;margin-bottom:10px;border:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${r.titulo}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${r.data ? fmtMes(r.data) : ''}</div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0">
+          ${r.arquivoNome ? `<button class="ib" onclick="abrirArquivoRelatorio(${r.id})" title="Baixar extrato">📎</button>` : ''}
+          <button class="ib edt" onclick="abrirModalRelatorio(${r.id})">✏️</button>
+          <button class="ib del" onclick="delRelatorioCarteira(${r.id})">×</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+        ${r.saldo ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Saldo</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--accent);margin-top:2px">${fmtBRL(r.saldo)}</div></div>` : ''}
+        ${r.patrimonio ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Patrimônio</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--green);margin-top:2px">${fmtBRL(r.patrimonio)}</div></div>` : ''}
+        ${r.invest ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Investido</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--teal);margin-top:2px">${fmtBRL(r.invest)}</div></div>` : ''}
+        ${r.dividas ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Dívidas</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--red);margin-top:2px">${fmtBRL(r.dividas)}</div></div>` : ''}
+        ${r.renda ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Renda</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--green);margin-top:2px">${fmtBRL(r.renda)}</div></div>` : ''}
+        ${r.gastos ? `<div style="background:var(--bg2);border-radius:6px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gastos</div><div style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--red);margin-top:2px">${fmtBRL(r.gastos)}</div></div>` : ''}
+      </div>
+      ${(r.renda || r.gastos) ? `<div style="margin-top:8px;padding:7px 10px;border-radius:6px;background:${economia>=0?'var(--gdim)':'var(--rdim)'};border:1px solid ${economia>=0?'var(--green)':'var(--red)'}">
+        <span style="font-size:11px;font-weight:700;color:${economia>=0?'var(--green)':'var(--red)'}">${economia>=0?'✅ Poupou':'❌ Deficit'} ${fmtBRL(Math.abs(economia))} neste período</span>
+      </div>` : ''}
+      ${r.notas ? `<div style="margin-top:10px;font-size:12px;color:var(--text2);line-height:1.6;padding-top:10px;border-top:1px solid var(--border)">${r.notas}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function fmtMes(ym) {
+  if (!ym) return '';
+  const [y,m] = ym.split('-');
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return `${meses[parseInt(m)-1]} ${y}`;
+}
 // ══════════════════════════════════════════
 const catRules = [
   { words:['ifood','rappi','uber eats','delivery','pizza','hambur','sushi','restaurante','almoço','jantar','lanche','café','padaria','mcdonalds','burger','subway','bistro'], cat:'Alimentação' },
@@ -3936,6 +4239,8 @@ function updateSbStatusArea() {
   updateMuscleDiagram();
   renderHistorico();
   renderHistChart();
+  loadJJ();
+  renderVideos();
   renderHumor();
   renderGrat();
   renderDiario();
