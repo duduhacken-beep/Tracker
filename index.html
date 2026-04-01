@@ -235,8 +235,6 @@ textarea{resize:vertical;min-height:70px}
 .li.done .li-nm{text-decoration:line-through;color:var(--text3)}
 
 /* ── JJ ── */
-.jj-nm{font-size:13px;font-weight:500;flex:1}
-.jj-sub{font-size:11px;color:var(--text3);margin-top:2px}
 
 /* ── WATER ── */
 .water-val{font-family:'DM Mono',monospace;font-size:38px;font-weight:700;color:var(--blue);line-height:1}
@@ -417,8 +415,6 @@ textarea{resize:vertical;min-height:70px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Tarefas</span></button>
   <button class="nb" onclick="go('corpo')" id="n-corpo">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
-  <button class="nb" onclick="go('jj')" id="n-jj">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12l2 2 4-4"/></svg><span>Jiu Jitsu</span></button>
   <button class="nb" onclick="go('mente')" id="n-mente">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3c-4.627 0-7.5 3.5-7.5 7a7 7 0 003.5 6h8A7 7 0 0019.5 10c0-3.5-2.873-7-7.5-7z"/></svg><span>Mente</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
@@ -436,6 +432,45 @@ textarea{resize:vertical;min-height:70px}
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
 </nav>
+
+<!-- MODAL TEMPLATE DE TREINO -->
+<div class="overlay" id="modal-template">
+  <div class="modal" style="width:500px">
+    <h2>⚡ Template de treino</h2>
+    <input type="hidden" id="tpl-id">
+    <div class="fg"><label>Nome do template</label><input id="tpl-nome" type="text" placeholder="Ex: Push A, Pernas, Full Body..."></div>
+    <div id="tpl-exercicios-lista" style="margin-bottom:10px"></div>
+    <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:10px">
+      <h3 style="margin-bottom:8px">Adicionar exercício ao template</h3>
+      <div class="row">
+        <div class="fg" style="flex:2"><label>Exercício</label><input id="tpl-ex-nome" type="text" placeholder="Supino, Agachamento..."></div>
+        <div class="fg"><label>Séries × Reps</label><input id="tpl-ex-sr" type="text" placeholder="4x10"></div>
+        <div class="fg"><label>Carga (kg)</label><input id="tpl-ex-kg" type="number" placeholder="60"></div>
+      </div>
+      <div class="fg"><label>Músculos</label>
+        <div class="mchips" id="tpl-mc-sel">
+          <button type="button" class="mc" data-m="peito">Peito</button>
+          <button type="button" class="mc" data-m="ombros">Ombros</button>
+          <button type="button" class="mc" data-m="biceps">Bíceps</button>
+          <button type="button" class="mc" data-m="triceps">Tríceps</button>
+          <button type="button" class="mc" data-m="abdomen">Abdômen</button>
+          <button type="button" class="mc" data-m="costas">Costas</button>
+          <button type="button" class="mc" data-m="quadriceps">Quadríceps</button>
+          <button type="button" class="mc" data-m="gluteos">Glúteos</button>
+          <button type="button" class="mc" data-m="isquiotibiais">Isquiot.</button>
+          <button type="button" class="mc" data-m="panturrilha">Panturrilha</button>
+          <button type="button" class="mc" data-m="antebraco">Antebraço</button>
+          <button type="button" class="mc" data-m="trapezio">Trapézio</button>
+        </div>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="adicionarExAoTemplate()" style="width:100%;justify-content:center">+ Adicionar ao template</button>
+    </div>
+    <div class="mfooter">
+      <button class="btn btn-g" onclick="$('modal-template').classList.remove('on')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarTemplate()">💾 Salvar template</button>
+    </div>
+  </div>
+</div>
 
 <!-- EDIT MODAL -->
 <div class="overlay" id="modal">
@@ -495,15 +530,44 @@ textarea{resize:vertical;min-height:70px}
         <div class="hh-greet" id="h-greet">Bom dia</div>
         <div class="hh-date" id="h-date"></div>
       </div>
-      <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;margin-top:4px;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);transition:all .2s"></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <!-- Clima -->
+        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)">
+          <span id="weather-icon" style="font-size:18px">🌡️</span>
+          <div>
+            <div id="weather-temp" style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
+            <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:1px">carregando...</div>
+          </div>
+        </div>
+        <!-- Sync -->
+        <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
+      </div>
     </div>
   </div>
 
-  <div class="g4 gap">
+  <div class="g4 gap" style="grid-template-columns:repeat(5,1fr)">
     <div class="stat c-green"><div class="lbl">Rotina hoje</div><div class="val" id="hs-rot">0/0</div><div class="sub">hábitos do dia</div></div>
     <div class="stat c-blue"><div class="lbl">Água</div><div class="val" id="hs-agua">0ml</div><div class="sub">de <span id="hs-agua-meta">2000</span>ml</div></div>
     <div class="stat c-gold"><div class="lbl">Tarefas</div><div class="val" id="hs-tar">0</div><div class="sub">pendentes no total</div></div>
     <div class="stat c-purple"><div class="lbl">Humor</div><div class="val" id="hs-mood">—</div><div class="sub">hoje</div></div>
+    <div class="stat" style="border-color:var(--orange);background:linear-gradient(135deg,var(--card),rgba(224,136,60,.08))">
+      <div class="lbl">Score saúde</div>
+      <div class="val" id="hs-score" style="color:var(--orange)">—</div>
+      <div class="sub" id="hs-score-sub">semanal</div>
+      <div class="pb" style="margin-top:6px"><div class="pf o" id="hs-score-pb" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- GRATIDÃO DIÁRIA -->
+  <div class="card gap" id="grat-daily-card" style="border-left:3px solid var(--teal)">
+    <div class="sh" style="margin-bottom:10px">
+      <h2 style="font-size:14px">🙏 Gratidão do dia</h2>
+      <span id="grat-prompt-tag" style="font-size:10px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:.5px"></span>
+    </div>
+    <p id="grat-prompt-txt" style="font-size:13px;color:var(--text2);font-style:italic;margin-bottom:12px;line-height:1.6"></p>
+    <div id="grat-today-check" style="margin-bottom:8px"></div>
+    <textarea id="grat-input" placeholder="Escreva sua resposta..." style="min-height:72px;margin-bottom:8px"></textarea>
+    <button class="btn btn-p btn-sm" onclick="salvarGratDiaria()" style="width:100%;justify-content:center">💚 Registrar</button>
   </div>
 
   <!-- INSIGHTS CARD -->
@@ -522,6 +586,16 @@ textarea{resize:vertical;min-height:70px}
       <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
       <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
     </div>
+  </div>
+
+  <!-- ALERTA DE DESCANSO -->
+  <div id="alerta-recovery" style="display:none;background:rgba(60,189,184,.1);border:1px solid var(--teal);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;align-items:center;gap:12px">
+    <span style="font-size:22px;flex-shrink:0">🛌</span>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:700;color:var(--teal)" id="alerta-recovery-txt"></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-recovery-sub"></div>
+    </div>
+    <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
   </div>
 
   <div class="g2 gap">
@@ -861,6 +935,16 @@ textarea{resize:vertical;min-height:70px}
     <button id="treino-lancar-btn" class="btn btn-p btn-sm" onclick="lancarTreino()" style="display:none;width:100%;justify-content:center;margin-top:2px">🏋️ Lançar treino completo</button>
   </div>
 
+  <!-- TEMPLATES DE TREINO -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>⚡ Templates de treino</h2>
+      <button class="btn btn-g btn-sm" onclick="abrirModalTemplate()">+ Criar template</button>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Salve seu treino favorito e lance tudo de uma vez com um toque.</p>
+    <div id="lista-templates"></div>
+  </div>
+
   <!-- EXERCÍCIO LOG -->
   <div class="card gap">
     <div class="sh"><h2>📋 Log de treinos (últimos 7 dias)</h2></div>
@@ -1027,7 +1111,7 @@ textarea{resize:vertical;min-height:70px}
         <button class="btn btn-sm chart-toggle on" data-key="peso" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(201,168,76,.15);color:var(--accent);border:1px solid var(--accent)">⚖️ Peso</button>
         <button class="btn btn-sm chart-toggle on" data-key="sono" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(155,114,224,.15);color:var(--purple);border:1px solid var(--purple)">😴 Sono</button>
         <button class="btn btn-sm chart-toggle on" data-key="agua" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(92,141,224,.15);color:var(--blue);border:1px solid var(--blue)">💧 Água</button>
-        <button class="btn btn-sm chart-toggle on" data-key="kcal" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(155,114,224,.15);color:var(--purple);border:1px solid var(--purple)">🔥 Kcal</button>
+        <button class="btn btn-sm chart-toggle on" data-key="kcal" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(224,136,60,.15);color:var(--orange);border:1px solid var(--orange)">🔥 Kcal</button>
       </div>
     </div>
     <div style="position:relative;height:220px;margin-top:12px">
@@ -1035,54 +1119,6 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div id="hist-chart-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;justify-content:center"></div>
   </div>
-</section>
-
-<!-- ════════════════ JIU JITSU ════════════════ -->
-<section class="page" id="page-jj">
-  <h1>🥋 Jiu Jitsu</h1><p class="psub">Meu jogo, técnicas, finalizações e videoaulas</p>
-
-  <div class="stabs">
-    <button class="stab on" onclick="jjTab(this,'jj-meujogo')">Meu Jogo</button>
-    <button class="stab" onclick="jjTab(this,'jj-videos')">Videoaulas</button>
-  </div>
-
-  <!-- Meu Jogo -->
-  <div class="sp on" id="jj-meujogo">
-    <div class="card">
-      <h2>Descreva seu jogo</h2>
-      <p style="font-size:13px;color:var(--text3);margin-bottom:14px">Suas posições favoritas, pontos fortes, áreas de desenvolvimento...</p>
-      <div class="fg"><label>Meu jogo em geral</label><textarea id="jj-geral" style="min-height:120px" placeholder="Ex: Jogo de guarda aberta, prefiro finalizar com triângulo e omoplata..."></textarea></div>
-      <div class="row">
-        <div class="fg"><label>Guarda favorita</label><input id="jj-guarda-fav" type="text" placeholder="Ex: Guarda de garra, De la Riva..."></div>
-        <div class="fg"><label>Posição de topo favorita</label><input id="jj-topo-fav" type="text" placeholder="Ex: Meia guarda, Passagem de leg drag..."></div>
-      </div>
-      <div class="row">
-        <div class="fg"><label>Ponto forte</label><input id="jj-forte" type="text" placeholder="Ex: Jogo de costas, pressão..."></div>
-        <div class="fg"><label>Área a desenvolver</label><input id="jj-fraco" type="text" placeholder="Ex: Leg locks, wrestling..."></div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="saveJJ()">💾 Salvar meu jogo</button>
-    </div>
-  </div>
-
-  <!-- Finalizações -->
-  <!-- Videoaulas -->
-  <div class="sp" id="jj-videos">
-    <div class="card gap">
-      <h3>Adicionar videoaula</h3>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Título</label><input id="jjv-titulo" type="text" placeholder="Ex: Como fazer o triângulo de guarda fechada..."></div>
-        <div class="fg"><label>Instrutor / Canal</label><input id="jjv-inst" type="text" placeholder="Ex: Gustavo Gasperin, Bernardo Faria..."></div>
-      </div>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Link (YouTube, etc)</label><input id="jjv-link" type="url" placeholder="https://youtube.com/..."></div>
-        <div class="fg"><label>Técnica principal</label><input id="jjv-tecnica" type="text" placeholder="Ex: Triângulo, Leg drag..."></div>
-      </div>
-      <div class="fg"><label>Notas</label><input id="jjv-notas" type="text" placeholder="Pontos-chave que aprendeu..."></div>
-      <button class="btn btn-p btn-sm" onclick="addVideo()">+ Adicionar videoaula</button>
-    </div>
-    <div class="card"><h2>Biblioteca de videoaulas</h2><div id="lista-videos"></div></div>
-  </div>
-
 </section>
 
 <!-- ════════════════ MENTE ════════════════ -->
@@ -1392,6 +1428,20 @@ textarea{resize:vertical;min-height:70px}
   </div>
 
   <!-- DISTRIBUIÇÃO POR CATEGORIA -->
+  <!-- EVOLUÇÃO PATRIMONIAL -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>📈 Evolução patrimonial</h2>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-sm chart-toggle on" data-fp="patrimonio" onclick="toggleFinChart(this)" style="font-size:10px;padding:3px 8px;background:rgba(76,175,130,.15);color:var(--green);border:1px solid var(--green)">Patrimônio</button>
+        <button class="btn btn-sm chart-toggle on" data-fp="saldo" onclick="toggleFinChart(this)" style="font-size:10px;padding:3px 8px;background:rgba(201,168,76,.15);color:var(--accent);border:1px solid var(--accent)">Saldo</button>
+        <button class="btn btn-sm chart-toggle on" data-fp="invest" onclick="toggleFinChart(this)" style="font-size:10px;padding:3px 8px;background:rgba(60,189,184,.15);color:var(--teal);border:1px solid var(--teal)">Investido</button>
+      </div>
+    </div>
+    <div id="fin-patr-empty" style="font-size:12px;color:var(--text3);text-align:center;padding:16px 0;display:none">Salve relatórios de carteira para ver a evolução patrimonial</div>
+    <div style="position:relative;height:200px"><canvas id="fin-patr-chart" style="width:100%;height:200px"></canvas></div>
+  </div>
+
   <div class="card">
     <h2>🍕 Gastos por categoria (mês atual)</h2>
     <div id="fin-catbars"></div>
@@ -1713,7 +1763,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -1833,8 +1883,8 @@ function go(p) {
   if (window.innerWidth <= 640) {
     navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
   }
-  if (p === 'home') refreshHome();
-  if (p === 'corpo') { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); }
+  if (p === 'home') { refreshHome(); const wc = load('weather_cache', null); if (wc) renderClima(wc); }
+  if (p === 'corpo') { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); renderTemplates(); }
   if (p === 'financas') { renderFinancas(); }
   if (p === 'backup') { bkStats(); }
 }
@@ -1993,7 +2043,11 @@ function refreshHome() {
 
   // Automações
   gerarInsights();
+  renderCorrelacoes();
   verificarAlertaGastos();
+  verificarAlertaDescanso();
+  renderScoreSaude();
+  renderGratDiaria();
 
   // Label semana no relatório
   const rs = $('relatorio-semana');
@@ -2512,6 +2566,7 @@ function lancarTreino() {
   treinoFila = [];
   renderTreinoFila();
   renderExLog(); updateMuscleDiagram(); renderHistorico(); renderMapaHome(); renderHistChart();
+  verificarAlertaDescanso(); refreshHome();
   const todayExs = load('exercicios', []).filter(e => e.date === today());
   const totalDur = todayExs.reduce((s, e) => s + (e.dur || 0), 0);
   const totalKcal = todayExs.reduce((s, e) => s + (e.kcal || 0), 0);
@@ -2622,139 +2677,308 @@ function updateMuscleDiagram() {
 // ──────────────────────────────────
 // JIU JITSU
 // ──────────────────────────────────
-function jjTab(btn, id) {
-  document.querySelectorAll('#page-jj .stab').forEach(b => b.classList.remove('on'));
-  document.querySelectorAll('#page-jj .sp').forEach(s => s.classList.remove('on'));
-  btn.classList.add('on'); $(id).classList.add('on');
+function addDiarioRapido() {
+  const txt = $('h-diario-input').value.trim();
+  if (!txt) return;
+  const mente = load('mente', []);
+  mente.unshift({ id: Date.now(), tipo: 'diario', texto: txt, data: today(), hora: fmtTime() });
+  save('mente', mente);
+  $('h-diario-input').value = '';
+  refreshHome();
+  renderDiario();
 }
 
-function saveJJ() {
-  const jj = load('jj', {});
-  jj.geral = $('jj-geral').value;
-  jj.guardaFav = $('jj-guarda-fav').value;
-  jj.topoFav = $('jj-topo-fav').value;
-  jj.forte = $('jj-forte').value;
-  jj.fraco = $('jj-fraco').value;
-  save('jj', jj);
-  alert('Salvo! ✅');
+function hFinLancar(tipo) {
+  const val = parseFloat($('h-fin-val').value);
+  const desc = $('h-fin-desc').value.trim() || (tipo === 'entrada' ? 'Entrada rápida' : 'Despesa rápida');
+  if (!val || val <= 0) { $('h-fin-val').focus(); return; }
+  const desp = load('despesas', []);
+  desp.unshift({ id: Date.now(), desc, tipo, cat: tipo === 'entrada' ? 'Outro' : 'Outro', val, data: today(), notas: '' });
+  save('despesas', desp);
+  const cfg = load('fin_cfg', {});
+  cfg.saldo = (cfg.saldo || 0) + (tipo === 'entrada' ? val : -val);
+  save('fin_cfg', cfg);
+  $('h-fin-val').value = '';
+  $('h-fin-desc').value = '';
+  refreshHome();
+  // Flash feedback
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.textContent = '✓';
+  setTimeout(() => btn.textContent = orig, 800);
 }
 
-function loadJJ() {
-  const jj = load('jj', {});
-  if (jj.geral) $('jj-geral').value = jj.geral;
-  if (jj.guardaFav) $('jj-guarda-fav').value = jj.guardaFav;
-  if (jj.topoFav) $('jj-topo-fav').value = jj.topoFav;
-  if (jj.forte) $('jj-forte').value = jj.forte;
-  if (jj.fraco) $('jj-fraco').value = jj.fraco;
+// ──────────────────────────────────
+// MODAL (Editar evento)
+// ──────────────────────────────────
+function openEdit(id) {
+  const ev = load('eventos', []).find(e => e.id === id);
+  if (!ev) return;
+  $('m-id').value = id;
+  $('m-nome').value = ev.nome;
+  $('m-dt').value = ev.dt;
+  $('m-cat').value = ev.cat;
+  $('m-notas').value = ev.notas || '';
+  $('modal-title').textContent = 'Editar evento';
+  $('modal').classList.add('on');
+}
+function closeModal() { $('modal').classList.remove('on'); }
+function saveModal() {
+  const id = parseInt($('m-id').value);
+  const eventos = load('eventos', []);
+  const ev = eventos.find(e => e.id === id);
+  if (!ev) return;
+  ev.nome = $('m-nome').value;
+  ev.dt = $('m-dt').value;
+  ev.cat = $('m-cat').value;
+  ev.notas = $('m-notas').value;
+  eventos.sort((a, b) => a.dt.localeCompare(b.dt));
+  save('eventos', eventos);
+  closeModal();
+  renderAgenda();
+  refreshHome();
+}
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+
+// ──────────────────────────────────
+// AGENDA
+// ──────────────────────────────────
+function addEvento() {
+  const nome = $('ev-n').value.trim();
+  const dt = $('ev-dt').value;
+  if (!nome || !dt) return alert('Preencha nome e data/hora.');
+  const eventos = load('eventos', []);
+  eventos.push({ id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false });
+  eventos.sort((a, b) => a.dt.localeCompare(b.dt));
+  save('eventos', eventos);
+  $('ev-n').value = ''; $('ev-dt').value = ''; $('ev-no').value = '';
+  renderAgenda();
 }
 
-const nivelTag = { 'Estudando':'tb', 'Treinando':'ta', 'Confortável':'tg', 'Arma principal':'tp', 'Preferida':'tp' };
+function toggleEvento(id) {
+  const eventos = load('eventos', []);
+  const e = eventos.find(e => e.id === id);
+  if (e) e.done = !e.done;
+  save('eventos', eventos);
+  renderAgenda();
+  refreshHome();
+}
 
-function addFinalizacao() {
-  const nome = $('jjf-nome').value.trim();
+function delEvento(id) {
+  save('eventos', load('eventos', []).filter(e => e.id !== id));
+  renderAgenda(); refreshHome();
+}
+
+function renderAgenda() {
+  const filter = $('ev-filter').value;
+  const eventos = load('eventos', []).filter(e => !filter || e.cat === filter);
+  const cont = $('lista-eventos');
+  if (!eventos.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento</div>'; return; }
+  cont.innerHTML = eventos.map(e => `
+    <div class="evi${e.done ? ' done' : ''}">
+      <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
+      <div class="evi-t">${fmtDt(e.dt)}</div>
+      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
+      <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
+      <button class="ib del" onclick="delEvento(${e.id})">×</button>
+    </div>`).join('');
+}
+
+// ──────────────────────────────────
+// ROTINA
+// ──────────────────────────────────
+// Day selector
+document.querySelectorAll('#days-sel .db').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('on'));
+});
+
+function getSelectedDays() {
+  return [...document.querySelectorAll('#days-sel .db.on')].map(b => {
+    const d = b.dataset.d;
+    return d === 'lastday' ? 'lastday' : parseInt(d);
+  });
+}
+
+function habitHoje(h) {
+  if (!h.dias || h.dias.length === 0) return true;
+  const d = new Date();
+  const dow = d.getDay();
+  if (h.dias.includes(dow)) return true;
+  if (h.dias.includes('lastday')) {
+    const tom = new Date(d); tom.setDate(tom.getDate() + 1);
+    if (tom.getMonth() !== d.getMonth()) return true;
+  }
+  return false;
+}
+
+function daysLabel(dias) {
+  if (!dias || dias.length === 0) return 'Todo dia';
+  const names = {0:'Dom',1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex',6:'Sáb','lastday':'Últ.mês'};
+  return dias.map(d => names[d] || d).join(', ');
+}
+
+function addHabito() {
+  const nome = $('rot-n').value.trim();
   if (!nome) return;
-  const list = load('jj_finais', []);
-  list.unshift({ id: Date.now(), nome, cat: $('jjf-cat').value, nivel: $('jjf-nivel').value, notas: $('jjf-notas').value });
-  save('jj_finais', list);
-  $('jjf-nome').value = ''; $('jjf-notas').value = '';
-  renderFinalizacoes();
+  const habitos = load('habitos', []);
+  habitos.push({ id: Date.now(), nome, periodo: $('rot-p').value, dias: getSelectedDays() });
+  save('habitos', habitos);
+  $('rot-n').value = '';
+  document.querySelectorAll('#days-sel .db').forEach(b => b.classList.remove('on'));
+  renderRotina();
+  refreshHome();
 }
 
-function delFinal(id) { save('jj_finais', load('jj_finais', []).filter(x => x.id !== id)); renderFinalizacoes(); }
-
-function renderFinalizacoes() {
-  const list = load('jj_finais', []);
-  const cont = $('lista-final');
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma finalização adicionada</div>'; return; }
-  cont.innerHTML = list.map(f => `
-    <div class="li">
-      <div class="li-info">
-        <div class="li-nm">${f.nome} <span class="tag ${nivelTag[f.nivel]||'ta'}">${f.nivel}</span></div>
-        <div class="li-sub">${f.cat}${f.notas ? ' · ' + f.notas : ''}</div>
-      </div>
-      <button class="ib del" onclick="delFinal(${f.id})">×</button>
-    </div>`).join('');
+function toggleHabito(id) {
+  const t = today();
+  const checks = load('rot_checks', {});
+  if (!checks[t]) checks[t] = {};
+  checks[t][id] = !checks[t][id];
+  save('rot_checks', checks);
+  renderRotina();
+  refreshHome();
 }
 
-function addPassagem() {
-  const nome = $('jjg-nome').value.trim();
+function delHabito(id) {
+  save('habitos', load('habitos', []).filter(h => h.id !== id));
+  renderRotina(); refreshHome();
+}
+
+function renderRotina() {
+  const t = today();
+  const habitos = load('habitos', []);
+  const checks = load('rot_checks', {})[t] || {};
+  ['manha','tarde','noite','dia'].forEach(p => {
+    const list = habitos.filter(h => h.periodo === p);
+    const cont = $('rot-' + p);
+    if (!list.length) { cont.innerHTML = '<div class="empty" style="padding:12px 0">Nenhum hábito</div>'; return; }
+    cont.innerHTML = list.map(h => `
+      <div class="ci">
+        <div class="cb${checks[h.id] ? ' on' : ''}" onclick="toggleHabito(${h.id})">${checks[h.id] ? '✓' : ''}</div>
+        <span class="cl${checks[h.id] ? ' x' : ''}" style="flex:1">${h.nome}</span>
+        <span style="font-size:10px;color:var(--text3);margin-right:4px">${daysLabel(h.dias)}</span>
+        <button class="ib del" onclick="delHabito(${h.id})">×</button>
+      </div>`).join('');
+  });
+}
+
+// ──────────────────────────────────
+// TAREFAS
+// ──────────────────────────────────
+function addTarefa() {
+  const nome = $('tar-n').value.trim();
   if (!nome) return;
-  const list = load('jj_passagens', []);
-  list.unshift({ id: Date.now(), nome, guarda: $('jjg-guarda').value, nivel: $('jjg-nivel').value, notas: $('jjg-notas').value });
-  save('jj_passagens', list);
-  $('jjg-nome').value = ''; $('jjg-guarda').value = ''; $('jjg-notas').value = '';
-  renderPassagens();
+  const tarefas = load('tarefas', []);
+  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c').value, done: false, data: today() });
+  save('tarefas', tarefas);
+  $('tar-n').value = '';
+  renderTarefas(); refreshHome();
 }
 
-function delPassagem(id) { save('jj_passagens', load('jj_passagens', []).filter(x => x.id !== id)); renderPassagens(); }
-
-function renderPassagens() {
-  const list = load('jj_passagens', []);
-  const cont = $('lista-passagens');
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhuma passagem adicionada</div>'; return; }
-  cont.innerHTML = list.map(p => `
-    <div class="li">
-      <div class="li-info">
-        <div class="li-nm">${p.nome} <span class="tag ${nivelTag[p.nivel]||'ta'}">${p.nivel}</span></div>
-        <div class="li-sub">${p.guarda ? 'Da ' + p.guarda : ''}${p.notas ? ' · ' + p.notas : ''}</div>
-      </div>
-      <button class="ib del" onclick="delPassagem(${p.id})">×</button>
-    </div>`).join('');
+function toggleTarefa(id) {
+  const tarefas = load('tarefas', []);
+  const t = tarefas.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  save('tarefas', tarefas);
+  renderTarefas(); refreshHome();
 }
 
-function addVideo() {
-  const titulo = $('jjv-titulo').value.trim();
-  if (!titulo) return;
-  const list = load('jj_videos', []);
-  list.unshift({ id: Date.now(), titulo, inst: $('jjv-inst').value, link: $('jjv-link').value, tecnica: $('jjv-tecnica').value, notas: $('jjv-notas').value });
-  save('jj_videos', list);
-  $('jjv-titulo').value = ''; $('jjv-inst').value = ''; $('jjv-link').value = ''; $('jjv-tecnica').value = ''; $('jjv-notas').value = '';
-  renderVideos();
+function delTarefa(id) {
+  save('tarefas', load('tarefas', []).filter(t => t.id !== id));
+  renderTarefas(); refreshHome();
 }
 
-function delVideo(id) { save('jj_videos', load('jj_videos', []).filter(x => x.id !== id)); renderVideos(); }
-
-function renderVideos() {
-  const list = load('jj_videos', []);
-  const cont = $('lista-videos');
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🎬</div>Nenhuma videoaula adicionada</div>'; return; }
-  cont.innerHTML = list.map(v => `
-    <div class="li">
-      <div style="font-size:22px">🎬</div>
-      <div class="li-info">
-        <div class="li-nm">${v.link ? `<a href="${v.link}" target="_blank" style="color:var(--accent);text-decoration:none">${v.titulo}</a>` : v.titulo}</div>
-        <div class="li-sub">${v.inst ? v.inst + (v.tecnica ? ' · ' + v.tecnica : '') : v.tecnica || ''}${v.notas ? ' — ' + v.notas : ''}</div>
-      </div>
-      <button class="ib del" onclick="delVideo(${v.id})">×</button>
-    </div>`).join('');
+function renderTarefas() {
+  const tarefas = load('tarefas', []);
+  const pend = tarefas.filter(t => !t.done);
+  const done = tarefas.filter(t => t.done);
+  $('tar-cp').textContent = pend.length;
+  $('tar-cd').textContent = done.length;
+  const rl = (list, el, showPrio) => {
+    if (!list.length) { $(el).innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa</div>'; return; }
+    $(el).innerHTML = list.map(t => `
+      <div class="ci">
+        <div class="cb${t.done ? ' on' : ''}" onclick="toggleTarefa(${t.id})">${t.done ? '✓' : ''}</div>
+        <div class="${prioClass[t.prio]}"></div>
+        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}</span>
+        ${showPrio ? `<select onchange="mudaPrioHome(${t.id},this.value)" style="font-size:10px;padding:2px 4px;width:auto;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2)">
+          <option value="a"${t.prio==='a'?' selected':''}>🔴 Alta</option>
+          <option value="m"${t.prio==='m'?' selected':''}>🟡 Média</option>
+          <option value="b"${t.prio==='b'?' selected':''}>🟢 Baixa</option>
+        </select>` : `<span class="tag ${prioTag[t.prio]}" style="font-size:9px">${t.cat}</span>`}
+        <button class="ib del" onclick="delTarefa(${t.id})">×</button>
+      </div>`).join('');
+  };
+  rl(pend, 'tar-pend', true);
+  rl(done, 'tar-done', false);
 }
 
-function addTreinoJJ() {
-  const data = $('jjt-data').value || today();
-  const tema = $('jjt-tema').value.trim();
-  if (!tema) return alert('Descreva o que foi praticado.');
-  const list = load('jj_treinos', []);
-  list.unshift({ id: Date.now(), data, dur: $('jjt-dur').value, faixa: $('jjt-faixa').value, tema, notas: $('jjt-notas').value });
-  save('jj_treinos', list);
-  $('jjt-data').value = ''; $('jjt-dur').value = ''; $('jjt-tema').value = ''; $('jjt-notas').value = '';
-  renderTreinosJJ();
+// ──────────────────────────────────
+// CORPO - ÁGUA
+// ──────────────────────────────────
+function addAgua() {
+  const ml = parseInt($('agua-add-ml').value);
+  if (!ml || ml <= 0) return;
+  const agua = load('agua', {});
+  agua[today()] = (agua[today()] || 0) + ml;
+  save('agua', agua);
+  $('agua-add-ml').value = '';
+  renderAguaDisplay();
+  renderHistorico();
+  refreshHome();
 }
 
-function delTreinoJJ(id) { save('jj_treinos', load('jj_treinos', []).filter(x => x.id !== id)); renderTreinosJJ(); }
+function resetAgua() {
+  const agua = load('agua', {});
+  agua[today()] = 0;
+  save('agua', agua);
+  renderAguaDisplay();
+  refreshHome();
+}
 
-function renderTreinosJJ() {
-  const list = load('jj_treinos', []);
-  const cont = $('lista-treinos-jj');
-  const faixaCor = { Branca:'tb', Cinza:'tb', Amarela:'ta', Laranja:'to', Verde:'tg', Azul:'tb', Roxa:'tp', Marrom:'ta', Preta:'tb' };
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🥋</div>Nenhum treino registrado</div>'; return; }
-  cont.innerHTML = list.map(t => `
-    <div class="li">
-      <div class="li-info">
-        <div class="li-nm">${t.data} — ${t.tema} <span class="tag ${faixaCor[t.faixa]||'tb'}">${t.faixa}</span>${t.dur ? ' · ' + t.dur + 'min' : ''}</div>
-        <div class="li-sub">${t.notas || ''}</div>
-      </div>
-      <button class="ib del" onclick="delTreinoJJ(${t.id})">×</button>
-    </div>`).join('');
+function saveAguaMeta() {
+  const meta = parseInt($('agua-meta-inp').value) || 2000;
+  save('agua_meta', meta);
+  renderAguaDisplay();
+}
+
+function renderAguaDisplay() {
+  const atual = load('agua', {})[today()] || 0;
+  const meta = load('agua_meta', 2000);
+  animateNumber($('agua-total'), atual, { suffix: ' ml', duration: 800 });
+  $('agua-meta-show').textContent = meta + ' ml';
+  $('agua-meta-inp').value = meta;
+  const pct = Math.min(100, (atual / meta) * 100);
+  $('agua-pb-big').style.width = pct + '%';
+  animateNumber($('cp-agua-v'), atual, { suffix: 'ml', duration: 700 });
+  $('cp-agua-meta-lbl').textContent = meta;
+  $('cp-agua-pb').style.width = pct + '%';
+}
+
+// ──────────────────────────────────
+// CORPO - DIÁRIO
+// ──────────────────────────────────
+function saveCorpoDiario() {
+  const t = today();
+  const dados = load('corpo_d', {});
+  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value };
+  save('corpo_d', dados);
+  loadCorpoDiario();
+  renderHistorico();
+  atualizarMetaHidratacaoAutomatica();
+}
+
+function loadCorpoDiario() {
+  const t = today();
+  const d = load('corpo_d', {})[t] || {};
+  if (d.sono) $('cp-sono').value = d.sono;
+  if (d.peso) $('cp-peso').value = d.peso;
+  if (d.notas) $('cp-notas').value = d.notas;
+  if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
+  else $('cp-sono-v').textContent = '—';
+  if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
+  else $('cp-peso-v').textContent = '—';
+  renderAguaDisplay();
 }
 
 // ──────────────────────────────────
@@ -3468,6 +3692,7 @@ function renderFinancas() {
   populateMesFilter();
   renderDespesas();
   renderRelatoriosCarteira();
+  renderPatrimonialChart();
 }
 
 function renderCatBars(desp) {
@@ -3582,7 +3807,7 @@ function renderHistChart() {
     { key:'peso',  label:'Peso (kg)',   data: pesoVals, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.08)', yAxisID:'y1', tension:.4, pointRadius:3, spanGaps:true },
     { key:'sono',  label:'Sono (h)',    data: sonoVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'y2', tension:.4, pointRadius:3, spanGaps:true },
     { key:'agua',  label:'Água (ml)',   data: aguaVals, borderColor:'#5c8de0', backgroundColor:'rgba(92,141,224,.08)', yAxisID:'y3', tension:.4, pointRadius:3, spanGaps:true },
-    { key:'kcal',  label:'Kcal',        data: kcalVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'y4', tension:.4, pointRadius:3, spanGaps:true },
+    { key:'kcal',  label:'Kcal',        data: kcalVals, borderColor:'#e0883c', backgroundColor:'rgba(224,136,60,.08)', yAxisID:'y4', tension:.4, pointRadius:3, spanGaps:true },
   ].filter(ds => chartActiveLines[ds.key]);
 
   if (histChartInstance) { histChartInstance.destroy(); histChartInstance = null; }
@@ -3602,7 +3827,7 @@ function renderHistChart() {
         y1: { display: chartActiveLines.peso,  position:'left',  ticks:{ color:'#c9a84c', font:{size:9} }, grid:{ color:'rgba(46,50,80,.3)' } },
         y2: { display: chartActiveLines.sono,  position:'right', ticks:{ color:'#9b72e0', font:{size:9} }, grid:{ display:false } },
         y3: { display: chartActiveLines.agua,  position:'right', ticks:{ color:'#5c8de0', font:{size:9} }, grid:{ display:false } },
-        y4: { display: chartActiveLines.kcal,  position:'right', ticks:{ color:'#9b72e0', font:{size:9} }, grid:{ display:false } },
+        y4: { display: chartActiveLines.kcal,  position:'right', ticks:{ color:'#e0883c', font:{size:9} }, grid:{ display:false } },
       }
     }
   });
@@ -3614,7 +3839,7 @@ function renderHistChart() {
       {key:'peso',  color:'#c9a84c', label:'Peso (kg)'},
       {key:'sono',  color:'#9b72e0', label:'Sono (h)'},
       {key:'agua',  color:'#5c8de0', label:'Água (ml)'},
-      {key:'kcal',  color:'#9b72e0', label:'Kcal treino'},
+      {key:'kcal',  color:'#e0883c', label:'Kcal treino'},
     ].map(l => `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);opacity:${chartActiveLines[l.key]?1:.4}">
       <div style="width:20px;height:2px;background:${l.color};border-radius:1px"></div>${l.label}
     </div>`).join('');
@@ -3935,6 +4160,383 @@ const catRules = [
   { words:['curso','livro','udemy','faculdade','escola','material escolar'], cat:'Educação' },
   { words:['cinema','teatro','show','viagem','hotel','parque','lazer','bar','balada'], cat:'Lazer' },
 ];
+
+// ══════════════════════════════════════════
+// SCORE DE SAÚDE SEMANAL
+// ══════════════════════════════════════════
+function calcScoreSaude() {
+  const dias7 = [];
+  for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); dias7.push(localDateStr(d)); }
+  const corpoD   = load('corpo_d', {});
+  const aguaD    = load('agua', {});
+  const exercs   = load('exercicios', []).filter(e => dias7.includes(e.date));
+  const mente    = load('mente', []).filter(m => dias7.includes(m.data));
+  const habitos  = load('habitos', []);
+  const rot      = load('rot_checks', {});
+  const aguaMeta = load('agua_meta', 2000);
+  let score = 0; const MAX = 100;
+
+  // Sono (25pts) — meta 7.5h, 25pts se >=7, reduz proporcionalmente
+  const sonoVals = dias7.map(d => parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
+  if (sonoVals.length >= 3) {
+    const media = sonoVals.reduce((a,b)=>a+b,0)/sonoVals.length;
+    score += Math.min(25, Math.round((media / 8) * 25));
+  } else { score += 10; } // neutro se sem dados
+
+  // Hidratação (20pts)
+  const mediaAgua = dias7.reduce((s,d)=>s+(aguaD[d]||0),0)/7;
+  score += Math.min(20, Math.round((mediaAgua / aguaMeta) * 20));
+
+  // Treinos (25pts) — 4+ treinos = 25pts
+  const numTreinos = [...new Set(exercs.map(e=>e.date))].length;
+  score += Math.min(25, Math.round((numTreinos / 4) * 25));
+
+  // Hábitos (20pts)
+  const hFatos = dias7.reduce((s,d)=>{
+    const hj = habitos.filter(h=>habitHoje(h));
+    const ch = rot[d]||{};
+    return s + hj.filter(h=>ch[h.id]).length;
+  },0);
+  const hPoss = habitos.length * 7;
+  score += hPoss > 0 ? Math.min(20, Math.round((hFatos/hPoss)*20)) : 10;
+
+  // Humor (10pts)
+  const humorBom = ['😁','😊','🤩','💪','🧘'];
+  const moodsS = mente.filter(m=>m.tipo==='humor');
+  if (moodsS.length >= 3) {
+    const pctBom = moodsS.filter(m=>humorBom.includes(m.mood)).length / moodsS.length;
+    score += Math.round(pctBom * 10);
+  } else { score += 5; }
+
+  return Math.min(100, score);
+}
+
+function renderScoreSaude() {
+  const el = $('hs-score'); const pb = $('hs-score-pb'); const sub = $('hs-score-sub');
+  if (!el) return;
+  const score = calcScoreSaude();
+  animateNumber(el, score, { suffix: '/100', duration: 900 });
+  if (pb) pb.style.width = score + '%';
+  if (sub) {
+    const lbl = score >= 80 ? '🔥 Excelente' : score >= 60 ? '✅ Bom' : score >= 40 ? '⚠️ Regular' : '😴 Atenção';
+    sub.textContent = lbl;
+  }
+}
+
+// ══════════════════════════════════════════
+// GRATIDÃO DIÁRIA COM PROMPTS
+// ══════════════════════════════════════════
+const gratPrompts = [
+  { tag:'Conquistas', txt:'Qual foi a maior conquista desta semana, por menor que pareça?' },
+  { tag:'Pessoas', txt:'Por quem você é grato hoje? O que essa pessoa representa para você?' },
+  { tag:'Corpo', txt:'O que seu corpo fez por você hoje que merece reconhecimento?' },
+  { tag:'Aprendizado', txt:'Qual foi o maior aprendizado dos últimos dias?' },
+  { tag:'Momento', txt:'Descreva um momento simples desta semana que te trouxe alegria.' },
+  { tag:'Força', txt:'Em que situação difícil você demonstrou força recentemente?' },
+  { tag:'Abundância', txt:'Liste 3 coisas que você tem hoje que antes eram um sonho.' },
+  { tag:'Presente', txt:'O que no seu dia a dia você às vezes esquece de valorizar?' },
+  { tag:'Progresso', txt:'Em que aspecto da sua vida você evoluiu mais este mês?' },
+  { tag:'Conexão', txt:'Qual conversa recente te fez bem e por quê?' },
+  { tag:'Saúde', txt:'O que você fez esta semana que seu futuro-eu vai agradecer?' },
+  { tag:'Clareza', txt:'O que você sabe hoje sobre si mesmo que não sabia há 1 ano?' },
+  { tag:'Generosidade', txt:'Como você impactou positivamente alguém recentemente?' },
+  { tag:'Sonhos', txt:'Que passo pequeno você deu em direção a um sonho grande?' },
+];
+
+function getPromptDodia() {
+  const d = new Date();
+  const idx = (d.getFullYear() * 1000 + d.getMonth() * 30 + d.getDate()) % gratPrompts.length;
+  return gratPrompts[idx];
+}
+
+function renderGratDiaria() {
+  const prompt = getPromptDodia();
+  const tag = $('grat-prompt-tag'); const txt = $('grat-prompt-txt');
+  const check = $('grat-today-check'); const inp = $('grat-input');
+  if (!prompt) return;
+  if (tag) tag.textContent = prompt.tag;
+  if (txt) txt.textContent = `"${prompt.txt}"`;
+
+  const grats = load('grat_diaria', {});
+  const todayGrat = grats[today()];
+  if (check) {
+    if (todayGrat) {
+      check.innerHTML = `<div style="background:var(--gdim);border:1px solid var(--green);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.5">
+        <div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">✅ Registrado hoje</div>
+        ${todayGrat.texto}
+      </div>`;
+      if (inp) inp.style.display = 'none';
+      if ($('grat-daily-card')?.querySelector('button')) $('grat-daily-card').querySelector('button').style.display = 'none';
+    } else {
+      check.innerHTML = '';
+      if (inp) inp.style.display = '';
+      if ($('grat-daily-card')?.querySelector('button')) $('grat-daily-card').querySelector('button').style.display = '';
+    }
+  }
+}
+
+function salvarGratDiaria() {
+  const txt = $('grat-input')?.value.trim();
+  if (!txt) return;
+  const grats = load('grat_diaria', {});
+  grats[today()] = { texto: txt, prompt: getPromptDodia().txt, criadoEm: new Date().toISOString() };
+  save('grat_diaria', grats);
+  $('grat-input').value = '';
+  renderGratDiaria();
+}
+
+// ══════════════════════════════════════════
+// EVOLUÇÃO PATRIMONIAL (GRÁFICO)
+// ══════════════════════════════════════════
+let _finPatrChart = null;
+const _finPatrLines = { patrimonio: true, saldo: true, invest: true };
+
+function toggleFinChart(btn) {
+  const key = btn.dataset.fp;
+  _finPatrLines[key] = !_finPatrLines[key];
+  btn.style.opacity = _finPatrLines[key] ? '1' : '0.35';
+  renderPatrimonialChart();
+}
+
+function renderPatrimonialChart() {
+  const canvas = $('fin-patr-chart');
+  const empty  = $('fin-patr-empty');
+  if (!canvas || typeof Chart === 'undefined') return;
+  const lista = load('relatorios_carteira', []).slice().reverse(); // cronológico
+  if (!lista.length) {
+    if (empty) empty.style.display = 'block';
+    canvas.style.display = 'none';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  canvas.style.display = '';
+  const labels = lista.map(r => fmtMes(r.data) || r.titulo);
+  const datasets = [
+    { key:'patrimonio', label:'Patrimônio', data: lista.map(r=>r.patrimonio||null), borderColor:'#4caf82', backgroundColor:'rgba(76,175,130,.08)', yAxisID:'y', tension:.4, pointRadius:4, spanGaps:true },
+    { key:'saldo',      label:'Saldo',      data: lista.map(r=>r.saldo||null),      borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.08)',  yAxisID:'y', tension:.4, pointRadius:4, spanGaps:true },
+    { key:'invest',     label:'Investido',  data: lista.map(r=>r.invest||null),     borderColor:'#3cbdb8', backgroundColor:'rgba(60,189,184,.08)',   yAxisID:'y', tension:.4, pointRadius:4, spanGaps:true },
+  ].filter(ds => _finPatrLines[ds.key]);
+  if (_finPatrChart) { _finPatrChart.destroy(); _finPatrChart = null; }
+  _finPatrChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ` ${fmtBRL(ctx.parsed.y)}` } } },
+      scales: {
+        x: { ticks:{ color:'#5a6080', font:{size:9} }, grid:{ color:'rgba(46,50,80,.4)' } },
+        y: { ticks:{ color:'#9aa0bc', font:{size:9}, callback: v => 'R$'+v.toLocaleString('pt-BR',{notation:'compact'}) }, grid:{ color:'rgba(46,50,80,.3)' } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════
+// TEMPLATES DE TREINO
+// ══════════════════════════════════════════
+let _tplExs = []; // buffer while editing template
+
+function abrirModalTemplate(id) {
+  _tplExs = [];
+  $('tpl-id').value = '';
+  $('tpl-nome').value = '';
+  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => c.classList.remove('on'));
+  if (id) {
+    const tpl = (load('treino_templates',[])).find(t=>t.id===id);
+    if (!tpl) return;
+    $('tpl-id').value = id;
+    $('tpl-nome').value = tpl.nome;
+    _tplExs = [...(tpl.exercicios||[])];
+  }
+  renderTplExList();
+  $('modal-template').classList.add('on');
+  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+}
+
+function renderTplExList() {
+  const cont = $('tpl-exercicios-lista');
+  if (!cont) return;
+  if (!_tplExs.length) { cont.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:6px 0">Nenhum exercício adicionado ainda</div>'; return; }
+  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiot.', panturrilha:'Panturrilha' };
+  cont.innerHTML = _tplExs.map((e,i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${e.nome}</div>
+        <div style="font-size:10px;color:var(--text3)">${[e.sr,e.kg?e.kg+'kg':''].filter(Boolean).join(' · ')} ${e.musculos?.map(m=>muscLabels[m]||m).join(', ')}</div>
+      </div>
+      <button class="ib del" onclick="_tplExs.splice(${i},1);renderTplExList()">×</button>
+    </div>`).join('');
+}
+
+function adicionarExAoTemplate() {
+  const nome = $('tpl-ex-nome').value.trim();
+  if (!nome) { $('tpl-ex-nome').focus(); return; }
+  _tplExs.push({
+    nome,
+    sr: $('tpl-ex-sr').value,
+    kg: $('tpl-ex-kg').value,
+    musculos: [...document.querySelectorAll('#tpl-mc-sel .mc.on')].map(c=>c.dataset.m)
+  });
+  $('tpl-ex-nome').value=''; $('tpl-ex-sr').value=''; $('tpl-ex-kg').value='';
+  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c=>c.classList.remove('on'));
+  renderTplExList();
+}
+
+function salvarTemplate() {
+  const nome = $('tpl-nome').value.trim();
+  if (!nome || !_tplExs.length) { alert('Dê um nome e adicione pelo menos um exercício.'); return; }
+  const lista = load('treino_templates', []);
+  const id = parseInt($('tpl-id').value) || Date.now();
+  const tpl = { id, nome, exercicios: _tplExs };
+  const idx = lista.findIndex(t=>t.id===id);
+  if (idx>=0) lista[idx]=tpl; else lista.push(tpl);
+  save('treino_templates', lista);
+  $('modal-template').classList.remove('on');
+  renderTemplates();
+}
+
+function delTemplate(id) {
+  if (!confirm('Excluir template?')) return;
+  save('treino_templates', load('treino_templates',[]).filter(t=>t.id!==id));
+  renderTemplates();
+}
+
+function lancarTemplate(id) {
+  const tpl = (load('treino_templates',[])).find(t=>t.id===id);
+  if (!tpl) return;
+  // Add all exercises to the queue
+  tpl.exercicios.forEach(e => {
+    treinoFila.push({ nome:e.nome, sr:e.sr, kg:e.kg, dur:0, kcal:0, musculos:e.musculos||[], notas:'' });
+  });
+  renderTreinoFila();
+  go('corpo');
+  // Scroll to the treino card
+  setTimeout(() => { const el = $('treino-fila'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 300);
+}
+
+function renderTemplates() {
+  const cont = $('lista-templates');
+  if (!cont) return;
+  const lista = load('treino_templates', []);
+  if (!lista.length) { cont.innerHTML = '<div class="empty"><div class="ei">⚡</div>Nenhum template criado ainda</div>'; return; }
+  cont.innerHTML = lista.map(t => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:var(--rs);margin-bottom:7px;border:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${t.nome}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.exercicios.length} exercício${t.exercicios.length!==1?'s':''}: ${t.exercicios.map(e=>e.nome).join(', ')}</div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="lancarTemplate(${t.id})">▶ Lançar</button>
+      <button class="ib edt" onclick="abrirModalTemplate(${t.id})">✏️</button>
+      <button class="ib del" onclick="delTemplate(${t.id})">×</button>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// CORRELAÇÃO AUTOMÁTICA
+// ══════════════════════════════════════════
+function gerarCorrelacoes() {
+  const semanas = 8; // últimas 8 semanas
+  const resultados = [];
+  const corpoD   = load('corpo_d', {});
+  const aguaD    = load('agua', {});
+  const exercs   = load('exercicios', []);
+  const mente    = load('mente', []);
+  const habitos  = load('habitos', []);
+  const rot      = load('rot_checks', {});
+  const aguaMeta = load('agua_meta', 2000);
+  const humorBom = ['😁','😊','🤩','💪','🧘'];
+
+  // Analisar semana a semana
+  const dadosSemanas = [];
+  for (let w = 0; w < semanas; w++) {
+    const dias = [];
+    for (let d = 6; d >= 0; d--) {
+      const dt = new Date(); dt.setDate(dt.getDate() - (w*7 + d));
+      dias.push(localDateStr(dt));
+    }
+    const treinos = [...new Set(exercs.filter(e=>dias.includes(e.date)).map(e=>e.date))].length;
+    const sonoVals = dias.map(d=>parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
+    const mediaSono = sonoVals.length ? sonoVals.reduce((a,b)=>a+b,0)/sonoVals.length : null;
+    const mediaAgua = dias.reduce((s,d)=>s+(aguaD[d]||0),0)/7;
+    const moodsS    = mente.filter(m=>m.tipo==='humor'&&dias.includes(m.data));
+    const pctHumorBom = moodsS.length ? moodsS.filter(m=>humorBom.includes(m.mood)).length/moodsS.length : null;
+    const hFatos = dias.reduce((s,d)=>{
+      const hj=habitos.filter(h=>habitHoje(h)); const ch=rot[d]||{};
+      return s+hj.filter(h=>ch[h.id]).length;
+    },0);
+    const pctHabitos = habitos.length*7>0 ? hFatos/(habitos.length*7) : null;
+    dadosSemanas.push({ treinos, mediaSono, mediaAgua, pctHumorBom, pctHabitos });
+  }
+
+  const validos = dadosSemanas.filter(s=>s.pctHumorBom!==null&&s.treinos>=0);
+  if (validos.length >= 4) {
+    const semAlto = validos.filter(s=>s.treinos>=4);
+    const semBaixo = validos.filter(s=>s.treinos<=1);
+    if (semAlto.length>=2 && semBaixo.length>=2) {
+      const humorAlto  = semAlto.reduce((s,w)=>s+(w.pctHumorBom||0),0)/semAlto.length;
+      const humorBaixo = semBaixo.reduce((s,w)=>s+(w.pctHumorBom||0),0)/semBaixo.length;
+      const diff = Math.round((humorAlto - humorBaixo)*100);
+      if (Math.abs(diff) >= 15) {
+        resultados.push({ icone:'🏋️', cor:'var(--orange)',
+          txt: diff > 0
+            ? `Semanas com 4+ treinos → humor ${diff}% mais positivo em média.`
+            : `Semanas com poucos treinos → humor ${Math.abs(diff)}% melhor (talvez esteja se sobrecarregando?)`
+        });
+      }
+    }
+  }
+
+  // Sono × humor
+  const comSono = dadosSemanas.filter(s=>s.mediaSono!==null&&s.pctHumorBom!==null);
+  if (comSono.length >= 4) {
+    const boaSemana = comSono.filter(s=>s.mediaSono>=7.5);
+    const ruimSemana = comSono.filter(s=>s.mediaSono<6.5);
+    if (boaSemana.length>=2 && ruimSemana.length>=2) {
+      const hBoa = boaSemana.reduce((s,w)=>s+w.pctHumorBom,0)/boaSemana.length;
+      const hRuim = ruimSemana.reduce((s,w)=>s+w.pctHumorBom,0)/ruimSemana.length;
+      const diff = Math.round((hBoa - hRuim)*100);
+      if (diff >= 15) resultados.push({ icone:'😴', cor:'var(--purple)',
+        txt:`Semanas com 7.5h+ de sono → humor ${diff}% melhor que semanas com menos de 6.5h.` });
+    }
+  }
+
+  // Hidratação × hábitos
+  const comAgua = dadosSemanas.filter(s=>s.pctHabitos!==null&&s.mediaAgua>0);
+  if (comAgua.length >= 4) {
+    const bemHidratado = comAgua.filter(s=>s.mediaAgua>=aguaMeta*0.9);
+    const malHidratado = comAgua.filter(s=>s.mediaAgua<aguaMeta*0.6);
+    if (bemHidratado.length>=2 && malHidratado.length>=2) {
+      const hBem = bemHidratado.reduce((s,w)=>s+w.pctHabitos,0)/bemHidratado.length;
+      const hMal = malHidratado.reduce((s,w)=>s+w.pctHabitos,0)/malHidratado.length;
+      const diff = Math.round((hBem - hMal)*100);
+      if (diff >= 10) resultados.push({ icone:'💧', cor:'var(--blue)',
+        txt:`Semanas bem hidratado (${Math.round(aguaMeta*0.9)}ml+) → ${diff}% mais hábitos concluídos.` });
+    }
+  }
+
+  if (!resultados.length) {
+    resultados.push({ icone:'📊', cor:'var(--text3)',
+      txt:'Ainda não há dados suficientes para detectar correlações. Continue registrando por mais semanas!' });
+  }
+  return resultados;
+}
+
+function renderCorrelacoes() {
+  const lista = $('insights-lista');
+  if (!lista) return;
+  const corrs = gerarCorrelacoes();
+  const corrHtml = corrs.map((c,i) => `
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;${i<corrs.length-1?'border-bottom:1px solid var(--border)':''}">
+      <span style="font-size:18px;flex-shrink:0">${c.icone}</span>
+      <div><div style="font-size:10px;font-weight:700;color:${c.cor};text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Correlação detectada</div>
+      <span style="font-size:13px;color:var(--text2);line-height:1.55">${c.txt}</span></div>
+    </div>`).join('');
+
+  // Append correlations after insights
+  const divider = '<div style="height:1px;background:var(--border);margin:10px 0"></div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">🔗 Correlações automáticas</div>';
+  lista.insertAdjacentHTML('beforeend', divider + corrHtml);
+}
+
 function autoCatDespesa(desc) {
   if (!desc || desc.length < 3) return;
   const lower = desc.toLowerCase();
@@ -3984,6 +4586,66 @@ function atualizarMetaHidratacaoAutomatica() {
 // ══════════════════════════════════════════
 // ALERTAS DE GASTOS
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// ALERTA DE DESCANSO (RECOVERY)
+// ══════════════════════════════════════════
+function verificarAlertaDescanso() {
+  const el = $('alerta-recovery');
+  if (!el) return;
+
+  // Check if dismissed today
+  const dismissed = load('recovery_dismissed', null);
+  if (dismissed === today()) { el.style.display = 'none'; return; }
+
+  const exercs = load('exercicios', []);
+  const dias = new Set(exercs.map(e => e.date));
+
+  // Count consecutive training days going backwards from yesterday
+  let sequencia = 0;
+  let checkDate = new Date();
+  checkDate.setDate(checkDate.getDate() - 1); // start from yesterday
+  while (sequencia < 14) {
+    if (dias.has(localDateStr(checkDate))) {
+      sequencia++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else break;
+  }
+
+  // Also include today if trained
+  if (dias.has(today())) sequencia++;
+
+  const $txt = $('alerta-recovery-txt');
+  const $sub = $('alerta-recovery-sub');
+
+  if (sequencia >= 5) {
+    el.style.display = 'flex';
+    $txt.textContent = `${sequencia} dias consecutivos de treino — seu corpo precisa recuperar!`;
+    $sub.textContent = 'Overtraining prejudica o ganho muscular e aumenta risco de lesão. Considere um dia de descanso ativo ou passivo.';
+    el.style.borderColor = 'var(--red)';
+    el.style.background  = 'var(--rdim)';
+    $txt.style.color     = 'var(--red)';
+    el.querySelector('span').textContent = '🚨';
+  } else if (sequencia >= 3) {
+    el.style.display = 'flex';
+    $txt.textContent = `${sequencia} dias seguidos de treino — pense em incluir um dia de recovery em breve.`;
+    $sub.textContent = sequencia === 3
+      ? 'Ótimo ritmo! Monitorando sua sequência para te avisar quando descanso for necessário.'
+      : 'Descanso ativo (caminhada leve, alongamento) ajuda na recuperação muscular.';
+    el.style.borderColor = 'var(--teal)';
+    el.style.background  = 'rgba(60,189,184,.1)';
+    $txt.style.color     = 'var(--teal)';
+    el.querySelector('span').textContent = '🛌';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function dispensarAlertaRecovery() {
+  save('recovery_dismissed', today());
+  const el = $('alerta-recovery');
+  if (el) el.style.display = 'none';
+}
+
 function verificarAlertaGastos() {
   const cfg = load('fin_cfg', {});
   const renda = cfg.renda || 0;
@@ -4183,6 +4845,94 @@ function gerarRelatorio() {
   if (btn) { btn.textContent='✅ Gerado!'; btn.disabled=false; setTimeout(()=>{ btn.textContent='Gerar relatório da semana'; },3000); }
 }
 
+// ══════════════════════════════════════════
+// PREVISÃO DO TEMPO — Open-Meteo (sem API key)
+// ══════════════════════════════════════════
+const WMO_CODES = {
+  0:'☀️ Céu limpo', 1:'🌤️ Principalmente limpo', 2:'⛅ Parcialmente nublado', 3:'☁️ Nublado',
+  45:'🌫️ Nevoeiro', 48:'🌫️ Nevoeiro com gelo',
+  51:'🌦️ Chuvisco leve', 53:'🌦️ Chuvisco moderado', 55:'🌧️ Chuvisco denso',
+  61:'🌧️ Chuva fraca', 63:'🌧️ Chuva moderada', 65:'🌧️ Chuva forte',
+  71:'🌨️ Neve fraca', 73:'🌨️ Neve moderada', 75:'❄️ Neve forte',
+  80:'🌦️ Pancadas fracas', 81:'🌧️ Pancadas moderadas', 82:'⛈️ Pancadas fortes',
+  95:'⛈️ Trovoada', 96:'⛈️ Trovoada com granizo', 99:'⛈️ Trovoada com granizo forte',
+};
+
+function wmoIcon(code) {
+  const entry = WMO_CODES[code] || '🌡️ —';
+  return entry.split(' ')[0];
+}
+function wmoDesc(code) {
+  const entry = WMO_CODES[code] || '—';
+  return entry.split(' ').slice(1).join(' ');
+}
+
+async function carregarClima() {
+  const wCard = $('weather-card');
+  const wTemp = $('weather-temp');
+  const wIcon = $('weather-icon');
+  const wDesc = $('weather-desc');
+  if (!wTemp) return;
+
+  wDesc.textContent = 'localizando...';
+
+  // Try to get cached weather (max 30 min old)
+  const cached = load('weather_cache', null);
+  const agora = Date.now();
+  if (cached && cached.ts && (agora - cached.ts) < 30 * 60 * 1000) {
+    renderClima(cached);
+    return;
+  }
+
+  // Get geolocation
+  if (!navigator.geolocation) {
+    wTemp.textContent = '—°'; wDesc.textContent = 'GPS indisponível'; return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m&timezone=auto&forecast_days=1`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const cur = data.current;
+      const weather = {
+        ts:   agora,
+        temp: Math.round(cur.temperature_2m),
+        feel: Math.round(cur.apparent_temperature),
+        code: cur.weathercode,
+        wind: Math.round(cur.windspeed_10m),
+        hum:  cur.relativehumidity_2m,
+        lat, lon
+      };
+      save('weather_cache', weather);
+      renderClima(weather);
+    } catch(e) {
+      wTemp.textContent = '—°';
+      wDesc.textContent = 'erro ao buscar';
+      console.warn('[Weather]', e.message);
+    }
+  }, err => {
+    wTemp.textContent = '—°';
+    wDesc.textContent = 'permissão negada';
+    console.warn('[Geolocation]', err.message);
+  }, { timeout: 8000, maximumAge: 1800000 });
+}
+
+function renderClima(w) {
+  const wTemp = $('weather-temp');
+  const wIcon = $('weather-icon');
+  const wDesc = $('weather-desc');
+  const wCard = $('weather-card');
+  if (!wTemp) return;
+  wIcon.textContent = wmoIcon(w.code);
+  wTemp.textContent = `${w.temp}°C`;
+  wDesc.textContent = wmoDesc(w.code);
+  // Tooltip with feels like + humidity
+  if (wCard) wCard.title = `Sensação: ${w.feel}°C · Umidade: ${w.hum}% · Vento: ${w.wind}km/h\nClique para atualizar`;
+}
+
 // ──────────────────────────────────
 // SUPABASE CREDENTIAL MANAGEMENT
 // ──────────────────────────────────
@@ -4239,8 +4989,6 @@ function updateSbStatusArea() {
   updateMuscleDiagram();
   renderHistorico();
   renderHistChart();
-  loadJJ();
-  renderVideos();
   renderHumor();
   renderGrat();
   renderDiario();
@@ -4255,6 +5003,11 @@ function updateSbStatusArea() {
   // Automações no início
   atualizarMetaHidratacaoAutomatica();
   verificarAlertaGastos();
+  verificarAlertaDescanso();
+  renderTemplates();
+  renderGratDiaria();
+  renderScoreSaude();
+  carregarClima();
 
   // Supabase: if connected, pull first THEN render everything
   if (_sbReady) {
