@@ -532,11 +532,37 @@ textarea{resize:vertical;min-height:70px}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <!-- Clima -->
-        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)">
-          <span id="weather-icon" style="font-size:18px">🌡️</span>
-          <div>
-            <div id="weather-temp" style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
-            <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:1px">carregando...</div>
+        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:8px 12px;min-width:140px">
+          <!-- Hoje -->
+          <div style="display:flex;align-items:center;gap:8px">
+            <span id="weather-icon" style="font-size:22px">🌡️</span>
+            <div style="flex:1">
+              <div style="display:flex;align-items:baseline;gap:5px">
+                <div id="weather-temp" style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
+                <div id="weather-feel" style="font-size:10px;color:var(--text3)"></div>
+              </div>
+              <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:1px">carregando...</div>
+            </div>
+          </div>
+          <!-- Amanhã -->
+          <div id="weather-tomorrow" style="display:none;margin-top:7px;padding-top:7px;border-top:1px solid var(--border)">
+            <div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Amanhã</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span id="wtom-icon" style="font-size:16px">—</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">
+                  <span id="wtom-min">—</span>° / <span id="wtom-max">—</span>°
+                </div>
+                <div id="wtom-desc" style="font-size:9px;color:var(--text3)"></div>
+              </div>
+            </div>
+            <!-- Chuva amanhã? -->
+            <div id="wtom-rain" style="display:none;margin-top:4px;font-size:9px;color:var(--blue);font-weight:600"></div>
+          </div>
+          <!-- Detalhes inline -->
+          <div id="weather-details" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
+            <span id="wd-hum" style="font-size:9px;color:var(--text3)"></span>
+            <span id="wd-wind" style="font-size:9px;color:var(--text3)"></span>
           </div>
         </div>
         <!-- Sync -->
@@ -4846,6 +4872,232 @@ function gerarRelatorio() {
 }
 
 // ══════════════════════════════════════════
+// ASSISTENTE DE VOZ — Claude como cérebro
+// ══════════════════════════════════════════
+let _voiceRec = null;
+let _voiceGravando = false;
+
+function iniciarVoz() {
+  const ov = $('voice-overlay');
+  if (ov) ov.style.display = 'flex';
+  $('voice-response').style.display = 'none';
+  $('voice-transcript').textContent = '';
+  $('voice-status').textContent = 'Toque em Falar e diga o que quer fazer';
+}
+
+function fecharVoz() {
+  const ov = $('voice-overlay');
+  if (ov) ov.style.display = 'none';
+  if (_voiceRec) try { _voiceRec.stop(); } catch(e) {}
+  _voiceGravando = false;
+  $('voice-btn').innerHTML = '🎙️ Falar';
+}
+
+function toggleGravacao() {
+  if (_voiceGravando) {
+    pararGravacao();
+  } else {
+    iniciarGravacao();
+  }
+}
+
+function iniciarGravacao() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    $('voice-status').textContent = '❌ Reconhecimento de voz não suportado neste navegador';
+    return;
+  }
+  _voiceRec = new SR();
+  _voiceRec.lang = 'pt-BR';
+  _voiceRec.continuous = false;
+  _voiceRec.interimResults = true;
+
+  _voiceRec.onstart = () => {
+    _voiceGravando = true;
+    $('voice-icon').textContent = '🔴';
+    $('voice-status').textContent = 'Ouvindo...';
+    $('voice-btn').innerHTML = '⏹ Parar';
+    $('voice-transcript').textContent = '';
+    $('voice-response').style.display = 'none';
+  };
+
+  _voiceRec.onresult = e => {
+    const txt = Array.from(e.results).map(r => r[0].transcript).join('');
+    $('voice-transcript').textContent = `"${txt}"`;
+    if (e.results[0].isFinal) processarComando(txt);
+  };
+
+  _voiceRec.onerror = err => {
+    $('voice-icon').textContent = '⚠️';
+    $('voice-status').textContent = `Erro: ${err.error === 'no-speech' ? 'nenhuma fala detectada' : err.error}`;
+    $('voice-btn').innerHTML = '🎙️ Falar';
+    _voiceGravando = false;
+  };
+
+  _voiceRec.onend = () => {
+    _voiceGravando = false;
+    $('voice-btn').innerHTML = '🎙️ Falar';
+    $('voice-icon').textContent = '🎙️';
+  };
+
+  _voiceRec.start();
+}
+
+function pararGravacao() {
+  if (_voiceRec) _voiceRec.stop();
+}
+
+async function processarComando(texto) {
+  $('voice-status').textContent = '🧠 Processando...';
+  $('voice-icon').textContent = '⏳';
+
+  // Build context snapshot for Claude
+  const corpoD  = load('corpo_d', {})[today()] || {};
+  const aguaHoje = load('agua', {})[today()] || 0;
+  const aguaMeta = load('agua_meta', 2000);
+  const tarefas  = load('tarefas', []).filter(t => !t.done).slice(0, 5);
+  const cfg      = load('fin_cfg', {});
+  const saldo    = cfg.saldo || 0;
+  const habitos  = load('habitos', []).filter(h => habitHoje(h));
+  const checks   = load('rot_checks', {})[today()] || {};
+  const doneH    = habitos.filter(h => checks[h.id]).length;
+  const score    = calcScoreSaude();
+  const exercs   = load('exercicios', []).filter(e => e.date === today());
+
+  const ctx = `Hoje: ${today()}. Água: ${aguaHoje}ml (meta ${aguaMeta}ml). Sono: ${corpoD.sono||'—'}h. Peso: ${corpoD.peso||'—'}kg. Saldo: R$${saldo.toFixed(2)}. Hábitos: ${doneH}/${habitos.length}. Score saúde: ${score}/100. Treinos hoje: ${exercs.length}. Tarefas pendentes: ${tarefas.map(t=>t.nome).join(', ')||'nenhuma'}.`;
+
+  const systemPrompt = `Você é o assistente pessoal de Eduardo integrado ao EH Tracker. Responda APENAS com JSON válido (sem markdown, sem texto extra).
+
+Contexto atual: ${ctx}
+
+Ações disponíveis (retorne uma):
+- {"action":"agua","ml":NUMBER,"resposta":"texto falado"}
+- {"action":"tarefa","nome":"string","prio":"a|m|b","resposta":"texto falado"}
+- {"action":"humor","mood":"😁|😊|😐|😔|😤|😴|💪|🧘|🤩","resposta":"texto falado"}
+- {"action":"insight","resposta":"texto falado com análise dos dados"}
+- {"action":"peso","kg":NUMBER,"resposta":"texto falado"}
+- {"action":"sono","horas":NUMBER,"resposta":"texto falado"}
+- {"action":"nenhuma","resposta":"texto falado explicando o que não entendeu ou respondendo a pergunta"}
+
+Regras:
+- Se o usuário perguntar como está, analise os dados e responda em "resposta" com insight personalizado
+- Seja direto, amigável, use o nome Eduardo
+- "resposta" deve ser natural para ser lida em voz alta (sem emojis no meio do texto, sem markdown)
+- Para água, some ao valor atual: água atual é ${aguaHoje}ml
+- Mantenha respostas curtas (1-2 frases)`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: texto }]
+      })
+    });
+
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text || '{}';
+    let cmd;
+    try { cmd = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+    catch { cmd = { action: 'nenhuma', resposta: 'Desculpe, não consegui entender o comando.' }; }
+
+    executarComando(cmd);
+  } catch(e) {
+    console.error('[Voice Claude]', e);
+    mostrarRespostaVoz('❌', 'Erro ao conectar com o assistente. Verifique sua internet.');
+    $('voice-status').textContent = 'Erro de conexão';
+  }
+}
+
+function executarComando(cmd) {
+  const { action, resposta } = cmd;
+
+  switch(action) {
+    case 'agua': {
+      const ml = Math.round(cmd.ml || 0);
+      if (ml > 0) {
+        const aguaD = load('agua', {});
+        aguaD[today()] = (aguaD[today()] || 0) + ml;
+        save('agua', aguaD);
+        renderAguaDisplay();
+        refreshHome();
+      }
+      break;
+    }
+    case 'tarefa': {
+      const tarefas = load('tarefas', []);
+      tarefas.unshift({ id: Date.now(), nome: cmd.nome, prio: cmd.prio || 'm', done: false, data: today() });
+      save('tarefas', tarefas);
+      renderTarefas();
+      refreshHome();
+      break;
+    }
+    case 'humor': {
+      const mente = load('mente', []);
+      mente.unshift({ id: Date.now(), tipo: 'humor', mood: cmd.mood, nota: '', data: today(), hora: fmtTime() });
+      save('mente', mente);
+      renderHumor();
+      refreshHome();
+      break;
+    }
+    case 'peso': {
+      const kg = parseFloat(cmd.kg);
+      if (kg > 0) {
+        const dados = load('corpo_d', {});
+        dados[today()] = { ...(dados[today()] || {}), peso: kg };
+        save('corpo_d', dados);
+        loadCorpoDiario();
+        atualizarMetaHidratacaoAutomatica();
+      }
+      break;
+    }
+    case 'sono': {
+      const h = parseFloat(cmd.horas);
+      if (h > 0) {
+        const dados = load('corpo_d', {});
+        dados[today()] = { ...(dados[today()] || {}), sono: h };
+        save('corpo_d', dados);
+        loadCorpoDiario();
+        renderScoreSaude();
+      }
+      break;
+    }
+  }
+
+  mostrarRespostaVoz('✅', resposta || 'Feito!');
+  falarTexto(resposta);
+}
+
+function mostrarRespostaVoz(icon, txt) {
+  $('voice-icon').textContent = icon;
+  $('voice-status').textContent = 'Concluído';
+  $('voice-response-txt').textContent = txt;
+  $('voice-response').style.display = 'block';
+}
+
+function falarTexto(txt) {
+  if (!txt || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(txt);
+  utt.lang = 'pt-BR';
+  utt.rate = 1.05;
+  utt.pitch = 1;
+  // Try to use a Portuguese voice
+  const voices = speechSynthesis.getVoices();
+  const ptVoice = voices.find(v => v.lang.startsWith('pt'));
+  if (ptVoice) utt.voice = ptVoice;
+  speechSynthesis.speak(utt);
+}
+
+// Load voices async (some browsers need this)
+if (window.speechSynthesis) {
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+// ══════════════════════════════════════════
 // PREVISÃO DO TEMPO — Open-Meteo (sem API key)
 // ══════════════════════════════════════════
 const WMO_CODES = {
@@ -4868,23 +5120,18 @@ function wmoDesc(code) {
 }
 
 async function carregarClima() {
-  const wCard = $('weather-card');
   const wTemp = $('weather-temp');
-  const wIcon = $('weather-icon');
   const wDesc = $('weather-desc');
   if (!wTemp) return;
-
   wDesc.textContent = 'localizando...';
 
-  // Try to get cached weather (max 30 min old)
+  // Serve cache (max 30 min)
   const cached = load('weather_cache', null);
   const agora = Date.now();
   if (cached && cached.ts && (agora - cached.ts) < 30 * 60 * 1000) {
-    renderClima(cached);
-    return;
+    renderClima(cached); return;
   }
 
-  // Get geolocation
   if (!navigator.geolocation) {
     wTemp.textContent = '—°'; wDesc.textContent = 'GPS indisponível'; return;
   }
@@ -4892,19 +5139,30 @@ async function carregarClima() {
   navigator.geolocation.getCurrentPosition(async pos => {
     const { latitude: lat, longitude: lon } = pos.coords;
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m&timezone=auto&forecast_days=1`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lon.toFixed(4)}`
+        + `&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m`
+        + `&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_probability_max`
+        + `&timezone=auto&forecast_days=2`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       const cur = data.current;
+      const daily = data.daily;
       const weather = {
-        ts:   agora,
+        ts:   agora, lat, lon,
+        // Hoje
         temp: Math.round(cur.temperature_2m),
         feel: Math.round(cur.apparent_temperature),
         code: cur.weathercode,
         wind: Math.round(cur.windspeed_10m),
         hum:  cur.relativehumidity_2m,
-        lat, lon
+        // Amanhã (índice 1 no daily)
+        tom: {
+          max:  Math.round(daily.temperature_2m_max[1]),
+          min:  Math.round(daily.temperature_2m_min[1]),
+          code: daily.weathercode[1],
+          rain: daily.precipitation_probability_max[1],
+        }
       };
       save('weather_cache', weather);
       renderClima(weather);
@@ -4924,13 +5182,44 @@ function renderClima(w) {
   const wTemp = $('weather-temp');
   const wIcon = $('weather-icon');
   const wDesc = $('weather-desc');
-  const wCard = $('weather-card');
   if (!wTemp) return;
+
+  // Hoje
   wIcon.textContent = wmoIcon(w.code);
   wTemp.textContent = `${w.temp}°C`;
   wDesc.textContent = wmoDesc(w.code);
-  // Tooltip with feels like + humidity
-  if (wCard) wCard.title = `Sensação: ${w.feel}°C · Umidade: ${w.hum}% · Vento: ${w.wind}km/h\nClique para atualizar`;
+
+  const wFeel = $('weather-feel');
+  if (wFeel && w.feel !== undefined) wFeel.textContent = `sens. ${w.feel}°`;
+
+  // Detalhes
+  const wdHum  = $('wd-hum');
+  const wdWind = $('wd-wind');
+  const wDet   = $('weather-details');
+  if (wdHum)  wdHum.textContent  = `💧 ${w.hum}%`;
+  if (wdWind) wdWind.textContent = `💨 ${w.wind}km/h`;
+  if (wDet)   wDet.style.display = 'flex';
+
+  // Amanhã
+  const tomDiv  = $('weather-tomorrow');
+  const tomIcon = $('wtom-icon');
+  const tomMin  = $('wtom-min');
+  const tomMax  = $('wtom-max');
+  const tomDesc = $('wtom-desc');
+  const tomRain = $('wtom-rain');
+  if (tomDiv && w.tom) {
+    tomDiv.style.display = 'block';
+    if (tomIcon) tomIcon.textContent = wmoIcon(w.tom.code);
+    if (tomMin)  tomMin.textContent  = w.tom.min;
+    if (tomMax)  tomMax.textContent  = w.tom.max;
+    if (tomDesc) tomDesc.textContent = wmoDesc(w.tom.code);
+    if (tomRain && w.tom.rain > 30) {
+      tomRain.style.display = 'block';
+      tomRain.textContent   = `🌧️ ${w.tom.rain}% chance de chuva`;
+    } else if (tomRain) {
+      tomRain.style.display = 'none';
+    }
+  }
 }
 
 // ──────────────────────────────────
@@ -5087,6 +5376,31 @@ function updateSbStatusArea() {
   </div>
   <button id="install-btn" class="btn btn-p btn-sm">Instalar</button>
   <button onclick="document.getElementById('install-banner').style.display='none'" class="ib del">×</button>
+</div>
+
+<!-- ════ ASSISTENTE DE VOZ ════ -->
+<!-- Mic FAB button -->
+<button id="voice-fab" onclick="iniciarVoz()" title="Assistente de voz" style="position:fixed;bottom:78px;right:16px;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#f97316,#ec4899,#a855f7);color:#fff;font-size:22px;cursor:pointer;z-index:400;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(236,72,153,.4)">🎙️</button>
+
+<!-- Voice overlay -->
+<div id="voice-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:flex-end;justify-content:center;padding-bottom:80px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:min(92vw,480px);text-align:center">
+    <!-- Estado -->
+    <div id="voice-icon" style="font-size:48px;margin-bottom:12px">🎙️</div>
+    <div id="voice-status" style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Pressione e fale</div>
+    <div id="voice-transcript" style="font-size:12px;color:var(--text3);min-height:18px;font-style:italic;margin-bottom:16px"></div>
+    <!-- Resposta do assistente -->
+    <div id="voice-response" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px;text-align:left">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">✨ Assistente</div>
+      <div id="voice-response-txt" style="font-size:13px;color:var(--text2);line-height:1.5"></div>
+    </div>
+    <!-- Botões -->
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button id="voice-btn" onclick="toggleGravacao()" class="btn btn-p" style="gap:8px;min-width:140px">🎙️ Falar</button>
+      <button onclick="fecharVoz()" class="btn btn-g">Fechar</button>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:12px;line-height:1.5">Exemplos: <em>"Adicionar 500ml de água"</em> · <em>"Como estou esta semana?"</em> · <em>"Criar tarefa reunião"</em></div>
+  </div>
 </div>
 
 </body>
