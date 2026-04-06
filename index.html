@@ -53,6 +53,18 @@
   --text:#e8eaf2;--text2:#9aa0bc;--text3:#5a6080;
   --r:14px;--rs:8px;--sb:66px;
 }
+/* Temas de cor — trocam apenas o accent */
+body.theme-blue   { --accent:#5c8de0; --accent2:#82aaee; --adim:rgba(92,141,224,.13); }
+body.theme-green  { --accent:#4caf82; --accent2:#6fcfa0; --adim:rgba(76,175,130,.13); }
+body.theme-purple { --accent:#9b72e0; --accent2:#b894f5; --adim:rgba(155,114,224,.13); }
+body.theme-teal   { --accent:#3cbdb8; --accent2:#5ed5d0; --adim:rgba(60,189,184,.13); }
+body.theme-red    { --accent:#e05c6a; --accent2:#f07a86; --adim:rgba(224,92,106,.13); }
+/* Quick actions bar */
+.qa-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.qa-btn{flex:1;min-width:70px;padding:10px 8px;border:1px solid var(--border);background:var(--bg3);border-radius:var(--rs);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--text2);font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s}
+.qa-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--adim)}
+.qa-btn:active{transform:scale(.94)}
+.qa-btn .qi{font-size:18px;line-height:1}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;overflow-x:hidden}
 
@@ -342,13 +354,21 @@ textarea{resize:vertical;min-height:70px}
 
   /* Typography */
   h1{font-size:22px}
-  .hh-greet{font-size:24px}
+  .hh-greet{font-size:22px}
+  .hh-name{font-size:9px;letter-spacing:1.5px}
 
   /* Cards tighter */
-  .card,.stat{padding:14px}
+  .card,.stat{padding:12px}
 
   /* Stat grid 2-col on mobile */
   .g4{grid-template-columns:1fr 1fr}
+
+  /* 5-col home stats → 2+3 responsive */
+  .g4[style*="repeat(5"]{grid-template-columns:repeat(2,1fr)!important}
+
+  /* Weather card compact on mobile */
+  #weather-card{min-width:unset!important;padding:7px 10px!important}
+  #weather-temp{font-size:14px!important}
 
   /* Horizontal scroll for table */
   #hist-table{overflow-x:auto}
@@ -431,7 +451,22 @@ textarea{resize:vertical;min-height:70px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
+  <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg><span>Mais</span></button>
 </nav>
+
+<!-- MODAL CONFIGURAR NAVEGAÇÃO -->
+<div class="overlay" id="modal-nav-config">
+  <div class="modal" style="width:420px">
+    <h2>📌 Abas favoritas</h2>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.5">Escolha quais abas aparecem diretamente na barra de navegação. As demais ficam ocultas (ainda acessíveis por aqui).</p>
+    <div id="nav-config-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    <div class="mfooter" style="margin-top:16px">
+      <button class="btn btn-g" onclick="$('modal-nav-config').classList.remove('on')">Fechar</button>
+      <button class="btn btn-p" onclick="salvarNavConfig()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL TEMPLATE DE TREINO -->
 <div class="overlay" id="modal-template">
@@ -531,38 +566,37 @@ textarea{resize:vertical;min-height:70px}
         <div class="hh-date" id="h-date"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <!-- Clima -->
-        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:8px 12px;min-width:140px">
-          <!-- Hoje -->
-          <div style="display:flex;align-items:center;gap:8px">
-            <span id="weather-icon" style="font-size:22px">🌡️</span>
-            <div style="flex:1">
-              <div style="display:flex;align-items:baseline;gap:5px">
-                <div id="weather-temp" style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
-                <div id="weather-feel" style="font-size:10px;color:var(--text3)"></div>
-              </div>
-              <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:1px">carregando...</div>
-            </div>
-          </div>
-          <!-- Amanhã -->
-          <div id="weather-tomorrow" style="display:none;margin-top:7px;padding-top:7px;border-top:1px solid var(--border)">
-            <div style="font-size:8px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Amanhã</div>
-            <div style="display:flex;align-items:center;gap:6px">
-              <span id="wtom-icon" style="font-size:16px">—</span>
-              <div>
-                <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">
-                  <span id="wtom-min">—</span>° / <span id="wtom-max">—</span>°
+        <!-- Clima — hoje e amanhã com datas -->
+        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:10px 13px;min-width:170px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <!-- HOJE -->
+            <div>
+              <div id="weather-hoje-label" style="font-size:8px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Hoje</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span id="weather-icon" style="font-size:20px">🌡️</span>
+                <div>
+                  <div id="weather-temp" style="font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
+                  <div id="weather-feel" style="font-size:9px;color:var(--text3);margin-top:1px"></div>
                 </div>
-                <div id="wtom-desc" style="font-size:9px;color:var(--text3)"></div>
+              </div>
+              <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:4px;line-height:1.3">carregando...</div>
+              <div id="weather-details" style="margin-top:4px;display:none;flex-direction:column;gap:1px">
+                <span id="wd-hum"  style="font-size:9px;color:var(--text3)"></span>
+                <span id="wd-wind" style="font-size:9px;color:var(--text3)"></span>
               </div>
             </div>
-            <!-- Chuva amanhã? -->
-            <div id="wtom-rain" style="display:none;margin-top:4px;font-size:9px;color:var(--blue);font-weight:600"></div>
-          </div>
-          <!-- Detalhes inline -->
-          <div id="weather-details" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap">
-            <span id="wd-hum" style="font-size:9px;color:var(--text3)"></span>
-            <span id="wd-wind" style="font-size:9px;color:var(--text3)"></span>
+            <!-- AMANHÃ -->
+            <div id="weather-tomorrow" style="display:none;border-left:1px solid var(--border);padding-left:10px">
+              <div id="weather-amanha-label" style="font-size:8px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Amanhã</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <span id="wtom-icon" style="font-size:20px">—</span>
+                <div>
+                  <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1"><span id="wtom-min">—</span>°/<span id="wtom-max">—</span>°</div>
+                  <div id="wtom-desc" style="font-size:9px;color:var(--text3);margin-top:1px"></div>
+                </div>
+              </div>
+              <div id="wtom-rain" style="display:none;margin-top:4px;font-size:9px;color:var(--blue);font-weight:600"></div>
+            </div>
           </div>
         </div>
         <!-- Sync -->
@@ -571,11 +605,10 @@ textarea{resize:vertical;min-height:70px}
     </div>
   </div>
 
-  <div class="g4 gap" style="grid-template-columns:repeat(5,1fr)">
+  <div class="g4 gap">
     <div class="stat c-green"><div class="lbl">Rotina hoje</div><div class="val" id="hs-rot">0/0</div><div class="sub">hábitos do dia</div></div>
     <div class="stat c-blue"><div class="lbl">Água</div><div class="val" id="hs-agua">0ml</div><div class="sub">de <span id="hs-agua-meta">2000</span>ml</div></div>
     <div class="stat c-gold"><div class="lbl">Tarefas</div><div class="val" id="hs-tar">0</div><div class="sub">pendentes no total</div></div>
-    <div class="stat c-purple"><div class="lbl">Humor</div><div class="val" id="hs-mood">—</div><div class="sub">hoje</div></div>
     <div class="stat" style="border-color:var(--orange);background:linear-gradient(135deg,var(--card),rgba(224,136,60,.08))">
       <div class="lbl">Score saúde</div>
       <div class="val" id="hs-score" style="color:var(--orange)">—</div>
@@ -584,7 +617,68 @@ textarea{resize:vertical;min-height:70px}
     </div>
   </div>
 
-  <!-- GRATIDÃO DIÁRIA -->
+  <!-- ATALHOS RÁPIDOS -->
+  <div class="qa-bar">
+    <button class="qa-btn" onclick="qaAgua(250)"><span class="qi">💧</span>+250ml</button>
+    <button class="qa-btn" onclick="qaAgua(500)"><span class="qi">🚰</span>+500ml</button>
+    <button class="qa-btn" onclick="qaTarefa()"><span class="qi">✅</span>Tarefa</button>
+    <button class="qa-btn" onclick="qaDespesa()"><span class="qi">💸</span>Gasto</button>
+    <button class="qa-btn" onclick="qaExercicio()"><span class="qi">🏋️</span>Treino</button>
+    <button class="qa-btn" onclick="qaAbrirTemas()"><span class="qi">🎨</span>Tema</button>
+  </div>
+
+  <!-- MODAL ATALHO TAREFA -->
+  <div class="overlay" id="modal-qa-tarefa">
+    <div class="modal" style="width:380px">
+      <h2>✅ Nova tarefa rápida</h2>
+      <div class="fg"><label>Tarefa</label><input id="qa-tarefa-input" type="text" placeholder="O que precisa fazer?"></div>
+      <div class="fg"><label>Prioridade</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm qa-prio on" data-p="a" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--rdim);color:var(--red);border:1px solid var(--red)">🔴 Alta</button>
+          <button class="btn btn-sm qa-prio"    data-p="m" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟡 Média</button>
+          <button class="btn btn-sm qa-prio"    data-p="b" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟢 Baixa</button>
+        </div>
+      </div>
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="$('modal-qa-tarefa').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="qaConfirmarTarefa()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ATALHO GASTO -->
+  <div class="overlay" id="modal-qa-despesa">
+    <div class="modal" style="width:380px">
+      <h2>💸 Lançar gasto rápido</h2>
+      <div class="row">
+        <div class="fg"><label>Valor (R$)</label><input id="qa-desp-val" type="number" placeholder="0,00" step="0.01" min="0"></div>
+        <div class="fg" style="flex:2"><label>Descrição</label><input id="qa-desp-desc" type="text" placeholder="Ex: Almoço, Uber..." oninput="autoCatDespesa(this.value)"></div>
+      </div>
+      <div class="fg"><label>Categoria</label>
+        <select id="dep-cat-qa"><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Moradia</option><option>Roupas</option><option>Educação</option><option>Assinaturas</option><option>Outro</option></select>
+      </div>
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="$('modal-qa-despesa').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="qaConfirmarDespesa()">Lançar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TEMAS -->
+  <div class="overlay" id="modal-temas">
+    <div class="modal" style="width:360px">
+      <h2>🎨 Tema de cor</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+        <button onclick="aplicarTema('')"     style="padding:14px;border-radius:var(--rs);border:2px solid #c9a84c;background:#c9a84c22;cursor:pointer;font-size:13px;font-weight:700;color:#c9a84c">Dourado</button>
+        <button onclick="aplicarTema('blue')"   style="padding:14px;border-radius:var(--rs);border:2px solid #5c8de0;background:#5c8de022;cursor:pointer;font-size:13px;font-weight:700;color:#5c8de0">Azul</button>
+        <button onclick="aplicarTema('green')"  style="padding:14px;border-radius:var(--rs);border:2px solid #4caf82;background:#4caf8222;cursor:pointer;font-size:13px;font-weight:700;color:#4caf82">Verde</button>
+        <button onclick="aplicarTema('purple')" style="padding:14px;border-radius:var(--rs);border:2px solid #9b72e0;background:#9b72e022;cursor:pointer;font-size:13px;font-weight:700;color:#9b72e0">Roxo</button>
+        <button onclick="aplicarTema('teal')"   style="padding:14px;border-radius:var(--rs);border:2px solid #3cbdb8;background:#3cbdb822;cursor:pointer;font-size:13px;font-weight:700;color:#3cbdb8">Teal</button>
+        <button onclick="aplicarTema('red')"    style="padding:14px;border-radius:var(--rs);border:2px solid #e05c6a;background:#e05c6a22;cursor:pointer;font-size:13px;font-weight:700;color:#e05c6a">Vermelho</button>
+      </div>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="$('modal-temas').classList.remove('on')">Fechar</button>
+    </div>
+  </div>
   <div class="card gap" id="grat-daily-card" style="border-left:3px solid var(--teal)">
     <div class="sh" style="margin-bottom:10px">
       <h2 style="font-size:14px">🙏 Gratidão do dia</h2>
@@ -606,35 +700,39 @@ textarea{resize:vertical;min-height:70px}
   </div>
 
   <!-- ALERTA DE GASTOS -->
-  <div id="alerta-gastos" style="display:none;background:var(--rdim);border:1px solid var(--red);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px">
-    <span style="font-size:20px">⚠️</span>
-    <div>
-      <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
+  <div id="alerta-gastos" style="display:none;background:var(--rdim);border:1px solid var(--red);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">⚠️</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
+      </div>
     </div>
   </div>
 
   <!-- ALERTA DE DESCANSO -->
-  <div id="alerta-recovery" style="display:none;background:rgba(60,189,184,.1);border:1px solid var(--teal);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;align-items:center;gap:12px">
-    <span style="font-size:22px;flex-shrink:0">🛌</span>
-    <div style="flex:1">
-      <div style="font-size:13px;font-weight:700;color:var(--teal)" id="alerta-recovery-txt"></div>
-      <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-recovery-sub"></div>
+  <div id="alerta-recovery" style="display:none;background:rgba(60,189,184,.1);border:1px solid var(--teal);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:22px;flex-shrink:0">🛌</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--teal)" id="alerta-recovery-txt"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-recovery-sub"></div>
+      </div>
+      <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
     </div>
-    <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
   </div>
 
-  <div class="g2 gap">
-    <!-- Agenda de hoje -->
-    <div class="card">
-      <div class="sh"><h2>📅 Agenda de hoje</h2></div>
-      <div id="h-agenda"></div>
+  <!-- AGENDA + ROTINA unificadas -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>📅 Hoje</h2>
+      <button class="btn btn-g btn-sm" onclick="go('agenda')">Agenda →</button>
     </div>
-    <!-- Rotina de hoje -->
-    <div class="card">
-      <div class="sh"><h2>🔄 Rotina de hoje</h2></div>
-      <div id="h-rotina"></div>
-    </div>
+    <!-- Eventos -->
+    <div id="h-agenda"></div>
+    <!-- Separador + Rotina -->
+    <div id="h-rotina-sep" style="display:none;height:1px;background:var(--border);margin:10px 0"></div>
+    <div id="h-rotina"></div>
   </div>
 
   <div class="g2 gap">
@@ -1149,31 +1247,15 @@ textarea{resize:vertical;min-height:70px}
 
 <!-- ════════════════ MENTE ════════════════ -->
 <section class="page" id="page-mente">
-  <h1>Mente</h1><p class="psub">Saúde mental, emoções e reflexões</p>
+  <h1>Mente</h1><p class="psub">Saúde mental, reflexões e gratidão</p>
 
   <div class="stabs">
-    <button class="stab on" onclick="menteTab(this,'m-humor')">😊 Humor</button>
-    <button class="stab" onclick="menteTab(this,'m-grat')">🙏 Gratidão</button>
+    <button class="stab on" onclick="menteTab(this,'m-grat')">🙏 Gratidão</button>
     <button class="stab" onclick="menteTab(this,'m-diario')">📓 Diário</button>
   </div>
 
-  <!-- Humor -->
-  <div class="sp on" id="m-humor">
-    <div class="card gap">
-      <h2>Como você está se sentindo?</h2>
-      <div class="mrow" id="mood-row">
-        <button class="mb" data-m="😁">😁</button><button class="mb" data-m="😊">😊</button><button class="mb" data-m="😐">😐</button><button class="mb" data-m="😔">😔</button>
-        <button class="mb" data-m="😢">😢</button><button class="mb" data-m="😤">😤</button><button class="mb" data-m="😰">😰</button><button class="mb" data-m="🤩">🤩</button>
-        <button class="mb" data-m="😴">😴</button><button class="mb" data-m="🤒">🤒</button><button class="mb" data-m="🧘">🧘</button><button class="mb" data-m="💪">💪</button>
-      </div>
-      <div class="fg" style="margin-top:14px"><label>Nota (opcional)</label><input id="mood-nota" type="text" placeholder="O que está influenciando seu humor?"></div>
-      <button class="btn btn-p btn-sm" onclick="saveMood()">Registrar humor</button>
-    </div>
-    <div class="card"><h2>Histórico de humor</h2><div id="lista-humor"></div></div>
-  </div>
-
   <!-- Gratidão -->
-  <div class="sp" id="m-grat">
+  <div class="sp on" id="m-grat">
     <div class="card gap">
       <h2>3 coisas pelas quais sou grato hoje</h2>
       <div class="fg"><label>1.</label><input id="g1" type="text" placeholder="Eu sou grato por..."></div>
@@ -1822,7 +1904,7 @@ function reRenderAll() {
   updateMuscleDiagram();
   renderMapaHome();
   renderHistorico();
-  renderHumor(); renderGrat(); renderDiario();
+  renderGrat(); renderDiario();
   renderMetasAnuais(); renderMetasTracking(); renderConquistas();
   renderGames(); renderCursos(); renderReceitas(); renderCompras();
   renderFinancas();
@@ -1883,6 +1965,7 @@ function animN(id, target, opts) {
 }
 const now = () => new Date();
 const fmtDt = s => { const d = new Date(s); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const fmtDateShort = s => { const [y,m,d] = s.split('-'); const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return `${parseInt(d)} de ${meses[parseInt(m)-1]}`; };
 const fmtTime = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
 const catColor = { Trabalho:'tb', Saúde:'tg', Pessoal:'ta', Social:'tp', Educação:'ta', Outro:'tb', Financeiro:'ta', Relacionamentos:'tp', Espiritual:'tp', Criatividade:'to', Carreira:'tb' };
 const prioClass = { a:'pd a', m:'pd m', b:'pd b' };
@@ -1905,14 +1988,21 @@ function go(p) {
   $('page-' + p).classList.add('on');
   const navBtn = $('n-' + p);
   navBtn.classList.add('on');
-  // On mobile, scroll the bottom nav so the active button is visible
-  if (window.innerWidth <= 640) {
-    navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
-  }
-  if (p === 'home') { refreshHome(); const wc = load('weather_cache', null); if (wc) renderClima(wc); }
-  if (p === 'corpo') { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); renderTemplates(); }
+  if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+
+  if (p === 'home')     { refreshHome(); const wc = load('weather_cache', null); if (wc) renderClima(wc); }
+  if (p === 'agenda')   { renderAgenda(); }
+  if (p === 'rotina')   { renderRotina(); }
+  if (p === 'tarefas')  { renderTarefas(); }
+  if (p === 'corpo')    { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); renderTemplates(); }
+  if (p === 'mente')    { renderGrat(); renderDiario(); renderGratDiaria(); }
+  if (p === 'evolucao') { renderMetasAnuais(); renderMetasTracking(); renderConquistas(); }
+  if (p === 'games')    { renderGames(); }
+  if (p === 'cursos')   { renderCursos(); }
+  if (p === 'receitas') { renderReceitas(); }
+  if (p === 'compras')  { renderCompras(); }
   if (p === 'financas') { renderFinancas(); }
-  if (p === 'backup') { bkStats(); }
+  if (p === 'backup')   { bkStats(); }
 }
 
 // ──────────────────────────────────
@@ -1946,11 +2036,6 @@ function refreshHome() {
   animN('hs-tar', pendentes.length, { duration: 700 });
   $('hs-tar').closest('.stat').querySelector('.sub').textContent = 'tarefas abertas';
 
-  // Mood stat
-  const mente = load('mente', []);
-  const moods = mente.filter(m => m.tipo === 'humor' && m.data === today());
-  $('hs-mood').textContent = moods.length ? moods[moods.length - 1].mood : '—';
-
   // Home Agenda — mostra eventos de hoje, ou o próximo evento futuro se não houver
   const todosEventos = load('eventos', []).sort((a, b) => a.dt.localeCompare(b.dt));
   const eventos = todosEventos.filter(e => e.dt.split('T')[0] === today());
@@ -1966,12 +2051,15 @@ function refreshHome() {
   } else {
     const proximo = todosEventos.find(e => !e.done && e.dt > new Date(new Date() - 0).toLocaleString('sv').replace(' ','T').slice(0,16));
     if (proximo) {
-      hag.innerHTML = `<div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Próximo evento</div>
-        <div class="evi">
-          <div class="evi-t" style="min-width:56px">${fmtDt(proximo.dt)}</div>
-          <div class="evi-info"><div class="evi-n">${proximo.nome}</div><div class="evi-m"><span class="tag ${catColor[proximo.cat]||'tb'}">${proximo.cat}</span>${proximo.notas ? ' · ' + proximo.notas : ''}</div></div>
-          <button class="ib edt" onclick="openEdit(${proximo.id})">✏️</button>
-        </div>`;
+      // Find all events on the same day as the next event
+      const proximoDia = proximo.dt.split('T')[0];
+      const eventosDia = todosEventos.filter(e => !e.done && e.dt.startsWith(proximoDia));
+      hag.innerHTML = `<div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">📅 ${proximoDia === today() ? 'Hoje' : 'Próximos eventos'} — ${fmtDateShort(proximoDia)}</div>` +
+        eventosDia.map(ev => `<div class="evi">
+          <div class="evi-t" style="min-width:48px">${ev.dt.split('T')[1]?.slice(0,5)||''}</div>
+          <div class="evi-info" style="flex:1"><div class="evi-n">${ev.nome}</div><div class="evi-m"><span class="tag ${catColor[ev.cat]||'tb'}">${ev.cat}</span>${ev.notas ? ' · ' + ev.notas : ''}</div></div>
+          <button class="ib edt" onclick="openEdit(${ev.id})">✏️</button>
+        </div>`).join('');
     } else {
       hag.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento agendado</div>';
     }
@@ -1979,15 +2067,22 @@ function refreshHome() {
 
   // Home Rotina — ordenada por período (manhã → tarde → noite → dia)
   const hr = $('h-rotina');
+  const sep = $('h-rotina-sep');
   const periodoOrder = { manha: 0, tarde: 1, noite: 2, dia: 3 };
   const habitosOrdenados = [...habitos].sort((a, b) => (periodoOrder[a.periodo] ?? 4) - (periodoOrder[b.periodo] ?? 4));
-  if (!habitosOrdenados.length) hr.innerHTML = '<div class="empty"><div class="ei">🔄</div>Nenhum hábito para hoje</div>';
-  else hr.innerHTML = habitosOrdenados.map(h => `
-    <div class="ci">
-      <div class="cb${checks[h.id] ? ' on' : ''}" onclick="toggleHabito(${h.id})">${checks[h.id] ? '✓' : ''}</div>
-      <span class="cl${checks[h.id] ? ' x' : ''}">${h.nome}</span>
-      <span style="font-size:10px;color:var(--text3)">${{manha:'☀️',tarde:'🌤',noite:'🌙',dia:'📅'}[h.periodo]}</span>
-    </div>`).join('');
+  if (!habitosOrdenados.length) {
+    hr.innerHTML = '';
+    if (sep) sep.style.display = 'none';
+  } else {
+    if (sep) sep.style.display = 'block';
+    hr.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">🔄 Rotina de hoje</div>`
+      + habitosOrdenados.map(h => `
+      <div class="ci">
+        <div class="cb${checks[h.id] ? ' on' : ''}" onclick="toggleHabito(${h.id})">${checks[h.id] ? '✓' : ''}</div>
+        <span class="cl${checks[h.id] ? ' x' : ''}">${h.nome}</span>
+        <span style="font-size:10px;color:var(--text3)">${{manha:'☀️',tarde:'🌤',noite:'🌙',dia:'📅'}[h.periodo]}</span>
+      </div>`).join('');
+  }
 
   // Home Tarefas — todas as pendentes ordenadas por prioridade
   const ht = $('h-tarefas');
@@ -2068,8 +2163,7 @@ function refreshHome() {
   renderMapaHome();
 
   // Automações
-  gerarInsights();
-  renderCorrelacoes();
+  gerarInsights(); // renderCorrelacoes is called at end of gerarInsights
   verificarAlertaGastos();
   verificarAlertaDescanso();
   renderScoreSaude();
@@ -2795,20 +2889,6 @@ function delEvento(id) {
   renderAgenda(); refreshHome();
 }
 
-function renderAgenda() {
-  const filter = $('ev-filter').value;
-  const eventos = load('eventos', []).filter(e => !filter || e.cat === filter);
-  const cont = $('lista-eventos');
-  if (!eventos.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento</div>'; return; }
-  cont.innerHTML = eventos.map(e => `
-    <div class="evi${e.done ? ' done' : ''}">
-      <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
-      <div class="evi-t">${fmtDt(e.dt)}</div>
-      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
-      <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
-      <button class="ib del" onclick="delEvento(${e.id})">×</button>
-    </div>`).join('');
-}
 
 // ──────────────────────────────────
 // ROTINA
@@ -3030,7 +3110,7 @@ function saveMood() {
   save('mente', mente);
   $('mood-nota').value = '';
   document.querySelectorAll('.mb').forEach(b => b.classList.remove('on'));
-  renderHumor(); refreshHome();
+  refreshHome();
 }
 
 function saveGrat() {
@@ -3055,7 +3135,7 @@ function saveDiario() {
 
 function delMente(id) {
   save('mente', load('mente', []).filter(m => m.id !== id));
-  renderHumor(); renderGrat(); renderDiario(); refreshHome();
+  renderGrat(); renderDiario(); refreshHome();
 }
 
 function renderHumor() {
@@ -3165,6 +3245,32 @@ function setTrackingVal(id, val) {
 
 function delMetaTracking(id) { save('metas_t', load('metas_t', []).filter(m => m.id !== id)); renderMetasTracking(); }
 
+function editMetaTracking(id) {
+  const m = load('metas_t', []).find(m => m.id === id);
+  if (!m) return;
+  $('mte-id').value = id;
+  $('mte-nome').value = m.nome;
+  $('mte-atual').value = m.atual;
+  $('mte-target').value = m.target;
+  $('mte-unidade').value = m.unidade;
+  $('modal-mt-edit').classList.add('on');
+}
+
+function salvarEdicaoMeta() {
+  const id = parseInt($('mte-id').value);
+  const list = load('metas_t', []);
+  const idx = list.findIndex(m => m.id === id);
+  if (idx < 0) return;
+  list[idx].nome    = $('mte-nome').value.trim() || list[idx].nome;
+  list[idx].atual   = Math.max(0, parseInt($('mte-atual').value) || 0);
+  list[idx].target  = Math.max(1, parseInt($('mte-target').value) || 1);
+  list[idx].unidade = $('mte-unidade').value.trim() || list[idx].unidade;
+  save('metas_t', list);
+  $('modal-mt-edit').classList.remove('on');
+  renderMetasTracking();
+  refreshHome();
+}
+
 function renderMetasTracking() {
   const list = load('metas_t', []).filter(m => m.ano === new Date().getFullYear());
   const cont = $('lista-mt');
@@ -3183,6 +3289,7 @@ function renderMetasTracking() {
         <button onclick="adjustTracking(${m.id}, 1)">+</button>
       </div>
       <button class="ib del" onclick="delMetaTracking(${m.id})">×</button>
+      <button class="ib edt" onclick="editMetaTracking(${m.id})">✏️</button>
     </div>`;
   }).join('');
 }
@@ -4226,13 +4333,12 @@ function calcScoreSaude() {
   const hPoss = habitos.length * 7;
   score += hPoss > 0 ? Math.min(20, Math.round((hFatos/hPoss)*20)) : 10;
 
-  // Humor (10pts)
-  const humorBom = ['😁','😊','🤩','💪','🧘'];
-  const moodsS = mente.filter(m=>m.tipo==='humor');
-  if (moodsS.length >= 3) {
-    const pctBom = moodsS.filter(m=>humorBom.includes(m.mood)).length / moodsS.length;
-    score += Math.round(pctBom * 10);
-  } else { score += 5; }
+  // Diário / Gratidão (10pts — substituindo humor)
+  const mente2 = load('mente', []);
+  const registrosMente = dias7.filter(d =>
+    mente2.some(m => m.data === d && (m.tipo === 'diario' || m.tipo === 'gratidao'))
+  ).length;
+  score += Math.min(10, Math.round((registrosMente / 5) * 10));
 
   return Math.min(100, score);
 }
@@ -4470,7 +4576,6 @@ function gerarCorrelacoes() {
   const habitos  = load('habitos', []);
   const rot      = load('rot_checks', {});
   const aguaMeta = load('agua_meta', 2000);
-  const humorBom = ['😁','😊','🤩','💪','🧘'];
 
   // Analisar semana a semana
   const dadosSemanas = [];
@@ -4551,16 +4656,13 @@ function renderCorrelacoes() {
   const lista = $('insights-lista');
   if (!lista) return;
   const corrs = gerarCorrelacoes();
+  // Append correlations as regular insights (no header, same visual style)
   const corrHtml = corrs.map((c,i) => `
-    <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;${i<corrs.length-1?'border-bottom:1px solid var(--border)':''}">
+    <div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border)">
       <span style="font-size:18px;flex-shrink:0">${c.icone}</span>
-      <div><div style="font-size:10px;font-weight:700;color:${c.cor};text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px">Correlação detectada</div>
-      <span style="font-size:13px;color:var(--text2);line-height:1.55">${c.txt}</span></div>
+      <span style="font-size:13px;color:var(--text2);line-height:1.55">${c.txt}</span>
     </div>`).join('');
-
-  // Append correlations after insights
-  const divider = '<div style="height:1px;background:var(--border);margin:10px 0"></div><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">🔗 Correlações automáticas</div>';
-  lista.insertAdjacentHTML('beforeend', divider + corrHtml);
+  lista.insertAdjacentHTML('beforeend', corrHtml);
 }
 
 function autoCatDespesa(desc) {
@@ -4780,6 +4882,7 @@ function gerarInsights() {
       <span style="font-size:13px;color:var(--text2);line-height:1.55">${ins.txt}</span>
     </div>`).join('');
   card.style.display = 'block';
+  renderCorrelacoes(); // append correlations below insights
 }
 
 // ══════════════════════════════════════════
@@ -4947,69 +5050,244 @@ function pararGravacao() {
   if (_voiceRec) _voiceRec.stop();
 }
 
-async function processarComando(texto) {
+function processarComando(texto) {
   $('voice-status').textContent = '🧠 Processando...';
   $('voice-icon').textContent = '⏳';
 
-  // Build context snapshot for Claude
-  const corpoD  = load('corpo_d', {})[today()] || {};
-  const aguaHoje = load('agua', {})[today()] || 0;
-  const aguaMeta = load('agua_meta', 2000);
-  const tarefas  = load('tarefas', []).filter(t => !t.done).slice(0, 5);
-  const cfg      = load('fin_cfg', {});
-  const saldo    = cfg.saldo || 0;
-  const habitos  = load('habitos', []).filter(h => habitHoje(h));
-  const checks   = load('rot_checks', {})[today()] || {};
-  const doneH    = habitos.filter(h => checks[h.id]).length;
-  const score    = calcScoreSaude();
-  const exercs   = load('exercicios', []).filter(e => e.date === today());
+  const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  const nums = texto.match(/\d+[.,]?\d*/g);
+  const n1 = nums ? parseFloat(nums[0].replace(',','.')) : 0;
+  const n2 = nums && nums[1] ? parseFloat(nums[1].replace(',','.')) : 0;
 
-  const ctx = `Hoje: ${today()}. Água: ${aguaHoje}ml (meta ${aguaMeta}ml). Sono: ${corpoD.sono||'—'}h. Peso: ${corpoD.peso||'—'}kg. Saldo: R$${saldo.toFixed(2)}. Hábitos: ${doneH}/${habitos.length}. Score saúde: ${score}/100. Treinos hoje: ${exercs.length}. Tarefas pendentes: ${tarefas.map(t=>t.nome).join(', ')||'nenhuma'}.`;
+  // ══ HELPERS ══
+  const has = (...words) => words.some(w => t.includes(w));
+  const match = rx => rx.test(t);
 
-  const systemPrompt = `Você é o assistente pessoal de Eduardo integrado ao EH Tracker. Responda APENAS com JSON válido (sem markdown, sem texto extra).
-
-Contexto atual: ${ctx}
-
-Ações disponíveis (retorne uma):
-- {"action":"agua","ml":NUMBER,"resposta":"texto falado"}
-- {"action":"tarefa","nome":"string","prio":"a|m|b","resposta":"texto falado"}
-- {"action":"humor","mood":"😁|😊|😐|😔|😤|😴|💪|🧘|🤩","resposta":"texto falado"}
-- {"action":"insight","resposta":"texto falado com análise dos dados"}
-- {"action":"peso","kg":NUMBER,"resposta":"texto falado"}
-- {"action":"sono","horas":NUMBER,"resposta":"texto falado"}
-- {"action":"nenhuma","resposta":"texto falado explicando o que não entendeu ou respondendo a pergunta"}
-
-Regras:
-- Se o usuário perguntar como está, analise os dados e responda em "resposta" com insight personalizado
-- Seja direto, amigável, use o nome Eduardo
-- "resposta" deve ser natural para ser lida em voz alta (sem emojis no meio do texto, sem markdown)
-- Para água, some ao valor atual: água atual é ${aguaHoje}ml
-- Mantenha respostas curtas (1-2 frases)`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: texto }]
-      })
-    });
-
-    const data = await res.json();
-    const raw  = data.content?.[0]?.text || '{}';
-    let cmd;
-    try { cmd = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
-    catch { cmd = { action: 'nenhuma', resposta: 'Desculpe, não consegui entender o comando.' }; }
-
-    executarComando(cmd);
-  } catch(e) {
-    console.error('[Voice Claude]', e);
-    mostrarRespostaVoz('❌', 'Erro ao conectar com o assistente. Verifique sua internet.');
-    $('voice-status').textContent = 'Erro de conexão';
+  // ══════════════════════════════════════
+  // ÁGUA — ~40 frases
+  // adicionar 300ml, bebi um copo, tomar água, registrar hidratação...
+  // ══════════════════════════════════════
+  if (match(/agua|hidrat|beber|bebi|tomei|ml|litro|copo|garrafa|caneca/)) {
+    let ml = 0;
+    if (n1 > 0) ml = n1 < 10 ? Math.round(n1 * 1000) : Math.round(n1);
+    else if (has('copo','copinho')) ml = 250;
+    else if (has('garrafa')) ml = 500;
+    else if (has('caneca')) ml = 300;
+    else if (has('litro')) ml = 1000;
+    else ml = 250;
+    const atual = load('agua',{})[today()]||0;
+    const meta  = load('agua_meta',2000);
+    const resp = ml >= 1000
+      ? `Registrei ${ml} mililitros. Você já tomou ${atual+ml} de ${meta} hoje.`
+      : `Anotei ${ml} mililitros de água!`;
+    executarComando({ action:'agua', ml, resposta: resp });
+    return;
   }
+
+  // ══════════════════════════════════════
+  // TAREFAS — ~40 frases
+  // criar tarefa, lembrar de, anotar, adicionar à lista, preciso fazer...
+  // ══════════════════════════════════════
+  if (match(/tarefa|lembrar|lembrete|anotar|agendar|preciso fazer|nao esquecer|nao esqueca|adicionar.{0,10}(lista|fazer)|pendencia|to.?do/)) {
+    const stopWords = /^(adicionar?|criar?|colocar?|lembrar?|lembrete|anotar|tarefa|preciso fazer|nao esquecer|coloca|cria|adiciona|me lembra de|lembra de|agendar|coloca na lista|anota|pendencia)\s*/i;
+    const nome = texto.replace(stopWords,'').trim() || 'Nova tarefa';
+    const prio = has('urgente','importante','prioridade alta','prioritario','critico','hoje mesmo') ? 'a'
+               : has('baixa prioridade','quando der','se der','sem pressa') ? 'b' : 'm';
+    executarComando({ action:'tarefa', nome, prio, resposta: `Tarefa "${nome}" adicionada com prioridade ${prio==='a'?'alta':prio==='b'?'baixa':'média'}.` });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // COMPLETAR / CONCLUIR TAREFAS — inclui "marcar tudo como concluído"
+  // ══════════════════════════════════════
+  if (match(/conclu|complet|finaliz|marcar.{0,20}(feito|pronto|conclu|done)|fazer.{0,10}tudo|todas.{0,10}tarefa|terminar.{0,10}tarefa/)) {
+    if (match(/todas|tudo|todas as/)) {
+      // Marcar todas como concluídas
+      const tarefas = load('tarefas',[]);
+      const abertas = tarefas.filter(t => !t.done);
+      abertas.forEach(t => { t.done = true; });
+      save('tarefas', tarefas);
+      renderTarefas(); refreshHome();
+      executarComando({ action:'insight', resposta: `Marquei ${abertas.length} tarefa${abertas.length!==1?'s':''} como concluída${abertas.length!==1?'s':''}. Ótimo trabalho!` });
+    } else {
+      executarComando({ action:'nenhuma', resposta: 'Qual tarefa você quer marcar como concluída? Você pode dizer "marcar todas as tarefas como concluídas".' });
+    }
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // HUMOR — ~30 frases
+  // estou feliz, me sinto cansado, meu humor hoje é...
+  // ══════════════════════════════════════
+  if (match(/humor|sinto|sentindo|mood|animo|como me sinto|me sinto|estou (bem|mal|feliz|triste|animado|cansado|calmo|bravo|irritado|motivado|exausto|otimo|incrivel)|hoje estou/)) {
+    const moodMap = [
+      { rx:/incrivel|fantastico|maravilhoso|euforic|top demais|arrasando|perfeito/, m:'🤩' },
+      { rx:/muito (bem|feliz|animado|alegre)|super (bem|animado|feliz)|otimo|excelente/, m:'😁' },
+      { rx:/bem|bom|feliz|alegre|animado|positiv|satisfeit|contente/, m:'😊' },
+      { rx:/neutro|normal|mais ou menos|regular|assim assim|razoavel|tudo bem/, m:'😐' },
+      { rx:/triste|mal|ruim|chateado|desanimado|deprimido|abatido/, m:'😔' },
+      { rx:/bravo|irritado|raiva|nervoso|estressado|frustrado|chateado com/, m:'😤' },
+      { rx:/cansado|exausto|esgotado|sem energia|destruido|morto de cansaco/, m:'😴' },
+      { rx:/motivado|forte|determinado|focado|produtivo|cheio de energia/, m:'💪' },
+      { rx:/calmo|tranquilo|paz|sereno|meditand|relaxado/, m:'🧘' },
+    ];
+    const found = moodMap.find(x => x.rx.test(t));
+    const mood = found ? found.m : '😊';
+    executarComando({ action:'humor', mood, resposta: `Humor de hoje registrado como ${mood}.` });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // PESO — ~15 frases
+  // meu peso é 78, pesando 78kg, pesei 78 hoje...
+  // ══════════════════════════════════════
+  if (match(/peso|kg|quilo|pesando|pesei|balanca|fui na balanca/) && n1 > 0) {
+    executarComando({ action:'peso', kg: n1, resposta: `Peso de ${n1} quilos registrado. A meta de água foi atualizada automaticamente.` });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // SONO — ~20 frases
+  // dormi 7 horas, acordei às 6, fui dormir meia-noite, noite ruim...
+  // ══════════════════════════════════════
+  if (match(/dormi|sono|acordei|fui dormir|horas de sono|noite|dormindo|descansei|descansando/) && n1 > 0) {
+    const horas = n1 <= 24 ? n1 : n1 / 60;
+    const qualidade = horas >= 8 ? 'Excelente!' : horas >= 7 ? 'Boa noite!' : horas >= 6 ? 'Razoável.' : 'Tente dormir mais!';
+    executarComando({ action:'sono', horas, resposta: `Sono de ${horas} horas registrado. ${qualidade}` });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // TREINO — ~20 frases
+  // fiz supino, treinei hoje, fui na academia, registrar exercício...
+  // ══════════════════════════════════════
+  if (match(/treinei|academia|exercici|malhei|fiz.{0,15}(supino|agachamento|corrida|peito|costas|perna|bumbum|abdomen|funcional|crossfit)|foi treinar|fui treinar|treino feito/)) {
+    go('corpo');
+    executarComando({ action:'insight', resposta: 'Ótimo! Abrindo a aba Corpo para você registrar seu treino completo.' });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // FINANÇAS — ~25 frases
+  // saldo, gastei, recebi, quanto tenho, despesa, entrada...
+  // ══════════════════════════════════════
+  if (match(/saldo|dinheiro|quanto (tenho|tem|sobrou)|minha conta|financas|grana/)) {
+    const cfg = load('fin_cfg',{});
+    const saldo = cfg.saldo||0;
+    const renda = cfg.renda||0;
+    const fixos = (cfg.fixos||[]).reduce((s,f)=>s+f.val,0);
+    const livre = renda - fixos;
+    const mes = today().substring(0,7);
+    const gasto = load('despesas',[]).filter(d=>d.data.startsWith(mes)&&d.tipo==='despesa').reduce((s,d)=>s+d.val,0);
+    executarComando({ action:'nenhuma', resposta:
+      `Saldo atual: ${saldo.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}. Livre este mês: ${(livre-gasto).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}.`
+    });
+    return;
+  }
+  if (match(/gastei|paguei|comprei|despesa|gasto de/) && n1 > 0) {
+    const desc = texto.replace(/^(gastei|paguei|comprei|despesa de?)\s*/i,'').replace(/\d+[.,]?\d*\s*(reais|real|r\$)?/gi,'').trim() || 'Gasto';
+    go('financas');
+    executarComando({ action:'nenhuma', resposta: `Registre o gasto de ${n1.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} na aba de Finanças que acabei de abrir.` });
+    return;
+  }
+  if (match(/recebi|entrada de|ganhei/) && n1 > 0) {
+    go('financas');
+    executarComando({ action:'nenhuma', resposta: `Registre a entrada de ${n1.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} na aba de Finanças.` });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // STATUS / RESUMO — ~15 frases
+  // como estou, meu resumo, relatório do dia, como foi a semana...
+  // ══════════════════════════════════════
+  if (match(/como (estou|to|vai|ando)|meu (status|resumo|dia|semana)|relatorio|dashboard|como foi|me resume|fala sobre mim|minha semana/)) {
+    const aguaHoje = load('agua',{})[today()]||0;
+    const aguaMeta = load('agua_meta',2000);
+    const corpoD   = load('corpo_d',{})[today()]||{};
+    const score    = calcScoreSaude();
+    const exercs   = load('exercicios',[]).filter(e=>e.date===today());
+    const tarefas  = load('tarefas',[]).filter(t=>!t.done);
+    const pctAgua  = Math.round((aguaHoje/aguaMeta)*100);
+    let resp = `Score de saúde: ${score} de 100. `;
+    resp += `Água: ${pctAgua}% da meta. `;
+    if (corpoD.sono) resp += `Dormiu ${corpoD.sono} horas. `;
+    resp += exercs.length ? `Treinou hoje! ` : `Ainda não treinou hoje. `;
+    if (tarefas.length) resp += `${tarefas.length} tarefa${tarefas.length!==1?'s':''} pendente${tarefas.length!==1?'s':''}.`;
+    executarComando({ action:'insight', resposta: resp });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // NAVEGAÇÃO — ir para abas
+  // abrir finanças, ir para corpo, mostrar agenda...
+  // ══════════════════════════════════════
+  if (match(/abrir?|ir para?|mostrar?|ver|abre|vai para?|navegar/) ) {
+    const nav = [
+      { rx:/home|inicio|principal|começo/, p:'home' },
+      { rx:/agenda|eventos|compromisso|calendario/, p:'agenda' },
+      { rx:/rotina|habito/, p:'rotina' },
+      { rx:/tarefa|todo|afazer/, p:'tarefas' },
+      { rx:/corpo|treino|academia|musculo|exercicio/, p:'corpo' },
+      { rx:/mente|humor|diario|gratidao|journal/, p:'mente' },
+      { rx:/evolucao|meta|conquista|progresso/, p:'evolucao' },
+      { rx:/financa|dinheiro|saldo|despesa|gasto/, p:'financas' },
+      { rx:/backup|sync|sincronizar/, p:'backup' },
+    ];
+    const found = nav.find(x => x.rx.test(t));
+    if (found) {
+      go(found.p);
+      executarComando({ action:'insight', resposta: `Abrindo ${found.p}.` });
+      return;
+    }
+  }
+
+  // ══════════════════════════════════════
+  // CLIMA — consultar previsão
+  // ══════════════════════════════════════
+  if (match(/clima|tempo|chuva|sol|temperatura|vai chover|previsao/)) {
+    const wc = load('weather_cache',null);
+    if (wc) {
+      const desc = wmoDesc(wc.code);
+      let resp = `Agora: ${wc.temp} graus, ${desc}. `;
+      if (wc.tom) resp += `Amanhã: mínima de ${wc.tom.min} e máxima de ${wc.tom.max} graus.`;
+      executarComando({ action:'nenhuma', resposta: resp });
+    } else {
+      carregarClima();
+      executarComando({ action:'nenhuma', resposta: 'Buscando a previsão do tempo...' });
+    }
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // GRATIDÃO — registrar gratidão do dia
+  // ══════════════════════════════════════
+  if (match(/gratidao|grato|agradecido|feliz por|feliz com|abencoad/)) {
+    const txt = texto.replace(/^(sou grato|estou grato|gratidao|fico feliz|sou feliz|me sinto grato)\s*(por|com|de)?\s*/i,'').trim();
+    if (txt.length > 3) {
+      const grats = load('grat_diaria',{});
+      grats[today()] = { texto: txt, criadoEm: new Date().toISOString() };
+      save('grat_diaria', grats);
+      renderGratDiaria();
+      executarComando({ action:'insight', resposta: `Gratidão registrada. ${txt}` });
+    } else {
+      executarComando({ action:'nenhuma', resposta: 'Diga pelo que você é grato hoje. Por exemplo: sou grato pela minha saúde.' });
+    }
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // AJUDA — listar comandos disponíveis
+  // ══════════════════════════════════════
+  if (match(/ajuda|help|o que voce faz|o que posso dizer|comandos|como usar/)) {
+    executarComando({ action:'nenhuma', resposta:
+      'Posso: registrar água, peso, sono, humor e gratidão. Criar tarefas. Marcar tarefas como concluídas. Consultar saldo e clima. Mostrar seu resumo do dia. Navegar para qualquer aba. E muito mais!' });
+    return;
+  }
+
+  // ══════════════════════════════════════
+  // NÃO ENTENDEU
+  // ══════════════════════════════════════
+  executarComando({ action:'nenhuma', resposta: 'Não entendi. Tente: "adicionar 300ml de água", "criar tarefa ir ao banco", "como estou hoje?" ou diga "ajuda" para ver os comandos.' });
 }
 
 function executarComando(cmd) {
@@ -5128,7 +5406,9 @@ async function carregarClima() {
   // Serve cache (max 30 min)
   const cached = load('weather_cache', null);
   const agora = Date.now();
-  if (cached && cached.ts && (agora - cached.ts) < 30 * 60 * 1000) {
+  // Invalidate cache if tom (tomorrow) data is missing (old cache format)
+  if (cached && !cached.tom) { localStorage.removeItem('eh2_weather_cache'); }
+  else if (cached && cached.ts && cached.tom && (agora - cached.ts) < 30 * 60 * 1000) {
     renderClima(cached); return;
   }
 
@@ -5180,19 +5460,21 @@ async function carregarClima() {
 
 function renderClima(w) {
   const wTemp = $('weather-temp');
-  const wIcon = $('weather-icon');
-  const wDesc = $('weather-desc');
   if (!wTemp) return;
 
-  // Hoje
-  wIcon.textContent = wmoIcon(w.code);
-  wTemp.textContent = `${w.temp}°C`;
-  wDesc.textContent = wmoDesc(w.code);
+  // Date labels
+  const hoje   = new Date();
+  const amanha = new Date(); amanha.setDate(amanha.getDate()+1);
+  const fmtD = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+  const hl = $('weather-hoje-label');   if (hl) hl.textContent = fmtD(hoje);
+  const al = $('weather-amanha-label'); if (al) al.textContent = fmtD(amanha);
 
+  // Hoje
+  $('weather-icon').textContent = wmoIcon(w.code);
+  wTemp.textContent = `${w.temp}°C`;
+  $('weather-desc').textContent = wmoDesc(w.code);
   const wFeel = $('weather-feel');
   if (wFeel && w.feel !== undefined) wFeel.textContent = `sens. ${w.feel}°`;
-
-  // Detalhes
   const wdHum  = $('wd-hum');
   const wdWind = $('wd-wind');
   const wDet   = $('weather-details');
@@ -5201,25 +5483,185 @@ function renderClima(w) {
   if (wDet)   wDet.style.display = 'flex';
 
   // Amanhã
-  const tomDiv  = $('weather-tomorrow');
-  const tomIcon = $('wtom-icon');
-  const tomMin  = $('wtom-min');
-  const tomMax  = $('wtom-max');
-  const tomDesc = $('wtom-desc');
-  const tomRain = $('wtom-rain');
+  const tomDiv = $('weather-tomorrow');
   if (tomDiv && w.tom) {
     tomDiv.style.display = 'block';
-    if (tomIcon) tomIcon.textContent = wmoIcon(w.tom.code);
-    if (tomMin)  tomMin.textContent  = w.tom.min;
-    if (tomMax)  tomMax.textContent  = w.tom.max;
-    if (tomDesc) tomDesc.textContent = wmoDesc(w.tom.code);
-    if (tomRain && w.tom.rain > 30) {
-      tomRain.style.display = 'block';
-      tomRain.textContent   = `🌧️ ${w.tom.rain}% chance de chuva`;
-    } else if (tomRain) {
-      tomRain.style.display = 'none';
+    $('wtom-icon').textContent = wmoIcon(w.tom.code);
+    $('wtom-min').textContent  = w.tom.min;
+    $('wtom-max').textContent  = w.tom.max;
+    $('wtom-desc').textContent = wmoDesc(w.tom.code);
+    const tomRain = $('wtom-rain');
+    if (tomRain) {
+      tomRain.style.display = w.tom.rain > 30 ? 'block' : 'none';
+      if (w.tom.rain > 30) tomRain.textContent = `🌧️ ${w.tom.rain}% chuva`;
     }
   }
+}
+
+// ══════════════════════════════════════════
+// ATALHOS RÁPIDOS
+// ══════════════════════════════════════════
+function qaAgua(ml) {
+  const aguaD = load('agua', {});
+  aguaD[today()] = (aguaD[today()] || 0) + ml;
+  save('agua', aguaD);
+  renderAguaDisplay();
+  refreshHome();
+  // Flash feedback on button
+  const btns = document.querySelectorAll('.qa-btn');
+  btns.forEach(b => { if (b.textContent.includes(ml)) {
+    const orig = b.innerHTML;
+    b.innerHTML = `<span class="qi">✅</span>${ml}ml`;
+    b.style.borderColor = 'var(--green)';
+    b.style.color = 'var(--green)';
+    setTimeout(() => { b.innerHTML = orig; b.style.borderColor=''; b.style.color=''; }, 1500);
+  }});
+}
+
+function qaTarefa() {
+  $('qa-tarefa-input').value = '';
+  document.querySelectorAll('.qa-prio').forEach(b => b.classList.remove('on'));
+  document.querySelector('.qa-prio[data-p="m"]').classList.add('on');
+  $('modal-qa-tarefa').classList.add('on');
+  setTimeout(() => $('qa-tarefa-input').focus(), 100);
+}
+
+function qaPrioSel(btn) {
+  document.querySelectorAll('.qa-prio').forEach(b => {
+    b.classList.remove('on');
+    b.style.background = 'var(--bg3)'; b.style.color = 'var(--text2)'; b.style.borderColor = 'var(--border)';
+  });
+  btn.classList.add('on');
+  const colors = { a:['var(--rdim)','var(--red)'], m:['var(--adim)','var(--accent)'], b:['var(--gdim)','var(--green)'] };
+  const [bg, fg] = colors[btn.dataset.p] || colors.m;
+  btn.style.background = bg; btn.style.color = fg; btn.style.borderColor = fg;
+}
+
+function qaConfirmarTarefa() {
+  const nome = $('qa-tarefa-input').value.trim();
+  if (!nome) { $('qa-tarefa-input').focus(); return; }
+  const prio = document.querySelector('.qa-prio.on')?.dataset.p || 'm';
+  const tarefas = load('tarefas', []);
+  tarefas.unshift({ id: Date.now(), nome, prio, done: false, data: today() });
+  save('tarefas', tarefas);
+  renderTarefas(); refreshHome();
+  $('modal-qa-tarefa').classList.remove('on');
+}
+
+function qaDespesa() {
+  $('qa-desp-val').value = '';
+  $('qa-desp-desc').value = '';
+  $('modal-qa-despesa').classList.add('on');
+  setTimeout(() => $('qa-desp-val').focus(), 100);
+}
+
+function qaConfirmarDespesa() {
+  const val = parseFloat($('qa-desp-val').value);
+  const desc = $('qa-desp-desc').value.trim();
+  if (!val || !desc) return;
+  const cat = $('dep-cat-qa').value;
+  const cfg = load('fin_cfg', {});
+  cfg.saldo = (cfg.saldo || 0) - val;
+  save('fin_cfg', cfg);
+  const desp = load('despesas', []);
+  desp.unshift({ id: Date.now(), desc, tipo: 'despesa', cat, val, data: today(), notas: '' });
+  save('despesas', desp);
+  refreshHome(); verificarAlertaGastos();
+  $('modal-qa-despesa').classList.remove('on');
+}
+
+function qaExercicio() { go('corpo'); setTimeout(() => $('ex-nome')?.focus(), 300); }
+
+function qaAbrirTemas() { $('modal-temas').classList.add('on'); }
+
+// Also hook autoCat into qa despesa field
+document.addEventListener('input', e => {
+  if (e.target.id === 'qa-desp-desc') {
+    const sel = $('dep-cat-qa');
+    if (!sel) return;
+    const t = e.target.value.toLowerCase();
+    const catRulesLocal = [
+      { w:['ifood','rappi','pizza','restaurante','almoço','jantar','café','lanche','padaria','burger'], c:'Alimentação' },
+      { w:['uber','99','taxi','gasolina','estacion','pedágio','passagem','posto'], c:'Transporte' },
+      { w:['farmácia','remédio','médico','consulta','hospital','academia'], c:'Saúde' },
+      { w:['netflix','spotify','amazon','disney','assinatura'], c:'Assinaturas' },
+      { w:['roupa','tênis','camisa','shopee','zara'], c:'Roupas' },
+      { w:['aluguel','condomínio','luz','internet','telefone'], c:'Moradia' },
+      { w:['cinema','show','viagem','hotel','bar'], c:'Lazer' },
+    ];
+    for (const r of catRulesLocal) if (r.w.some(w => t.includes(w))) { sel.value = r.c; break; }
+  }
+});
+
+// ══════════════════════════════════════════
+// TEMAS DE COR
+// ══════════════════════════════════════════
+function aplicarTema(nome) {
+  const temas = ['blue','green','purple','teal','red'];
+  temas.forEach(t => document.body.classList.remove('theme-' + t));
+  if (nome) document.body.classList.add('theme-' + nome);
+  save('tema_cor', nome);
+  $('modal-temas').classList.remove('on');
+}
+
+function carregarTema() {
+  const t = load('tema_cor', '');
+  if (t) document.body.classList.add('theme-' + t);
+}
+
+// ══════════════════════════════════════════
+// ABAS FAVORITAS — NAV CONFIG
+// ══════════════════════════════════════════
+const ALL_PAGES = [
+  { id:'home',     label:'Início',    icon:'🏠' },
+  { id:'agenda',   label:'Agenda',    icon:'📅' },
+  { id:'rotina',   label:'Rotina',    icon:'🔄' },
+  { id:'tarefas',  label:'Tarefas',   icon:'✅' },
+  { id:'corpo',    label:'Corpo',     icon:'💪' },
+  { id:'mente',    label:'Mente',     icon:'🧘' },
+  { id:'evolucao', label:'Evolução',  icon:'📈' },
+  { id:'games',    label:'Games',     icon:'🎮' },
+  { id:'cursos',   label:'Cursos',    icon:'📚' },
+  { id:'receitas', label:'Receitas',  icon:'🍽️' },
+  { id:'compras',  label:'Compras',   icon:'🛒' },
+  { id:'financas', label:'Finanças',  icon:'💰' },
+  { id:'backup',   label:'Backup',    icon:'☁️' },
+];
+
+function getNavFavs() {
+  return load('nav_favs', ['home','agenda','rotina','tarefas','corpo','mente','financas']);
+}
+
+function aplicarNavFavs() {
+  const favs = getNavFavs();
+  ALL_PAGES.forEach(p => {
+    const btn = $('n-' + p.id);
+    if (btn) btn.style.display = favs.includes(p.id) ? '' : 'none';
+  });
+}
+
+function abrirNavConfig() {
+  const favs = getNavFavs();
+  const cont = $('nav-config-list');
+  if (!cont) return;
+  cont.innerHTML = ALL_PAGES.map(p => `
+    <label style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg3);border-radius:var(--rs);cursor:pointer;user-select:none">
+      <input type="checkbox" id="nf-${p.id}" ${favs.includes(p.id)?'checked':''} style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+      <span style="font-size:16px">${p.icon}</span>
+      <span style="font-size:13px;font-weight:500;color:var(--text)">${p.label}</span>
+    </label>`).join('');
+  $('modal-nav-config').classList.add('on');
+}
+
+function salvarNavConfig() {
+  const favs = ALL_PAGES.map(p => p.id).filter(id => {
+    const cb = document.getElementById('nf-' + id);
+    return cb && cb.checked;
+  });
+  if (favs.length === 0) { alert('Selecione pelo menos uma aba.'); return; }
+  save('nav_favs', favs);
+  aplicarNavFavs();
+  $('modal-nav-config').classList.remove('on');
 }
 
 // ──────────────────────────────────
@@ -5290,6 +5732,8 @@ function updateSbStatusArea() {
   renderCompras();
   renderFinancas();
   // Automações no início
+  carregarTema();
+  aplicarNavFavs();
   atualizarMetaHidratacaoAutomatica();
   verificarAlertaGastos();
   verificarAlertaDescanso();
@@ -5378,28 +5822,21 @@ function updateSbStatusArea() {
   <button onclick="document.getElementById('install-banner').style.display='none'" class="ib del">×</button>
 </div>
 
-<!-- ════ ASSISTENTE DE VOZ ════ -->
-<!-- Mic FAB button -->
-<button id="voice-fab" onclick="iniciarVoz()" title="Assistente de voz" style="position:fixed;bottom:78px;right:16px;width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,#f97316,#ec4899,#a855f7);color:#fff;font-size:22px;cursor:pointer;z-index:400;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(236,72,153,.4)">🎙️</button>
-
-<!-- Voice overlay -->
-<div id="voice-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:flex-end;justify-content:center;padding-bottom:80px">
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:min(92vw,480px);text-align:center">
-    <!-- Estado -->
-    <div id="voice-icon" style="font-size:48px;margin-bottom:12px">🎙️</div>
-    <div id="voice-status" style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Pressione e fale</div>
-    <div id="voice-transcript" style="font-size:12px;color:var(--text3);min-height:18px;font-style:italic;margin-bottom:16px"></div>
-    <!-- Resposta do assistente -->
-    <div id="voice-response" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px;text-align:left">
-      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">✨ Assistente</div>
-      <div id="voice-response-txt" style="font-size:13px;color:var(--text2);line-height:1.5"></div>
+<!-- MODAL EDIT META TRACKING -->
+<div class="overlay" id="modal-mt-edit">
+  <div class="modal" style="width:420px">
+    <h2>✏️ Editar meta de tracking</h2>
+    <input type="hidden" id="mte-id">
+    <div class="fg"><label>Descrição</label><input id="mte-nome" type="text"></div>
+    <div class="row">
+      <div class="fg"><label>Progresso atual</label><input id="mte-atual" type="number" min="0"></div>
+      <div class="fg"><label>Meta total</label><input id="mte-target" type="number" min="1"></div>
+      <div class="fg"><label>Unidade</label><input id="mte-unidade" type="text"></div>
     </div>
-    <!-- Botões -->
-    <div style="display:flex;gap:8px;justify-content:center">
-      <button id="voice-btn" onclick="toggleGravacao()" class="btn btn-p" style="gap:8px;min-width:140px">🎙️ Falar</button>
-      <button onclick="fecharVoz()" class="btn btn-g">Fechar</button>
+    <div class="mfooter">
+      <button class="btn btn-g" onclick="$('modal-mt-edit').classList.remove('on')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarEdicaoMeta()">💾 Salvar</button>
     </div>
-    <div style="font-size:10px;color:var(--text3);margin-top:12px;line-height:1.5">Exemplos: <em>"Adicionar 500ml de água"</em> · <em>"Como estou esta semana?"</em> · <em>"Criar tarefa reunião"</em></div>
   </div>
 </div>
 
