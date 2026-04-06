@@ -566,6 +566,8 @@ textarea{resize:vertical;min-height:70px}
         <div class="hh-date" id="h-date"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <!-- Sync -->
+        <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
         <!-- Clima — hoje e amanhã com datas -->
         <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:10px 13px;min-width:170px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -598,9 +600,6 @@ textarea{resize:vertical;min-height:70px}
               <div id="wtom-rain" style="display:none;margin-top:4px;font-size:9px;color:var(--blue);font-weight:600"></div>
             </div>
           </div>
-        </div>
-        <!-- Sync -->
-        <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
       </div>
     </div>
   </div>
