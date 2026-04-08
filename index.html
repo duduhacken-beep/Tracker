@@ -569,37 +569,32 @@ textarea{resize:vertical;min-height:70px}
         <!-- Sync -->
         <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
         <!-- Clima — hoje e amanhã com datas -->
-        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:10px 13px;min-width:170px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <!-- HOJE -->
-            <div>
-              <div id="weather-hoje-label" style="font-size:8px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Hoje</div>
-              <div style="display:flex;align-items:center;gap:6px">
-                <span id="weather-icon" style="font-size:20px">🌡️</span>
-                <div>
-                  <div id="weather-temp" style="font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1">—°</div>
-                  <div id="weather-feel" style="font-size:9px;color:var(--text3);margin-top:1px"></div>
+        <div id="weather-card" onclick="carregarClima()" title="Clique para atualizar" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:7px 11px;margin-top:4px">
+          <div style="display:flex;align-items:center;gap:10px;white-space:nowrap">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span id="weather-icon" style="font-size:18px;line-height:1">🌡️</span>
+              <div>
+                <div style="display:flex;align-items:baseline;gap:4px">
+                  <span id="weather-temp" style="font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">—°</span>
+                  <span id="weather-hoje-label" style="font-size:8px;font-weight:700;color:var(--accent)"></span>
                 </div>
-              </div>
-              <div id="weather-desc" style="font-size:9px;color:var(--text3);margin-top:4px;line-height:1.3">carregando...</div>
-              <div id="weather-details" style="margin-top:4px;display:none;flex-direction:column;gap:1px">
-                <span id="wd-hum"  style="font-size:9px;color:var(--text3)"></span>
-                <span id="wd-wind" style="font-size:9px;color:var(--text3)"></span>
+                <div id="weather-desc" style="font-size:8px;color:var(--text3)">—</div>
               </div>
             </div>
-            <!-- AMANHÃ -->
-            <div id="weather-tomorrow" style="display:none;border-left:1px solid var(--border);padding-left:10px">
-              <div id="weather-amanha-label" style="font-size:8px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Amanhã</div>
-              <div style="display:flex;align-items:center;gap:6px">
-                <span id="wtom-icon" style="font-size:20px">—</span>
-                <div>
-                  <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);line-height:1"><span id="wtom-min">—</span>°/<span id="wtom-max">—</span>°</div>
-                  <div id="wtom-desc" style="font-size:9px;color:var(--text3);margin-top:1px"></div>
+            <div id="weather-tomorrow" style="display:none;border-left:1px solid var(--border);padding-left:10px;display:flex;align-items:center;gap:5px">
+              <span id="wtom-icon" style="font-size:17px;line-height:1">—</span>
+              <div>
+                <div style="display:flex;align-items:baseline;gap:4px">
+                  <span style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)"><span id="wtom-min">—</span>°/<span id="wtom-max">—</span>°</span>
+                  <span id="weather-amanha-label" style="font-size:8px;font-weight:700;color:var(--blue)"></span>
                 </div>
+                <div id="wtom-desc" style="font-size:8px;color:var(--text3)"></div>
               </div>
-              <div id="wtom-rain" style="display:none;margin-top:4px;font-size:9px;color:var(--blue);font-weight:600"></div>
             </div>
           </div>
+          <div id="weather-feel" style="display:none"></div>
+          <div id="weather-details" style="display:none"><span id="wd-hum"></span><span id="wd-wind"></span></div>
+          <div id="wtom-rain" style="display:none"></div>
       </div>
     </div>
   </div>
@@ -623,7 +618,6 @@ textarea{resize:vertical;min-height:70px}
     <button class="qa-btn" onclick="qaTarefa()"><span class="qi">✅</span>Tarefa</button>
     <button class="qa-btn" onclick="qaDespesa()"><span class="qi">💸</span>Gasto</button>
     <button class="qa-btn" onclick="qaExercicio()"><span class="qi">🏋️</span>Treino</button>
-    <button class="qa-btn" onclick="qaAbrirTemas()"><span class="qi">🎨</span>Tema</button>
   </div>
 
   <!-- MODAL ATALHO TAREFA -->
@@ -1564,7 +1558,38 @@ textarea{resize:vertical;min-height:70px}
     <div id="lista-relatorios-carteira"></div>
   </div>
 
+  <!-- RELATÓRIO DE NOTÍCIAS SEMANAL -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>📰 Relatório de notícias</h2>
+      <button class="btn btn-p btn-sm" onclick="abrirModalNoticias()">+ Anexar relatório</button>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:12px;line-height:1.6">Cole aqui o relatório semanal gerado pelo Claude Cowork — notícias, tendências e análises relevantes para seus investimentos.</p>
+    <div id="lista-noticias"></div>
+  </div>
+
 </section>
+
+<!-- MODAL RELATÓRIO NOTÍCIAS -->
+<div class="overlay" id="modal-noticias">
+  <div class="modal" style="width:580px">
+    <h2>📰 Relatório de notícias</h2>
+    <input type="hidden" id="ntc-id">
+    <div class="row">
+      <div class="fg"><label>Semana de</label><input id="ntc-data" type="date"></div>
+      <div class="fg" style="flex:2"><label>Título / Tema</label><input id="ntc-titulo" type="text" placeholder="Ex: Semana 15/04 — Fed, Petróleo e IA"></div>
+    </div>
+    <div class="fg"><label>Relatório (cole o texto do Claude Cowork)</label>
+      <textarea id="ntc-texto" style="min-height:200px;font-size:12px;line-height:1.6" placeholder="Cole aqui o conteúdo completo do relatório semanal..."></textarea>
+    </div>
+    <div class="fg"><label>Tags (separadas por vírgula)</label>
+      <input id="ntc-tags" type="text" placeholder="Ex: Fed, petróleo, tech, cripto"></div>
+    <div class="mfooter">
+      <button class="btn btn-g" onclick="$('modal-noticias').classList.remove('on')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarNoticia()">💾 Salvar relatório</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL RELATÓRIO CARTEIRA -->
 <div class="overlay" id="modal-relatorio">
@@ -1783,19 +1808,28 @@ const $ = id => document.getElementById(id);
 const _lsSave = (k, v) => localStorage.setItem('eh2_' + k, JSON.stringify(v));
 const _lsLoad = (k, d) => { try { const v = localStorage.getItem('eh2_' + k); return v !== null ? JSON.parse(v) : d; } catch { return d; } };
 
-// save: write localStorage immediately, then push to Supabase async
+// save: write localStorage immediately, then push to Supabase async (debounced batch)
+let _syncQueue = {};
+let _syncTimer = null;
 function save(k, v) {
   _lsSave(k, v);
   if (!_sb) return;
+  _syncQueue[k] = v;
+  clearTimeout(_syncTimer);
   setSyncStatus('syncing');
-  _sb.from('tracker_data')
-    .upsert({ key: k, value: v, updated_at: new Date().toISOString() }, { onConflict: 'key' })
-    .then(({ error }) => {
-      setSyncStatus(error ? 'error' : 'ok');
-      if (error) console.warn('[Supabase save]', error.message);
-      // Reset to ok after 3s
-      if (!error) setTimeout(() => setSyncStatus('ok'), 3000);
-    });
+  _syncTimer = setTimeout(() => {
+    const rows = Object.entries(_syncQueue).map(([key, value]) => ({
+      key, value, updated_at: new Date().toISOString()
+    }));
+    _syncQueue = {};
+    _sb.from('tracker_data')
+      .upsert(rows, { onConflict: 'key' })
+      .then(({ error }) => {
+        setSyncStatus(error ? 'error' : 'ok');
+        if (error) console.warn('[Supabase save]', error.message);
+        if (!error) setTimeout(() => setSyncStatus('ok'), 3000);
+      });
+  }, 800); // batch writes for 800ms
 }
 
 // load: always from localStorage (fast)
@@ -1870,7 +1904,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -1893,6 +1927,8 @@ async function pushAllToSupabase() {
 // RE-RENDER ALL  — called after realtime update
 // ──────────────────────────────────
 function reRenderAll() {
+  carregarTema();
+  aplicarNavFavs();
   refreshHome();
   renderAgenda();
   renderRotina();
@@ -3824,6 +3860,7 @@ function renderFinancas() {
   populateMesFilter();
   renderDespesas();
   renderRelatoriosCarteira();
+  renderNoticias();
   renderPatrimonialChart();
 }
 
@@ -4302,42 +4339,25 @@ function calcScoreSaude() {
   const corpoD   = load('corpo_d', {});
   const aguaD    = load('agua', {});
   const exercs   = load('exercicios', []).filter(e => dias7.includes(e.date));
-  const mente    = load('mente', []).filter(m => dias7.includes(m.data));
   const habitos  = load('habitos', []);
   const rot      = load('rot_checks', {});
   const aguaMeta = load('agua_meta', 2000);
-  let score = 0; const MAX = 100;
+  let score = 0;
 
-  // Sono (25pts) — meta 7.5h, 25pts se >=7, reduz proporcionalmente
+  // Sono (30pts)
   const sonoVals = dias7.map(d => parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
   if (sonoVals.length >= 3) {
     const media = sonoVals.reduce((a,b)=>a+b,0)/sonoVals.length;
-    score += Math.min(25, Math.round((media / 8) * 25));
-  } else { score += 10; } // neutro se sem dados
+    score += Math.min(30, Math.round((media / 8) * 30));
+  } else { score += 12; }
 
-  // Hidratação (20pts)
+  // Hidratação (30pts)
   const mediaAgua = dias7.reduce((s,d)=>s+(aguaD[d]||0),0)/7;
-  score += Math.min(20, Math.round((mediaAgua / aguaMeta) * 20));
+  score += Math.min(30, Math.round((mediaAgua / aguaMeta) * 30));
 
-  // Treinos (25pts) — 4+ treinos = 25pts
+  // Treinos (40pts) — 4+ treinos/semana = máximo
   const numTreinos = [...new Set(exercs.map(e=>e.date))].length;
-  score += Math.min(25, Math.round((numTreinos / 4) * 25));
-
-  // Hábitos (20pts)
-  const hFatos = dias7.reduce((s,d)=>{
-    const hj = habitos.filter(h=>habitHoje(h));
-    const ch = rot[d]||{};
-    return s + hj.filter(h=>ch[h.id]).length;
-  },0);
-  const hPoss = habitos.length * 7;
-  score += hPoss > 0 ? Math.min(20, Math.round((hFatos/hPoss)*20)) : 10;
-
-  // Diário / Gratidão (10pts — substituindo humor)
-  const mente2 = load('mente', []);
-  const registrosMente = dias7.filter(d =>
-    mente2.some(m => m.data === d && (m.tipo === 'diario' || m.tipo === 'gratidao'))
-  ).length;
-  score += Math.min(10, Math.round((registrosMente / 5) * 10));
+  score += Math.min(40, Math.round((numTreinos / 4) * 40));
 
   return Math.min(100, score);
 }
@@ -4815,19 +4835,11 @@ function gerarInsights() {
   const dias7 = [];
   for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dias7.push(localDateStr(d)); }
 
-  // Sono médio e impacto no humor
+  // Sono médio
   const sonoVals = dias7.map(d => parseFloat((corpoD[d]||{}).sono)).filter(Boolean);
   if (sonoVals.length >= 3) {
     const media = sonoVals.reduce((a,b) => a+b,0) / sonoVals.length;
-    const boaNoite = dias7.filter(d => parseFloat((corpoD[d]||{}).sono) >= 7.5);
-    const humorBom = ['😁','😊','🤩','💪','🧘'];
-    const boas = boaNoite.filter(d => {
-      const m = mente.find(m => m.tipo==='humor' && m.data===d);
-      return m && humorBom.includes(m.mood);
-    });
-    if (boaNoite.length > 0 && boas.length / boaNoite.length >= 0.6)
-      insights.push({ icon:'😴', cor:'var(--purple)', txt:`Nos dias com 7.5h+ de sono, seu humor foi positivo em ${Math.round(boas.length/boaNoite.length*100)}% das vezes.` });
-    else if (media < 6.5)
+    if (media < 6.5)
       insights.push({ icon:'⚠️', cor:'var(--accent)', txt:`Você dormiu em média ${media.toFixed(1)}h esta semana. O recomendado é 7–9h para boa recuperação.` });
     else
       insights.push({ icon:'✅', cor:'var(--green)', txt:`Bom sono esta semana — média de ${media.toFixed(1)}h por noite.` });
@@ -4855,14 +4867,6 @@ function gerarInsights() {
   const muscLabels = { peito:'Peito', costas:'Costas', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
   if (semTreino.length >= 3) insights.push({ icon:'💪', cor:'var(--text3)', txt:`Grupos sem treino esta semana: ${semTreino.slice(0,4).map(m=>muscLabels[m]).join(', ')}.` });
 
-  // Humor dominante
-  const moodsRecentes = mente.filter(m => m.tipo==='humor').slice(0,14);
-  if (moodsRecentes.length >= 5) {
-    const freq = {};
-    moodsRecentes.forEach(m => { freq[m.mood]=(freq[m.mood]||0)+1; });
-    const top = Object.entries(freq).sort((a,b) => b[1]-a[1])[0];
-    if (top) insights.push({ icon:top[0], cor:'var(--accent)', txt:`Humor mais frequente nas últimas 2 semanas: ${top[0]} (${top[1]} registros).` });
-  }
 
   // Gastos
   const cfg = load('fin_cfg',{});
@@ -5498,6 +5502,95 @@ function renderClima(w) {
 }
 
 // ══════════════════════════════════════════
+// RELATÓRIO DE NOTÍCIAS
+// ══════════════════════════════════════════
+function abrirModalNoticias(id) {
+  $('ntc-id').value = '';
+  $('ntc-data').value = today();
+  $('ntc-titulo').value = '';
+  $('ntc-texto').value = '';
+  $('ntc-tags').value = '';
+  if (id) {
+    const item = load('relatorios_noticias', []).find(n => n.id === id);
+    if (item) {
+      $('ntc-id').value = id;
+      $('ntc-data').value = item.data;
+      $('ntc-titulo').value = item.titulo;
+      $('ntc-texto').value = item.texto;
+      $('ntc-tags').value = (item.tags || []).join(', ');
+    }
+  }
+  $('modal-noticias').classList.add('on');
+  setTimeout(() => $('ntc-titulo').focus(), 100);
+}
+
+function salvarNoticia() {
+  const titulo = $('ntc-titulo').value.trim();
+  const texto  = $('ntc-texto').value.trim();
+  if (!titulo || !texto) { alert('Preencha o título e o texto do relatório.'); return; }
+  const lista = load('relatorios_noticias', []);
+  const id = parseInt($('ntc-id').value) || Date.now();
+  const item = {
+    id,
+    data:   $('ntc-data').value || today(),
+    titulo,
+    texto,
+    tags:   $('ntc-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+    criadoEm: new Date().toISOString()
+  };
+  const idx = lista.findIndex(n => n.id === id);
+  if (idx >= 0) lista[idx] = item; else lista.unshift(item);
+  save('relatorios_noticias', lista);
+  $('modal-noticias').classList.remove('on');
+  renderNoticias();
+}
+
+function delNoticia(id) {
+  if (!confirm('Excluir este relatório?')) return;
+  save('relatorios_noticias', load('relatorios_noticias', []).filter(n => n.id !== id));
+  renderNoticias();
+}
+
+function renderNoticias() {
+  const cont = $('lista-noticias');
+  if (!cont) return;
+  const lista = load('relatorios_noticias', []);
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty"><div class="ei">📰</div>Nenhum relatório anexado ainda</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(n => {
+    const preview = n.texto.substring(0, 160).replace(/\n/g,' ') + (n.texto.length > 160 ? '...' : '');
+    const tagsHtml = (n.tags||[]).map(t => `<span class="tag tb" style="font-size:9px">${t}</span>`).join(' ');
+    return `<div style="border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin-bottom:10px">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">${n.titulo}</div>
+          <div style="font-size:10px;color:var(--text3)">${n.data} ${tagsHtml}</div>
+        </div>
+        <button class="ib edt" onclick="abrirModalNoticias(${n.id})">✏️</button>
+        <button class="ib del" onclick="delNoticia(${n.id})">×</button>
+      </div>
+      <div id="ntc-body-${n.id}" style="font-size:12px;color:var(--text2);line-height:1.6;display:none;white-space:pre-wrap">${n.texto}</div>
+      <div id="ntc-prev-${n.id}" style="font-size:12px;color:var(--text3);line-height:1.5">${preview}</div>
+      <button onclick="toggleNoticia(${n.id})" id="ntc-tog-${n.id}" style="margin-top:8px;font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0">▼ Ver tudo</button>
+    </div>`;
+  }).join('');
+}
+
+function toggleNoticia(id) {
+  const body = $(`ntc-body-${id}`);
+  const prev = $(`ntc-prev-${id}`);
+  const tog  = $(`ntc-tog-${id}`);
+  const open = body.style.display !== 'none' && body.style.display !== '';
+  if (open) {
+    body.style.display = 'none'; prev.style.display = ''; tog.textContent = '▼ Ver tudo';
+  } else {
+    body.style.display = ''; prev.style.display = 'none'; tog.textContent = '▲ Recolher';
+  }
+}
+
+// ══════════════════════════════════════════
 // ATALHOS RÁPIDOS
 // ══════════════════════════════════════════
 function qaAgua(ml) {
@@ -5763,17 +5856,22 @@ function updateSbStatusArea() {
     document.head.appendChild(style);
     document.body.appendChild(splash);
 
+    const removeSplash = () => {
+      splash.style.transition = 'opacity .35s';
+      splash.style.opacity = '0';
+      setTimeout(() => { if (splash.parentNode) splash.remove(); }, 380);
+    };
+    // Hard timeout: never block UI more than 4 seconds
+    const splashTimeout = setTimeout(() => { removeSplash(); subscribeRealtime(); }, 4000);
     pullFromSupabase().then(got => {
-      // Always re-render after pull attempt (got or not)
+      clearTimeout(splashTimeout);
       reRenderAll();
       subscribeRealtime();
-      // Fade out splash
-      splash.style.transition = 'opacity .4s';
-      splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 450);
+      removeSplash();
     }).catch(() => {
+      clearTimeout(splashTimeout);
       reRenderAll();
-      splash.remove();
+      removeSplash();
     });
   } else {
     setSyncStatus('off');
