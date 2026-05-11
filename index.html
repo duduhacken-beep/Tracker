@@ -946,89 +946,239 @@ body.dens-compact .gap{margin-bottom:14px}
 /* ── MOBILE ── */
 @media(max-width:640px){
   :root{--sb:0px}
+  html{scroll-behavior:smooth}
+  body{overscroll-behavior-y:contain}
+
+  /* ── Bottom nav ── */
   .sidebar{
-    width:100%;height:64px;
+    width:100%;height:62px;
     top:auto;bottom:0;left:0;right:0;
     flex-direction:row;justify-content:flex-start;
-    padding:0;border-right:none;border-top:1px solid var(--border);
-    overflow-x:scroll;overflow-y:hidden;
+    padding:0 4px;padding-bottom:env(safe-area-inset-bottom,0);
+    height:calc(62px + env(safe-area-inset-bottom,0));
+    border-right:none;border-top:1px solid var(--border);
+    overflow-x:auto;overflow-y:hidden;
     -webkit-overflow-scrolling:touch;
     scroll-behavior:smooth;
     gap:0;
     scrollbar-width:none;
-    background:rgba(20,19,18,.92);
-    backdrop-filter:blur(12px);
+    background:rgba(14,13,12,.85);
+    backdrop-filter:saturate(140%) blur(18px);
+    -webkit-backdrop-filter:saturate(140%) blur(18px);
+    box-shadow:0 -1px 0 rgba(255,255,255,.02), 0 -8px 24px rgba(0,0,0,.35);
+    z-index:50;
   }
   .sidebar::-webkit-scrollbar{display:none}
   .logo{display:none}
   .nb{
-    width:62px;height:64px;min-width:62px;
+    width:64px;height:62px;min-width:64px;
     border-radius:0;margin:0;
-    gap:4px;flex-shrink:0;
+    gap:3px;flex-shrink:0;
+    color:var(--text3);
+    position:relative;
     -webkit-tap-highlight-color:transparent;
+    transition:color .2s var(--ease);
   }
+  .nb.on{color:var(--accent);background:transparent}
   .nb.on::before{display:none}
-  .nb.on{border-bottom:2px solid var(--accent);background:var(--adim)}
-  .nb svg{width:20px;height:20px}
-  .nb span{font-size:9px}
+  .nb.on::after{
+    content:"";position:absolute;
+    top:6px;left:50%;
+    width:24px;height:3px;
+    background:var(--accent);
+    border-radius:0 0 3px 3px;
+    transform:translateX(-50%);
+    box-shadow:0 0 8px var(--adim);
+    animation:ringIn .3s var(--ease);
+  }
+  .nb svg{width:21px;height:21px;stroke-width:1.8}
+  .nb.on svg{transform:scale(1.05)}
+  .nb span{font-size:9.5px;font-weight:600;letter-spacing:.1px}
+  .nb:active{transform:scale(.94);transition:transform .1s}
 
+  /* ── Main pane ── */
   .main{
     margin-left:0;
-    padding:20px 16px 90px;
+    padding:18px 14px 100px;
+    padding-bottom:calc(100px + env(safe-area-inset-bottom,0));
     max-width:100vw;
   }
 
-  .g2,.g3,.g4{grid-template-columns:1fr;gap:12px}
+  /* ── Hero / greeting ── */
+  .hh{margin-bottom:18px}
+  .hh > div[style*="space-between"]{align-items:center!important}
+  .hh-name{font-size:10px;letter-spacing:1.8px}
+  .hh-greet{font-size:34px;line-height:1.05;margin:2px 0 4px}
+  .hh-date{font-size:11.5px}
+  #sync-status{padding:3px 8px!important;font-size:10.5px}
+  #sync-status .ic-state{transform:scale(.85)}
 
+  /* ── Grids ── */
+  .g2{grid-template-columns:1fr;gap:12px}
+  .g3{grid-template-columns:repeat(2,1fr);gap:10px}
+  .g4{grid-template-columns:repeat(2,1fr);gap:10px}
+  .g4[style*="repeat(5"]{grid-template-columns:repeat(2,1fr)!important}
+  /* If g3 has odd count, last item full-width */
+  .g3 > .stat:last-child:nth-child(odd){grid-column:1/-1}
+
+  /* ── Stats ── */
+  .stat{padding:13px 14px;border-radius:14px}
+  .stat .lbl{font-size:9px;letter-spacing:1.2px;margin-bottom:6px}
+  .stat .val{font-size:24px;letter-spacing:-.02em}
+  .stat .sub{font-size:10.5px;margin-top:2px}
+
+  /* ── Cards ── */
+  .card{padding:16px;border-radius:16px}
+  .card h2,.sh h2{font-size:15px!important}
+  .card h3{font-size:13px}
+  .gap{margin-bottom:14px}
+  .sh{flex-wrap:wrap;gap:8px;margin-bottom:12px}
+  .div{margin:14px 0}
+
+  /* ── Quick-action row: snappy carousel ── */
+  .qa-bar{
+    display:flex;flex-wrap:nowrap;
+    overflow-x:auto;overflow-y:hidden;
+    margin:0 -14px 22px;padding:2px 14px 8px;
+    gap:8px;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .qa-bar::-webkit-scrollbar{display:none}
+  .qa-btn{
+    flex:0 0 auto;min-width:78px;
+    flex-direction:column;gap:4px;
+    padding:11px 14px;font-size:11.5px;
+    scroll-snap-align:start;
+    background:var(--card);
+    border:1px solid var(--border);
+  }
+  .qa-btn .qi{font-size:20px;filter:none}
+
+  /* ── Forms ── */
   .row{flex-direction:column;gap:0}
   .row>.fg{margin-bottom:11px}
+  .fg label{font-size:11px}
+  input,textarea,select{
+    font-size:16px;padding:12px 13px;
+    border-radius:11px;
+  }
+  textarea{min-height:90px}
+  .cb{width:26px;height:26px;border-radius:7px}
 
-  .cb{width:24px;height:24px;border-radius:6px}
-  input,textarea,select{font-size:16px;padding:11px 13px}
-  .btn{padding:12px 20px}
-  .btn-sm{padding:9px 14px;font-size:13px}
-  .ib{width:36px;height:36px;font-size:16px}
+  /* ── Buttons (44px touch target) ── */
+  .btn{padding:13px 18px;min-height:44px;font-size:13.5px;border-radius:12px}
+  .btn-sm{padding:10px 14px;min-height:38px;font-size:12.5px}
+  .ib{width:38px;height:38px;font-size:16px;border-radius:10px}
+  /* Pull-quote action buttons in card headers */
+  .sh .ib{width:34px;height:34px;font-size:14px}
 
-  h1{font-size:30px}
-  .hh-greet{font-size:36px}
-  .hh-name{font-size:10px;letter-spacing:2px}
-  h2{font-size:18px}
-  .psub{font-size:13px;margin-bottom:22px}
+  /* ── Hero values that go HUGE on desktop ── */
+  h1{font-size:26px;letter-spacing:-.02em}
+  h2{font-size:17px}
+  h3{font-size:13px}
+  .psub{font-size:12.5px;margin-bottom:18px;line-height:1.55}
 
-  .card,.stat{padding:16px}
-  .stat .val{font-size:28px}
-  .water-val{font-size:42px}
-  .fin-saldo{font-size:38px}
+  .water-val{font-size:38px}
+  .fin-saldo{font-size:32px}
 
-  .g4{grid-template-columns:1fr 1fr}
-  .g4[style*="repeat(5"]{grid-template-columns:repeat(2,1fr)!important}
+  /* ── Tables ── */
+  #hist-table{overflow-x:auto;border-radius:12px}
+  .htable{min-width:580px;font-size:12px}
 
-  #hist-table{overflow-x:auto}
-  .htable{min-width:600px}
+  /* ── Muscle map ── */
+  .mmap-wrap{gap:12px;flex-wrap:wrap;justify-content:center}
+  .mmap-wrap svg{width:96px!important;height:auto}
 
-  .mmap-wrap{gap:14px}
-  .mmap-wrap svg{width:100px!important}
+  /* ── Sub-tabs: snap carousel ── */
+  .stabs{
+    overflow-x:auto;gap:0;padding:0 0 2px;
+    margin:0 -14px 14px;padding-left:14px;padding-right:14px;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    scrollbar-width:none;
+  }
+  .stabs::-webkit-scrollbar{display:none}
+  .stab{
+    white-space:nowrap;flex-shrink:0;
+    padding:10px 14px;font-size:12.5px;
+    scroll-snap-align:start;
+  }
 
-  .stabs{overflow-x:auto;gap:0;padding-bottom:2px;-webkit-overflow-scrolling:touch}
-  .stab{white-space:nowrap;flex-shrink:0;padding:9px 14px}
-
-  .sh{flex-wrap:wrap;gap:8px}
-
-  .modal{padding:22px;width:100%;max-width:100%;border-radius:var(--r) var(--r) 0 0;position:fixed;bottom:0;left:0;max-height:88vh}
-  .overlay{align-items:flex-end}
+  /* ── Modals: bottom-sheet style with drag handle ── */
+  .overlay{align-items:flex-end;padding:0}
+  .modal{
+    padding:22px 20px;
+    width:100%;max-width:100%;
+    border-radius:22px 22px 0 0;
+    position:fixed;bottom:0;left:0;right:0;
+    max-height:90vh;
+    padding-bottom:calc(22px + env(safe-area-inset-bottom,0));
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    animation:sheetIn .32s var(--ease)!important;
+  }
+  .modal::before{
+    content:"";display:block;
+    width:38px;height:4px;border-radius:4px;
+    background:var(--border-strong);
+    margin:-8px auto 14px;
+  }
+  .modal h2{font-size:18px;margin-bottom:18px}
+  .mfooter{
+    flex-direction:column-reverse;gap:8px;
+    margin-top:18px;padding-top:16px;
+  }
+  .mfooter .btn{width:100%;justify-content:center}
 
   .gg{grid-template-columns:repeat(2,1fr)}
-
   .mchips{gap:5px}
-  .mc{font-size:11px;padding:5px 10px}
+  .mc{font-size:11px;padding:6px 10px;border-radius:8px}
 
-  .hh{margin-bottom:22px}
-  .gap{margin-bottom:14px}
+  /* ── Tweaks panel & FAB ── */
+  .tw-fab{
+    right:14px;bottom:calc(78px + env(safe-area-inset-bottom,0));
+    width:46px;height:46px;
+  }
+  .tw-panel{
+    right:14px;bottom:calc(132px + env(safe-area-inset-bottom,0));
+    width:calc(100vw - 28px);max-width:300px;
+  }
 
-  .tw-fab{right:14px;bottom:80px;width:42px;height:42px}
-  .tw-panel{right:14px;bottom:130px;width:calc(100vw - 28px);max-width:300px}
-  .qa-btn{padding:11px 8px;font-size:11px}
-  .qa-btn .qi{font-size:18px}
+  /* ── Hide noisy desktop-only UI on small screens ── */
+  #mov-card .sh .ib[title*="Ver log"],
+  #mov-card .sh .ib[title*="Configurar"]{display:none}
+
+  /* ── Lists / cards inside lists ── */
+  .ci,.li,.evi,.fin-row,.ex-e{padding:11px 12px;border-radius:11px}
+  .ci .ct,.li .lt,.evi-t{font-size:13.5px}
+
+  /* ── Pool card / large nav cards: less padding ── */
+  #lp-card{padding:14px}
+
+  /* ── Tracking +/- buttons: tap targets ── */
+  .tgi-ctr button{width:36px;height:36px;font-size:16px}
+  .tgi-n{font-size:18px;min-width:42px}
+
+  /* ── Filter chips wrapped ── */
+  .fc-bar,.f-chips,.filter-chips{flex-wrap:wrap;gap:6px}
+}
+
+/* ── Very small phones (iPhone SE etc.) ── */
+@media(max-width:380px){
+  .main{padding:16px 12px 100px;padding-bottom:calc(100px + env(safe-area-inset-bottom,0))}
+  .nb{width:58px;min-width:58px}
+  .nb span{font-size:9px}
+  .hh-greet{font-size:30px}
+  .stat .val{font-size:21px}
+  .g3{gap:8px}
+  .qa-btn{min-width:74px;padding:10px 12px}
+}
+
+@keyframes sheetIn{
+  from{transform:translateY(100%)}
+  to{transform:translateY(0)}
 }
 
 /* ───── EXTRA ANIMATIONS ───── */
