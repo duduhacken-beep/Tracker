@@ -6988,6 +6988,7 @@ async function _movFetchComProxy(url, abaName) {
   // 2) Cadeia de proxies — testa cada um
   const proxies = [
     { name: 'allorigins', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
+    { name: 'corsproxy.io', build: u => `https://corsproxy.io/?${encodeURIComponent(u)}` },
     { name: 'cors.eu.org', build: u => `https://cors.eu.org/${u}` },
     { name: 'allorigins-retry', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` }
   ];
@@ -7014,6 +7015,7 @@ async function _movFetchComProxy(url, abaName) {
   }
 
   _movDbg(`❌ ${abaName}: TODOS os proxies falharam`);
+  _movDbg(`   URL alvo: ${url}`);
   return null;
 }
 
@@ -7050,6 +7052,7 @@ async function _movFetchTickersDaPlanilha(sheetId) {
   _movDbg(`▶️ Buscando tickers da planilha ${sheetId}`);
   const resultados = await Promise.all(MOV_ABAS.map(aba => _movFetchAba(sheetId, aba)));
   const stocks = new Set();
+  const fiis = new Set();
   const cryptos = new Set();
   for (let i = 0; i < MOV_ABAS.length; i++) {
     const aba = MOV_ABAS[i];
@@ -7060,7 +7063,13 @@ async function _movFetchTickersDaPlanilha(sheetId) {
         const sym = _movExtraiCripto(l);
         if (sym) { cryptos.add(sym); achadosAba++; }
       }
+    } else if (aba === 'FIIs') {
+      for (const l of linhas) {
+        const t = l.toUpperCase().trim();
+        if (_movEhTickerBr(t)) { fiis.add(t); achadosAba++; }
+      }
     } else {
+      // Ações BR e Stocks (BDRs)
       for (const l of linhas) {
         const t = l.toUpperCase().trim();
         if (_movEhTickerBr(t)) { stocks.add(t); achadosAba++; }
@@ -7069,11 +7078,13 @@ async function _movFetchTickersDaPlanilha(sheetId) {
     _movDbg(`   📋 ${aba}: ${achadosAba} tickers válidos`);
   }
   const stocksArr = [...stocks];
+  const fiisArr = [...fiis];
   const cryptosArr = [...cryptos];
-  _movDbg(`✅ Total: ${stocksArr.length} stocks + ${cryptosArr.length} cryptos`);
-  if (stocksArr.length) _movDbg(`   stocks: ${stocksArr.slice(0,10).join(',')}${stocksArr.length>10?'...':''}`);
+  _movDbg(`✅ Total: ${stocksArr.length} stocks + ${fiisArr.length} fiis + ${cryptosArr.length} cryptos`);
+  if (stocksArr.length) _movDbg(`   stocks: ${stocksArr.slice(0,15).join(',')}${stocksArr.length>15?'...':''}`);
+  if (fiisArr.length)   _movDbg(`   fiis: ${fiisArr.join(',')}`);
   if (cryptosArr.length) _movDbg(`   cryptos: ${cryptosArr.join(',')}`);
-  return { stocks: stocksArr, cryptos: cryptosArr };
+  return { stocks: stocksArr, fiis: fiisArr, cryptos: cryptosArr };
 }
 
 // Mapa para CoinGecko (id de URL, usado em /coins/markets)
@@ -7186,11 +7197,12 @@ async function atualizarMovimentacao(force = false) {
   }
 
   // Cache de 3h (preservar cota da brapi free)
+  // v2 = formato com FIIs separados (type:'fii')
   const cacheRaw = localStorage.getItem('mov_cache');
   if (!force && cacheRaw) {
     try {
       const cache = JSON.parse(cacheRaw);
-      if (cache.ts && (Date.now() - cache.ts) < 3 * 60 * 60 * 1000) {
+      if (cache.v === 2 && cache.ts && (Date.now() - cache.ts) < 3 * 60 * 60 * 1000) {
         _movRender(cache.data, cache.ts);
         return;
       }
@@ -7199,8 +7211,10 @@ async function atualizarMovimentacao(force = false) {
 
   cont.innerHTML = '<div style="text-align:center;padding:18px 0;color:var(--text3);font-size:12px"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Lendo planilha...</div>';
 
-  const { stocks, cryptos } = await _movFetchTickersDaPlanilha(sheetId);
-  const totalTickers = stocks.length + cryptos.length;
+  const { stocks, fiis, cryptos } = await _movFetchTickersDaPlanilha(sheetId);
+  const allStocksLikes = [...stocks, ...fiis]; // brapi trata FII como qualquer outro ticker
+  const fiiSet = new Set(fiis);
+  const totalTickers = allStocksLikes.length + cryptos.length;
 
   if (!totalTickers) {
     cont.innerHTML = `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7">
@@ -7218,13 +7232,18 @@ async function atualizarMovimentacao(force = false) {
   };
   updateProgress(0, totalTickers);
 
-  // Crypto em paralelo (1 request só), stocks sequencial com progresso
+  // Crypto em paralelo (1 request só), stocks+fiis sequencial com progresso
   const [cryptoData, stockData] = await Promise.all([
     _movFetchCrypto(cryptos),
-    _movFetchStocks(stocks, token, (n) => updateProgress(n + cryptos.length, totalTickers))
+    _movFetchStocks(allStocksLikes, token, (n) => updateProgress(n + cryptos.length, totalTickers))
   ]);
 
-  const all = [...stockData, ...cryptoData].filter(x => isFinite(x.variation));
+  // Re-marca itens que vieram da aba FIIs como type:'fii'
+  const stockDataMarcado = stockData.map(s =>
+    fiiSet.has(s.ticker) ? { ...s, type: 'fii' } : s
+  );
+
+  const all = [...stockDataMarcado, ...cryptoData].filter(x => isFinite(x.variation));
   if (!all.length) {
     cont.innerHTML = `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7">
       ⚠️ Não consegui obter cotações. Verifique se o token está correto.<br>
@@ -7233,7 +7252,7 @@ async function atualizarMovimentacao(force = false) {
     return;
   }
 
-  const cache = { ts: Date.now(), data: all };
+  const cache = { v: 2, ts: Date.now(), data: all };
   localStorage.setItem('mov_cache', JSON.stringify(cache));
   _movRender(all, cache.ts);
 }
@@ -7246,9 +7265,26 @@ function _movRender(data, ts) {
     const mins = Math.floor((Date.now() - ts) / 60000);
     updated.textContent = mins < 1 ? 'agora' : mins < 60 ? `há ${mins}min` : `há ${Math.floor(mins/60)}h`;
   }
-  const sorted = [...data].sort((a,b) => b.variation - a.variation);
-  const top3 = sorted.slice(0, 3);
-  const bottom3 = sorted.slice(-3).reverse();
+
+  // Separa FIIs do resto (BR + BDR + Cripto)
+  const fiis = data.filter(d => d.type === 'fii');
+  const ativos = data.filter(d => d.type !== 'fii');
+
+  const sortByVar = arr => [...arr].sort((a,b) => b.variation - a.variation);
+  const ativosSorted = sortByVar(ativos);
+  const fiisSorted   = sortByVar(fiis);
+
+  // Pega top N e bottom N SEM overlap: bottom é dos "restantes" depois do top
+  const splitTopBot = (sorted, n) => {
+    const top = sorted.slice(0, n);
+    const restantes = sorted.slice(n);
+    const bot = restantes.slice(-n).reverse();
+    return [top, bot];
+  };
+
+  const [ativosTop, ativosBot] = splitTopBot(ativosSorted, 3);
+  // FIIs: top 2 / bottom 2 pra não inflar o card
+  const [fiisTop, fiisBot] = splitTopBot(fiisSorted, 2);
 
   const fmtPrice = p => {
     if (!p || !isFinite(p)) return '—';
@@ -7256,43 +7292,69 @@ function _movRender(data, ts) {
     return 'R$ ' + p.toFixed(2).replace('.', ',');
   };
 
-  const renderItem = (item, isUp) => {
+  // compact=true → padding e fontes menores (usado nos FIIs)
+  const renderItem = (item, isUp, compact) => {
     const color = isUp ? 'var(--green)' : 'var(--red)';
     const arrow = isUp ? '▲' : '▼';
     const bgDim = isUp ? 'var(--gdim)' : 'var(--rdim)';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)">
+    const pad = compact ? '6px 9px' : '9px 11px';
+    const fs = compact ? '12px' : '13px';
+    const priceFs = compact ? '9.5px' : '10.5px';
+    const badgeFs = compact ? '12px' : '13px';
+    return `<div class="mov-item" style="padding:${pad};gap:8px">
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:5px">
+        <div style="font-size:${fs};font-weight:700;color:var(--text);display:flex;align-items:center;gap:5px">
           ${item.ticker}
           ${item.type==='crypto'?'<span style="font-size:8px;color:var(--text3);background:var(--bg);padding:1px 5px;border-radius:3px;letter-spacing:.3px">CRIPTO</span>':''}
         </div>
-        <div style="font-size:10.5px;color:var(--text3);font-family:var(--f-mono);margin-top:1px">${fmtPrice(item.price)}</div>
+        <div style="font-size:${priceFs};color:var(--text3);font-family:var(--f-mono);margin-top:1px">${fmtPrice(item.price)}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:3px;font-family:var(--f-mono);font-size:13px;font-weight:700;color:${color};padding:3px 8px;background:${bgDim};border-radius:6px">
+      <div style="display:flex;align-items:center;gap:3px;font-family:var(--f-mono);font-size:${badgeFs};font-weight:700;color:${color};padding:3px 7px;background:${bgDim};border-radius:6px">
         ${arrow} ${Math.abs(item.variation).toFixed(2)}%
       </div>
     </div>`;
   };
 
+  // Renderiza uma seção (top + bot). Reusa .mov-scroll/.mov-col para preservar
+  // o scroll horizontal mobile com snap (definido no CSS).
+  const renderSecao = (top, bot, compact) => {
+    const hasBot = bot.length > 0;
+    const upLbl = compact ? 'Altas' : 'Maiores altas';
+    const downLbl = compact ? 'Quedas' : 'Maiores quedas';
+    return `<div class="mov-scroll">
+      <div class="mov-col">
+        <div class="mov-col-h up"><span>▲</span> ${upLbl}</div>
+        <div class="mov-list">
+          ${top.map(i => renderItem(i, true, compact)).join('') || `<div style="font-size:11px;color:var(--text3);padding:6px 0">—</div>`}
+        </div>
+      </div>
+      ${hasBot ? `<div class="mov-col">
+        <div class="mov-col-h down"><span>▼</span> ${downLbl}</div>
+        <div class="mov-list">
+          ${bot.map(i => renderItem(i, false, compact)).join('')}
+        </div>
+      </div>` : ''}
+    </div>`;
+  };
+
+  const headerLabel = (txt, count) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+    <div style="font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1.2px">${txt}</div>
+    <div style="flex:1;height:1px;background:var(--border)"></div>
+    <div style="font-size:9.5px;color:var(--text3);font-family:var(--f-mono)">${count}</div>
+  </div>`;
+
   cont.innerHTML = `
-    <div class="mov-scroll">
-      <div class="mov-col">
-        <div class="mov-col-h up">
-          <span>▲</span> Maiores altas
-        </div>
-        <div class="mov-list">
-          ${top3.map(i => renderItem(i, true)).join('')}
-        </div>
+    ${ativos.length ? `
+      ${headerLabel('Ativos', ativos.length)}
+      ${renderSecao(ativosTop, ativosBot, false)}
+    ` : ''}
+    ${fiis.length ? `
+      <div style="margin-top:${ativos.length?'14px':'0'};padding-top:${ativos.length?'12px':'0'};${ativos.length?'border-top:1px dashed var(--border)':''}">
+        ${headerLabel('FIIs', fiis.length)}
+        ${renderSecao(fiisTop, fiisBot, true)}
       </div>
-      <div class="mov-col">
-        <div class="mov-col-h down">
-          <span>▼</span> Maiores quedas
-        </div>
-        <div class="mov-list">
-          ${bottom3.map(i => renderItem(i, false)).join('')}
-        </div>
-      </div>
-    </div>
+    ` : ''}
+    ${!ativos.length && !fiis.length ? `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">Sem dados disponíveis.</div>` : ''}
     <div style="margin-top:11px;font-size:10px;color:var(--text3);text-align:center;font-family:var(--f-mono);letter-spacing:.3px">
       ${data.length} ativo${data.length!==1?'s':''} · variação ~30 dias · brapi + coingecko
     </div>
