@@ -1607,9 +1607,9 @@ body.dens-compact .gap{margin-bottom:14px}
       <div id="h-fin-recent" style="margin-top:12px"></div>
     </div>
 
-    <!-- TRACKING DIÁRIO -->
+    <!-- METAS ANUAIS -->
     <div class="card">
-      <div class="sh"><h2>📊 Metas de tracking</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
+      <div class="sh"><h2>🎯 Metas anuais</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
       <div id="h-tracking"></div>
     </div>
   </div>
@@ -3061,31 +3061,20 @@ function refreshHome() {
       <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:${d.tipo==='entrada'?'var(--green)':'var(--red)'}">${d.tipo==='entrada'?'+':'−'}${fmtBRL(d.val)}</span>
     </div>`).join('');
 
-  // Home Tracking — com botões +/-
+  // Home Metas Anuais
   const ht2 = $('h-tracking');
-  const tracking = load('metas_t', []).filter(m => m.ano === new Date().getFullYear());
-  if (!tracking.length) {
-    ht2.innerHTML = '<div class="empty"><div class="ei">📊</div>Nenhuma meta de tracking cadastrada</div>';
+  const metasAnuais = load('metas_a', []).filter(m => m.ano === new Date().getFullYear());
+  if (!metasAnuais.length) {
+    ht2.innerHTML = '<div class="empty"><div class="ei">🎯</div>Nenhuma meta anual cadastrada</div>';
   } else {
-    ht2.innerHTML = tracking.map(m => {
-      const pct = Math.min(100, Math.round((m.atual / m.target) * 100));
-      const restante = m.target - m.atual;
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px">
-          <span style="font-size:13px;font-weight:500;flex:1">${m.nome}</span>
-          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0">
-            <button onclick="adjTrackHome(${m.id},-1)" style="width:24px;height:24px;border:1.5px solid var(--border);background:transparent;border-radius:5px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">−</button>
-            <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);min-width:54px;text-align:center">${m.atual}/${m.target}</span>
-            <button onclick="adjTrackHome(${m.id},1)" style="width:24px;height:24px;border:1.5px solid var(--border);background:transparent;border-radius:5px;cursor:pointer;color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">+</button>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="pb" style="flex:1;margin:0"><div class="pf g" style="width:${pct}%"></div></div>
-          <span style="font-size:10px;color:var(--text3);min-width:32px;text-align:right">${pct}%</span>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:3px">${restante > 0 ? `Faltam ${restante} ${m.unidade}` : '✅ Meta concluída!'}</div>
-      </div>`;
-    }).join('');
+    const catColorH = { 'Saúde':'tp', 'Finanças':'tg', 'Carreira':'tb', 'Pessoal':'tv', 'Educação':'ta', 'Outro':'tx' };
+    ht2.innerHTML = metasAnuais.map(m => `
+      <div class="ci" onclick="toggleMetaAnual(${m.id})" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border);gap:8px">
+        <div class="cb${m.done ? ' on' : ''}" style="flex-shrink:0">${m.done ? '✓' : ''}</div>
+        <span class="cl${m.done ? ' x' : ''}" style="flex:1;font-size:13px">${m.nome}</span>
+        <span class="tag ${catColorH[m.cat]||'ta'}" style="flex-shrink:0">${m.cat}</span>
+        ${m.prazo ? `<span style="font-size:10px;color:var(--text3);flex-shrink:0">até ${m.prazo}</span>` : ''}
+      </div>`).join('');
   }
 
   // Home Mapa Muscular
