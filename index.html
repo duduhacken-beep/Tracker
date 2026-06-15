@@ -1389,7 +1389,101 @@ body.dens-compact .gap{margin-bottom:14px}
     <button class="qa-btn" onclick="qaExercicio()"><span class="qi">🏋️</span>Treino</button>
   </div>
 
-  <!-- MOVIMENTAÇÃO DO MÊS -->
+  <!-- ALERTA DE GASTOS -->
+  <div id="alerta-gastos" style="display:none;background:var(--rdim);border:1px solid var(--red);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">⚠️</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTA DE DESCANSO -->
+  <div id="alerta-recovery" style="display:none;background:rgba(60,189,184,.1);border:1px solid var(--teal);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:22px;flex-shrink:0">🛌</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:var(--teal)" id="alerta-recovery-txt"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-recovery-sub"></div>
+      </div>
+      <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
+    </div>
+  </div>
+
+  <!-- INSIGHTS CARD -->
+  <div class="card gap" id="insights-card" style="border-left:3px solid var(--accent);display:none">
+    <div class="sh" style="margin-bottom:8px">
+      <h2 style="font-size:14px">✨ Insights da semana</h2>
+      <button class="ib" onclick="gerarInsights()" title="Atualizar">🔄</button>
+    </div>
+    <div id="insights-lista" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+    <!-- RESUMO DA SEMANA SEGUINTE -->
+  <div class="card gap" id="prox-semana-card" style="border-left:3px solid var(--teal)">
+    <div class="sh" style="margin-bottom:10px">
+      <h2 style="font-size:14px">📋 Esta semana</h2>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span id="prox-sem-range" style="font-size:10px;color:var(--text3);font-family:var(--f-mono)"></span>
+        <button class="btn btn-g btn-sm" onclick="gerarPDFProxSemana()" style="gap:5px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          PDF
+        </button>
+      </div>
+    </div>
+    <div id="prox-semana-content"></div>
+  </div>
+
+<!-- ROTINA -->
+  <div class="card gap">
+    <div class="sh">
+      <h2>📅 Hoje</h2>
+      <button class="btn btn-g btn-sm" onclick="go('rotina')">Ver tudo →</button>
+    </div>
+    <div id="h-rotina"></div>
+  </div>
+
+  <div class="card gap">
+    <div class="sh"><h2>✅ Tarefas pendentes</h2><button class="btn btn-g btn-sm" onclick="go('tarefas')">Ver tudo →</button></div>
+    <div id="h-tarefas"></div>
+  </div>
+
+  <div class="g2 gap">
+    <!-- FINANÇAS RÁPIDO -->
+    <div class="card">
+      <div class="sh"><h2>💰 Finanças</h2><button class="btn btn-g btn-sm" onclick="go('financas')">Ver tudo →</button></div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Saldo atual</div>
+          <div class="fin-saldo zero" id="h-saldo" style="font-size:28px">R$ 0,00</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Livre este mês</div>
+          <div id="h-livre" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--accent)">R$ 0,00</div>
+          <div class="pb" style="margin-top:5px"><div class="pf g" id="h-livre-pb" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <input type="number" id="h-fin-val" placeholder="Valor (R$)" step="0.01" min="0" style="flex:1">
+        <input type="text" id="h-fin-desc" placeholder="Descrição" style="flex:1.4" oninput="autoCatDespesa(this.value)">
+        <button class="btn btn-sm" style="background:var(--gdim);color:var(--green);border:1.5px solid var(--green);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('entrada')" title="Entrada">+</button>
+        <button class="btn btn-sm" style="background:var(--rdim);color:var(--red);border:1.5px solid var(--red);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('despesa')" title="Despesa">−</button>
+      </div>
+      <div id="h-fin-recent" style="margin-top:12px"></div>
+    </div>
+
+    <!-- METAS ANUAIS -->
+    <div class="card">
+      <div class="sh"><h2>🎯 Metas anuais</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
+      <div id="h-tracking"></div>
+    </div>
+  </div>
+
+
+
+<!-- MOVIMENTAÇÃO DO MÊS -->
   <div class="card gap" id="mov-card" style="border-left:3px solid var(--accent)">
     <div class="sh" style="margin-bottom:10px">
       <h2 style="font-size:14px">📈 Movimentação do mês</h2>
@@ -1401,18 +1495,6 @@ body.dens-compact .gap{margin-bottom:14px}
       </div>
     </div>
     <div id="mov-content"><div style="text-align:center;padding:16px 0;color:var(--text3);font-size:12px">Carregando cotações...</div></div>
-  </div>
-
-  <!-- DIVIDENDOS FII -->
-  <div class="card gap" id="div-fii-card" style="border-left:3px solid var(--green)">
-    <div class="sh" style="margin-bottom:10px">
-      <h2 style="font-size:14px">💰 Dividendos FII</h2>
-      <div style="display:flex;gap:4px;align-items:center">
-        <span id="div-fii-updated" style="font-size:10px;color:var(--text3);font-family:var(--f-mono);margin-right:4px"></span>
-        <button class="ib" onclick="atualizarDividendosFII(true)" title="Atualizar">🔄</button>
-      </div>
-    </div>
-    <div id="div-fii-content"><div style="text-align:center;padding:12px 0;color:var(--text3);font-size:12px">Carregando...</div></div>
   </div>
 
   <!-- POOLS DE LIQUIDEZ — botão -->
@@ -1447,226 +1529,7 @@ body.dens-compact .gap{margin-bottom:14px}
     <iframe id="lp-iframe" style="flex:1;width:100%;border:none;background:#0a0b0d" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe>
   </div>
 
-  <!-- MODAL CONFIG MOVIMENTAÇÃO -->
-  <div class="overlay" id="modal-mov-config">
-    <div class="modal" style="width:480px">
-      <h2>📈 Movimentação — Configurar</h2>
-
-      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-        Os tickers são lidos automaticamente das abas <strong>Ações BR</strong>, <strong>Stocks (BDRs)</strong>, <strong>FIIs</strong> e <strong>Cripto</strong> da sua planilha. A variação dos últimos 30 dias vem da brapi.dev.
-      </p>
-
-      <div class="fg">
-        <label>Token brapi.dev <span style="color:var(--red)">(obrigatório)</span></label>
-        <input id="mov-token" type="text" placeholder="Cole seu token aqui">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
-          Cadastro grátis em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> (login com Google). Copie a chave em "Chaves de API".
-        </div>
-      </div>
-
-      <div class="fg">
-        <label>ID da planilha</label>
-        <input id="mov-sheet-id" type="text" placeholder="ID do Google Sheets">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
-          ID extraído da URL <code style="background:var(--bg);padding:1px 4px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>{ID}</strong>/...</code>. A planilha precisa estar pública ("qualquer pessoa com link pode visualizar").
-        </div>
-      </div>
-
-      <div class="mfooter">
-        <button class="btn btn-g" onclick="$('modal-mov-config').classList.remove('on')">Cancelar</button>
-        <button class="btn btn-p" onclick="salvarConfigMov()">💾 Salvar e atualizar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL ATALHO TAREFA -->
-  <div class="overlay" id="modal-qa-tarefa">
-    <div class="modal" style="width:380px">
-      <h2>✅ Nova tarefa rápida</h2>
-      <div class="fg"><label>Tarefa</label><input id="qa-tarefa-input" type="text" placeholder="O que precisa fazer?"></div>
-      <div class="fg"><label>Prioridade</label>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-sm qa-prio on" data-p="a" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--rdim);color:var(--red);border:1px solid var(--red)">🔴 Alta</button>
-          <button class="btn btn-sm qa-prio"    data-p="m" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟡 Média</button>
-          <button class="btn btn-sm qa-prio"    data-p="b" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟢 Baixa</button>
-        </div>
-      </div>
-      <div class="mfooter">
-        <button class="btn btn-g" onclick="$('modal-qa-tarefa').classList.remove('on')">Cancelar</button>
-        <button class="btn btn-p" onclick="qaConfirmarTarefa()">Adicionar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL ATALHO GASTO -->
-  <div class="overlay" id="modal-qa-despesa">
-    <div class="modal" style="width:380px">
-      <h2>💸 Lançar gasto rápido</h2>
-      <div class="row">
-        <div class="fg"><label>Valor (R$)</label><input id="qa-desp-val" type="number" placeholder="0,00" step="0.01" min="0"></div>
-        <div class="fg" style="flex:2"><label>Descrição</label><input id="qa-desp-desc" type="text" placeholder="Ex: Almoço, Uber..." oninput="autoCatDespesa(this.value)"></div>
-      </div>
-      <div class="fg"><label>Categoria</label>
-        <select id="dep-cat-qa"><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Moradia</option><option>Roupas</option><option>Educação</option><option>Assinaturas</option><option>Outro</option></select>
-      </div>
-      <div class="mfooter">
-        <button class="btn btn-g" onclick="$('modal-qa-despesa').classList.remove('on')">Cancelar</button>
-        <button class="btn btn-p" onclick="qaConfirmarDespesa()">Lançar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL TEMAS -->
-  <div class="overlay" id="modal-temas">
-    <div class="modal" style="width:360px">
-      <h2>🎨 Tema de cor</h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
-        <button onclick="aplicarTema('')"     style="padding:14px;border-radius:var(--rs);border:2px solid #c9a84c;background:#c9a84c22;cursor:pointer;font-size:13px;font-weight:700;color:#c9a84c">Dourado</button>
-        <button onclick="aplicarTema('blue')"   style="padding:14px;border-radius:var(--rs);border:2px solid #5c8de0;background:#5c8de022;cursor:pointer;font-size:13px;font-weight:700;color:#5c8de0">Azul</button>
-        <button onclick="aplicarTema('green')"  style="padding:14px;border-radius:var(--rs);border:2px solid #4caf82;background:#4caf8222;cursor:pointer;font-size:13px;font-weight:700;color:#4caf82">Verde</button>
-        <button onclick="aplicarTema('purple')" style="padding:14px;border-radius:var(--rs);border:2px solid #9b72e0;background:#9b72e022;cursor:pointer;font-size:13px;font-weight:700;color:#9b72e0">Roxo</button>
-        <button onclick="aplicarTema('teal')"   style="padding:14px;border-radius:var(--rs);border:2px solid #3cbdb8;background:#3cbdb822;cursor:pointer;font-size:13px;font-weight:700;color:#3cbdb8">Teal</button>
-        <button onclick="aplicarTema('red')"    style="padding:14px;border-radius:var(--rs);border:2px solid #e05c6a;background:#e05c6a22;cursor:pointer;font-size:13px;font-weight:700;color:#e05c6a">Vermelho</button>
-      </div>
-      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="$('modal-temas').classList.remove('on')">Fechar</button>
-    </div>
-  </div>
-
-
-  <!-- INSIGHTS CARD -->
-  <div class="card gap" id="insights-card" style="border-left:3px solid var(--accent);display:none">
-    <div class="sh" style="margin-bottom:8px">
-      <h2 style="font-size:14px">✨ Insights da semana</h2>
-      <button class="ib" onclick="gerarInsights()" title="Atualizar">🔄</button>
-    </div>
-    <div id="insights-lista" style="display:flex;flex-direction:column;gap:8px"></div>
-  </div>
-
-  <!-- ALERTA DE GASTOS -->
-  <div id="alerta-gastos" style="display:none;background:var(--rdim);border:1px solid var(--red);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
-    <div style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:20px">⚠️</span>
-      <div>
-        <div style="font-size:13px;font-weight:700;color:var(--red)" id="alerta-gastos-txt"></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-gastos-sub"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ALERTA DE DESCANSO -->
-  <div id="alerta-recovery" style="display:none;background:rgba(60,189,184,.1);border:1px solid var(--teal);border-radius:var(--r);padding:12px 16px;margin-bottom:18px">
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:22px;flex-shrink:0">🛌</span>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:700;color:var(--teal)" id="alerta-recovery-txt"></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="alerta-recovery-sub"></div>
-      </div>
-      <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
-    </div>
-  </div>
-
-  <!-- AGENDA + ROTINA unificadas -->
-  <div class="card gap">
-    <div class="sh">
-      <h2>📅 Hoje</h2>
-      <button class="btn btn-g btn-sm" onclick="go('agenda')">Agenda →</button>
-    </div>
-    <!-- Eventos -->
-    <div id="h-agenda"></div>
-    <!-- Separador + Rotina -->
-    <div id="h-rotina-sep" style="display:none;height:1px;background:var(--border);margin:10px 0"></div>
-    <div id="h-rotina"></div>
-  </div>
-
-  <div class="g2 gap">
-    <!-- Tarefas -->
-    <div class="card">
-      <div class="sh"><h2>✅ Tarefas pendentes</h2></div>
-      <div id="h-tarefas"></div>
-    </div>
-    <!-- Diário rápido -->
-    <div class="card">
-      <div class="sh"><h2>📓 Diário rápido</h2></div>
-      <textarea id="h-diario-input" placeholder="Como está sendo seu dia? Pensamentos, reflexões..." style="min-height:90px;margin-bottom:10px"></textarea>
-      <button class="btn btn-p btn-sm" onclick="addDiarioRapido()">+ Registrar</button>
-      <div class="div"></div>
-      <div id="h-diario-preview"></div>
-    </div>
-  </div>
-
-  <div class="g2 gap">
-    <!-- FINANÇAS RÁPIDO -->
-    <div class="card">
-      <div class="sh"><h2>💰 Finanças</h2><button class="btn btn-g btn-sm" onclick="go('financas')">Ver tudo →</button></div>
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
-        <div>
-          <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Saldo atual</div>
-          <div class="fin-saldo zero" id="h-saldo" style="font-size:28px">R$ 0,00</div>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Livre este mês</div>
-          <div id="h-livre" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--accent)">R$ 0,00</div>
-          <div class="pb" style="margin-top:5px"><div class="pf g" id="h-livre-pb" style="width:0%"></div></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <input type="number" id="h-fin-val" placeholder="Valor (R$)" step="0.01" min="0" style="flex:1">
-        <input type="text" id="h-fin-desc" placeholder="Descrição" style="flex:1.4" oninput="autoCatDespesa(this.value)">
-        <button class="btn btn-sm" style="background:var(--gdim);color:var(--green);border:1.5px solid var(--green);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('entrada')" title="Entrada">+</button>
-        <button class="btn btn-sm" style="background:var(--rdim);color:var(--red);border:1.5px solid var(--red);font-size:16px;padding:6px 12px;font-weight:700" onclick="hFinLancar('despesa')" title="Despesa">−</button>
-      </div>
-      <div id="h-fin-recent" style="margin-top:12px"></div>
-    </div>
-
-    <!-- METAS ANUAIS -->
-    <div class="card">
-      <div class="sh"><h2>🎯 Metas anuais</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
-      <div id="h-tracking"></div>
-    </div>
-  </div>
-
-  <!-- RELATÓRIO SEMANAL -->
-  <div class="card gap" style="border-left:3px solid var(--purple)">
-    <div class="sh">
-      <h2>📄 Relatório semanal</h2>
-      <span id="relatorio-semana" style="font-size:11px;color:var(--text3)"></span>
-    </div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Gera um PDF com análise completa da semana: hábitos, treinos, humor, água, sono, finanças e insights.</p>
-
-    <!-- ANEXOS -->
-    <div style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px">📎 Anexos</span>
-        <label style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:5px 10px;font-size:11px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:5px;transition:all .15s" onmouseover="this.style.borderColor='var(--purple)';this.style.color='var(--purple)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-          + Adicionar arquivo
-          <input type="file" multiple accept="image/*,.pdf" style="display:none" onchange="adicionarAnexoRelatorio(this)">
-        </label>
-      </div>
-      <div id="relatorio-anexos-lista" style="display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-
-    <button class="btn btn-p" onclick="gerarRelatorio()" style="width:100%;justify-content:center;gap:8px">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Gerar relatório da semana
-    </button>
-  </div>
-
-  <!-- RESUMO DA SEMANA SEGUINTE -->
-  <div class="card gap" id="prox-semana-card" style="border-left:3px solid var(--teal)">
-    <div class="sh" style="margin-bottom:10px">
-      <h2 style="font-size:14px">📋 Esta semana</h2>
-      <div style="display:flex;gap:4px;align-items:center">
-        <span id="prox-sem-range" style="font-size:10px;color:var(--text3);font-family:var(--f-mono)"></span>
-        <button class="btn btn-g btn-sm" onclick="gerarPDFProxSemana()" style="gap:5px">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          PDF
-        </button>
-      </div>
-    </div>
-    <div id="prox-semana-content"></div>
-  </div>
-
-  <!-- MAPA MUSCULAR HOME -->
+    <!-- MAPA MUSCULAR HOME -->
   <div class="card gap">
     <div class="sh">
       <h2>🗺️ Mapa muscular</h2>
@@ -1757,6 +1620,94 @@ body.dens-compact .gap{margin-bottom:14px}
       </div>
     </div>
   </div>
+
+<!-- MODAL CONFIG MOVIMENTAÇÃO -->
+  <div class="overlay" id="modal-mov-config">
+    <div class="modal" style="width:480px">
+      <h2>📈 Movimentação — Configurar</h2>
+
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+        Os tickers são lidos automaticamente das abas <strong>Ações BR</strong>, <strong>Stocks (BDRs)</strong>, <strong>FIIs</strong> e <strong>Cripto</strong> da sua planilha. A variação dos últimos 30 dias vem da brapi.dev.
+      </p>
+
+      <div class="fg">
+        <label>Token brapi.dev <span style="color:var(--red)">(obrigatório)</span></label>
+        <input id="mov-token" type="text" placeholder="Cole seu token aqui">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
+          Cadastro grátis em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> (login com Google). Copie a chave em "Chaves de API".
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>ID da planilha</label>
+        <input id="mov-sheet-id" type="text" placeholder="ID do Google Sheets">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
+          ID extraído da URL <code style="background:var(--bg);padding:1px 4px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>{ID}</strong>/...</code>. A planilha precisa estar pública ("qualquer pessoa com link pode visualizar").
+        </div>
+      </div>
+
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="$('modal-mov-config').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="salvarConfigMov()">💾 Salvar e atualizar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ATALHO TAREFA -->
+  <div class="overlay" id="modal-qa-tarefa">
+    <div class="modal" style="width:380px">
+      <h2>✅ Nova tarefa rápida</h2>
+      <div class="fg"><label>Tarefa</label><input id="qa-tarefa-input" type="text" placeholder="O que precisa fazer?"></div>
+      <div class="fg"><label>Prioridade</label>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm qa-prio on" data-p="a" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--rdim);color:var(--red);border:1px solid var(--red)">🔴 Alta</button>
+          <button class="btn btn-sm qa-prio"    data-p="m" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟡 Média</button>
+          <button class="btn btn-sm qa-prio"    data-p="b" onclick="qaPrioSel(this)" style="flex:1;justify-content:center;background:var(--bg3);color:var(--text2);border:1px solid var(--border)">🟢 Baixa</button>
+        </div>
+      </div>
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="$('modal-qa-tarefa').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="qaConfirmarTarefa()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ATALHO GASTO -->
+  <div class="overlay" id="modal-qa-despesa">
+    <div class="modal" style="width:380px">
+      <h2>💸 Lançar gasto rápido</h2>
+      <div class="row">
+        <div class="fg"><label>Valor (R$)</label><input id="qa-desp-val" type="number" placeholder="0,00" step="0.01" min="0"></div>
+        <div class="fg" style="flex:2"><label>Descrição</label><input id="qa-desp-desc" type="text" placeholder="Ex: Almoço, Uber..." oninput="autoCatDespesa(this.value)"></div>
+      </div>
+      <div class="fg"><label>Categoria</label>
+        <select id="dep-cat-qa"><option>Alimentação</option><option>Transporte</option><option>Saúde</option><option>Lazer</option><option>Moradia</option><option>Roupas</option><option>Educação</option><option>Assinaturas</option><option>Outro</option></select>
+      </div>
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="$('modal-qa-despesa').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="qaConfirmarDespesa()">Lançar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TEMAS -->
+  <div class="overlay" id="modal-temas">
+    <div class="modal" style="width:360px">
+      <h2>🎨 Tema de cor</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+        <button onclick="aplicarTema('')"     style="padding:14px;border-radius:var(--rs);border:2px solid #c9a84c;background:#c9a84c22;cursor:pointer;font-size:13px;font-weight:700;color:#c9a84c">Dourado</button>
+        <button onclick="aplicarTema('blue')"   style="padding:14px;border-radius:var(--rs);border:2px solid #5c8de0;background:#5c8de022;cursor:pointer;font-size:13px;font-weight:700;color:#5c8de0">Azul</button>
+        <button onclick="aplicarTema('green')"  style="padding:14px;border-radius:var(--rs);border:2px solid #4caf82;background:#4caf8222;cursor:pointer;font-size:13px;font-weight:700;color:#4caf82">Verde</button>
+        <button onclick="aplicarTema('purple')" style="padding:14px;border-radius:var(--rs);border:2px solid #9b72e0;background:#9b72e022;cursor:pointer;font-size:13px;font-weight:700;color:#9b72e0">Roxo</button>
+        <button onclick="aplicarTema('teal')"   style="padding:14px;border-radius:var(--rs);border:2px solid #3cbdb8;background:#3cbdb822;cursor:pointer;font-size:13px;font-weight:700;color:#3cbdb8">Teal</button>
+        <button onclick="aplicarTema('red')"    style="padding:14px;border-radius:var(--rs);border:2px solid #e05c6a;background:#e05c6a22;cursor:pointer;font-size:13px;font-weight:700;color:#e05c6a">Vermelho</button>
+      </div>
+      <button class="btn btn-g" style="width:100%;justify-content:center" onclick="$('modal-temas').classList.remove('on')">Fechar</button>
+    </div>
+  </div>
+
+
+  
 </section>
 
 <!-- ════════════════ AGENDA ════════════════ -->
@@ -2862,7 +2813,6 @@ function reRenderAll() {
   renderAnexosRelatorio();
   renderLivros();
   atualizarMovimentacao(false);
-  atualizarDividendosFII(false);
 }
 
 // ──────────────────────────────────
@@ -2999,49 +2949,13 @@ function refreshHome() {
   if (pesoInp) pesoInp.value = pesoHoje || '';
   if (pesoSub) pesoSub.textContent = pesoHoje ? `último: ${pesoHoje} kg` : 'toque para registrar';
 
-  // Home Agenda — mostra eventos de hoje, ou o próximo evento futuro se não houver
-  const todosEventos = load('eventos', []).sort((a, b) => a.dt.localeCompare(b.dt));
-  const eventos = todosEventos.filter(e => e.dt.split('T')[0] === today());
-  const hag = $('h-agenda');
-  if (eventos.length) {
-    hag.innerHTML = eventos.map(e => `
-      <div class="evi${e.done ? ' done' : ''}">
-        <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
-        <div class="evi-t">${fmtDt(e.dt).split(' ')[1]}</div>
-        <div class="evi-info"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
-        <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
-      </div>`).join('');
-  } else {
-    const proximo = todosEventos.find(e => !e.done && e.dt > new Date(new Date() - 0).toLocaleString('sv').replace(' ','T').slice(0,16));
-    if (proximo) {
-      // Find all events on the same day as the next event
-      const proximoDia = proximo.dt.split('T')[0];
-      const eventosDia = todosEventos.filter(e => !e.done && e.dt.startsWith(proximoDia));
-      hag.innerHTML = `<div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">📅 ${proximoDia === today() ? 'Hoje' : 'Próximos eventos'} — ${fmtDateShort(proximoDia)}</div>` +
-        eventosDia.map(ev => {
-          const diasAte = Math.ceil((new Date(proximoDia) - new Date(today())) / 86400000);
-          const diasLabel = diasAte === 0 ? '' : diasAte === 1 ? '<span style="font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0">amanhã</span>' : `<span style="font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0">em ${diasAte}d</span>`;
-          return `<div class="evi">
-          <div class="evi-t" style="min-width:48px">${ev.dt.split('T')[1]?.slice(0,5)||''}</div>
-          <div class="evi-info" style="flex:1"><div class="evi-n">${ev.nome}</div><div class="evi-m"><span class="tag ${catColor[ev.cat]||'tb'}">${ev.cat}</span>${ev.notas ? ' · ' + ev.notas : ''}</div></div>
-          ${diasLabel}
-          <button class="ib edt" onclick="openEdit(${ev.id})">✏️</button>
-        </div>`;}).join('');
-    } else {
-      hag.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento agendado</div>';
-    }
-  }
-
   // Home Rotina — ordenada por período (manhã → tarde → noite → dia)
   const hr = $('h-rotina');
-  const sep = $('h-rotina-sep');
   const periodoOrder = { manha: 0, tarde: 1, noite: 2, dia: 3 };
   const habitosOrdenados = [...habitos].sort((a, b) => (periodoOrder[a.periodo] ?? 4) - (periodoOrder[b.periodo] ?? 4));
   if (!habitosOrdenados.length) {
     hr.innerHTML = '';
-    if (sep) sep.style.display = 'none';
   } else {
-    if (sep) sep.style.display = 'block';
     const allChecks = load('rot_checks', {});
     hr.innerHTML = `<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">🔄 Rotina de hoje</div>`
       + habitosOrdenados.map(h => {
@@ -3081,12 +2995,6 @@ function refreshHome() {
         </select>
       </div>
     </div>`).join('');
-
-  // Home diário preview
-  const dp = $('h-diario-preview');
-  const diarios = load('mente', []).filter(m => m.tipo === 'diario').slice(0, 2);
-  if (!diarios.length) dp.innerHTML = '<div style="font-size:12px;color:var(--text3)">Nenhuma entrada ainda hoje.</div>';
-  else dp.innerHTML = diarios.map(d => `<div class="je diary"><div class="jm"><span>${d.data} ${d.hora}</span></div><div class="jt">${d.texto}</div></div>`).join('');
 
   // Home Finanças
   const cfg = load('fin_cfg', {});
@@ -3135,9 +3043,7 @@ function refreshHome() {
   verificarAlertaGastos();
   verificarAlertaDescanso();
 
-  // Label semana no relatório
-  const rs = $('relatorio-semana');
-  if (rs) { const d7 = new Date(); d7.setDate(d7.getDate()-6); rs.textContent = `${d7.getDate()}/${d7.getMonth()+1} – ${new Date().getDate()}/${new Date().getMonth()+1}`; }
+
 
   // Próxima semana
   renderProxSemana();
@@ -3405,8 +3311,9 @@ function renderRotina() {
   const habitos = load('habitos', []);
   const checks = load('rot_checks', {})[t] || {};
   ['manha','tarde','noite','dia'].forEach(p => {
-    const list = habitos.filter(h => h.periodo === p);
     const cont = $('rot-' + p);
+    if (!cont) return; // não está na aba de rotina
+    const list = habitos.filter(h => h.periodo === p);
     if (!list.length) { cont.innerHTML = '<div class="empty" style="padding:12px 0">Nenhum hábito</div>'; return; }
     cont.innerHTML = list.map(h => `
       <div class="ci">
@@ -3924,8 +3831,9 @@ function renderRotina() {
   const habitos = load('habitos', []);
   const checks = load('rot_checks', {})[t] || {};
   ['manha','tarde','noite','dia'].forEach(p => {
-    const list = habitos.filter(h => h.periodo === p);
     const cont = $('rot-' + p);
+    if (!cont) return; // não está na aba de rotina
+    const list = habitos.filter(h => h.periodo === p);
     if (!list.length) { cont.innerHTML = '<div class="empty" style="padding:12px 0">Nenhum hábito</div>'; return; }
     cont.innerHTML = list.map(h => `
       <div class="ci">
@@ -5792,7 +5700,7 @@ function renderProxSemana() {
 
   // Semana atual: Dom a Sáb da semana corrente
   const hoje = new Date();
-  const dow = hoje.getDay(); // 0=dom
+  const dow = hoje.getDay();
   const domSemana = new Date(hoje); domSemana.setDate(hoje.getDate() - dow);
 
   const dias = [];
@@ -5807,10 +5715,9 @@ function renderProxSemana() {
     rangeEl.textContent = `${parseInt(d0)} ${mn[parseInt(m0)-1]} – ${parseInt(d6)} ${mn[parseInt(m6)-1]}`;
   }
 
+  const todayStr = today();
   const eventos = load('eventos', []);
-  const habitos = load('habitos', []);
   const tarefas = load('tarefas', []).filter(t => !t.done);
-  const nomeDia = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const nomeDiaFull = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
@@ -5819,44 +5726,46 @@ function renderProxSemana() {
 
   dias.forEach(dataStr => {
     const d = new Date(dataStr + 'T12:00:00');
-    const dow = d.getDay();
-    const evsDia = eventos.filter(e => e.dt.startsWith(dataStr) && !e.done)
+    const dowD = d.getDay();
+    const isHoje = dataStr === todayStr;
+    const isPast = dataStr < todayStr;
+    // Mostrar eventos done também (para poder ver o histórico da semana)
+    const evsDia = eventos.filter(e => e.dt.startsWith(dataStr))
                           .sort((a, b) => a.dt.localeCompare(b.dt));
-    const habsDia = habitos.filter(h => {
-      if (!h.dias || h.dias.length === 0) return true;
-      return h.dias.includes(dow);
-    });
     const tarefasDia = tarefas.filter(t => t.prazo === dataStr);
 
-    if (!evsDia.length && !tarefasDia.length) return; // só mostrar dias com algo
+    if (!evsDia.length && !tarefasDia.length) return;
     temConteudo = true;
 
     const [yy, mm, dd] = dataStr.split('-');
-    html += `<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:700;color:var(--text)">${nomeDiaFull[dow]}</span>
+    const diaLabel = isHoje ? ' · <span style="font-size:10px;color:var(--accent);font-weight:700">HOJE</span>' : '';
+    html += `<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);opacity:${isPast && !isHoje ? '.6' : '1'}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:700;color:${isHoje ? 'var(--accent)' : 'var(--text)'}">${nomeDiaFull[dowD]}</span>
         <span style="font-size:11px;color:var(--text3);font-family:var(--f-mono)">${parseInt(dd)} ${meses[parseInt(mm)-1]}</span>
+        ${diaLabel}
       </div>`;
 
-    // Eventos ordenados por hora
+    // Eventos com checkbox (usa toggleEvento que já persiste done)
     evsDia.forEach(ev => {
       const hora = ev.dt.split('T')[1]?.slice(0,5) || '';
-      html += `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:5px;padding:6px 8px;background:var(--bg3);border-radius:6px;border-left:2px solid var(--accent)">
-        ${hora ? `<span style="font-size:11px;font-weight:700;color:var(--accent);font-family:var(--f-mono);min-width:36px;flex-shrink:0">${hora}</span>` : ''}
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:600;color:var(--text)">${ev.nome}</div>
-          ${ev.notas ? `<div style="font-size:10px;color:var(--text3);margin-top:2px">${ev.notas}</div>` : ''}
+      html += `<div class="evi${ev.done ? ' done' : ''}" style="border-radius:6px;margin-bottom:4px;padding:8px 8px 8px 10px;border-left:2px solid ${ev.done ? 'var(--border)' : 'var(--accent)'}">
+        <div class="cb${ev.done ? ' on' : ''}" onclick="toggleEvento(${ev.id});renderProxSemana()" style="flex-shrink:0">${ev.done ? '✓' : ''}</div>
+        ${hora ? `<div class="evi-t" style="min-width:38px;font-size:11px">${hora}</div>` : ''}
+        <div class="evi-info" style="flex:1">
+          <div class="evi-n" style="font-size:12px">${ev.nome}</div>
+          ${ev.notas ? `<div class="evi-m">${ev.notas}</div>` : ''}
         </div>
-        <span class="tag ${catColor[ev.cat]||'tb'}" style="flex-shrink:0;font-size:9px">${ev.cat}</span>
+        <span class="tag ${catColor[ev.cat]||'tb'}" style="font-size:9px;flex-shrink:0">${ev.cat}</span>
       </div>`;
     });
 
     // Tarefas com prazo nesse dia
     tarefasDia.forEach(t => {
-      html += `<div style="display:flex;gap:8px;align-items:center;margin-bottom:5px;padding:5px 8px;background:var(--rdim);border-radius:6px;border-left:2px solid var(--red)">
-        <span style="font-size:10px">✅</span>
-        <span style="font-size:12px;color:var(--text)">${t.nome}</span>
-        <span style="font-size:10px;color:var(--red);font-weight:700;margin-left:auto">prazo</span>
+      html += `<div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;padding:5px 8px;background:var(--rdim);border-radius:6px;border-left:2px solid var(--red)">
+        <span style="font-size:11px;flex-shrink:0">📌</span>
+        <span style="font-size:12px;color:var(--text);flex:1">${t.nome}</span>
+        <span style="font-size:10px;color:var(--red);font-weight:700">prazo</span>
       </div>`;
     });
 
@@ -5864,7 +5773,7 @@ function renderProxSemana() {
   });
 
   if (!temConteudo) {
-    html = '<div class="empty"><div class="ei">📅</div>Nenhum evento ou prazo na próxima semana</div>';
+    html = '<div class="empty"><div class="ei">📅</div>Nenhum evento esta semana</div>';
   }
 
   cont.innerHTML = html;
@@ -7123,127 +7032,6 @@ function renderLivros() {
       </div>
     </div>`;
   }).join('');
-}
-
-// ══════════════════════════════════════════
-// DIVIDENDOS FII
-// ══════════════════════════════════════════
-async function atualizarDividendosFII(force) {
-  const cont = $('div-fii-content');
-  const upd  = $('div-fii-updated');
-  if (!cont) return;
-
-  // Cache de 6h
-  const CACHE_KEY = 'div_fii_cache';
-  const cacheRaw = localStorage.getItem(CACHE_KEY);
-  if (!force && cacheRaw) {
-    try {
-      const c = JSON.parse(cacheRaw);
-      if (c.ts && (Date.now() - c.ts) < 6 * 3600000) { _divRender(c.data, c.ts); return; }
-    } catch(e) {}
-  }
-
-  // Buscar tickers FII da planilha (reutiliza a mesma função do mov)
-  const token = localStorage.getItem('mov_token') || '';
-  if (!token) {
-    cont.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Configure o token brapi.dev nas ⚙️ configurações de Movimentação</div>';
-    return;
-  }
-  const sheetId = localStorage.getItem('mov_sheet_id') || MOV_SHEET_DEFAULT_ID;
-
-  cont.innerHTML = '<div style="text-align:center;padding:12px 0;color:var(--text3);font-size:12px"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Buscando dividendos...</div>';
-
-  let fiis = [];
-  try {
-    const { fiis: f } = await _movFetchTickersDaPlanilha(sheetId);
-    fiis = f;
-  } catch(e) { fiis = []; }
-
-  if (!fiis.length) {
-    cont.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Nenhum FII encontrado na planilha</div>';
-    return;
-  }
-
-  // Buscar dividendos de cada FII via brapi
-  const results = [];
-  const mesAtual = new Date().toISOString().slice(0, 7); // "YYYY-MM"
-  const mesAnterior = (() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); })();
-
-  for (const ticker of fiis) {
-    try {
-      const url = `https://brapi.dev/api/quote/${ticker}?modules=dividendsData&token=${encodeURIComponent(token)}`;
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const data = await res.json();
-      const item = (data.results || [])[0];
-      if (!item) continue;
-      const divs = (item.dividendsData?.cashDividends || []);
-      // Pegar o pagamento mais recente
-      const ultimo = divs.sort((a, b) => b.paymentDate?.localeCompare(a.paymentDate || '') || 0)[0];
-      if (!ultimo) continue;
-      const payDate = (ultimo.paymentDate || '').slice(0, 7);
-      const isMesAtual = payDate === mesAtual;
-      const isMesAnt = payDate === mesAnterior;
-      results.push({
-        ticker,
-        valor: ultimo.rate || 0,
-        data: ultimo.paymentDate || '',
-        isMesAtual,
-        isMesAnt,
-        price: item.regularMarketPrice || 0,
-      });
-      await new Promise(r => setTimeout(r, 150));
-    } catch(e) {}
-  }
-
-  const cache = { ts: Date.now(), data: results };
-  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  _divRender(results, cache.ts);
-}
-
-function _divRender(results, ts) {
-  const cont = $('div-fii-content');
-  const upd  = $('div-fii-updated');
-  if (!cont) return;
-  if (upd) {
-    const mins = Math.floor((Date.now() - ts) / 60000);
-    upd.textContent = mins < 1 ? 'agora' : mins < 60 ? `há ${mins}min` : `há ${Math.floor(mins/60)}h`;
-  }
-
-  const mesAtual = new Date().toISOString().slice(0, 7);
-  const mesAnterior = (() => { const d = new Date(); d.setMonth(d.getMonth() - 1); return d.toISOString().slice(0, 7); })();
-
-  // Separar mês atual e anterior
-  const doMes = results.filter(r => r.isMesAtual).sort((a, b) => b.valor - a.valor);
-  const doMesAnt = results.filter(r => r.isMesAnt).sort((a, b) => b.valor - a.valor);
-  const outros = results.filter(r => !r.isMesAtual && !r.isMesAnt);
-
-  const nomeMes = (ym) => { if (!ym) return ''; const [y, m] = ym.split('-'); const ns = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return `${ns[parseInt(m)-1]}/${y.slice(2)}`; };
-  const fmtBRLd = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.',',');
-
-  const renderGrupo = (arr, label, color) => {
-    if (!arr.length) return '';
-    const total = arr.reduce((s, r) => s + r.valor, 0);
-    return `
-      <div style="margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:${color};text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">${label} · total ${fmtBRLd(total)}/cota</div>
-        ${arr.map(r => `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:12px;font-weight:600;color:var(--text);font-family:var(--f-mono)">${r.ticker}</span>
-            <div style="display:flex;align-items:center;gap:10px">
-              ${r.price ? `<span style="font-size:10px;color:var(--text3)">${fmtBRLd(r.price)}</span>` : ''}
-              <span style="font-size:13px;font-weight:700;color:${color};font-family:var(--f-mono)">${fmtBRLd(r.valor)}</span>
-              ${r.price && r.valor ? `<span style="font-size:10px;color:var(--text3)">${((r.valor/r.price)*100).toFixed(2)}%</span>` : ''}
-            </div>
-          </div>`).join('')}
-      </div>`;
-  };
-
-  const html = renderGrupo(doMes, `📅 ${nomeMes(mesAtual)}`, 'var(--green)')
-             + renderGrupo(doMesAnt, `📅 ${nomeMes(mesAnterior)}`, 'var(--text2)')
-             + (outros.length ? `<div style="font-size:10px;color:var(--text3);margin-top:4px">${outros.map(r => r.ticker).join(', ')} — sem pagamento recente</div>` : '');
-
-  cont.innerHTML = html || '<div style="font-size:12px;color:var(--text3);text-align:center;padding:10px">Nenhum dividendo encontrado</div>';
 }
 
 // ══════════════════════════════════════════
