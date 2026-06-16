@@ -90,6 +90,17 @@
   /* MOTION */
   --ease:cubic-bezier(.22,.68,0,1.2);
   --ease-out:cubic-bezier(.25,.46,.45,.94);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+  --ease-cine:cubic-bezier(.16,1,.3,1);
+  --dur-1:120ms;
+  --dur-2:220ms;
+  --dur-3:380ms;
+  --dur-4:600ms;
+
+  /* ELEVATION — depth scale (foundation for future Hub) */
+  --shadow-1:0 1px 3px rgba(0,0,0,.3);
+  --shadow-2:0 4px 20px rgba(0,0,0,.35);
+  --shadow-3:0 20px 50px rgba(0,0,0,.5);
 }
 
 /* THEMES — change accent only */
@@ -152,12 +163,69 @@ h3{
 
 /* ── PAGES ── */
 .page{display:none}
-.page.on{display:block;animation:pageIn .38s var(--ease-out)}
+.page.on{display:block;animation:pageIn var(--dur-4) var(--ease-cine)}
 @keyframes pageIn{
-  from{opacity:0;transform:translateY(8px);filter:blur(3px)}
+  from{opacity:0;transform:translateY(10px) scale(.985);filter:blur(4px)}
   to{opacity:1;transform:none;filter:blur(0)}
 }
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* ── BOOT / INTRO ── */
+.boot{
+  position:fixed;inset:0;z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;
+  background:var(--bg);
+  overflow:hidden;
+}
+.boot-glow{
+  position:absolute;left:50%;top:50%;
+  width:480px;height:480px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--adim) 0%,transparent 70%);
+  opacity:0;
+  animation:bootGlowIn 1.4s var(--ease-cine) forwards;
+}
+.boot-mark{position:relative;opacity:0;animation:bootMarkIn .7s var(--ease-cine) .1s forwards}
+.boot-orbit{
+  stroke-dasharray:64;stroke-dashoffset:64;
+  animation:bootDraw .8s var(--ease-cine) .15s forwards;
+}
+.boot-core{
+  opacity:0;transform-origin:20px 20px;
+  animation:bootCoreIn .5s var(--ease-spring) .55s forwards;
+}
+.boot-word{
+  font-family:var(--f-serif);font-size:30px;letter-spacing:.02em;
+  color:var(--text);opacity:0;
+  animation:bootWordIn .6s var(--ease-cine) .45s forwards;
+}
+.boot-status{
+  font-family:var(--f-mono);font-size:11px;letter-spacing:.6px;
+  color:var(--text3);opacity:0;
+  animation:bootWordIn .6s var(--ease-cine) .7s forwards;
+}
+.boot-bar{
+  width:64px;height:2px;border-radius:2px;
+  background:var(--border-strong);overflow:hidden;
+  opacity:0;animation:bootWordIn .5s var(--ease-cine) .8s forwards;
+}
+.boot-bar-fill{
+  height:100%;width:0%;border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .4s var(--ease-out);
+}
+.boot.leaving{animation:bootOut .5s var(--ease-cine) forwards}
+.boot.gone{display:none}
+@keyframes bootGlowIn{from{opacity:0}to{opacity:1}}
+@keyframes bootMarkIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes bootDraw{to{stroke-dashoffset:0}}
+@keyframes bootCoreIn{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+@keyframes bootWordIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes bootOut{
+  from{opacity:1;filter:blur(0);transform:scale(1)}
+  to{opacity:0;filter:blur(6px);transform:scale(1.04)}
+}
 
 /* ── SIDEBAR ── */
 .sidebar{
@@ -207,14 +275,18 @@ h3{
   background:var(--adim);
   color:var(--accent);
 }
-.nb.on::before{
-  content:"";position:absolute;
-  left:-1px;top:50%;
-  transform:translateY(-50%);
+.nb.on svg{animation:navPop var(--dur-3) var(--ease-spring)}
+@keyframes navPop{0%{transform:scale(.78)}55%{transform:scale(1.18)}100%{transform:scale(1)}}
+.nav-indicator{
+  position:absolute;left:-1px;top:0;
   width:2px;height:24px;
   background:var(--accent);
   border-radius:0 3px 3px 0;
   box-shadow:0 0 10px var(--aglow);
+  transition:transform var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease-out);
+  opacity:0;
+  pointer-events:none;
+  z-index:1;
 }
 .nb svg{width:18px;height:18px;stroke-width:1.6}
 .nb span{
@@ -697,6 +769,91 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mll{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text2)}
 .mlld{width:10px;height:10px;border-radius:3px}
 
+/* MUSCLE MAP — figure alive */
+.figure-rig{
+  transform-box:fill-box;
+  transform-origin:50% 96%;
+  animation:idleAlive 4.6s ease-in-out infinite;
+}
+#rig-back,#rig-home-back{animation-delay:.35s}
+@keyframes idleAlive{
+  0%,100%{transform:translateY(0) rotate(0deg) scaleY(1)}
+  25%{transform:translateY(-1px) rotate(.4deg) scaleY(1.006)}
+  50%{transform:translateY(.5px) rotate(0deg) scaleY(1.012)}
+  75%{transform:translateY(-1px) rotate(-.4deg) scaleY(1.004)}
+}
+.ms.ms-hot{animation:muscleGlow 2.1s ease-in-out infinite}
+@keyframes muscleGlow{
+  0%,100%{filter:drop-shadow(0 0 0 transparent)}
+  50%{filter:drop-shadow(0 0 4px var(--orange))}
+}
+
+/* ── PULSO VITAL (Home) — grande, largura cheia ── */
+.pulse-band{
+  position:relative;
+  margin:24px 0 6px;
+  padding:18px 0 14px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.pulse-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:2px;
+  position:relative;z-index:2;
+}
+.pulse-label{
+  font-family:var(--f-mono);
+  font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.4px;
+  color:var(--text3);
+}
+.pulse-sub{
+  font-family:var(--f-serif);
+  font-size:26px;
+  color:var(--text);
+  transition:opacity .3s var(--ease-out);
+}
+.pulse-wrap{
+  position:relative;
+  width:100%;
+  height:150px;
+  transform:scaleY(var(--pulse-amp,1));
+  transform-origin:50% 50%;
+  transition:transform .6s var(--ease-out);
+}
+.pulse-glow-bg{
+  position:absolute;left:50%;top:50%;
+  width:70%;height:220%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse,var(--adim) 0%,transparent 70%);
+  opacity:.7;
+  pointer-events:none;
+}
+.pulse-svg{position:relative;z-index:1;display:block;width:100%;height:100%;overflow:visible}
+.pulse-track{
+  animation:pulseScroll var(--pulse-dur,3s) linear infinite;
+}
+.pulse-line{
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:3;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 0 8px var(--aglow)) drop-shadow(0 0 16px var(--adim));
+}
+@keyframes pulseScroll{from{transform:translateX(0)}to{transform:translateX(-400px)}}
+.pulse-live-dot{
+  position:absolute;right:2%;top:50%;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--accent);
+  transform:translate(50%,-50%);
+  box-shadow:0 0 10px var(--aglow),0 0 22px var(--adim);
+  animation:pulseLiveDot var(--pulse-dur,3s) linear infinite;
+  z-index:2;
+}
+@keyframes pulseLiveDot{0%,46%,56%,100%{opacity:.55;transform:translate(50%,-50%) scale(1)}50%{opacity:1;transform:translate(50%,-50%) scale(1.6)}}
+
 /* MUSCLE CHIPS */
 .mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .mc{
@@ -1007,6 +1164,8 @@ body.dens-compact .gap{margin-bottom:14px}
 /* ── MOBILE ── */
 @media(max-width:640px){
   :root{--sb:0px}
+  .pulse-wrap{height:100px}
+  .pulse-sub{font-size:19px}
   .sidebar{
     width:100%;height:64px;
     top:auto;bottom:0;left:0;right:0;
@@ -1022,6 +1181,11 @@ body.dens-compact .gap{margin-bottom:14px}
   }
   .sidebar::-webkit-scrollbar{display:none}
   .logo{display:none}
+  .nav-indicator{
+    left:0;top:auto;bottom:2px;
+    width:24px;height:2px;
+    border-radius:3px 3px 0 0;
+  }
   .nb{
     width:62px;height:64px;min-width:62px;
     border-radius:0;margin:0;
@@ -1279,8 +1443,33 @@ body.dens-compact .gap{margin-bottom:14px}
 </head>
 <body>
 
+<!-- BOOT / INTRO — plays on every load, like powering on a console -->
+<div class="boot" id="boot">
+  <div class="boot-glow"></div>
+  <svg class="boot-mark" viewBox="0 0 40 40" width="64" height="64" aria-hidden="true">
+    <ellipse class="boot-orbit" cx="20" cy="20" rx="14.5" ry="5.5" fill="none"
+      stroke="var(--text)" stroke-width="1.4" transform="rotate(-25 20 20)"/>
+    <circle class="boot-core" cx="20" cy="20" r="3.4" fill="var(--accent)"/>
+  </svg>
+  <div class="boot-word">EH</div>
+  <div class="boot-status" id="bootStatus">preparando seu painel</div>
+  <div class="boot-bar"><div class="boot-bar-fill" id="bootBarFill"></div></div>
+</div>
+<script>
+  // Rede de segurança independente: garante que o boot nunca trave o app
+  // mesmo se algum erro em outro lugar do código impedir o fluxo normal de finishBoot().
+  setTimeout(function () {
+    var b = document.getElementById('boot');
+    if (b && !b.classList.contains('gone')) {
+      b.classList.add('leaving');
+      setTimeout(function () { b.classList.add('gone'); }, 550);
+    }
+  }, 5000);
+</script>
+
 <!-- SIDEBAR -->
 <nav class="sidebar">
+  <div class="nav-indicator" id="navIndicator"></div>
   <div class="logo">
     <svg viewBox="0 0 40 40" width="36" height="36" style="display:block" aria-label="EH Tracker">
       <ellipse cx="20" cy="20" rx="14.5" ry="5.5" fill="none"
@@ -1433,6 +1622,23 @@ body.dens-compact .gap{margin-bottom:14px}
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
         <!-- Sync -->
         <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
+    </div>
+  </div>
+
+  <div class="pulse-band" id="pulseBand">
+    <div class="pulse-head">
+      <div class="pulse-label">pulso vital · hoje</div>
+      <div class="pulse-sub" id="pulseSub">começando o dia</div>
+    </div>
+    <div class="pulse-wrap" id="pulseWrap">
+      <div class="pulse-glow-bg"></div>
+      <svg class="pulse-svg" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
+        <g class="pulse-track" id="pulseTrack">
+          <path class="pulse-line" d="M0,80 L60,80 Q70,72 75,80 Q80,88 90,80 L150,80 L160,90 L168,14 L176,146 L184,80 L230,80 Q250,54 270,80 Q285,96 300,80 L400,80"/>
+          <path class="pulse-line" d="M400,80 L460,80 Q470,72 475,80 Q480,88 490,80 L550,80 L560,90 L568,14 L576,146 L584,80 L630,80 Q650,54 670,80 Q685,96 700,80 L800,80"/>
+        </g>
+      </svg>
+      <div class="pulse-live-dot" id="pulseLiveDot"></div>
     </div>
   </div>
 
@@ -1610,6 +1816,7 @@ body.dens-compact .gap{margin-bottom:14px}
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
           <span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Frente</span>
           <svg viewBox="0 0 120 280" width="72" style="overflow:visible">
+          <g class="figure-rig" id="rig-home-front">
             <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
               <ellipse cx="60" cy="16" rx="14" ry="16"/><rect x="54" y="30" width="12" height="10" rx="3"/>
               <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
@@ -1638,11 +1845,13 @@ body.dens-compact .gap{margin-bottom:14px}
             <path data-m="quadriceps" class="msh" d="M80 164 Q84 180 82 200 L74 200 Q74 178 76 164Z" fill="#252840"/>
             <path data-m="panturrilha" class="msh" d="M40 212 Q38 228 40 246 L52 246 Q52 228 44 212Z" fill="#252840"/>
             <path data-m="panturrilha" class="msh" d="M80 212 Q82 228 80 246 L68 246 Q68 228 76 212Z" fill="#252840"/>
+            </g>
           </svg>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
           <span style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Costas</span>
           <svg viewBox="0 0 120 280" width="72" style="overflow:visible">
+          <g class="figure-rig" id="rig-home-back">
             <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
               <ellipse cx="60" cy="16" rx="14" ry="16"/><rect x="54" y="30" width="12" height="10" rx="3"/>
               <path d="M32 42 Q20 50 18 70 L18 96 L20 118 L38 124 L40 148 L46 200 L36 250 L52 252 L60 228 L68 252 L84 250 L74 200 L80 148 L82 124 L100 118 L102 96 L102 70 Q100 50 88 42 Z"/>
@@ -1667,6 +1876,7 @@ body.dens-compact .gap{margin-bottom:14px}
             <path data-m="isquiotibiais" class="msh" d="M82 166 Q86 186 84 206 L70 206 Q70 186 76 166Z" fill="#252840"/>
             <path data-m="panturrilha" class="msh" d="M36 212 Q34 228 38 246 L50 246 Q48 228 42 212Z" fill="#252840"/>
             <path data-m="panturrilha" class="msh" d="M84 212 Q86 228 82 246 L70 246 Q72 228 78 212Z" fill="#252840"/>
+            </g>
           </svg>
         </div>
       </div>
@@ -1974,6 +2184,7 @@ body.dens-compact .gap{margin-bottom:14px}
       <div class="mmap-col">
         <div class="mmap-lbl">Frente</div>
         <svg id="svg-front" viewBox="0 0 120 280" width="130" style="overflow:visible">
+        <g class="figure-rig" id="rig-front">
           <!-- Silhouette front -->
           <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
             <!-- Head -->
@@ -2038,11 +2249,13 @@ body.dens-compact .gap{margin-bottom:14px}
           <!-- Calf (gastrocnemius) -->
           <path id="f-gast-l" class="ms" data-g="panturrilha" d="M44 212 Q42 226 44 244 L52 244 Q52 226 50 212Z" opacity=".55" fill="#252840"/>
           <path id="f-gast-r" class="ms" data-g="panturrilha" d="M76 212 Q78 226 76 244 L68 244 Q68 226 70 212Z" opacity=".55" fill="#252840"/>
+        </g>
         </svg>
       </div>
       <div class="mmap-col">
         <div class="mmap-lbl">Costas</div>
         <svg id="svg-back" viewBox="0 0 120 280" width="130" style="overflow:visible">
+        <g class="figure-rig" id="rig-back">
           <!-- Silhouette back -->
           <g fill="#1e2130" stroke="#2e3250" stroke-width="1">
             <ellipse cx="60" cy="16" rx="14" ry="16"/>
@@ -2098,6 +2311,7 @@ body.dens-compact .gap{margin-bottom:14px}
           <!-- Soleus -->
           <path id="b-sol-l" class="ms" data-g="panturrilha" d="M42 218 Q40 232 42 248 L50 248 Q50 232 48 218Z" opacity=".55" fill="#252840"/>
           <path id="b-sol-r" class="ms" data-g="panturrilha" d="M78 218 Q80 232 78 248 L70 248 Q70 232 72 218Z" opacity=".55" fill="#252840"/>
+        </g>
         </svg>
       </div>
     </div>
@@ -2957,12 +3171,34 @@ function fmtBRL(v) {
 // ──────────────────────────────────
 // NAVIGATION
 // ──────────────────────────────────
+function moveNavIndicator(btn) {
+  const ind = document.getElementById('navIndicator');
+  const sidebar = document.querySelector('.sidebar');
+  if (!ind || !sidebar || !btn) return;
+  const sbRect = sidebar.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const isMobile = window.innerWidth <= 640;
+  let x = 0, y = 0;
+  if (isMobile) {
+    x = btnRect.left - sbRect.left + (btnRect.width - 24) / 2;
+  } else {
+    y = btnRect.top - sbRect.top + (btnRect.height - 24) / 2;
+  }
+  ind.style.transform = `translate(${x}px, ${y}px)`;
+  ind.style.opacity = '1';
+}
+window.addEventListener('resize', () => {
+  const active = document.querySelector('.nb.on');
+  if (active) moveNavIndicator(active);
+});
+
 function go(p) {
   document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
   $('page-' + p).classList.add('on');
   const navBtn = $('n-' + p);
   navBtn.classList.add('on');
+  moveNavIndicator(navBtn);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
   if (p === 'home')     { refreshHome(); }
@@ -3011,6 +3247,25 @@ function refreshHome() {
   const pendentes = todasTarefas.filter(t => !t.done);
   animN('hs-tar', pendentes.length, { duration: 700 });
   $('hs-tar').closest('.stat').querySelector('.sub').textContent = 'tarefas abertas';
+
+  // Pulso vital — ritmo do dia (rotina + água + tarefas concluídas)
+  const rotinaRatio = habitos.length ? doneH / habitos.length : 0;
+  const aguaRatio = Math.min(1, aguaHoje / (aguaMeta || 2000));
+  const tarefasRatio = todasTarefas.length ? (todasTarefas.length - pendentes.length) / todasTarefas.length : 0;
+  const momentum = (rotinaRatio + aguaRatio + tarefasRatio) / 3;
+  const pulseBand = $('pulseBand');
+  if (pulseBand) {
+    const dur = (4.6 - momentum * 3).toFixed(2) + 's'; // 4.6s parado → 1.6s em chamas
+    pulseBand.style.setProperty('--pulse-dur', dur);
+    pulseBand.style.setProperty('--pulse-amp', (0.8 + momentum * 0.55).toFixed(2));
+    const sub = $('pulseSub');
+    if (sub) {
+      sub.textContent = momentum < 0.15 ? 'começando o dia'
+        : momentum < 0.4  ? 'ritmo leve'
+        : momentum < 0.7  ? 'bom ritmo'
+        : 'em chamas';
+    }
+  }
 
   // Peso rápido — pré-preencher com o valor de hoje se já registrado
   const pesoHoje = (load('corpo_d', {})[today()] || {}).peso;
@@ -3149,13 +3404,14 @@ function renderMapaHome() {
   const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiot.', panturrilha:'Panturrilha' };
   const homeContainer = $('home-mapa-svgs');
   if (homeContainer) {
-    homeContainer.querySelectorAll('.msh').forEach(el => { el.setAttribute('fill','#252840'); el.setAttribute('opacity','0.6'); });
+    homeContainer.querySelectorAll('.msh').forEach(el => { el.setAttribute('fill','#252840'); el.setAttribute('opacity','0.6'); el.classList.remove('ms-hot'); });
     Object.entries(freq).forEach(([muscle, count]) => {
       const ratio = count / maxFreq;
       const r = Math.round(37 + ratio*(230-37)), g = Math.round(42 + ratio*(110-42)), b2 = Math.round(56 + ratio*(30-56));
       homeContainer.querySelectorAll(`[data-m="${muscle}"]`).forEach(el => {
         el.setAttribute('fill', `rgb(${r},${g},${b2})`);
         el.setAttribute('opacity', '0.85');
+        el.classList.toggle('ms-hot', ratio >= 0.6);
       });
     });
   }
@@ -3720,6 +3976,7 @@ function updateMuscleDiagram() {
   document.querySelectorAll('#svg-front .ms, #svg-back .ms').forEach(el => {
     el.setAttribute('fill', '#252840');
     el.setAttribute('opacity', '0.7');
+    el.classList.remove('ms-hot');
   });
 
   Object.entries(muscleElems).forEach(([muscle, ids]) => {
@@ -3728,7 +3985,11 @@ function updateMuscleDiagram() {
     const color = muscleColor(ratio);
     ids.forEach(id => {
       const el = document.getElementById(id);
-      if (el) { el.setAttribute('fill', color); el.setAttribute('opacity', ratio > 0 ? '0.85' : '0.6'); }
+      if (el) {
+        el.setAttribute('fill', color);
+        el.setAttribute('opacity', ratio > 0 ? '0.85' : '0.6');
+        el.classList.toggle('ms-hot', ratio >= 0.6);
+      }
     });
   });
 
@@ -4088,6 +4349,7 @@ function delMente(id) {
 function renderHumor() {
   const list = load('mente', []).filter(m => m.tipo === 'humor');
   const cont = $('lista-humor');
+  if (!cont) return; // elemento não existe nesta versão da página — evita travar o init()
   if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">😊</div>Nenhum registro</div>'; return; }
   cont.innerHTML = list.slice(0, 20).map(m => `
     <div class="je humor">
@@ -6834,6 +7096,8 @@ function aplicarNavFavs() {
     const btn = $('n-' + p.id);
     if (btn) btn.style.display = favs.includes(p.id) ? '' : 'none';
   });
+  const active = document.querySelector('.nb.on');
+  if (active) requestAnimationFrame(() => moveNavIndicator(active));
 }
 
 function abrirNavConfig() {
@@ -7710,47 +7974,46 @@ document.addEventListener('keydown', function(e) {
   renderLivros();
   atualizarMovimentacao(false);
 
+  // BOOT — on-brand intro sequence (replaces old generic sync splash)
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MIN_BOOT_MS = reduceMotion ? 0 : 1300;
+  const bootEl = document.getElementById('boot');
+  const bootStatusEl = document.getElementById('bootStatus');
+  const bootBarEl = document.getElementById('bootBarFill');
+  const bootStart = Date.now();
+
+  const finishBoot = () => {
+    const elapsed = Date.now() - bootStart;
+    const wait = Math.max(0, MIN_BOOT_MS - elapsed);
+    if (bootBarEl) bootBarEl.style.width = '100%';
+    setTimeout(() => {
+      if (!bootEl) return;
+      bootEl.classList.add('leaving');
+      setTimeout(() => bootEl.classList.add('gone'), reduceMotion ? 0 : 520);
+    }, wait);
+  };
+
   // Supabase: if connected, pull first THEN render everything
   if (_sbReady) {
     setSyncStatus('syncing');
-    // Show a subtle loading overlay while pulling
-    const splash = document.createElement('div');
-    splash.id = 'sb-splash';
-    splash.style.cssText = 'position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden';
-    splash.innerHTML = `
-      <svg viewBox="0 0 60 60" width="60" height="60">
-        <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f97316"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>
-        <rect width="60" height="60" rx="14" fill="url(#sg)"/>
-        <text x="30" y="42" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="bold" fill="white">EH</text>
-      </svg>
-      <div style="font-size:13px;color:var(--text3)">Sincronizando dados...</div>
-      <div style="width:48px;height:3px;background:var(--border);border-radius:2px;overflow:hidden">
-        <div style="height:100%;width:40%;background:linear-gradient(90deg,#f97316,#ec4899,#a855f7);border-radius:2px;animation:sb-slide 1s ease-in-out infinite alternate"></div>
-      </div>`;
-    const style = document.createElement('style');
-    style.textContent = '@keyframes sb-slide{from{transform:translateX(-100%)}to{transform:translateX(250%)}}';
-    document.head.appendChild(style);
-    document.body.appendChild(splash);
-
-    const removeSplash = () => {
-      splash.style.transition = 'opacity .35s';
-      splash.style.opacity = '0';
-      setTimeout(() => { if (splash.parentNode) splash.remove(); }, 380);
-    };
+    if (bootStatusEl) bootStatusEl.textContent = 'sincronizando dados';
+    if (bootBarEl) bootBarEl.style.width = '55%';
     // Hard timeout: never block UI more than 4 seconds
-    const splashTimeout = setTimeout(() => { removeSplash(); subscribeRealtime(); }, 4000);
+    const splashTimeout = setTimeout(() => { finishBoot(); subscribeRealtime(); }, 4000);
     pullFromSupabase().then(got => {
       clearTimeout(splashTimeout);
       reRenderAll();
       subscribeRealtime();
-      removeSplash();
+      finishBoot();
     }).catch(() => {
       clearTimeout(splashTimeout);
       reRenderAll();
-      removeSplash();
+      finishBoot();
     });
   } else {
     setSyncStatus('off');
+    if (bootStatusEl) bootStatusEl.textContent = 'tudo pronto';
+    finishBoot();
   }
   updateSbStatusArea();
 
