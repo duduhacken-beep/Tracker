@@ -1823,15 +1823,6 @@ body.dens-compact .gap{margin-bottom:14px}
     </div>
   </div>
 
-  <!-- SPOTIFY -->
-  <div class="card gap" id="spotify-card" style="border-left:3px solid #1db954">
-    <div class="sh" style="margin-bottom:10px">
-      <h2 style="font-size:14px">🎵 Spotify</h2>
-      <button class="ib" id="spotify-trocar-btn" onclick="spotifyTrocar()" title="Trocar" style="display:none">⚙️</button>
-    </div>
-    <div id="spotify-embed-wrap"></div>
-  </div>
-
   <!-- INSIGHTS CARD -->
   <div class="card gap" id="insights-card" style="border-left:3px solid var(--accent);display:none">
     <div class="sh" style="margin-bottom:8px">
@@ -3437,7 +3428,7 @@ function go(p) {
   setupScrollReveal(p);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
-  if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); safeCall(renderSpotifyCard, 'renderSpotifyCard'); }
+  if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); }
   if (p === 'rotina')   { safeCall(renderRotina, 'renderRotina'); }
@@ -6167,56 +6158,8 @@ function renderRecordes() {
 
 
 // ══════════════════════════════════════════
-// SPOTIFY — card na Home
+// NEGÓCIOS — QUADRO KANBAN
 // ══════════════════════════════════════════
-function spotifyToEmbed(url) {
-  const m = String(url || '').match(/open\.spotify\.com\/(track|album|playlist|artist|episode|show)\/([a-zA-Z0-9]+)/);
-  if (!m) return null;
-  const type = m[1];
-  const height = (type === 'track' || type === 'episode') ? 152 : 352;
-  return { src: `https://open.spotify.com/embed/${type}/${m[2]}?utm_source=generator`, height, type };
-}
-
-function renderSpotifyCard() {
-  const wrap = $('spotify-embed-wrap');
-  const trocarBtn = $('spotify-trocar-btn');
-  if (!wrap) return;
-  const saved = load('spotify_embed', null);
-  if (saved && saved.src) {
-    wrap.innerHTML = `<iframe src="${saved.src}" width="100%" height="${saved.height}" frameborder="0"
-      allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-      loading="lazy" style="border-radius:12px;display:block"></iframe>`;
-    if (trocarBtn) trocarBtn.style.display = '';
-  } else {
-    wrap.innerHTML = `
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="spotify-url-inp" placeholder="Cole o link de uma faixa, álbum, playlist ou artista do Spotify..." style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')spotifySalvar()">
-        <button class="btn btn-p btn-sm" onclick="spotifySalvar()">Usar</button>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px">No Spotify: toque em "⋯" → Compartilhar → Copiar link, e cole aqui.</div>
-    `;
-    if (trocarBtn) trocarBtn.style.display = 'none';
-  }
-}
-
-function spotifySalvar() {
-  const inp = $('spotify-url-inp');
-  const raw = inp ? inp.value.trim() : '';
-  const embed = spotifyToEmbed(raw);
-  if (!embed) {
-    alert('Não consegui reconhecer esse link do Spotify. Copie o link de "Compartilhar" de uma faixa, álbum, playlist, artista ou episódio.');
-    return;
-  }
-  save('spotify_embed', embed);
-  renderSpotifyCard();
-}
-
-function spotifyTrocar() {
-  save('spotify_embed', null);
-  renderSpotifyCard();
-}
-
-
 const NEG_CORES = [
   { id:'teal',   v:'var(--teal)'   },
   { id:'blue',   v:'var(--blue)'   },
@@ -8762,7 +8705,6 @@ document.addEventListener('keydown', function(e) {
   safeCall(carregarTema, 'carregarTema');
   safeCall(aplicarNavFavs, 'aplicarNavFavs');
   safeCall(initParticles, 'initParticles');
-  safeCall(renderSpotifyCard, 'renderSpotifyCard');
   safeCall(atualizarKcalModeUI, 'atualizarKcalModeUI');
   safeCall(() => setupScrollReveal('home'), 'setupScrollReveal');
   safeCall(atualizarMetaHidratacaoAutomatica, 'atualizarMetaHidratacaoAutomatica');
