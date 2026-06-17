@@ -53,6 +53,8 @@
   --bg2:#0f1117;
   --bg3:#151820;
   --card:#111318;
+  --card-glass:rgba(19,22,29,.58);
+  --card-glass2:rgba(28,32,42,.5);
   --card2:#1a1d26;
   --border:#1e222e;
   --border-strong:#2a2f3e;
@@ -115,6 +117,18 @@ body.theme-orange { --accent:#fb923c; --accent2:#fdba74; --adim:rgba(251,146,60,
 *{box-sizing:border-box;margin:0;padding:0}
 *::selection{background:var(--aglow);color:var(--text)}
 html,body{background:var(--bg)}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 900px 600px at 12% -8%, var(--adim) 0%, transparent 60%),
+    radial-gradient(ellipse 700px 500px at 90% 18%, rgba(167,139,250,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 800px 700px at 50% 105%, var(--adim) 0%, transparent 55%);
+  opacity:.9;
+}
+.sidebar,.main{position:relative;z-index:1}
 body{
   color:var(--text);
   font-family:var(--f-sans);
@@ -230,7 +244,9 @@ h3{
 /* ── SIDEBAR ── */
 .sidebar{
   width:var(--sb);
-  background:var(--bg2);
+  background:rgba(15,17,23,.72);
+  backdrop-filter:blur(24px) saturate(140%);
+  -webkit-backdrop-filter:blur(24px) saturate(140%);
   border-right:1px solid var(--border-strong);
   display:flex;
   flex-direction:column;
@@ -311,26 +327,46 @@ h3{
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .gap{margin-bottom:22px}
 
-/* ── CARDS ── */
+/* ── CARDS — glassmorphism ── */
 .card{
-  background:var(--card);
+  background:var(--card-glass);
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
   border:1px solid var(--border);
   border-radius:var(--r);
   padding:22px;
-  transition:border-color .2s var(--ease-out), box-shadow .2s var(--ease-out);
+  position:relative;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035), 0 1px 2px rgba(0,0,0,.2);
+  transition:border-color .2s var(--ease-out), box-shadow .2s var(--ease-out), transform .2s var(--ease-out);
 }
-.card:hover{border-color:var(--border-strong);box-shadow:0 0 0 1px var(--border-strong)}
+.card::before{
+  content:"";
+  position:absolute;inset:0;
+  border-radius:inherit;
+  background:linear-gradient(165deg,rgba(255,255,255,.05) 0%,transparent 35%);
+  pointer-events:none;
+}
+.card:hover{border-color:var(--border-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 8px 28px rgba(0,0,0,.3), 0 0 0 1px var(--border-strong)}
 
 .stat{
-  background:var(--card);
+  background:var(--card-glass);
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
   border:1px solid var(--border);
   border-radius:var(--r);
   padding:20px 22px;
   position:relative;
   overflow:hidden;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035), 0 1px 2px rgba(0,0,0,.2);
   transition:all .25s var(--ease);
 }
-.stat:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.35),0 0 0 1px var(--adim)}
+.stat:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 8px 28px rgba(0,0,0,.35),0 0 0 1px var(--adim)}
+.stat::before{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(165deg,rgba(255,255,255,.05) 0%,transparent 35%);
+  pointer-events:none;
+}
 .stat::after{
   content:"";position:absolute;
   inset:0 0 auto 0;height:1px;
@@ -437,13 +473,12 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
   letter-spacing:-.005em;
 }
 .btn-p{
-  background:var(--accent);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#0e0d0c;
-  border-color:var(--accent);
+  border-color:transparent;
 }
 .btn-p:hover{
-  background:var(--accent2);
-  border-color:var(--accent2);
+  filter:brightness(1.08);
   transform:translateY(-2px);
   box-shadow:0 6px 20px var(--aglow), 0 2px 8px rgba(0,0,0,.4);
 }
@@ -686,7 +721,9 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .overlay.on{display:flex}
 .modal{
-  background:var(--card);
+  background:rgba(22,25,32,.78);
+  backdrop-filter:blur(28px) saturate(150%);
+  -webkit-backdrop-filter:blur(28px) saturate(150%);
   border:1px solid var(--border-strong);
   border-radius:var(--r);
   padding:30px;
@@ -788,71 +825,139 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
   50%{filter:drop-shadow(0 0 4px var(--orange))}
 }
 
-/* ── PULSO VITAL (Home) — grande, largura cheia ── */
-.pulse-band{
+/* ── SCROLL REVEAL ── */
+.reveal{
+  opacity:0;
+  transform:translateY(26px);
+  transition:opacity .7s var(--ease-cine), transform .7s var(--ease-cine);
+  will-change:opacity,transform;
+}
+.reveal-in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* ── KANBAN — NEGÓCIOS ── */
+.kanban-wrap{
+  display:flex;gap:14px;align-items:flex-start;
+  overflow-x:auto;padding-bottom:14px;
+  min-height:62vh;
+}
+.kanban-col{
+  flex:0 0 272px;width:272px;
+  background:var(--card-glass);
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:14px;
+  display:flex;flex-direction:column;
+  max-height:calc(100vh - 200px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.kanban-col-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;padding-bottom:10px;
+  border-bottom:2px solid var(--col-accent,var(--border-strong));
+  gap:8px;
+}
+.kanban-col-title{
+  font-size:13px;font-weight:700;color:var(--text);
+  display:flex;align-items:center;gap:7px;min-width:0;
+  cursor:text;
+}
+.kanban-col-dot{width:8px;height:8px;border-radius:50%;background:var(--col-accent,var(--text3));flex-shrink:0}
+.kanban-col-count{font-size:11px;color:var(--text3);font-family:var(--f-mono);flex-shrink:0}
+.kanban-col-del{flex-shrink:0;opacity:.5;transition:opacity .15s}
+.kanban-col-del:hover{opacity:1}
+.kanban-list{
+  flex:1;overflow-y:auto;
+  display:flex;flex-direction:column;gap:8px;
+  min-height:50px;
+  border-radius:var(--rs);
+  transition:background .15s;
+  scrollbar-width:none;
+}
+.kanban-list::-webkit-scrollbar{display:none}
+.kanban-list.drag-over{background:var(--adim)}
+.kanban-card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-left:3px solid var(--card-accent,var(--accent));
+  border-radius:var(--rs);
+  padding:10px 12px;
+  cursor:grab;
+  overflow:hidden;
+  transition:transform .15s var(--ease),box-shadow .15s var(--ease),border-color .15s,opacity .15s;
+}
+.kanban-card:hover{border-color:var(--border-strong);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.32)}
+.kanban-card.dragging{opacity:.35}
+.kanban-card-capa{
+  display:block;width:100%;height:120px;object-fit:cover;
+  margin:-10px -12px 10px -12px;
+  width:calc(100% + 24px);
+}
+.kanban-card-title{font-size:13px;font-weight:600;color:var(--text);word-break:break-word}
+.kanban-card-desc{font-size:11.5px;color:var(--text3);margin-top:4px;line-height:1.4;word-break:break-word;white-space:pre-line;max-height:60px;overflow:hidden}
+.kanban-add-card{
+  width:100%;text-align:left;background:transparent;
+  border:1px dashed var(--border-strong);border-radius:var(--rs);
+  padding:8px 10px;color:var(--text3);font-size:12px;cursor:pointer;
+  margin-top:8px;transition:color .15s,border-color .15s;
+}
+.kanban-add-card:hover{color:var(--accent);border-color:var(--accent)}
+.kanban-col-new{
+  flex:0 0 220px;width:220px;
+  background:transparent;
+  border:1px dashed var(--border-strong);
+  border-radius:var(--r);
+  padding:14px;
+  color:var(--text3);font-size:13px;font-weight:600;
+  cursor:pointer;text-align:center;
+  transition:color .15s,border-color .15s,background .15s;
+  align-self:flex-start;
+}
+.kanban-col-new:hover{color:var(--accent);border-color:var(--accent);background:var(--adim)}
+.neg-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s}
+.neg-swatch:hover{transform:scale(1.12)}
+.neg-swatch.sel{border-color:var(--text)}
+
+/* ── HERO COM PARTÍCULAS 3D (Home) ── */
+.home-hero{
   position:relative;
   margin:24px 0 6px;
-  padding:18px 0 14px;
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
+  height:230px;
   overflow:hidden;
+  border-radius:var(--r);
 }
-.pulse-head{
-  display:flex;align-items:baseline;justify-content:space-between;
-  margin-bottom:2px;
-  position:relative;z-index:2;
+.particles-canvas{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  z-index:0;
+  display:block;
 }
-.pulse-label{
-  font-family:var(--f-mono);
-  font-size:11px;font-weight:600;
-  text-transform:uppercase;letter-spacing:1.4px;
-  color:var(--text3);
-}
-.pulse-sub{
-  font-family:var(--f-serif);
-  font-size:26px;
-  color:var(--text);
-  transition:opacity .3s var(--ease-out);
-}
-.pulse-wrap{
-  position:relative;
-  width:100%;
-  height:150px;
-  transform:scaleY(var(--pulse-amp,1));
-  transform-origin:50% 50%;
-  transition:transform .6s var(--ease-out);
-}
-.pulse-glow-bg{
-  position:absolute;left:50%;top:50%;
-  width:70%;height:220%;
-  transform:translate(-50%,-50%);
-  background:radial-gradient(ellipse,var(--adim) 0%,transparent 70%);
-  opacity:.7;
+.hero-fg{
+  position:relative;z-index:1;
+  height:100%;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  padding-top:22px;
   pointer-events:none;
 }
-.pulse-svg{position:relative;z-index:1;display:block;width:100%;height:100%;overflow:visible}
-.pulse-track{
-  animation:pulseScroll var(--pulse-dur,3s) linear infinite;
+.hero-fg .hh{pointer-events:auto}
+.hero-momentum{
+  position:absolute;right:0;bottom:18px;z-index:1;
+  text-align:right;
+  pointer-events:none;
 }
-.pulse-line{
-  fill:none;
-  stroke:var(--accent);
-  stroke-width:3;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  filter:drop-shadow(0 0 8px var(--aglow)) drop-shadow(0 0 16px var(--adim));
+.hero-momentum .lbl{
+  font-family:var(--f-mono);font-size:10px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);
 }
-@keyframes pulseScroll{from{transform:translateX(0)}to{transform:translateX(-400px)}}
-.pulse-live-dot{
-  position:absolute;right:2%;top:50%;
-  width:10px;height:10px;border-radius:50%;
-  background:var(--accent);
-  transform:translate(50%,-50%);
-  box-shadow:0 0 10px var(--aglow),0 0 22px var(--adim);
-  animation:pulseLiveDot var(--pulse-dur,3s) linear infinite;
-  z-index:2;
+.hero-momentum .val{
+  font-family:var(--f-serif);font-size:20px;color:var(--text);
+  margin-top:2px;
+  transition:opacity .3s var(--ease-out);
 }
-@keyframes pulseLiveDot{0%,46%,56%,100%{opacity:.55;transform:translate(50%,-50%) scale(1)}50%{opacity:1;transform:translate(50%,-50%) scale(1.6)}}
 
 /* MUSCLE CHIPS */
 .mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -1164,8 +1269,9 @@ body.dens-compact .gap{margin-bottom:14px}
 /* ── MOBILE ── */
 @media(max-width:640px){
   :root{--sb:0px}
-  .pulse-wrap{height:100px}
-  .pulse-sub{font-size:19px}
+  .home-hero{height:170px}
+  .hero-fg{padding-top:14px}
+  .hero-momentum .val{font-size:16px}
   .sidebar{
     width:100%;height:64px;
     top:auto;bottom:0;left:0;right:0;
@@ -1503,6 +1609,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>Compras</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
+  <button class="nb" onclick="go('negocios')" id="n-negocios">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span>Negócios</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
   <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
@@ -1612,33 +1720,26 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ HOME ════════════════ -->
 <section class="page on" id="page-home">
-  <div class="hh">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <div class="hh-name">Eduardo Hackenhaar</div>
-        <div class="hh-greet" id="h-greet">Bom dia</div>
-        <div class="hh-date" id="h-date"></div>
+  <div class="home-hero" id="homeHero">
+    <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+    <div class="hero-fg">
+      <div class="hh">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="hh-name">Eduardo Hackenhaar</div>
+            <div class="hh-greet" id="h-greet">Bom dia</div>
+            <div class="hh-date" id="h-date"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <!-- Sync -->
+            <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
+          </div>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <!-- Sync -->
-        <div id="sync-status" title="Status de sincronização" onclick="go('backup')" style="cursor:pointer;display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border)"></div>
     </div>
-  </div>
-
-  <div class="pulse-band" id="pulseBand">
-    <div class="pulse-head">
-      <div class="pulse-label">pulso vital · hoje</div>
-      <div class="pulse-sub" id="pulseSub">começando o dia</div>
-    </div>
-    <div class="pulse-wrap" id="pulseWrap">
-      <div class="pulse-glow-bg"></div>
-      <svg class="pulse-svg" viewBox="0 0 400 160" preserveAspectRatio="none" aria-hidden="true">
-        <g class="pulse-track" id="pulseTrack">
-          <path class="pulse-line" d="M0,80 L60,80 Q70,72 75,80 Q80,88 90,80 L150,80 L160,90 L168,14 L176,146 L184,80 L230,80 Q250,54 270,80 Q285,96 300,80 L400,80"/>
-          <path class="pulse-line" d="M400,80 L460,80 Q470,72 475,80 Q480,88 490,80 L550,80 L560,90 L568,14 L576,146 L584,80 L630,80 Q650,54 670,80 Q685,96 700,80 L800,80"/>
-        </g>
-      </svg>
-      <div class="pulse-live-dot" id="pulseLiveDot"></div>
+    <div class="hero-momentum">
+      <div class="lbl">ritmo de hoje</div>
+      <div class="val" id="heroMomentumVal">começando o dia</div>
     </div>
   </div>
 
@@ -2175,6 +2276,17 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="card gap">
     <div class="sh"><h2>📋 Log de treinos (últimos 7 dias)</h2></div>
     <div id="ex-log"></div>
+  </div>
+
+  <!-- RECORDES PESSOAIS -->
+  <div class="card gap">
+    <div class="sh" style="margin-bottom:14px"><h2>🏆 Recordes pessoais</h2></div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <input id="rec-exercicio" type="text" placeholder="Exercício (ex: Supino reto)" style="flex:1;min-width:160px">
+      <input id="rec-nota" type="text" placeholder="Recorde / anotação (ex: 80kg x 6 reps)" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')addRecorde()">
+      <button class="btn btn-p" onclick="addRecorde()">+ Adicionar</button>
+    </div>
+    <div id="recordes-lista" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 
   <!-- MAPA MUSCULAR -->
@@ -2776,6 +2888,42 @@ body.dens-compact .gap{margin-bottom:14px}
   <div id="lv-categorias"></div>
 </section>
 
+<!-- ════════════════ NEGÓCIOS ════════════════ -->
+<section class="page" id="page-negocios">
+  <h1>💼 Negócios</h1><p class="psub">Fontes de renda e ideias de negócio — arraste os cartões entre as colunas</p>
+
+  <div class="kanban-wrap" id="kanban-wrap"></div>
+
+  <div class="overlay" id="modal-neg-card">
+    <div class="modal" style="width:420px">
+      <h2 id="neg-modal-titulo">Novo cartão</h2>
+      <input type="hidden" id="neg-card-id">
+      <input type="hidden" id="neg-card-col">
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px">Título</label>
+      <input type="text" id="neg-card-titulo-inp" placeholder="Ex: Loja de roupas vintage" style="margin-top:6px;margin-bottom:16px">
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px">Anotações</label>
+      <textarea id="neg-card-desc-inp" placeholder="Detalhes, próximos passos, números..." style="margin-top:6px;margin-bottom:16px;width:100%;min-height:90px;resize:vertical;font-family:var(--f-sans);font-size:13px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text)"></textarea>
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px">Capa</label>
+      <input type="hidden" id="neg-card-capa">
+      <div id="neg-capa-preview-wrap" style="display:none;margin-top:8px;margin-bottom:10px;position:relative">
+        <img id="neg-capa-preview" style="width:100%;max-height:140px;object-fit:cover;border-radius:var(--rs);display:block">
+        <button class="ib del" onclick="negCapaRemover()" title="Remover capa" style="position:absolute;top:6px;right:6px;background:rgba(10,12,16,.7)">×</button>
+      </div>
+      <input type="file" accept="image/*" id="neg-capa-input" onchange="negCapaUpload(event)" style="display:none">
+      <button class="btn btn-g btn-sm" onclick="$('neg-capa-input').click()" style="margin-top:8px;margin-bottom:16px">🖼️ Escolher imagem</button>
+      <label style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px">Cor</label>
+      <div id="neg-color-swatches" style="display:flex;gap:8px;margin-top:8px;margin-bottom:22px"></div>
+      <div class="mfooter" style="justify-content:space-between">
+        <button class="ib del" id="neg-card-del-btn" onclick="negCardDel()" title="Excluir">×</button>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-g" onclick="$('modal-neg-card').classList.remove('on')">Cancelar</button>
+          <button class="btn btn-p" onclick="negCardSave()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ════════════════ BACKUP ════════════════ -->
 <section class="page" id="page-backup">
   <h1>☁️ Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
@@ -3199,27 +3347,161 @@ function go(p) {
   const navBtn = $('n-' + p);
   navBtn.classList.add('on');
   moveNavIndicator(navBtn);
+  setupScrollReveal(p);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
-  if (p === 'home')     { refreshHome(); }
-  if (p === 'agenda')   { renderAgenda(); }
-  if (p === 'rotina')   { renderRotina(); }
-  if (p === 'tarefas')  { renderTarefas(); }
-  if (p === 'corpo')    { loadCorpoDiario(); updateMuscleDiagram(); renderExLog(); renderAguaDisplay(); renderHistorico(); renderMapaHome(); renderHistChart(); renderTemplates(); }
-  if (p === 'mente')    { renderGrat(); renderDiario(); }
-  if (p === 'evolucao') { renderMetasAnuais(); renderMetasTracking(); renderConquistas(); }
-  if (p === 'games')    { renderGames(); }
-  if (p === 'cursos')   { renderCursos(); }
-  if (p === 'receitas') { renderReceitas(); }
-  if (p === 'compras')  { renderCompras(); }
-  if (p === 'financas') { renderFinancas(); }
-  if (p === 'livros')   { renderLivros(); }
-  if (p === 'backup')   { bkStats(); }
+  if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
+  else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
+  if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); }
+  if (p === 'rotina')   { safeCall(renderRotina, 'renderRotina'); }
+  if (p === 'tarefas')  { safeCall(renderTarefas, 'renderTarefas'); }
+  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(updateMuscleDiagram,'updateMuscleDiagram'); safeCall(renderExLog,'renderExLog'); safeCall(renderAguaDisplay,'renderAguaDisplay'); safeCall(renderHistorico,'renderHistorico'); safeCall(renderMapaHome,'renderMapaHome'); safeCall(renderHistChart,'renderHistChart'); safeCall(renderTemplates,'renderTemplates'); safeCall(renderRecordes,'renderRecordes'); }
+  if (p === 'mente')    { safeCall(renderGrat,'renderGrat'); safeCall(renderDiario,'renderDiario'); }
+  if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); safeCall(renderMetasTracking,'renderMetasTracking'); safeCall(renderConquistas,'renderConquistas'); }
+  if (p === 'games')    { safeCall(renderGames, 'renderGames'); }
+  if (p === 'cursos')   { safeCall(renderCursos, 'renderCursos'); }
+  if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
+  if (p === 'compras')  { safeCall(renderCompras, 'renderCompras'); }
+  if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
+  if (p === 'negocios') { safeCall(renderNegocios, 'renderNegocios'); }
+  if (p === 'livros')   { safeCall(renderLivros, 'renderLivros'); }
+  if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
+}
+
+function safeCall(fn, label) {
+  try { fn(); } catch (e) { console.error('Falha em ' + label + ':', e); }
 }
 
 // ──────────────────────────────────
 // HOME
 // ──────────────────────────────────
+// ──────────────────────────────────
+// SCROLL REVEAL — aplica a todas as páginas automaticamente
+// ──────────────────────────────────
+const _revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('reveal-in');
+      _revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+function setupScrollReveal(pageId) {
+  const page = document.getElementById('page-' + pageId);
+  if (!page) return;
+  const items = Array.from(page.children).filter(el =>
+    el.nodeType === 1 && !el.classList.contains('reveal-done') && !el.classList.contains('overlay')
+  );
+  items.forEach((el, i) => {
+    el.classList.add('reveal', 'reveal-done');
+    el.style.transitionDelay = Math.min(i * 70, 350) + 'ms';
+    _revealObserver.observe(el);
+  });
+}
+
+// ──────────────────────────────────
+// PARTÍCULAS — HOME HERO (Canvas 2D puro, sem dependências externas)
+// ──────────────────────────────────
+const _particles = { ctx: null, canvas: null, hero: null, list: [], raf: null, running: false, momentum: 0, reduceMotion: false, w: 0, h: 0, dpr: 1 };
+
+function initParticles() {
+  try {
+    const canvas = document.getElementById('particlesCanvas');
+    const hero = document.getElementById('homeHero');
+    if (!canvas || !hero) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    _particles.canvas = canvas;
+    _particles.ctx = ctx;
+    _particles.hero = hero;
+    _particles.reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const N = 70;
+    _particles.list = Array.from({ length: N }, () => {
+      const depth = Math.random();              // 0 = longe, 1 = perto
+      return {
+        x: Math.random(), y: Math.random(),       // posição relativa 0..1
+        depth,
+        r: 0.6 + depth * 1.8,                      // raio em px-base
+        vx: (Math.random() - 0.5) * (0.04 + depth * 0.08),
+        vy: (Math.random() - 0.5) * (0.04 + depth * 0.08),
+      };
+    });
+
+    resizeParticles();
+    window.addEventListener('resize', resizeParticles);
+    drawParticlesFrame();
+    if (!_particles.reduceMotion) startParticleLoop();
+  } catch (e) { console.error('initParticles falhou:', e); }
+}
+
+function resizeParticles() {
+  try {
+    const { canvas, hero } = _particles;
+    if (!canvas || !hero) return;
+    const w = hero.clientWidth || 800, h = hero.clientHeight || 230;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    _particles.w = w; _particles.h = h; _particles.dpr = dpr;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    _particles.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawParticlesFrame();
+  } catch (e) { console.error('resizeParticles falhou:', e); }
+}
+
+function drawParticlesFrame() {
+  const { ctx, w, h, list, momentum } = _particles;
+  if (!ctx) return;
+  ctx.clearRect(0, 0, w, h);
+  const accent = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#22d3a0';
+  const baseOpacity = 0.3 + momentum * 0.5;
+  list.forEach(p => {
+    const alpha = (0.25 + p.depth * 0.65) * baseOpacity;
+    ctx.beginPath();
+    ctx.arc(p.x * w, p.y * h, p.r * (1 + momentum * 0.3), 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(accent, alpha);
+    ctx.fill();
+  });
+}
+
+function hexToRgba(hex, alpha) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const r = parseInt(hex.substr(0, 2), 16) || 34;
+  const g = parseInt(hex.substr(2, 2), 16) || 211;
+  const b = parseInt(hex.substr(4, 2), 16) || 160;
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function _particleTick() {
+  if (!_particles.running) return;
+  try {
+    const speedMul = 0.5 + _particles.momentum * 1.5;
+    _particles.list.forEach(p => {
+      p.x += p.vx * 0.01 * speedMul;
+      p.y += p.vy * 0.01 * speedMul;
+      if (p.x < -0.05) p.x = 1.05; if (p.x > 1.05) p.x = -0.05;
+      if (p.y < -0.05) p.y = 1.05; if (p.y > 1.05) p.y = -0.05;
+    });
+    drawParticlesFrame();
+  } catch (e) { console.error('particleTick falhou:', e); stopParticleLoop(); return; }
+  _particles.raf = requestAnimationFrame(_particleTick);
+}
+
+function startParticleLoop() {
+  if (!_particles.ctx || _particles.running || _particles.reduceMotion) return;
+  _particles.running = true;
+  _particleTick();
+}
+function stopParticleLoop() {
+  _particles.running = false;
+  if (_particles.raf) cancelAnimationFrame(_particles.raf);
+}
+
+
 function refreshHome() {
   const d = new Date();
   const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
@@ -3248,23 +3530,19 @@ function refreshHome() {
   animN('hs-tar', pendentes.length, { duration: 700 });
   $('hs-tar').closest('.stat').querySelector('.sub').textContent = 'tarefas abertas';
 
-  // Pulso vital — ritmo do dia (rotina + água + tarefas concluídas)
+  // Partículas do hero — ritmo do dia (rotina + água + tarefas concluídas)
   const rotinaRatio = habitos.length ? doneH / habitos.length : 0;
   const aguaRatio = Math.min(1, aguaHoje / (aguaMeta || 2000));
   const tarefasRatio = todasTarefas.length ? (todasTarefas.length - pendentes.length) / todasTarefas.length : 0;
   const momentum = (rotinaRatio + aguaRatio + tarefasRatio) / 3;
-  const pulseBand = $('pulseBand');
-  if (pulseBand) {
-    const dur = (4.6 - momentum * 3).toFixed(2) + 's'; // 4.6s parado → 1.6s em chamas
-    pulseBand.style.setProperty('--pulse-dur', dur);
-    pulseBand.style.setProperty('--pulse-amp', (0.8 + momentum * 0.55).toFixed(2));
-    const sub = $('pulseSub');
-    if (sub) {
-      sub.textContent = momentum < 0.15 ? 'começando o dia'
-        : momentum < 0.4  ? 'ritmo leve'
-        : momentum < 0.7  ? 'bom ritmo'
-        : 'em chamas';
-    }
+  _particles.momentum = momentum;
+  if (_particles.reduceMotion && _particles.ctx) drawParticlesFrame();
+  const heroVal = $('heroMomentumVal');
+  if (heroVal) {
+    heroVal.textContent = momentum < 0.15 ? 'começando o dia'
+      : momentum < 0.4  ? 'ritmo leve'
+      : momentum < 0.7  ? 'bom ritmo'
+      : 'em chamas';
   }
 
   // Peso rápido — pré-preencher com o valor de hoje se já registrado
@@ -5717,8 +5995,255 @@ function renderTemplates() {
 }
 
 // ══════════════════════════════════════════
-// CORRELAÇÃO AUTOMÁTICA
+// RECORDES PESSOAIS
 // ══════════════════════════════════════════
+function addRecorde() {
+  const exIn = $('rec-exercicio');
+  const notaIn = $('rec-nota');
+  const exercicio = exIn.value.trim();
+  const nota = notaIn.value.trim();
+  if (!exercicio || !nota) { exIn.focus(); return; }
+  const lista = load('recordes', []);
+  lista.unshift({ id: Date.now(), exercicio, nota, data: localDateStr(new Date()) });
+  save('recordes', lista);
+  exIn.value = ''; notaIn.value = '';
+  exIn.focus();
+  renderRecordes();
+}
+
+function delRecorde(id) {
+  save('recordes', load('recordes', []).filter(r => r.id !== id));
+  renderRecordes();
+}
+
+function renderRecordes() {
+  const cont = $('recordes-lista');
+  if (!cont) return;
+  const lista = load('recordes', []);
+  if (!lista.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏆</div>Nenhum recorde anotado ainda</div>'; return; }
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  cont.innerHTML = lista.map(r => `
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(r.exercicio)}</div>
+        <div style="font-size:12.5px;color:var(--accent);margin-top:2px">${esc(r.nota)}</div>
+      </div>
+      <div style="font-size:10.5px;color:var(--text3);font-family:var(--f-mono);flex-shrink:0">${r.data ? r.data.slice(8,10)+'/'+r.data.slice(5,7) : ''}</div>
+      <button class="ib del" onclick="delRecorde(${r.id})" title="Remover">×</button>
+    </div>`).join('');
+}
+
+
+// ══════════════════════════════════════════
+// NEGÓCIOS — QUADRO KANBAN
+// ══════════════════════════════════════════
+const NEG_CORES = [
+  { id:'teal',   v:'var(--teal)'   },
+  { id:'blue',   v:'var(--blue)'   },
+  { id:'green',  v:'var(--green)'  },
+  { id:'orange', v:'var(--orange)' },
+  { id:'purple', v:'var(--purple)' },
+  { id:'red',    v:'var(--red)'    },
+];
+let _negSelectedColor = 'teal';
+let _negDragCardId = null;
+
+function getNegBoard() {
+  return load('negocios_board', {
+    colunas: [
+      { id:'col-ideias',   nome:'Ideias' },
+      { id:'col-validando',nome:'Validando' },
+      { id:'col-ativo',    nome:'Ativo' },
+      { id:'col-pausado',  nome:'Pausado' },
+    ],
+    cards: []
+  });
+}
+function saveNegBoard(board) { save('negocios_board', board); }
+
+function renderNegocios() {
+  const wrap = $('kanban-wrap');
+  if (!wrap) return;
+  const board = getNegBoard();
+  wrap.innerHTML = board.colunas.map(col => {
+    const cards = board.cards.filter(c => c.colId === col.id).sort((a,b) => a.order - b.order);
+    return `
+    <div class="kanban-col" data-col="${col.id}">
+      <div class="kanban-col-head">
+        <div class="kanban-col-title">
+          <span class="kanban-col-dot"></span>
+          <span ondblclick="negColRename('${col.id}')" title="Duplo clique para renomear">${col.nome}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="kanban-col-count">${cards.length}</span>
+          <button class="ib del kanban-col-del" onclick="negColDel('${col.id}')" title="Excluir coluna">×</button>
+        </div>
+      </div>
+      <div class="kanban-list" data-col="${col.id}"
+           ondragover="negDragOver(event)" ondragleave="negDragLeave(event)" ondrop="negDrop(event,'${col.id}')">
+        ${cards.map(c => `
+          <div class="kanban-card" draggable="true" data-id="${c.id}"
+               style="--card-accent:${(NEG_CORES.find(x=>x.id===c.cor)||NEG_CORES[0]).v}"
+               ondragstart="negDragStart(event,${c.id})" ondragend="negDragEnd(event)"
+               onclick="negCardOpen(${c.id})">
+            ${c.capa ? `<img src="${c.capa}" class="kanban-card-capa">` : ''}
+            <div class="kanban-card-title">${negEsc(c.titulo)}</div>
+            ${c.desc ? `<div class="kanban-card-desc">${negEsc(c.desc)}</div>` : ''}
+          </div>`).join('')}
+      </div>
+      <button class="kanban-add-card" onclick="negCardOpen(null,'${col.id}')">+ Novo cartão</button>
+    </div>`;
+  }).join('') + `<div class="kanban-col-new" onclick="negColAdd()">+ Nova coluna</div>`;
+}
+
+function negEsc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function negColAdd() {
+  const nome = prompt('Nome da nova coluna:');
+  if (!nome || !nome.trim()) return;
+  const board = getNegBoard();
+  board.colunas.push({ id:'col-' + Date.now(), nome: nome.trim() });
+  saveNegBoard(board);
+  renderNegocios();
+}
+function negColRename(colId) {
+  const board = getNegBoard();
+  const col = board.colunas.find(c => c.id === colId);
+  if (!col) return;
+  const novo = prompt('Renomear coluna:', col.nome);
+  if (!novo || !novo.trim()) return;
+  col.nome = novo.trim();
+  saveNegBoard(board);
+  renderNegocios();
+}
+function negColDel(colId) {
+  const board = getNegBoard();
+  const cards = board.cards.filter(c => c.colId === colId);
+  if (!confirm(cards.length ? `Excluir coluna e ${cards.length} cartão(ões)?` : 'Excluir esta coluna?')) return;
+  board.colunas = board.colunas.filter(c => c.id !== colId);
+  board.cards = board.cards.filter(c => c.colId !== colId);
+  saveNegBoard(board);
+  renderNegocios();
+}
+
+function negCardOpen(cardId, colId) {
+  const board = getNegBoard();
+  const card = cardId ? board.cards.find(c => c.id === cardId) : null;
+  $('neg-modal-titulo').textContent = card ? 'Editar cartão' : 'Novo cartão';
+  $('neg-card-id').value = card ? card.id : '';
+  $('neg-card-col').value = card ? card.colId : colId;
+  $('neg-card-titulo-inp').value = card ? card.titulo : '';
+  $('neg-card-desc-inp').value = card ? card.desc : '';
+  $('neg-card-capa').value = card && card.capa ? card.capa : '';
+  negCapaAtualizarPreview();
+  _negSelectedColor = card ? card.cor : 'teal';
+  $('neg-card-del-btn').style.visibility = card ? 'visible' : 'hidden';
+  $('neg-color-swatches').innerHTML = NEG_CORES.map(c => `
+    <div class="neg-swatch ${c.id===_negSelectedColor?'sel':''}" data-c="${c.id}"
+         style="background:${c.v}" onclick="negPickColor('${c.id}')"></div>`).join('');
+  $('modal-neg-card').classList.add('on');
+  setTimeout(() => $('neg-card-titulo-inp').focus(), 50);
+}
+function negCapaAtualizarPreview() {
+  const val = $('neg-card-capa').value;
+  $('neg-capa-preview-wrap').style.display = val ? 'block' : 'none';
+  if (val) $('neg-capa-preview').src = val;
+}
+function negCapaUpload(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 480;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      $('neg-card-capa').value = dataUrl;
+      negCapaAtualizarPreview();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  ev.target.value = '';
+}
+function negCapaRemover() {
+  $('neg-card-capa').value = '';
+  negCapaAtualizarPreview();
+}
+function negPickColor(id) {
+  _negSelectedColor = id;
+  $('neg-color-swatches').querySelectorAll('.neg-swatch').forEach(el => el.classList.toggle('sel', el.dataset.c === id));
+}
+function negCardSave() {
+  const titulo = $('neg-card-titulo-inp').value.trim();
+  if (!titulo) { $('neg-card-titulo-inp').focus(); return; }
+  const desc = $('neg-card-desc-inp').value.trim();
+  const capa = $('neg-card-capa').value;
+  const idRaw = $('neg-card-id').value;
+  const colId = $('neg-card-col').value;
+  const board = getNegBoard();
+  if (idRaw) {
+    const card = board.cards.find(c => c.id === Number(idRaw));
+    if (card) { card.titulo = titulo; card.desc = desc; card.cor = _negSelectedColor; card.capa = capa; }
+  } else {
+    const maxOrder = Math.max(0, ...board.cards.filter(c => c.colId === colId).map(c => c.order || 0));
+    board.cards.push({ id: Date.now(), colId, titulo, desc, cor: _negSelectedColor, capa, order: maxOrder + 1 });
+  }
+  saveNegBoard(board);
+  $('modal-neg-card').classList.remove('on');
+  renderNegocios();
+}
+function negCardDel() {
+  const idRaw = $('neg-card-id').value;
+  if (!idRaw) return;
+  if (!confirm('Excluir este cartão?')) return;
+  const board = getNegBoard();
+  board.cards = board.cards.filter(c => c.id !== Number(idRaw));
+  saveNegBoard(board);
+  $('modal-neg-card').classList.remove('on');
+  renderNegocios();
+}
+
+function negDragStart(ev, cardId) {
+  _negDragCardId = cardId;
+  ev.target.classList.add('dragging');
+  ev.dataTransfer.effectAllowed = 'move';
+}
+function negDragEnd(ev) { ev.target.classList.remove('dragging'); }
+function negDragOver(ev) { ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+function negDragLeave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+function negDrop(ev, colId) {
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('drag-over');
+  if (_negDragCardId == null) return;
+  const board = getNegBoard();
+  const card = board.cards.find(c => c.id === _negDragCardId);
+  if (!card) return;
+
+  // Determina posição de inserção pela posição Y do ponteiro entre os cartões existentes
+  const listEl = ev.currentTarget;
+  const cardEls = Array.from(listEl.querySelectorAll('.kanban-card:not(.dragging)'));
+  let insertBefore = null;
+  for (const el of cardEls) {
+    const r = el.getBoundingClientRect();
+    if (ev.clientY < r.top + r.height / 2) { insertBefore = Number(el.dataset.id); break; }
+  }
+  const destCards = board.cards.filter(c => c.colId === colId && c.id !== card.id).sort((a,b) => a.order - b.order);
+  card.colId = colId;
+  const idx = insertBefore != null ? destCards.findIndex(c => c.id === insertBefore) : destCards.length;
+  destCards.splice(idx < 0 ? destCards.length : idx, 0, card);
+  destCards.forEach((c, i) => { c.order = i; });
+  saveNegBoard(board);
+  _negDragCardId = null;
+  renderNegocios();
+}
+
 function gerarCorrelacoes() {
   const semanas = 8; // últimas 8 semanas
   const resultados = [];
@@ -7059,6 +7584,7 @@ function aplicarTema(nome) {
   if (nome) document.body.classList.add('theme-' + nome);
   save('tema_cor', nome);
   $('modal-temas').classList.remove('on');
+  if (_particles.ctx) drawParticlesFrame();
 }
 
 function carregarTema() {
@@ -7083,11 +7609,14 @@ const ALL_PAGES = [
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'compras',  label:'Compras',   icon:'🛒' },
   { id:'financas', label:'Finanças',  icon:'💰' },
+  { id:'negocios', label:'Negócios',  icon:'💼' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
 ];
 
 function getNavFavs() {
-  return load('nav_favs', ['home','agenda','rotina','tarefas','corpo','mente','financas']);
+  const favs = load('nav_favs', ['home','agenda','rotina','tarefas','corpo','mente','financas','negocios']);
+  if (!favs.includes('negocios')) { favs.push('negocios'); save('nav_favs', favs); }
+  return favs;
 }
 
 function aplicarNavFavs() {
@@ -7941,38 +8470,40 @@ document.addEventListener('keydown', function(e) {
 // INIT
 // ──────────────────────────────────
 (function init() {
-  refreshHome();
-  renderAgenda();
-  renderRotina();
-  renderTarefas();
-  loadCorpoDiario();
-  renderAguaDisplay();
-  renderExLog();
-  updateMuscleDiagram();
-  renderHistorico();
-  renderHistChart();
-  renderHumor();
-  renderGrat();
-  renderDiario();
-  renderMetasAnuais();
-  renderMetasTracking();
-  renderConquistas();
-  renderGames();
-  renderCursos();
-  renderReceitas();
-  renderCompras();
-  renderFinancas();
+  safeCall(refreshHome, 'refreshHome');
+  safeCall(renderAgenda, 'renderAgenda');
+  safeCall(renderRotina, 'renderRotina');
+  safeCall(renderTarefas, 'renderTarefas');
+  safeCall(loadCorpoDiario, 'loadCorpoDiario');
+  safeCall(renderAguaDisplay, 'renderAguaDisplay');
+  safeCall(renderExLog, 'renderExLog');
+  safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
+  safeCall(renderHistorico, 'renderHistorico');
+  safeCall(renderHistChart, 'renderHistChart');
+  safeCall(renderHumor, 'renderHumor');
+  safeCall(renderGrat, 'renderGrat');
+  safeCall(renderDiario, 'renderDiario');
+  safeCall(renderMetasAnuais, 'renderMetasAnuais');
+  safeCall(renderMetasTracking, 'renderMetasTracking');
+  safeCall(renderConquistas, 'renderConquistas');
+  safeCall(renderGames, 'renderGames');
+  safeCall(renderCursos, 'renderCursos');
+  safeCall(renderReceitas, 'renderReceitas');
+  safeCall(renderCompras, 'renderCompras');
+  safeCall(renderFinancas, 'renderFinancas');
   // Automações no início
-  carregarTema();
-  aplicarNavFavs();
-  atualizarMetaHidratacaoAutomatica();
-  verificarAlertaGastos();
-  verificarAlertaDescanso();
-  renderTemplates();
-  renderGratDiaria();
-  renderAnexosRelatorio();
-  renderLivros();
-  atualizarMovimentacao(false);
+  safeCall(carregarTema, 'carregarTema');
+  safeCall(aplicarNavFavs, 'aplicarNavFavs');
+  safeCall(initParticles, 'initParticles');
+  safeCall(() => setupScrollReveal('home'), 'setupScrollReveal');
+  safeCall(atualizarMetaHidratacaoAutomatica, 'atualizarMetaHidratacaoAutomatica');
+  safeCall(verificarAlertaGastos, 'verificarAlertaGastos');
+  safeCall(verificarAlertaDescanso, 'verificarAlertaDescanso');
+  safeCall(renderTemplates, 'renderTemplates');
+  safeCall(renderGratDiaria, 'renderGratDiaria');
+  safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
+  safeCall(renderLivros, 'renderLivros');
+  safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
 
   // BOOT — on-brand intro sequence (replaces old generic sync splash)
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
