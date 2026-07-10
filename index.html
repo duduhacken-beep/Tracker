@@ -1631,6 +1631,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span>Cursos</span></button>
   <button class="nb" onclick="go('livros')" id="n-livros">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg><span>Livros</span></button>
+  <button class="nb" onclick="go('filmes')" id="n-filmes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 8h5M2 16h5M17 8h5M17 16h5"/></svg><span>Filmes</span></button>
   <button class="nb" onclick="go('receitas')" id="n-receitas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('compras')" id="n-compras">
@@ -1668,9 +1670,18 @@ body.dens-compact .gap{margin-bottom:14px}
     <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:10px">
       <h3 style="margin-bottom:8px">Adicionar exercício ao template</h3>
       <div class="row">
-        <div class="fg" style="flex:2"><label>Exercício</label><input id="tpl-ex-nome" type="text" placeholder="Supino, Agachamento..."></div>
-        <div class="fg"><label>Séries × Reps</label><input id="tpl-ex-sr" type="text" placeholder="4x10"></div>
+        <div class="fg" style="flex:2"><label>Exercício</label><input id="tpl-ex-nome" type="text" placeholder="Supino, Agachamento..." list="tpl-ex-preset"><datalist id="tpl-ex-preset"></datalist></div>
+        <div class="fg"><label>Séries × Reps</label><input id="tpl-ex-sr" type="text" placeholder="4x10" oninput="estimarKcalTemplate()"></div>
         <div class="fg"><label>Carga (kg)</label><input id="tpl-ex-kg" type="number" placeholder="60"></div>
+      </div>
+      <div class="row">
+        <div class="fg"><label>Duração (min)</label><input id="tpl-ex-dur" type="number" placeholder="45" oninput="estimarKcalTemplate()"></div>
+        <div class="fg"><label>Kcal estimadas</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="tpl-ex-kcal" type="number" placeholder="—" step="1" style="flex:1">
+            <span style="font-size:10px;color:var(--text3);white-space:nowrap" id="tpl-ex-kcal-hint"></span>
+          </div>
+        </div>
       </div>
       <div class="fg"><label>Músculos</label>
         <div class="mchips" id="tpl-mc-sel">
@@ -2938,7 +2949,35 @@ body.dens-compact .gap{margin-bottom:14px}
   <div id="lv-categorias"></div>
 </section>
 
+<!-- ════════════════ FILMES ════════════════ -->
+<section class="page" id="page-filmes">
+  <h1>🎬 300 Filmes Essenciais</h1>
+  <p class="psub">Filmes e sagas que todo mundo precisa assistir — marque conforme for gabaritando</p>
+
+  <div class="g3 gap">
+    <div class="stat c-gold"><div class="lbl">Assistidos</div><div class="val" id="fm-assistidos">0</div><div class="sub">de 300 filmes</div></div>
+    <div class="stat c-green"><div class="lbl">Progresso</div><div class="val" id="fm-pct">0%</div><div class="sub">da lista completa</div></div>
+    <div class="stat c-purple"><div class="lbl">Gênero favorito</div><div class="val" id="fm-cat" style="font-size:18px">—</div><div class="sub">categoria mais assistida</div></div>
+  </div>
+
+  <div class="card gap" style="border-left:3px solid var(--accent)">
+    <div class="sh">
+      <h2>Sua jornada cinéfila</h2>
+      <span style="font-size:11px;color:var(--text3);font-family:var(--f-mono)" id="fm-prog-txt">0 / 300</span>
+    </div>
+    <div class="pb" style="height:8px"><div class="pf" id="fm-pb" style="width:0%"></div></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="filmesFiltrar('todos')" id="fm-f-todos" style="border-color:var(--accent);color:var(--accent)">Todos</button>
+      <button class="btn btn-g btn-sm" onclick="filmesFiltrar('assistidos')" id="fm-f-assistidos">Assistidos</button>
+      <button class="btn btn-g btn-sm" onclick="filmesFiltrar('nao-assistidos')" id="fm-f-nao">Não assistidos</button>
+    </div>
+  </div>
+
+  <div id="fm-categorias"></div>
+</section>
+
 <!-- ════════════════ NEGÓCIOS ════════════════ -->
+
 <section class="page" id="page-negocios">
   <h1>💼 Negócios</h1><p class="psub">Fontes de renda e ideias de negócio — arraste os cartões entre as colunas</p>
 
@@ -3281,7 +3320,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3322,6 +3361,7 @@ function reRenderAll() {
   renderFinancas();
   renderAnexosRelatorio();
   renderLivros();
+  renderFilmes();
   atualizarMovimentacao(false);
 }
 
@@ -3443,6 +3483,7 @@ function go(p) {
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'negocios') { safeCall(renderNegocios, 'renderNegocios'); }
   if (p === 'livros')   { safeCall(renderLivros, 'renderLivros'); }
+  if (p === 'filmes')   { safeCall(renderFilmes, 'renderFilmes'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
 }
 
@@ -5594,7 +5635,7 @@ function renderHistChart() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','livros_lidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -6039,6 +6080,54 @@ function abrirModalTemplate(id) {
   document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
 }
 
+// Popula o autocomplete do template com a mesma base de exercícios do registro diário
+(function popularTplPreset() {
+  const dl = $('tpl-ex-preset');
+  if (!dl) return;
+  exPresets.forEach(e => { const o = document.createElement('option'); o.value = e; dl.appendChild(o); });
+})();
+
+function pesoCorporalEstimado() {
+  const dados = load('corpo_d', {});
+  const datas = Object.keys(dados).sort();
+  for (let i = datas.length - 1; i >= 0; i--) {
+    const p = parseFloat(dados[datas[i]].peso);
+    if (p) return p;
+  }
+  return 75;
+}
+
+function estimarKcalTemplate() {
+  const nome = ($('tpl-ex-nome').value || '').toLowerCase();
+  const met = exMET[nome] || 5;
+  const pesoCorpo = pesoCorporalEstimado();
+  let durMin = parseFloat($('tpl-ex-dur').value) || 0;
+
+  if (!durMin) {
+    const sets = parseSeries($('tpl-ex-sr').value);
+    if (sets) durMin = sets * 2.5;
+  }
+  if (!durMin) { $('tpl-ex-kcal').value = ''; $('tpl-ex-kcal-hint').textContent = ''; return; }
+
+  const kcal = Math.round(met * pesoCorpo * (durMin / 60));
+  $('tpl-ex-kcal').value = kcal;
+  $('tpl-ex-kcal-hint').textContent = `MET ${met} · ${pesoCorpo}kg · ${durMin.toFixed(0)}min`;
+}
+
+// Auto-seleciona músculos e estima duração/kcal a partir do nome do exercício
+$('tpl-ex-nome').addEventListener('change', function() {
+  const key = this.value.toLowerCase();
+  const muscles = exToMuscle[key] || [];
+  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => {
+    c.classList.toggle('on', muscles.includes(c.dataset.m));
+  });
+  if (!$('tpl-ex-dur').value) {
+    const durMap = { corrida: 30, ciclismo: 45, natação: 45, 'jiu jitsu': 90, basquete: 60 };
+    if (durMap[key]) $('tpl-ex-dur').value = durMap[key];
+  }
+  estimarKcalTemplate();
+});
+
 function renderTplExList() {
   const cont = $('tpl-exercicios-lista');
   if (!cont) return;
@@ -6048,7 +6137,7 @@ function renderTplExList() {
     <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px">
       <div style="flex:1">
         <div style="font-size:12px;font-weight:600">${e.nome}</div>
-        <div style="font-size:10px;color:var(--text3)">${[e.sr,e.kg?e.kg+'kg':''].filter(Boolean).join(' · ')} ${e.musculos?.map(m=>muscLabels[m]||m).join(', ')}</div>
+        <div style="font-size:10px;color:var(--text3)">${[e.sr,e.kg?e.kg+'kg':'',e.kcal?'🔥'+e.kcal+' kcal':''].filter(Boolean).join(' · ')} ${e.musculos?.map(m=>muscLabels[m]||m).join(', ')}</div>
       </div>
       <button class="ib del" onclick="_tplExs.splice(${i},1);renderTplExList()">×</button>
     </div>`).join('');
@@ -6057,13 +6146,17 @@ function renderTplExList() {
 function adicionarExAoTemplate() {
   const nome = $('tpl-ex-nome').value.trim();
   if (!nome) { $('tpl-ex-nome').focus(); return; }
+  let musculos = [...document.querySelectorAll('#tpl-mc-sel .mc.on')].map(c=>c.dataset.m);
+  if (!musculos.length) musculos = exToMuscle[nome.toLowerCase()] || []; // fallback caso o auto-select não tenha disparado
   _tplExs.push({
     nome,
     sr: $('tpl-ex-sr').value,
     kg: $('tpl-ex-kg').value,
-    musculos: [...document.querySelectorAll('#tpl-mc-sel .mc.on')].map(c=>c.dataset.m)
+    dur: parseFloat($('tpl-ex-dur').value) || 0,
+    kcal: parseInt($('tpl-ex-kcal').value) || 0,
+    musculos
   });
-  $('tpl-ex-nome').value=''; $('tpl-ex-sr').value=''; $('tpl-ex-kg').value='';
+  $('tpl-ex-nome').value=''; $('tpl-ex-sr').value=''; $('tpl-ex-kg').value=''; $('tpl-ex-dur').value=''; $('tpl-ex-kcal').value=''; $('tpl-ex-kcal-hint').textContent='';
   document.querySelectorAll('#tpl-mc-sel .mc').forEach(c=>c.classList.remove('on'));
   renderTplExList();
 }
@@ -6090,9 +6183,19 @@ function delTemplate(id) {
 function lancarTemplate(id) {
   const tpl = (load('treino_templates',[])).find(t=>t.id===id);
   if (!tpl) return;
-  // Add all exercises to the queue
+  const pesoCorpo = pesoCorporalEstimado();
+  // Add all exercises to the queue, recalculando kcal/músculos quando o template não os tiver salvo (templates antigos)
   tpl.exercicios.forEach(e => {
-    treinoFila.push({ nome:e.nome, sr:e.sr, kg:e.kg, dur:0, kcal:0, musculos:e.musculos||[], notas:'' });
+    const key = (e.nome||'').toLowerCase();
+    let dur = e.dur || 0;
+    let kcal = e.kcal || 0;
+    let musculos = (e.musculos && e.musculos.length) ? e.musculos : (exToMuscle[key] || []);
+    if (!kcal) {
+      const met = exMET[key] || 5;
+      if (!dur) { const sets = parseSeries(e.sr); if (sets) dur = sets * 2.5; }
+      if (dur) kcal = Math.round(met * pesoCorpo * (dur / 60));
+    }
+    treinoFila.push({ nome:e.nome, sr:e.sr, kg:e.kg, dur, kcal, musculos, notas:'' });
   });
   renderTreinoFila();
   go('corpo');
@@ -7807,6 +7910,7 @@ const ALL_PAGES = [
   { id:'games',    label:'Games',     icon:'🎮' },
   { id:'cursos',   label:'Cursos',    icon:'📚' },
   { id:'livros',   label:'Livros',    icon:'📖' },
+  { id:'filmes',   label:'Filmes',    icon:'🎬' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'compras',  label:'Compras',   icon:'🛒' },
   { id:'financas', label:'Finanças',  icon:'💰' },
@@ -8091,6 +8195,418 @@ function renderLivros() {
               <span style="color:var(--text3);font-size:12px;margin-left:6px">— ${l.a}</span>
             </span>
             <span style="font-size:10px;color:var(--text3);font-family:var(--f-mono)">#${l.id}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// FILMES — 300 essenciais com checklist
+// ══════════════════════════════════════════
+const FILMES_300 = [
+  // Clássicos & Fundamentais
+  {id:1, n:'Cidadão Kane (1941)', a:'Orson Welles', c:'Clássicos & Fundamentais'},
+  {id:2, n:'Casablanca (1942)', a:'Michael Curtiz', c:'Clássicos & Fundamentais'},
+  {id:3, n:'E o Vento Levou (1939)', a:'Victor Fleming', c:'Clássicos & Fundamentais'},
+  {id:4, n:'2001: Uma Odisseia no Espaço (1968)', a:'Stanley Kubrick', c:'Clássicos & Fundamentais'},
+  {id:5, n:'Um Estranho no Ninho (1975)', a:'Milos Forman', c:'Clássicos & Fundamentais'},
+  {id:6, n:'Laranja Mecânica (1971)', a:'Stanley Kubrick', c:'Clássicos & Fundamentais'},
+  {id:7, n:'O Iluminado (1980)', a:'Stanley Kubrick', c:'Clássicos & Fundamentais'},
+  {id:8, n:'Psicose (1960)', a:'Alfred Hitchcock', c:'Clássicos & Fundamentais'},
+  {id:9, n:'Vertigo - Um Corpo que Cai (1958)', a:'Alfred Hitchcock', c:'Clássicos & Fundamentais'},
+  {id:10, n:'Janela Indiscreta (1954)', a:'Alfred Hitchcock', c:'Clássicos & Fundamentais'},
+  {id:11, n:'Doze Homens e Uma Sentença (1957)', a:'Sidney Lumet', c:'Clássicos & Fundamentais'},
+  {id:12, n:'Chinatown (1974)', a:'Roman Polanski', c:'Clássicos & Fundamentais'},
+  {id:13, n:'Taxi Driver (1976)', a:'Martin Scorsese', c:'Clássicos & Fundamentais'},
+  {id:14, n:'Apocalypse Now (1979)', a:'Francis Ford Coppola', c:'Clássicos & Fundamentais'},
+  {id:15, n:'Blade Runner - O Caçador de Andróides (1982)', a:'Ridley Scott', c:'Clássicos & Fundamentais'},
+  {id:16, n:'Touro Indomável (1980)', a:'Martin Scorsese', c:'Clássicos & Fundamentais'},
+  {id:17, n:'Lawrence da Arábia (1962)', a:'David Lean', c:'Clássicos & Fundamentais'},
+  {id:18, n:'Ben-Hur (1959)', a:'William Wyler', c:'Clássicos & Fundamentais'},
+  {id:19, n:'Cantando na Chuva (1952)', a:'Stanley Donen', c:'Clássicos & Fundamentais'},
+  {id:20, n:'Metropolis (1927)', a:'Fritz Lang', c:'Clássicos & Fundamentais'},
+  // Sagas & Franquias
+  {id:21, n:'Star Wars — Trilogia Original', a:'George Lucas', c:'Sagas & Franquias'},
+  {id:22, n:'Star Wars — Prequelas', a:'George Lucas', c:'Sagas & Franquias'},
+  {id:23, n:'Star Wars — Sequências', a:'J.J. Abrams', c:'Sagas & Franquias'},
+  {id:24, n:'O Senhor dos Anéis — Trilogia', a:'Peter Jackson', c:'Sagas & Franquias'},
+  {id:25, n:'O Hobbit — Trilogia', a:'Peter Jackson', c:'Sagas & Franquias'},
+  {id:26, n:'Harry Potter — Saga Completa', a:'Vários', c:'Sagas & Franquias'},
+  {id:27, n:'Matrix — Trilogia', a:'Wachowski', c:'Sagas & Franquias'},
+  {id:28, n:'Indiana Jones — Franquia', a:'Steven Spielberg', c:'Sagas & Franquias'},
+  {id:29, n:'De Volta para o Futuro — Trilogia', a:'Robert Zemeckis', c:'Sagas & Franquias'},
+  {id:30, n:'Duro de Matar — Franquia', a:'Vários', c:'Sagas & Franquias'},
+  {id:31, n:'Missão Impossível — Franquia', a:'Vários', c:'Sagas & Franquias'},
+  {id:32, n:'007 — Era Connery a Craig', a:'Vários', c:'Sagas & Franquias'},
+  {id:33, n:'Jurassic Park — Trilogia Original', a:'Steven Spielberg', c:'Sagas & Franquias'},
+  {id:34, n:'Alien — Quadrilogia', a:'Vários', c:'Sagas & Franquias'},
+  {id:35, n:'Predador — Franquia', a:'Vários', c:'Sagas & Franquias'},
+  {id:36, n:'Rocky — Saga', a:'Vários', c:'Sagas & Franquias'},
+  {id:37, n:'Toy Story — Tetralogia', a:'Pixar', c:'Sagas & Franquias'},
+  {id:38, n:'Shrek — Franquia', a:'DreamWorks', c:'Sagas & Franquias'},
+  {id:39, n:'Batman — Trilogia Nolan', a:'Christopher Nolan', c:'Sagas & Franquias'},
+  {id:40, n:'Homem-Aranha — Trilogia Raimi', a:'Sam Raimi', c:'Sagas & Franquias'},
+  {id:41, n:'Vingadores — Saga do Infinito', a:'Russo Brothers', c:'Sagas & Franquias'},
+  {id:42, n:'John Wick — Franquia', a:'Chad Stahelski', c:'Sagas & Franquias'},
+  {id:43, n:'Mad Max — Franquia', a:'George Miller', c:'Sagas & Franquias'},
+  {id:44, n:'Kill Bill — Vol. 1 e 2', a:'Quentin Tarantino', c:'Sagas & Franquias'},
+  {id:45, n:'Piratas do Caribe — Trilogia Original', a:'Gore Verbinski', c:'Sagas & Franquias'},
+  {id:46, n:'Guardiões da Galáxia — Trilogia', a:'James Gunn', c:'Sagas & Franquias'},
+  {id:47, n:'Como Treinar o Seu Dragão — Trilogia', a:'DreamWorks', c:'Sagas & Franquias'},
+  {id:48, n:'Karatê Kid — Franquia Original', a:'John G. Avildsen', c:'Sagas & Franquias'},
+  {id:49, n:'Planeta dos Macacos — Trilogia Moderna', a:'Vários', c:'Sagas & Franquias'},
+  {id:50, n:'O Poderoso Chefão — Trilogia', a:'Francis Ford Coppola', c:'Sagas & Franquias'},
+  // Drama
+  {id:51, n:'Um Sonho de Liberdade (1994)', a:'Frank Darabont', c:'Drama'},
+  {id:52, n:'Forrest Gump (1994)', a:'Robert Zemeckis', c:'Drama'},
+  {id:53, n:'A Lista de Schindler (1993)', a:'Steven Spielberg', c:'Drama'},
+  {id:54, n:'Beleza Americana (1999)', a:'Sam Mendes', c:'Drama'},
+  {id:55, n:'Clube da Luta (1999)', a:'David Fincher', c:'Drama'},
+  {id:56, n:'Pulp Fiction (1994)', a:'Quentin Tarantino', c:'Drama'},
+  {id:57, n:'Boyhood - Momentos de uma Vida (2014)', a:'Richard Linklater', c:'Drama'},
+  {id:58, n:'Manchester à Beira-Mar (2016)', a:'Kenneth Lonergan', c:'Drama'},
+  {id:59, n:'Moonlight - Sob a Luz do Luar (2016)', a:'Barry Jenkins', c:'Drama'},
+  {id:60, n:'Sociedade dos Poetas Mortos (1989)', a:'Peter Weir', c:'Drama'},
+  {id:61, n:'Rain Man (1988)', a:'Barry Levinson', c:'Drama'},
+  {id:62, n:'O Piano (1993)', a:'Jane Campion', c:'Drama'},
+  {id:63, n:'Diários de Motocicleta (2004)', a:'Walter Salles', c:'Drama'},
+  {id:64, n:'Milagre na Cela 7 (2013)', a:'Mehmet Ada Öztekin', c:'Drama'},
+  {id:65, n:'O Pianista (2002)', a:'Roman Polanski', c:'Drama'},
+  {id:66, n:'12 Anos de Escravidão (2013)', a:'Steve McQueen', c:'Drama'},
+  {id:67, n:'Filadélfia (1993)', a:'Jonathan Demme', c:'Drama'},
+  {id:68, n:'Menina de Ouro (2004)', a:'Clint Eastwood', c:'Drama'},
+  {id:69, n:'O Curioso Caso de Benjamin Button (2008)', a:'David Fincher', c:'Drama'},
+  {id:70, n:'American History X (1998)', a:'Tony Kaye', c:'Drama'},
+  {id:71, n:'Trainspotting - Sem Limites (1996)', a:'Danny Boyle', c:'Drama'},
+  {id:72, n:'Réquiem para um Sonho (2000)', a:'Darren Aronofsky', c:'Drama'},
+  {id:73, n:'Nomadland (2020)', a:'Chloé Zhao', c:'Drama'},
+  {id:74, n:'Marriage Story (2019)', a:'Noah Baumbach', c:'Drama'},
+  {id:75, n:'A Rede Social (2010)', a:'David Fincher', c:'Drama'},
+  // Ficção Científica
+  {id:76, n:'Interestelar (2014)', a:'Christopher Nolan', c:'Ficção Científica'},
+  {id:77, n:'A Origem (2010)', a:'Christopher Nolan', c:'Ficção Científica'},
+  {id:78, n:'O Exterminador do Futuro (1984)', a:'James Cameron', c:'Ficção Científica'},
+  {id:79, n:'O Exterminador do Futuro 2: O Julgamento Final (1991)', a:'James Cameron', c:'Ficção Científica'},
+  {id:80, n:'Blade Runner 2049 (2017)', a:'Denis Villeneuve', c:'Ficção Científica'},
+  {id:81, n:'Duna (2021)', a:'Denis Villeneuve', c:'Ficção Científica'},
+  {id:82, n:'Duna: Parte Dois (2024)', a:'Denis Villeneuve', c:'Ficção Científica'},
+  {id:83, n:'Arrival - A Chegada (2016)', a:'Denis Villeneuve', c:'Ficção Científica'},
+  {id:84, n:'Ex Machina - Instinto Artificial (2014)', a:'Alex Garland', c:'Ficção Científica'},
+  {id:85, n:'Ela (2013)', a:'Spike Jonze', c:'Ficção Científica'},
+  {id:86, n:'Gravidade (2013)', a:'Alfonso Cuarón', c:'Ficção Científica'},
+  {id:87, n:'Contato (1997)', a:'Robert Zemeckis', c:'Ficção Científica'},
+  {id:88, n:'O Enigma de Outro Mundo (1982)', a:'John Carpenter', c:'Ficção Científica'},
+  {id:89, n:'Distrito 9 (2009)', a:'Neill Blomkamp', c:'Ficção Científica'},
+  {id:90, n:'Homem-Aranha no Aranhaverso (2018)', a:'Bob Persichetti', c:'Ficção Científica'},
+  {id:91, n:'No Limite do Amanhã (2014)', a:'Doug Liman', c:'Ficção Científica'},
+  {id:92, n:'Minority Report - A Nova Lei (2002)', a:'Steven Spielberg', c:'Ficção Científica'},
+  {id:93, n:'Brilho Eterno de uma Mente Sem Lembranças (2004)', a:'Michel Gondry', c:'Ficção Científica'},
+  {id:94, n:'Wall-E (2008)', a:'Andrew Stanton', c:'Ficção Científica'},
+  {id:95, n:'Divertida Mente (2015)', a:'Pete Docter', c:'Ficção Científica'},
+  // Suspense & Thriller
+  {id:96, n:'Seven - Os Sete Crimes Capitais (1995)', a:'David Fincher', c:'Suspense & Thriller'},
+  {id:97, n:'O Silêncio dos Inocentes (1991)', a:'Jonathan Demme', c:'Suspense & Thriller'},
+  {id:98, n:'O Sexto Sentido (1999)', a:'M. Night Shyamalan', c:'Suspense & Thriller'},
+  {id:99, n:'Prisioneiros (2013)', a:'Denis Villeneuve', c:'Suspense & Thriller'},
+  {id:100, n:'Corra! (2017)', a:'Jordan Peele', c:'Suspense & Thriller'},
+  {id:101, n:'Zodíaco (2007)', a:'David Fincher', c:'Suspense & Thriller'},
+  {id:102, n:'Garota Exemplar (2014)', a:'David Fincher', c:'Suspense & Thriller'},
+  {id:103, n:'Parasita (2019)', a:'Bong Joon-ho', c:'Suspense & Thriller'},
+  {id:104, n:'Cisne Negro (2010)', a:'Darren Aronofsky', c:'Suspense & Thriller'},
+  {id:105, n:'Ilha do Medo (2010)', a:'Martin Scorsese', c:'Suspense & Thriller'},
+  {id:106, n:'Oldboy (2003)', a:'Park Chan-wook', c:'Suspense & Thriller'},
+  {id:107, n:'O Show de Truman (1998)', a:'Peter Weir', c:'Suspense & Thriller'},
+  {id:108, n:'Tubarão (1975)', a:'Steven Spielberg', c:'Suspense & Thriller'},
+  {id:109, n:'Instinto Selvagem (1992)', a:'Paul Verhoeven', c:'Suspense & Thriller'},
+  {id:110, n:'Os Suspeitos (1995)', a:'Bryan Singer', c:'Suspense & Thriller'},
+  {id:111, n:'Testemunha de Acusação (1957)', a:'Billy Wilder', c:'Suspense & Thriller'},
+  {id:112, n:'Amnésia (2000)', a:'Christopher Nolan', c:'Suspense & Thriller'},
+  {id:113, n:'Trapaça (2014)', a:'Dan Gilroy', c:'Suspense & Thriller'},
+  {id:114, n:'Hereditário (2018)', a:'Ari Aster', c:'Suspense & Thriller'},
+  {id:115, n:'A Bruxa (2015)', a:'Robert Eggers', c:'Suspense & Thriller'},
+  // Terror
+  {id:116, n:'O Exorcista (1973)', a:'William Friedkin', c:'Terror'},
+  {id:117, n:'Halloween - A Noite do Terror (1978)', a:'John Carpenter', c:'Terror'},
+  {id:118, n:'A Hora do Pesadelo (1984)', a:'Wes Craven', c:'Terror'},
+  {id:119, n:'Sexta-Feira 13 (1980)', a:'Sean S. Cunningham', c:'Terror'},
+  {id:120, n:'Poltergeist (1982)', a:'Tobe Hooper', c:'Terror'},
+  {id:121, n:'Sinistro (2012)', a:'Scott Derrickson', c:'Terror'},
+  {id:122, n:'Invocação do Mal (2013)', a:'James Wan', c:'Terror'},
+  {id:123, n:'Corrente do Mal (2014)', a:'David Robert Mitchell', c:'Terror'},
+  {id:124, n:'A Coisa (1982)', a:'John Carpenter', c:'Terror'},
+  {id:125, n:'O Bebê de Rosemary (1968)', a:'Roman Polanski', c:'Terror'},
+  {id:126, n:'Midsommar - O Mal Não Espera a Noite (2019)', a:'Ari Aster', c:'Terror'},
+  {id:127, n:'Nosferatu (1922)', a:'F.W. Murnau', c:'Terror'},
+  {id:128, n:'Drácula de Bram Stoker (1992)', a:'Francis Ford Coppola', c:'Terror'},
+  {id:129, n:'A Bruxa de Blair (1999)', a:'Daniel Myrick', c:'Terror'},
+  {id:130, n:'Todo Mundo em Pânico (2004)', a:'Edgar Wright', c:'Terror'},
+  {id:131, n:'Guerra Mundial Z (2013)', a:'Marc Forster', c:'Terror'},
+  {id:132, n:'Nós (2019)', a:'Jordan Peele', c:'Terror'},
+  {id:133, n:'A Casa (2013)', a:'Fede Álvarez', c:'Terror'},
+  {id:134, n:'O Farol (2019)', a:'Robert Eggers', c:'Terror'},
+  {id:135, n:'Smile (2022)', a:'Parker Finn', c:'Terror'},
+  // Comédia
+  {id:136, n:'Se Beber, Não Case! (2009)', a:'Todd Phillips', c:'Comédia'},
+  {id:137, n:'Superbad - É Hoje (2007)', a:'Greg Mottola', c:'Comédia'},
+  {id:138, n:'Como Perder um Homem em 10 Dias (2003)', a:'Donald Petrie', c:'Comédia'},
+  {id:139, n:'Curtindo a Vida Adoidado (1986)', a:'John Hughes', c:'Comédia'},
+  {id:140, n:'Clube dos Cinco (1985)', a:'John Hughes', c:'Comédia'},
+  {id:141, n:'Um Príncipe em Nova York (1988)', a:'John Landis', c:'Comédia'},
+  {id:142, n:'Debi & Lóide (1994)', a:'Peter Farrelly', c:'Comédia'},
+  {id:143, n:'O Grande Lebowski (1998)', a:'Coen Brothers', c:'Comédia'},
+  {id:144, n:'Isto É Spinal Tap (1984)', a:'Rob Reiner', c:'Comédia'},
+  {id:145, n:'Feitiço do Tempo (1993)', a:'Harold Ramis', c:'Comédia'},
+  {id:146, n:'Zoolander (2001)', a:'Ben Stiller', c:'Comédia'},
+  {id:147, n:'A Vida de Brian (1979)', a:'Terry Jones', c:'Comédia'},
+  {id:148, n:'Apresentador de Telejornal (2004)', a:'Adam McKay', c:'Comédia'},
+  {id:149, n:'Sr. & Sra. Smith (2005)', a:'Doug Liman', c:'Comédia'},
+  {id:150, n:'Deadpool (2016)', a:'Tim Miller', c:'Comédia'},
+  {id:151, n:'Um Tira da Pesada (1984)', a:'Martin Brest', c:'Comédia'},
+  {id:152, n:'A Fantástica Fábrica de Chocolate (2005)', a:'Tim Burton', c:'Comédia'},
+  {id:153, n:'Click (2006)', a:'Frank Coraci', c:'Comédia'},
+  {id:154, n:'Entrando Numa Fria (2000)', a:'Jay Roach', c:'Comédia'},
+  {id:155, n:'O Máskara (1994)', a:'Chuck Russell', c:'Comédia'},
+  // Animação
+  {id:156, n:'O Rei Leão (1994)', a:'Roger Allers', c:'Animação'},
+  {id:157, n:'A Pequena Sereia (1989)', a:'Ron Clements', c:'Animação'},
+  {id:158, n:'Aladdin (1992)', a:'Ron Clements', c:'Animação'},
+  {id:159, n:'Up - Altas Aventuras (2009)', a:'Pete Docter', c:'Animação'},
+  {id:160, n:'Coco (2017)', a:'Lee Unkrich', c:'Animação'},
+  {id:161, n:'Zootopia - Essa Cidade é Selvagem (2016)', a:'Byron Howard', c:'Animação'},
+  {id:162, n:'Moana - Um Mar de Aventuras (2016)', a:'Ron Clements', c:'Animação'},
+  {id:163, n:'Frozen - Uma Aventura Congelante (2013)', a:'Chris Buck', c:'Animação'},
+  {id:164, n:'A Viagem de Chihiro (2001)', a:'Hayao Miyazaki', c:'Animação'},
+  {id:165, n:'O Castelo Animado (2004)', a:'Hayao Miyazaki', c:'Animação'},
+  {id:166, n:'Meu Amigo Totoro (1988)', a:'Hayao Miyazaki', c:'Animação'},
+  {id:167, n:'Princesa Mononoke (1997)', a:'Hayao Miyazaki', c:'Animação'},
+  {id:168, n:'Túmulo dos Vagalumes (1988)', a:'Isao Takahata', c:'Animação'},
+  {id:169, n:'Persépolis (2007)', a:'Marjane Satrapi', c:'Animação'},
+  {id:170, n:'Valsa com Bashir (2008)', a:'Ari Folman', c:'Animação'},
+  {id:171, n:'Wallace & Gromit: A Batalha dos Vegetais (2005)', a:'Nick Park', c:'Animação'},
+  {id:172, n:'A Fuga das Galinhas (2000)', a:'Peter Lord', c:'Animação'},
+  {id:173, n:'Rango (2011)', a:'Gore Verbinski', c:'Animação'},
+  {id:174, n:'Ratatouille (2007)', a:'Brad Bird', c:'Animação'},
+  {id:175, n:'Procurando Nemo (2003)', a:'Andrew Stanton', c:'Animação'},
+  // Nacional (Brasil)
+  {id:176, n:'Central do Brasil (1998)', a:'Walter Salles', c:'Nacional (Brasil)'},
+  {id:177, n:'Cidade de Deus (2002)', a:'Fernando Meirelles', c:'Nacional (Brasil)'},
+  {id:178, n:'Tropa de Elite (2007)', a:'José Padilha', c:'Nacional (Brasil)'},
+  {id:179, n:'Tropa de Elite 2 (2010)', a:'José Padilha', c:'Nacional (Brasil)'},
+  {id:180, n:'O Auto da Compadecida (2000)', a:'Guel Arraes', c:'Nacional (Brasil)'},
+  {id:181, n:'Bacurau (2019)', a:'Kleber Mendonça Filho', c:'Nacional (Brasil)'},
+  {id:182, n:'Que Horas Ela Volta? (2015)', a:'Anna Muylaert', c:'Nacional (Brasil)'},
+  {id:183, n:'O Palhaço (2011)', a:'Selton Mello', c:'Nacional (Brasil)'},
+  {id:184, n:'Carandiru (2003)', a:'Hector Babenco', c:'Nacional (Brasil)'},
+  {id:185, n:'Lisbela e o Prisioneiro (2003)', a:'Guel Arraes', c:'Nacional (Brasil)'},
+  {id:186, n:'Dona Flor e Seus Dois Maridos (1976)', a:'Bruno Barreto', c:'Nacional (Brasil)'},
+  {id:187, n:'O Pagador de Promessas (1962)', a:'Anselmo Duarte', c:'Nacional (Brasil)'},
+  {id:188, n:'Deus e o Diabo na Terra do Sol (1964)', a:'Glauber Rocha', c:'Nacional (Brasil)'},
+  {id:189, n:'Vidas Secas (1963)', a:'Nelson Pereira dos Santos', c:'Nacional (Brasil)'},
+  {id:190, n:'Aquarius (2016)', a:'Kleber Mendonça Filho', c:'Nacional (Brasil)'},
+  {id:191, n:'Ainda Estou Aqui (2024)', a:'Walter Salles', c:'Nacional (Brasil)'},
+  {id:192, n:'O Homem Que Copiava (2003)', a:'Jorge Furtado', c:'Nacional (Brasil)'},
+  {id:193, n:'Democracia em Vertigem (2019)', a:'Petra Costa', c:'Nacional (Brasil)'},
+  {id:194, n:'Como Nossos Pais (2017)', a:'Laís Bodanzky', c:'Nacional (Brasil)'},
+  {id:195, n:'Não Se Aceitam Devoluções (2013)', a:'Roberto Santucci', c:'Nacional (Brasil)'},
+  // Épico / Aventura / Ação
+  {id:196, n:'Gladiador (2000)', a:'Ridley Scott', c:'Épico / Aventura / Ação'},
+  {id:197, n:'Coração Valente (1995)', a:'Mel Gibson', c:'Épico / Aventura / Ação'},
+  {id:198, n:'Os Sete Samurais (1954)', a:'Akira Kurosawa', c:'Épico / Aventura / Ação'},
+  {id:199, n:'Excalibur (1981)', a:'John Boorman', c:'Épico / Aventura / Ação'},
+  {id:200, n:'Tróia (2004)', a:'Wolfgang Petersen', c:'Épico / Aventura / Ação'},
+  {id:201, n:'O Resgate do Soldado Ryan (1998)', a:'Steven Spielberg', c:'Épico / Aventura / Ação'},
+  {id:202, n:'Dunkirk (2017)', a:'Christopher Nolan', c:'Épico / Aventura / Ação'},
+  {id:203, n:'1917 (2019)', a:'Sam Mendes', c:'Épico / Aventura / Ação'},
+  {id:204, n:'A Vida É Bela (1997)', a:'Roberto Benigni', c:'Épico / Aventura / Ação'},
+  {id:205, n:'Cartas de Iwo Jima (2006)', a:'Clint Eastwood', c:'Épico / Aventura / Ação'},
+  {id:206, n:'Platoon (1986)', a:'Oliver Stone', c:'Épico / Aventura / Ação'},
+  {id:207, n:'Fúria (2014)', a:'David Ayer', c:'Épico / Aventura / Ação'},
+  {id:208, n:'Zulu (1964)', a:'Cy Endfield', c:'Épico / Aventura / Ação'},
+  {id:209, n:'Ran (1985)', a:'Akira Kurosawa', c:'Épico / Aventura / Ação'},
+  {id:210, n:'A Fortaleza Escondida (1958)', a:'Akira Kurosawa', c:'Épico / Aventura / Ação'},
+  {id:211, n:'Yojimbo - O Guarda-Costas (1961)', a:'Akira Kurosawa', c:'Épico / Aventura / Ação'},
+  {id:212, n:'Onde os Fracos Não Têm Vez (2007)', a:'Coen Brothers', c:'Épico / Aventura / Ação'},
+  {id:213, n:'Era Uma Vez na América (1984)', a:'Sergio Leone', c:'Épico / Aventura / Ação'},
+  {id:214, n:'Era Uma Vez no Oeste (1968)', a:'Sergio Leone', c:'Épico / Aventura / Ação'},
+  {id:215, n:'Top Gun: Maverick (2022)', a:'Joseph Kosinski', c:'Épico / Aventura / Ação'},
+  // Romance
+  {id:216, n:'Titanic (1997)', a:'James Cameron', c:'Romance'},
+  {id:217, n:'Diário de uma Paixão (2004)', a:'Nick Cassavetes', c:'Romance'},
+  {id:218, n:'Como Eu Era Antes de Você (2016)', a:'Thea Sharrock', c:'Romance'},
+  {id:219, n:'Orgulho e Preconceito (2005)', a:'Joe Wright', c:'Romance'},
+  {id:220, n:'Simplesmente Amor (2003)', a:'Richard Curtis', c:'Romance'},
+  {id:221, n:'500 Dias com Ela (2009)', a:'Marc Webb', c:'Romance'},
+  {id:222, n:'A Bela e a Fera (2017)', a:'Bill Condon', c:'Romance'},
+  {id:223, n:'Antes do Amanhecer (1995)', a:'Richard Linklater', c:'Romance'},
+  {id:224, n:'Brokeback Mountain - O Segredo (2005)', a:'Ang Lee', c:'Romance'},
+  {id:225, n:'La La Land - Cantando Estações (2016)', a:'Damien Chazelle', c:'Romance'},
+  {id:226, n:'Moulin Rouge! Amor em Vermelho (2001)', a:'Baz Luhrmann', c:'Romance'},
+  {id:227, n:'Amor à Flor da Pele (2000)', a:'Wong Kar-wai', c:'Romance'},
+  {id:228, n:'O Fabuloso Destino de Amélie Poulain (2001)', a:'Jean-Pierre Jeunet', c:'Romance'},
+  {id:229, n:'O Diabo Veste Prada (2006)', a:'David Frankel', c:'Romance'},
+  {id:230, n:'Como Água para Chocolate (1992)', a:'Alfonso Arau', c:'Romance'},
+  // Musical
+  {id:231, n:'Chicago (2002)', a:'Rob Marshall', c:'Musical'},
+  {id:232, n:'Amor, Sublime Amor (1961)', a:'Robert Wise', c:'Musical'},
+  {id:233, n:'Os Miseráveis (2012)', a:'Tom Hooper', c:'Musical'},
+  {id:234, n:'O Fantasma da Ópera (2004)', a:'Joel Schumacher', c:'Musical'},
+  {id:235, n:'Grease - Nos Tempos da Brilhantina (1978)', a:'Randal Kleiser', c:'Musical'},
+  {id:236, n:'A Noviça Rebelde (1965)', a:'Robert Wise', c:'Musical'},
+  {id:237, n:'Mamma Mia! (2008)', a:'Phyllida Lloyd', c:'Musical'},
+  {id:238, n:'Bohemian Rhapsody (2018)', a:'Bryan Singer', c:'Musical'},
+  {id:239, n:'Rocketman (2019)', a:'Dexter Fletcher', c:'Musical'},
+  {id:240, n:'Whiplash - Em Busca da Perfeição (2014)', a:'Damien Chazelle', c:'Musical'},
+  // Guerra / História
+  {id:241, n:'JFK - A Pergunta Que Não Quer Calar (1991)', a:'Oliver Stone', c:'Guerra / História'},
+  {id:242, n:'Nixon (1995)', a:'Oliver Stone', c:'Guerra / História'},
+  {id:243, n:'Malcolm X (1992)', a:'Spike Lee', c:'Guerra / História'},
+  {id:244, n:'Lincoln (2012)', a:'Steven Spielberg', c:'Guerra / História'},
+  {id:245, n:'Selma - Uma Luta pela Igualdade (2014)', a:'Ava DuVernay', c:'Guerra / História'},
+  {id:246, n:'Argo (2012)', a:'Ben Affleck', c:'Guerra / História'},
+  {id:247, n:'Guerra ao Terror (2012)', a:'Kathryn Bigelow', c:'Guerra / História'},
+  {id:248, n:'A Onda (2008)', a:'Dennis Gansel', c:'Guerra / História'},
+  {id:249, n:'O Grande Ditador (1940)', a:'Charlie Chaplin', c:'Guerra / História'},
+  {id:250, n:'Bastardos Inglórios (2009)', a:'Quentin Tarantino', c:'Guerra / História'},
+  // Faroeste
+  {id:251, n:'Os Imperdoáveis (1992)', a:'Clint Eastwood', c:'Faroeste'},
+  {id:252, n:'Três Homens em Conflito (1966)', a:'Sergio Leone', c:'Faroeste'},
+  {id:253, n:'Django Livre (2012)', a:'Quentin Tarantino', c:'Faroeste'},
+  {id:254, n:'Bravura Indômita (2010)', a:'Coen Brothers', c:'Faroeste'},
+  {id:255, n:'Butch Cassidy (1969)', a:'George Roy Hill', c:'Faroeste'},
+  // Crime / Máfia
+  {id:256, n:'Os Bons Companheiros (1990)', a:'Martin Scorsese', c:'Crime / Máfia'},
+  {id:257, n:'Cassino (1995)', a:'Martin Scorsese', c:'Crime / Máfia'},
+  {id:258, n:'Scarface (1983)', a:'Brian De Palma', c:'Crime / Máfia'},
+  {id:259, n:'Donnie Brasco (1997)', a:'Mike Newell', c:'Crime / Máfia'},
+  {id:260, n:'Os Infiltrados (2006)', a:'Martin Scorsese', c:'Crime / Máfia'},
+  {id:261, n:'Fogo Contra Fogo (1995)', a:'Michael Mann', c:'Crime / Máfia'},
+  {id:262, n:'Gângster Americano (2007)', a:'Ridley Scott', c:'Crime / Máfia'},
+  {id:263, n:'Sicario - Terra de Ninguém (2015)', a:'Denis Villeneuve', c:'Crime / Máfia'},
+  {id:264, n:'Traffic (2000)', a:'Steven Soderbergh', c:'Crime / Máfia'},
+  {id:265, n:'Los Angeles - Cidade Proibida (1997)', a:'Curtis Hanson', c:'Crime / Máfia'},
+  // Biografias
+  {id:266, n:'Steve Jobs (2015)', a:'Danny Boyle', c:'Biografias'},
+  {id:267, n:'O Jogo da Imitação (2014)', a:'Morten Tyldum', c:'Biografias'},
+  {id:268, n:'Uma Mente Brilhante (2001)', a:'Ron Howard', c:'Biografias'},
+  {id:269, n:'Foxcatcher (2014)', a:'Bennett Miller', c:'Biografias'},
+  {id:270, n:'O Lobo de Wall Street (2013)', a:'Martin Scorsese', c:'Biografias'},
+  {id:271, n:'O Homem Que Mudou o Jogo (2011)', a:'Bennett Miller', c:'Biografias'},
+  {id:272, n:'Green Book - O Guia (2018)', a:'Peter Farrelly', c:'Biografias'},
+  {id:273, n:'Ford vs Ferrari (2019)', a:'James Mangold', c:'Biografias'},
+  {id:274, n:'A Teoria de Tudo (2014)', a:'James Marsh', c:'Biografias'},
+  {id:275, n:'Oppenheimer (2023)', a:'Christopher Nolan', c:'Biografias'},
+  // Culto / Alternativo
+  {id:276, n:'Donnie Darko (2001)', a:'Richard Kelly', c:'Culto / Alternativo'},
+  {id:277, n:'Pi (1998)', a:'Darren Aronofsky', c:'Culto / Alternativo'},
+  {id:278, n:'Naked Lunch - Programa de Almoço Nu (1991)', a:'David Cronenberg', c:'Culto / Alternativo'},
+  {id:279, n:'Eraserhead (1977)', a:'David Lynch', c:'Culto / Alternativo'},
+  {id:280, n:'Holy Motors (2012)', a:'Leos Carax', c:'Culto / Alternativo'},
+  {id:281, n:'O Labirinto do Fauno (2006)', a:'Guillermo del Toro', c:'Culto / Alternativo'},
+  {id:282, n:'Cidade dos Sonhos (2001)', a:'David Lynch', c:'Culto / Alternativo'},
+  {id:283, n:'Brazil (1985)', a:'Terry Gilliam', c:'Culto / Alternativo'},
+  {id:284, n:'Quero Ser John Malkovich (1999)', a:'Spike Jonze', c:'Culto / Alternativo'},
+  {id:285, n:'A Ilha do Dr. Moreau (1996)', a:'John Frankenheimer', c:'Culto / Alternativo'},
+  // Recentes Aclamados (2020s)
+  {id:286, n:'Barbie (2023)', a:'Greta Gerwig', c:'Recentes Aclamados (2020s)'},
+  {id:287, n:'Assassinos da Lua das Flores (2023)', a:'Martin Scorsese', c:'Recentes Aclamados (2020s)'},
+  {id:288, n:'Tudo em Todo o Lugar ao Mesmo Tempo (2022)', a:'Daniels', c:'Recentes Aclamados (2020s)'},
+  {id:289, n:'Pobres Criaturas (2023)', a:'Yorgos Lanthimos', c:'Recentes Aclamados (2020s)'},
+  {id:290, n:'Anatomia de uma Queda (2023)', a:'Justine Triet', c:'Recentes Aclamados (2020s)'},
+  {id:291, n:'Zona de Interesse (2023)', a:'Jonathan Glazer', c:'Recentes Aclamados (2020s)'},
+  {id:292, n:'O Menino e a Garça (2023)', a:'Hayao Miyazaki', c:'Recentes Aclamados (2020s)'},
+  {id:293, n:'Vidas Passadas (2023)', a:'Celine Song', c:'Recentes Aclamados (2020s)'},
+  {id:294, n:'Homem-Aranha: Através do Aranhaverso (2023)', a:'Joaquim Dos Santos', c:'Recentes Aclamados (2020s)'},
+  {id:295, n:'A Baleia (2022)', a:'Darren Aronofsky', c:'Recentes Aclamados (2020s)'},
+  {id:296, n:'Coringa: Delírio a Dois (2024)', a:'Todd Phillips', c:'Recentes Aclamados (2020s)'},
+  {id:297, n:'Guerra Civil (2024)', a:'Alex Garland', c:'Recentes Aclamados (2020s)'},
+  {id:298, n:'Não Olhe para Cima (2021)', a:'Adam McKay', c:'Recentes Aclamados (2020s)'},
+  {id:299, n:'Elvis (2022)', a:'Baz Luhrmann', c:'Recentes Aclamados (2020s)'},
+  {id:300, n:'Godzilla Minus One (2023)', a:'Takashi Yamazaki', c:'Recentes Aclamados (2020s)'},
+];
+
+let _filmesFiltro = 'todos';
+
+function filmesFiltrar(f) {
+  _filmesFiltro = f;
+  ['todos','assistidos','nao'].forEach(k => {
+    const btn = $('fm-f-' + k);
+    if (btn) { btn.style.borderColor = ''; btn.style.color = ''; }
+  });
+  const map = { todos: 'fm-f-todos', assistidos: 'fm-f-assistidos', 'nao-assistidos': 'fm-f-nao' };
+  const ativo = $(map[f]);
+  if (ativo) { ativo.style.borderColor = 'var(--accent)'; ativo.style.color = 'var(--accent)'; }
+  renderFilmes();
+}
+
+function toggleFilme(id) {
+  const assistidos = load('filmes_assistidos', []);
+  const idx = assistidos.indexOf(id);
+  if (idx >= 0) assistidos.splice(idx, 1);
+  else assistidos.push(id);
+  save('filmes_assistidos', assistidos);
+  renderFilmes();
+}
+
+function renderFilmes() {
+  const cont = $('fm-categorias');
+  if (!cont) return;
+  const assistidos = load('filmes_assistidos', []);
+  const total = FILMES_300.length;
+  const pct = Math.round((assistidos.length / total) * 100);
+
+  // Stats
+  if ($('fm-assistidos')) animateNumber($('fm-assistidos'), assistidos.length, { duration: 700 });
+  if ($('fm-pct')) animateNumber($('fm-pct'), pct, { suffix: '%', duration: 700 });
+  if ($('fm-pb')) $('fm-pb').style.width = pct + '%';
+  if ($('fm-prog-txt')) $('fm-prog-txt').textContent = `${assistidos.length} / ${total}`;
+
+  // Categoria favorita
+  const catFreq = {};
+  FILMES_300.filter(f => assistidos.includes(f.id)).forEach(f => {
+    catFreq[f.c] = (catFreq[f.c] || 0) + 1;
+  });
+  const fav = Object.entries(catFreq).sort((a,b) => b[1] - a[1])[0];
+  if ($('fm-cat')) {
+    const cur = $('fm-cat'); cur.textContent = fav ? fav[0] : '—';
+    cur.style.fontSize = fav ? '14px' : '18px';
+  }
+
+  // Agrupar por categoria
+  const groups = {};
+  FILMES_300.forEach(f => {
+    if (!groups[f.c]) groups[f.c] = [];
+    groups[f.c].push(f);
+  });
+
+  cont.innerHTML = Object.entries(groups).map(([cat, filmes]) => {
+    const assistidosCat = filmes.filter(f => assistidos.includes(f.id)).length;
+    const catPct = Math.round((assistidosCat / filmes.length) * 100);
+    // Aplica filtro
+    let lista = filmes;
+    if (_filmesFiltro === 'assistidos') lista = filmes.filter(f => assistidos.includes(f.id));
+    else if (_filmesFiltro === 'nao-assistidos') lista = filmes.filter(f => !assistidos.includes(f.id));
+    if (!lista.length) return '';
+    return `<div class="card gap">
+      <div class="sh">
+        <h2 style="font-size:17px">${cat}</h2>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="tag ta">${assistidosCat}/${filmes.length}</span>
+          <span style="font-size:11px;color:var(--text3);font-family:var(--f-mono)">${catPct}%</span>
+        </div>
+      </div>
+      <div class="pb" style="margin-bottom:12px"><div class="pf g" style="width:${catPct}%"></div></div>
+      <div>
+        ${lista.map(f => {
+          const isAssistido = assistidos.includes(f.id);
+          return `<div class="ci">
+            <div class="cb${isAssistido?' on':''}" onclick="toggleFilme(${f.id})">${isAssistido?'✓':''}</div>
+            <span class="cl${isAssistido?' x':''}" style="flex:1">
+              <strong style="font-size:13.5px">${f.n}</strong>
+              <span style="color:var(--text3);font-size:12px;margin-left:6px">— ${f.a}</span>
+            </span>
+            <span style="font-size:10px;color:var(--text3);font-family:var(--f-mono)">#${f.id}</span>
           </div>`;
         }).join('')}
       </div>
