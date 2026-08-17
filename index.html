@@ -3264,7 +3264,7 @@ create policy "acesso total"
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__sbCdnFailed=true"></script>
 <script>
 // ══════════════════════════════════════════════════
 //  ⚙️  SUPABASE CONFIG — cole suas credenciais aqui
@@ -3273,10 +3273,42 @@ const SUPABASE_URL  = localStorage.getItem('sb_url')  || '';   // ex: 'https://x
 const SUPABASE_KEY  = localStorage.getItem('sb_key')  || '';   // ex: 'eyJhbGci...'
 // ══════════════════════════════════════════════════
 
+// O script do Supabase vem de um CDN externo (cdn.jsdelivr.net). Se esse
+// carregamento falhar ou demorar (rede instável, bloqueador de anúncios,
+// CDN fora do ar), a variável global `supabase` fica indefinida — e antes,
+// chamar `supabase.createClient(...)` direto aqui lançava um erro que
+// travava a execução de TODO o resto deste script (nada mais no app
+// funcionava até recarregar a página). Agora isso é protegido: se a
+// biblioteca não estiver disponível, seguimos em modo offline em vez de
+// travar, e tentamos de novo por conta própria por até ~10s.
 const _sbReady = SUPABASE_URL && SUPABASE_KEY;
-const _sb = _sbReady
-  ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
+function _createSbClient() {
+  if (!_sbReady) return null;
+  if (typeof supabase === 'undefined') return null;
+  try {
+    return supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch (e) {
+    console.error('[Supabase] Falha ao criar o cliente:', e.message);
+    return null;
+  }
+}
+let _sb = _createSbClient();
+if (!_sb && _sbReady) {
+  let _sbRetries = 0;
+  const _sbRetryTimer = setInterval(() => {
+    _sbRetries++;
+    _sb = _createSbClient();
+    if (_sb) {
+      clearInterval(_sbRetryTimer);
+      console.log('[Supabase] Biblioteca carregou numa nova tentativa — reconectando.');
+      safeCall(() => { pullFromSupabase().then(got => { if (got) reRenderAll(); subscribeRealtime(); }); }, 'sbRetryReconnect');
+    } else if (_sbRetries >= 10) {
+      clearInterval(_sbRetryTimer);
+      console.warn('[Supabase] Não foi possível carregar a biblioteca do Supabase (cdn.jsdelivr.net) após várias tentativas — seguindo em modo offline. Dados locais continuam funcionando normalmente.');
+      safeCall(() => setSyncStatus('error'), 'sbRetryGiveUp');
+    }
+  }, 1000);
+}
 
 // ──────────────────────────────────
 // SYNC STATUS UI
@@ -3440,27 +3472,43 @@ async function pushAllToSupabase() {
 // RE-RENDER ALL  — called after realtime update
 // ──────────────────────────────────
 function reRenderAll() {
-  carregarTema();
-  aplicarNavFavs();
-  refreshHome();
-  renderAgenda();
-  renderRotina();
-  renderTarefas();
-  loadCorpoDiario();
-  renderAguaDisplay();
-  renderExLog();
-  updateMuscleDiagram();
-  renderMapaHome();
-  renderHistorico();
-  renderGrat(); renderDiario();
-  renderMetasAnuais(); renderMetasTracking(); renderConquistas();
-  renderGames(); renderCursos(); renderReceitas(); renderCompras();
-  renderFinancas();
-  renderAnexosRelatorio();
-  renderLivros();
-  renderFilmes();
-  atualizarMovimentacao(false);
-  renderSouthShop();
+  // Cada chamada passa por safeCall (mesmo padrão do boot em init()) para
+  // que uma falha isolada numa página não impeça as outras de atualizar —
+  // antes, um erro em QUALQUER função aqui parava tudo que vinha depois
+  // dela na lista, inclusive renderSouthShop() (sempre por último).
+  safeCall(carregarTema, 'carregarTema');
+  safeCall(aplicarNavFavs, 'aplicarNavFavs');
+  safeCall(refreshHome, 'refreshHome');
+  safeCall(renderAgenda, 'renderAgenda');
+  safeCall(renderRotina, 'renderRotina');
+  safeCall(renderTarefas, 'renderTarefas');
+  safeCall(loadCorpoDiario, 'loadCorpoDiario');
+  safeCall(renderAguaDisplay, 'renderAguaDisplay');
+  safeCall(renderExLog, 'renderExLog');
+  safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
+  safeCall(renderMapaHome, 'renderMapaHome');
+  safeCall(renderHistorico, 'renderHistorico');
+  safeCall(renderGrat, 'renderGrat'); safeCall(renderDiario, 'renderDiario');
+  safeCall(renderMetasAnuais, 'renderMetasAnuais'); safeCall(renderMetasTracking, 'renderMetasTracking'); safeCall(renderConquistas, 'renderConquistas');
+  safeCall(renderGames, 'renderGames'); safeCall(renderCursos, 'renderCursos'); safeCall(renderReceitas, 'renderReceitas'); safeCall(renderCompras, 'renderCompras');
+  safeCall(renderFinancas, 'renderFinancas');
+  safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
+  safeCall(renderLivros, 'renderLivros');
+  safeCall(renderFilmes, 'renderFilmes');
+  safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
+  // renderSouthShop() mora num <script> separado, mais abaixo no HTML (a
+  // seção "SOUTH SHOP" foi adicionada depois, em bloco próprio). Chamar
+  // `safeCall(renderSouthShop, ...)` direto quebra: o identificador
+  // `renderSouthShop` é resolvido ANTES de entrar no try/catch do safeCall
+  // (na hora de montar os argumentos da chamada) — então, se esse outro
+  // <script> ainda não tiver rodado (ex: a resposta do Supabase chegou
+  // rápido o bastante para vencer a análise desse bloco final, que é
+  // grande por causa dos dados do checklist), o erro "renderSouthShop is
+  // not defined" escapa do safeCall e trava o resto da página, sem sequer
+  // aparecer como um erro tratado. Envolver numa arrow function adia essa
+  // resolução do nome para dentro do try/catch, onde o safeCall realmente
+  // consegue proteger a chamada.
+  safeCall(() => renderSouthShop(), 'renderSouthShop');
 }
 
 // ──────────────────────────────────
@@ -9383,16 +9431,36 @@ document.addEventListener('keydown', function(e) {
     }
   });
 
-  // PWA: register inline service worker for offline support
+  // PWA: register inline service worker for offline support.
+  // Estratégia trocada de "cache-first" para "network-first": antes, uma
+  // vez em cache, o app podia ficar preso numa versão antiga do index.html
+  // pra sempre, mesmo depois de uma atualização publicada no GitHub. Agora
+  // ele sempre tenta buscar a versão mais nova da rede primeiro, e só usa
+  // o cache como fallback quando estiver offline. O nome do cache também
+  // mudou (v1 → v2) e caches antigos são limpos no activate, pra garantir
+  // que quem já tinha o app instalado não fique com lixo de versões velhas.
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'eh-tracker-v1';
+      const CACHE = 'eh-tracker-v2';
       self.addEventListener('install', e => {
-        e.waitUntil(caches.open(CACHE).then(c => c.addAll(['.'])));
         self.skipWaiting();
       });
+      self.addEventListener('activate', e => {
+        e.waitUntil(
+          caches.keys().then(keys => Promise.all(
+            keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+          ))
+        );
+        self.clients.claim();
+      });
       self.addEventListener('fetch', e => {
-        e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+        e.respondWith(
+          fetch(e.request).then(res => {
+            const resClone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, resClone));
+            return res;
+          }).catch(() => caches.match(e.request))
+        );
       });
     `;
     const swBlob = new Blob([swCode], {type:'application/javascript'});
