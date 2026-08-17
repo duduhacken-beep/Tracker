@@ -858,6 +858,10 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 @media(prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;transition:none}
 }
+/* Reforço: a aba South Shop nunca deve ficar presa em opacity:0 por causa
+   do scroll-reveal, mesmo que a classe .reveal acabe sendo aplicada por
+   algum outro caminho de código no futuro. */
+#page-southshop .reveal{opacity:1;transform:none;transition:none}
 
 /* ── KANBAN — NEGÓCIOS ── */
 .kanban-wrap{
@@ -3611,7 +3615,13 @@ function go(p) {
   const navBtn = $('n-' + p);
   navBtn.classList.add('on');
   moveNavIndicator(navBtn);
-  setupScrollReveal(p);
+  // South Shop fica de fora do scroll-reveal: o bloco do cronograma é
+  // conteúdo principal da aba (não algo que o usuário alcança rolando a
+  // página), é grande/dinâmico (100+ tarefas) e, se o IntersectionObserver
+  // não disparar de forma confiável pra ele, o bloco fica preso em
+  // opacity:0 pela transição de .7s da classe .reveal — exatamente o
+  // "aparece e some depois de meio segundo" relatado.
+  if (p !== 'southshop') setupScrollReveal(p);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
