@@ -3628,7 +3628,7 @@ function go(p) {
   if (p === 'compras')  { safeCall(renderCompras, 'renderCompras'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'negocios') { safeCall(renderNegocios, 'renderNegocios'); }
-  if (p === 'southshop') { safeCall(renderSouthShop, 'renderSouthShop'); }
+  if (p === 'southshop') { safeCall(() => renderSouthShop(), 'renderSouthShop'); }
   if (p === 'livros')   { safeCall(renderLivros, 'renderLivros'); }
   if (p === 'filmes')   { safeCall(renderFilmes, 'renderFilmes'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -9598,15 +9598,28 @@ function ssEscapeHtml(str) {
   return String(str == null ? '' : str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function ssGetTaskState() { return load('south_shop_task_state', {}); }
+function ssGetTaskState() {
+  const s = load('south_shop_task_state', {});
+  return (s && typeof s === 'object' && !Array.isArray(s)) ? s : {};
+}
 function ssSetTaskState(state) { save('south_shop_task_state', state); }
-function ssGetDecisions() { return load('south_shop_decisions', SS_DEFAULT_DECISIONS); }
-function ssGetChangelog() { return load('south_shop_changelog', SS_DEFAULT_CHANGELOG); }
+function ssGetDecisions() {
+  const d = load('south_shop_decisions', SS_DEFAULT_DECISIONS);
+  return Array.isArray(d) ? d : SS_DEFAULT_DECISIONS;
+}
+function ssGetChangelog() {
+  const c = load('south_shop_changelog', SS_DEFAULT_CHANGELOG);
+  return Array.isArray(c) ? c : SS_DEFAULT_CHANGELOG;
+}
 
 function ssGetExpanded() {
-  if (ssExpanded) return ssExpanded;
+  if (Array.isArray(ssExpanded)) return ssExpanded;
   const stored = load('south_shop_expanded', null);
-  ssExpanded = stored || [ssCurrentWeek()];
+  // Dados antigos/corrompidos podem não ser um array (ex.: versão anterior
+  // salvava outro formato) — sem essa checagem, `.includes()` mais abaixo
+  // lança TypeError e trava ssRenderWeeks() no meio, deixando a lista de
+  // semanas em branco mesmo com os cards de estatística já preenchidos.
+  ssExpanded = Array.isArray(stored) ? stored : [ssCurrentWeek()];
   return ssExpanded;
 }
 function ssSaveExpanded() { save('south_shop_expanded', ssExpanded); }
@@ -9842,10 +9855,14 @@ function ssRenderDecisions() {
 
 function renderSouthShop() {
   if (!$('page-southshop')) return;
-  ssRenderStats();
-  ssRenderFilterbar();
-  ssRenderWeeks();
-  ssRenderDecisions();
+  // Cada etapa isolada no seu próprio try/catch: antes, um erro em
+  // qualquer uma delas (ex.: dado antigo no localStorage) travava a
+  // execução no meio e deixava tudo que vem depois em branco — mesmo
+  // que os cards de estatística já tivessem sido preenchidos com sucesso.
+  try { ssRenderStats(); } catch (e) { console.error('Falha em ssRenderStats:', e); }
+  try { ssRenderFilterbar(); } catch (e) { console.error('Falha em ssRenderFilterbar:', e); }
+  try { ssRenderWeeks(); } catch (e) { console.error('Falha em ssRenderWeeks:', e); }
+  try { ssRenderDecisions(); } catch (e) { console.error('Falha em ssRenderDecisions:', e); }
 }
 </script>
 
