@@ -858,11 +858,6 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 @media(prefers-reduced-motion:reduce){
   .reveal{opacity:1;transform:none;transition:none}
 }
-/* Reforço: a aba South Shop nunca deve ficar presa em opacity:0 por causa
-   do scroll-reveal, mesmo que a classe .reveal acabe sendo aplicada por
-   algum outro caminho de código no futuro. */
-#page-southshop .reveal{opacity:1;transform:none;transition:none}
-
 /* ── KANBAN — NEGÓCIOS ── */
 .kanban-wrap{
   display:flex;gap:14px;align-items:flex-start;
@@ -1578,69 +1573,6 @@ body.dens-compact .gap{margin-bottom:14px}
   .mov-col{flex-basis:84%;min-width:84%}
 }
 </style>
-<style>
-/* ═══════════════════════════════════════════
-   SOUTH SHOP — aba de acompanhamento do lançamento
-   ═══════════════════════════════════════════ */
-.ss-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
-.ss-subtabs{display:flex;gap:6px;background:var(--bg3);padding:4px;border-radius:var(--rs);border:1px solid var(--border)}
-.ss-subtab{padding:9px 18px;border-radius:calc(var(--rs) - 2px);font-size:12.5px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s var(--ease);background:transparent;border:none;font-family:var(--f-sans)}
-.ss-subtab.on{background:var(--accent);color:#0a0c10}
-.ss-filterbar{display:flex;gap:6px;flex-wrap:wrap}
-.ss-filter{padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:600;color:var(--text2);cursor:pointer;background:var(--card);border:1px solid var(--border);transition:all .2s var(--ease);font-family:var(--f-sans)}
-.ss-filter.on{background:var(--adim);border-color:var(--accent);color:var(--accent)}
-.ss-wk{margin-bottom:12px;padding:0;overflow:hidden}
-.ss-wk-head{display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;user-select:none}
-.ss-wk-num{font-family:var(--f-serif);font-size:26px;color:var(--text3);min-width:36px}
-.ss-wk.current .ss-wk-num{color:var(--accent)}
-.ss-wk-info{flex:1;min-width:0}
-.ss-wk-title{font-size:13.5px;font-weight:600;color:var(--text)}
-.ss-wk-range{font-family:var(--f-mono);font-size:10.5px;color:var(--text3);letter-spacing:.3px;margin-top:3px}
-.ss-wk-badge{font-family:var(--f-mono);font-size:9.5px;padding:3px 9px;border-radius:20px;background:var(--adim);color:var(--accent);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.ss-wk-pct{font-family:var(--f-mono);font-size:12px;color:var(--text2);min-width:38px;text-align:right}
-.ss-wk-chev{color:var(--text3);transition:transform .25s var(--ease);flex-shrink:0}
-.ss-wk.open .ss-wk-chev{transform:rotate(180deg)}
-.ss-wk .pb{margin:0 22px 16px}
-.ss-wk-body{display:none;padding:0 22px 18px;border-top:1px solid var(--border)}
-.ss-wk.open .ss-wk-body{display:block;padding-top:14px}
-.ss-task{padding:12px 0;border-bottom:1px solid var(--border)}
-.ss-task:last-child{border-bottom:none}
-.ss-task-row{display:flex;align-items:flex-start;gap:11px}
-.ss-task-title{flex:1;font-size:13.5px;line-height:1.45;cursor:pointer}
-.ss-task-title.x{text-decoration:line-through;color:var(--text3)}
-.ss-task-note-txt{font-size:11.5px;color:var(--text3);line-height:1.5;margin-top:4px;font-style:italic;font-family:var(--f-serif)}
-.ss-task-toggle{font-size:10.5px;color:var(--text3);cursor:pointer;padding:4px 10px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;transition:all .2s var(--ease);flex-shrink:0}
-.ss-task-toggle:hover{border-color:var(--accent);color:var(--accent)}
-.ss-task-toggle.has{border-color:var(--adim);color:var(--accent);background:var(--adim)}
-.ss-note-box{display:none;margin:10px 0 0 29px}
-.ss-note-box.open{display:block}
-.ss-note-box textarea{min-height:64px;font-size:12.5px}
-.ss-note-meta{display:flex;justify-content:space-between;align-items:center;margin-top:7px}
-.ss-note-stamp{font-family:var(--f-mono);font-size:10px;color:var(--text3)}
-.ss-note-save{padding:6px 13px;font-size:11px}
-.ss-dec-card{margin-bottom:14px}
-.ss-dec-card h2{font-size:18px;margin-bottom:10px}
-.ss-dec-card p{margin-bottom:10px;font-size:13px;line-height:1.65;color:var(--text2)}
-.ss-dec-card p:last-child{margin-bottom:0}
-.ss-dec-card ul{margin:8px 0 10px 20px}
-.ss-dec-card li{font-size:13px;line-height:1.6;color:var(--text2);margin-bottom:4px}
-.ss-dec-card b{color:var(--text);font-weight:600}
-.ss-dec-card i{color:var(--text2)}
-.ss-dec-card code{font-family:var(--f-mono);font-size:11.5px;background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent2)}
-.ss-dec-card table{margin-top:6px}
-.ss-changelog{margin-top:2px}
-.ss-cl-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
-.ss-cl-item:last-child{border-bottom:none}
-.ss-cl-date{font-family:var(--f-mono);font-size:10.5px;color:var(--text3);white-space:nowrap;padding-top:1px}
-.ss-cl-text{font-size:12.5px;color:var(--text2);line-height:1.55}
-@media(max-width:640px){
-  .ss-wk-head{padding:14px 16px;gap:10px}
-  .ss-wk-body{padding:0 16px 16px}
-  .ss-wk .pb{margin:0 16px 12px}
-  .ss-note-box{margin-left:0}
-  .ss-top{gap:12px}
-}
-</style>
 </head>
 <body>
 
@@ -1708,8 +1640,6 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('negocios')" id="n-negocios">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg><span>Negócios</span></button>
-  <button class="nb" onclick="go('southshop')" id="n-southshop">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>South Shop</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
   <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
@@ -3093,38 +3023,6 @@ body.dens-compact .gap{margin-bottom:14px}
 </section>
 
 <!-- ════════════════ BACKUP ════════════════ -->
-<!-- ════════════════ SOUTH SHOP ════════════════ -->
-<section class="page" id="page-southshop">
-  <div class="ss-top">
-    <div>
-      <h1>South Shop</h1>
-      <p class="psub" style="margin-bottom:0">Plataforma multi-categoria · consignação Gralha Azul + ColorTek</p>
-    </div>
-    <div class="ss-subtabs">
-      <button class="ss-subtab on" id="ss-tab-checklist" onclick="ssSwitchTab('checklist')">📋 Cronograma</button>
-      <button class="ss-subtab" id="ss-tab-decisions" onclick="ssSwitchTab('decisions')">📖 Decisões</button>
-    </div>
-  </div>
-
-  <div class="g4 gap" id="ss-stats"></div>
-
-  <div id="ss-view-checklist">
-    <div class="card gap" style="padding:16px 22px">
-      <div class="ss-filterbar" id="ss-filterbar"></div>
-    </div>
-    <div id="ss-weeks"></div>
-  </div>
-
-  <div id="ss-view-decisions" style="display:none">
-    <div id="ss-decisions"></div>
-    <div class="card">
-      <h3>Histórico de atualizações</h3>
-      <p style="font-size:11.5px;color:var(--text3);margin-bottom:12px">Quando o Claude analisa suas anotações nas tarefas e atualiza o texto de decisões acima, o registro aparece aqui.</p>
-      <div class="ss-changelog" id="ss-changelog"></div>
-    </div>
-  </div>
-</section>
-
 <section class="page" id="page-backup">
   <h1>☁️ Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
 
@@ -3453,7 +3351,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos','south_shop_task_state','south_shop_decisions','south_shop_changelog','south_shop_expanded'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3479,7 +3377,7 @@ function reRenderAll() {
   // Cada chamada passa por safeCall (mesmo padrão do boot em init()) para
   // que uma falha isolada numa página não impeça as outras de atualizar —
   // antes, um erro em QUALQUER função aqui parava tudo que vinha depois
-  // dela na lista, inclusive renderSouthShop() (sempre por último).
+  // dela na lista.
   safeCall(carregarTema, 'carregarTema');
   safeCall(aplicarNavFavs, 'aplicarNavFavs');
   safeCall(refreshHome, 'refreshHome');
@@ -3500,19 +3398,6 @@ function reRenderAll() {
   safeCall(renderLivros, 'renderLivros');
   safeCall(renderFilmes, 'renderFilmes');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
-  // renderSouthShop() mora num <script> separado, mais abaixo no HTML (a
-  // seção "SOUTH SHOP" foi adicionada depois, em bloco próprio). Chamar
-  // `safeCall(renderSouthShop, ...)` direto quebra: o identificador
-  // `renderSouthShop` é resolvido ANTES de entrar no try/catch do safeCall
-  // (na hora de montar os argumentos da chamada) — então, se esse outro
-  // <script> ainda não tiver rodado (ex: a resposta do Supabase chegou
-  // rápido o bastante para vencer a análise desse bloco final, que é
-  // grande por causa dos dados do checklist), o erro "renderSouthShop is
-  // not defined" escapa do safeCall e trava o resto da página, sem sequer
-  // aparecer como um erro tratado. Envolver numa arrow function adia essa
-  // resolução do nome para dentro do try/catch, onde o safeCall realmente
-  // consegue proteger a chamada.
-  safeCall(() => renderSouthShop(), 'renderSouthShop');
 }
 
 // ──────────────────────────────────
@@ -3615,13 +3500,7 @@ function go(p) {
   const navBtn = $('n-' + p);
   navBtn.classList.add('on');
   moveNavIndicator(navBtn);
-  // South Shop fica de fora do scroll-reveal: o bloco do cronograma é
-  // conteúdo principal da aba (não algo que o usuário alcança rolando a
-  // página), é grande/dinâmico (100+ tarefas) e, se o IntersectionObserver
-  // não disparar de forma confiável pra ele, o bloco fica preso em
-  // opacity:0 pela transição de .7s da classe .reveal — exatamente o
-  // "aparece e some depois de meio segundo" relatado.
-  if (p !== 'southshop') setupScrollReveal(p);
+  setupScrollReveal(p);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
@@ -3638,7 +3517,6 @@ function go(p) {
   if (p === 'compras')  { safeCall(renderCompras, 'renderCompras'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'negocios') { safeCall(renderNegocios, 'renderNegocios'); }
-  if (p === 'southshop') { safeCall(() => renderSouthShop(), 'renderSouthShop'); }
   if (p === 'livros')   { safeCall(renderLivros, 'renderLivros'); }
   if (p === 'filmes')   { safeCall(renderFilmes, 'renderFilmes'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -5792,7 +5670,7 @@ function renderHistChart() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','livros_lidos','filmes_assistidos','south_shop_task_state','south_shop_decisions','south_shop_changelog','south_shop_expanded'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -8072,14 +7950,12 @@ const ALL_PAGES = [
   { id:'compras',  label:'Compras',   icon:'🛒' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'negocios', label:'Negócios',  icon:'💼' },
-  { id:'southshop',label:'South Shop',icon:'🏪' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
 ];
 
 function getNavFavs() {
   const favs = load('nav_favs', ['home','agenda','rotina','tarefas','corpo','mente','financas','negocios']);
   if (!favs.includes('negocios')) { favs.push('negocios'); save('nav_favs', favs); }
-  if (!favs.includes('southshop')) { favs.push('southshop'); save('nav_favs', favs); }
   return favs;
 }
 
@@ -9588,293 +9464,5 @@ document.addEventListener('keydown', function(e) {
   setTimeout(syncSwatches, 200);
 })();
 </script>
-<script>
-// ══════════════════════════════════════════
-// SOUTH SHOP — dados (tarefas, semanas, decisões)
-// ══════════════════════════════════════════
-const SS_TASKS = [{"id": "w1-01", "week": 1, "area": "Infraestrutura", "color": "tb", "title": "Levantar os requisitos do computador", "note": "Fotos/vídeo de produto, painel Nuvemshop, Bling, planilhas, e-mail, backup."}, {"id": "w1-02", "week": 1, "area": "Infraestrutura", "color": "tb", "title": "Definir orçamento e comparar 2–3 modelos de notebook/desktop", "note": ""}, {"id": "w1-03", "week": 1, "area": "Infraestrutura", "color": "tb", "title": "Contratar um gerenciador de senhas (1Password/Bitwarden) para os acessos da operação", "note": ""}, {"id": "w1-04", "week": 1, "area": "Automações", "color": "tb", "title": "Escrever as respostas rápidas do WhatsApp Business", "note": "Saudação, dúvidas frequentes, pós-venda."}, {"id": "w1-05", "week": 1, "area": "Automações", "color": "tb", "title": "Criar as contas em Google Search Console, Bing Webmaster Tools e Google Analytics 4 para southshop.com.br", "note": ""}, {"id": "w1-06", "week": 1, "area": "Jurídico", "color": "tr", "title": "Abrir o CNPJ novo do South Shop", "note": ""}, {"id": "w1-07", "week": 1, "area": "Jurídico", "color": "tr", "title": "Avaliar com o contador o tipo societário (SLU x sociedade limitada tradicional)", "note": ""}, {"id": "w1-08", "week": 1, "area": "Site", "color": "tb", "title": "Aprovar a versão final do site (protótipo GitHub Pages) com Alan e Marcão", "note": "Protótipo publicado no GitHub Pages, aguardando aprovação formal de Alan e Marcão."}, {"id": "w2-01", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Comprar o computador definitivo", "note": ""}, {"id": "w2-02", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Configurar o computador (contas, apps, antivírus, backup automático)", "note": ""}, {"id": "w2-03", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Comprar impressora térmica de etiquetas (Correios/Jadlog)", "note": ""}, {"id": "w2-04", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Comprar balança de precisão para pesagem de pacotes", "note": ""}, {"id": "w2-05", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Montar a bancada de embalagem (fita, plástico bolha, caixas, etiquetas)", "note": ""}, {"id": "w2-06", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Avaliar a necessidade de um segundo monitor para a operação diária", "note": ""}, {"id": "w2-07", "week": 2, "area": "Infraestrutura", "color": "tb", "title": "Definir a política de backup dos arquivos da loja (Drive + cópia local)", "note": ""}, {"id": "w2-08", "week": 2, "area": "Automações", "color": "tb", "title": "Escrever os templates de e-mail transacional", "note": "Confirmação de pedido, envio, entrega, avaliação."}, {"id": "w2-09", "week": 2, "area": "Automações", "color": "tb", "title": "Escrever o fluxo de e-mail de carrinho abandonado (2–3 mensagens)", "note": ""}, {"id": "w2-10", "week": 2, "area": "Jurídico", "color": "tr", "title": "Definir o pró-labore de Eduardo e a forma de remuneração de Alan, Marcão e France", "note": "Sociedade agora é 100% Eduardo — simular com o contador o efeito no Fator R e no INSS retido de 11% antes de fechar os valores."}, {"id": "w2-11", "week": 2, "area": "Jurídico", "color": "tr", "title": "Negociar e fechar o % de repasse com a Gralha Azul", "note": "Maior bloqueio original do projeto — a redação precisa manter a venda em nome do South Shop (comércio, Anexo I)."}, {"id": "w2-12", "week": 2, "area": "Jurídico", "color": "tr", "title": "Negociar e fechar o % de repasse com a ColorTek", "note": "Mesmo modelo da Gralha Azul, incluindo a cláusula de não identificação da marca."}, {"id": "w2-13", "week": 2, "area": "Jurídico", "color": "tr", "title": "Confirmar o CNAE principal (4789-0/05) com o contador", "note": ""}, {"id": "w2-14", "week": 2, "area": "Jurídico", "color": "tr", "title": "Avaliar a inclusão do CNAE secundário 85.99-6/04 (treinamentos)", "note": ""}, {"id": "w3-01", "week": 3, "area": "Jurídico", "color": "tr", "title": "Assinar o contrato de consignação com a Gralha Azul", "note": "Redação precisa manter comércio/Anexo I."}, {"id": "w3-02", "week": 3, "area": "Jurídico", "color": "tr", "title": "Assinar o contrato de consignação com a ColorTek", "note": "Incluir cláusula de não identificação da marca."}, {"id": "w3-03", "week": 3, "area": "Jurídico", "color": "tr", "title": "Abrir a conta bancária PJ", "note": ""}, {"id": "w3-04", "week": 3, "area": "Automações", "color": "tb", "title": "Fazer a pesquisa de palavras-chave (estética automotiva + couro)", "note": ""}, {"id": "w3-05", "week": 3, "area": "Automações", "color": "tb", "title": "Montar o calendário editorial do blog e redigir os primeiros posts", "note": ""}, {"id": "w3-06", "week": 3, "area": "Automações", "color": "tb", "title": "Redigir o FAQ estruturado (produtos, trocas, entrega, treinamentos)", "note": ""}, {"id": "w4-01", "week": 4, "area": "Automações", "color": "tb", "title": "Escrever as descrições originais de produto CarPro e South Leather", "note": "Nunca copiar a descrição do fabricante — conteúdo duplicado penaliza o ranqueamento."}, {"id": "w4-02", "week": 4, "area": "Automações", "color": "tb", "title": "Prototipar a triagem automática de e-mail com Claude/Obsidian", "note": ""}, {"id": "w4-03", "week": 4, "area": "Automações", "color": "tb", "title": "Criar a conta no Google Merchant Center e preparar a estrutura do feed de produtos", "note": ""}, {"id": "w4-04", "week": 4, "area": "Automações", "color": "tb", "title": "Preparar o conteúdo do Instagram novo (bio, destaques, primeiros 8–10 posts)", "note": ""}, {"id": "w5-01", "week": 5, "area": "Nuvemshop", "color": "tb", "title": "Ativar o plano Impulso (quando o CNPJ estiver pronto)", "note": "Plano de entrada que libera FTP/código-fonte (~R$139–164/mês)."}, {"id": "w5-02", "week": 5, "area": "Nuvemshop", "color": "tb", "title": "Cadastrar os dados fiscais da empresa no painel", "note": ""}, {"id": "w5-03", "week": 5, "area": "Nuvemshop", "color": "tb", "title": "Apontar o domínio southshop.com.br para a Nuvemshop", "note": ""}, {"id": "w5-04", "week": 5, "area": "Nuvemshop", "color": "tb", "title": "Ativar a exigência de conta/login antes do checkout", "note": "Requisito de negócio: nenhuma compra pode ser concluída sem cadastro/login do cliente."}, {"id": "w6-01", "week": 6, "area": "Migração", "color": "tb", "title": "Solicitar a abertura de FTP (código-fonte) no painel", "note": "Gera host, usuário e senha de acesso."}, {"id": "w6-02", "week": 6, "area": "Migração", "color": "tb", "title": "Baixar o tema Base da Nuvemshop via FTP", "note": "Estrutura em Twig (.tpl) — layout, snippets e templates de categoria/produto/carrinho."}, {"id": "w6-03", "week": 6, "area": "Migração", "color": "tb", "title": "Fazer backup completo dos arquivos originais do tema Base", "note": ""}, {"id": "w6-04", "week": 6, "area": "Migração", "color": "tb", "title": "Portar o HTML/CSS/JS já aprovado para os arquivos .tpl", "note": ""}, {"id": "w7-01", "week": 7, "area": "Migração", "color": "tb", "title": "Conectar dados reais de produto, estoque e preço nos templates", "note": "Objeto Product da Nuvemshop expõe nome/preço/imagens/variações/estoque automaticamente, sem precisar mexer em código por produto."}, {"id": "w7-02", "week": 7, "area": "Migração", "color": "tb", "title": "Migrar títulos, meta descriptions e URLs amigáveis do protótipo", "note": ""}, {"id": "w7-03", "week": 7, "area": "Migração", "color": "tb", "title": "Configurar redirecionamentos e testar todos os links internos", "note": ""}, {"id": "w7-04", "week": 7, "area": "Migração", "color": "tb", "title": "Testar o tema publicado em desktop e mobile", "note": ""}, {"id": "w8-01", "week": 8, "area": "Catálogo", "color": "tb", "title": "Estruturar as categorias do catálogo (CarPro, South Leather, futuras linhas)", "note": ""}, {"id": "w8-02", "week": 8, "area": "Catálogo", "color": "tb", "title": "Confirmar a Política de Preço Mínimo de Revenda com CarPro/Gralha Azul", "note": ""}, {"id": "w9-01", "week": 9, "area": "Catálogo", "color": "tb", "title": "Cadastrar os produtos (nome, descrição, fotos, SKU, preço, estoque)", "note": ""}, {"id": "w9-02", "week": 9, "area": "Catálogo", "color": "tb", "title": "Criar os kits/combos próprios", "note": ""}, {"id": "w9-03", "week": 9, "area": "Catálogo", "color": "tb", "title": "Definir e aplicar a política de preços", "note": ""}, {"id": "w9-04", "week": 9, "area": "Catálogo", "color": "tb", "title": "Cadastrar a linha South Leather", "note": "Cores prontas-entrega Preto, Cinza e Caramelo (kits e avulso), mais o fluxo de pedido de cor personalizada com upload de foto do cliente."}, {"id": "w10-01", "week": 10, "area": "Pagamento", "color": "tb", "title": "Ativar o Nuvem Pago", "note": ""}, {"id": "w10-02", "week": 10, "area": "Pagamento", "color": "tb", "title": "Configurar Pix, cartão e boleto no checkout", "note": ""}, {"id": "w10-03", "week": 10, "area": "Pagamento", "color": "tb", "title": "Configurar o Mercado Pago como backup", "note": ""}, {"id": "w10-04", "week": 10, "area": "Pagamento", "color": "tb", "title": "Ativar o Nuvem Envio", "note": ""}, {"id": "w10-05", "week": 10, "area": "Pagamento", "color": "tb", "title": "Configurar a tabela de frete por CEP", "note": ""}, {"id": "w10-06", "week": 10, "area": "Pagamento", "color": "tb", "title": "Definir o valor mínimo para frete grátis", "note": ""}, {"id": "w11-01", "week": 11, "area": "Mercado Livre", "color": "tp", "title": "Criar/organizar a conta de vendedor oficial no Mercado Livre", "note": ""}, {"id": "w11-02", "week": 11, "area": "Mercado Livre", "color": "tp", "title": "Instalar o app Mercado Livre by HubNoov", "note": ""}, {"id": "w11-03", "week": 11, "area": "Mercado Livre", "color": "tp", "title": "Mapear categorias e sincronizar o catálogo", "note": ""}, {"id": "w11-04", "week": 11, "area": "Mercado Livre", "color": "tp", "title": "Testar a sincronização de estoque entre site e Mercado Livre", "note": ""}, {"id": "w11-05", "week": 11, "area": "Shopee", "color": "tp", "title": "Criar a conta de vendedor na Shopee (CarPro + South Leather/ColorTek)", "note": ""}, {"id": "w11-06", "week": 11, "area": "Shopee", "color": "tp", "title": "Mapear comissão, taxas de checkout e frete da Shopee por categoria", "note": "Incluir numa nova aba da planilha de margem, junto com a linha ColorTek."}, {"id": "w11-07", "week": 11, "area": "Shopee", "color": "tp", "title": "Decidir se a Shopee entra já no lançamento ou numa fase seguinte", "note": ""}, {"id": "w12-01", "week": 12, "area": "Instagram", "color": "tp", "title": "Criar o perfil novo, separado do perfil da South Car", "note": ""}, {"id": "w12-02", "week": 12, "area": "Instagram", "color": "tp", "title": "Publicar bio, destaques e os primeiros posts (preparados na semana 4)", "note": ""}, {"id": "w12-03", "week": 12, "area": "Instagram", "color": "tp", "title": "Alinhar com Alan e France quem posta o quê, e a frequência", "note": ""}, {"id": "w12-04", "week": 12, "area": "Instagram", "color": "tp", "title": "Linkar o perfil novo no site e nas fichas de produto", "note": ""}, {"id": "w12-05", "week": 12, "area": "ERP/Fiscal", "color": "to", "title": "Criar conta no Bling e integrar com a Nuvemshop", "note": ""}, {"id": "w12-06", "week": 12, "area": "ERP/Fiscal", "color": "to", "title": "Configurar a emissão de nota fiscal", "note": ""}, {"id": "w12-07", "week": 12, "area": "ERP/Fiscal", "color": "to", "title": "Confirmar o NCM e o ICMS-ST das linhas CarPro e South Leather", "note": "Provável Seção L — Materiais de Limpeza, Anexo 1 RICMS/SC (CarPro). South Leather pode ter NCM/regime diferente — pesquisar antes de fechar a precificação."}, {"id": "w12-08", "week": 12, "area": "ERP/Fiscal", "color": "to", "title": "Avaliar o DIFAL para vendas interestaduais e investigar o PIS/COFINS monofásico", "note": "DIFAL: Tema 1284 do STF, depende da legislação de cada estado de destino. Monofásico: verificar enquadramento nas Leis 10.147/2000 ou 10.485/2002."}, {"id": "w12-09", "week": 12, "area": "ERP/Fiscal", "color": "to", "title": "Fechar o número final de breakeven", "note": "Depende diretamente da margem de repasse que sair da negociação com a Gralha Azul e a ColorTek."}, {"id": "w12-10", "week": 12, "area": "Jurídico do site", "color": "tr", "title": "Publicar termos de uso, política de privacidade (LGPD) e política de trocas/devoluções", "note": ""}, {"id": "w13-01", "week": 13, "area": "Jurídico do site", "color": "tr", "title": "Protocolar o registro de marca South Shop no INPI; avaliar registrar South Leather", "note": "Taxa INPI: R$440 a R$860 por classe (com desconto ME/EPP), já cobrindo 10 anos. Com escritório especializado, total de R$940 a R$2.440."}, {"id": "w13-02", "week": 13, "area": "Atendimento", "color": "tt", "title": "Ativar o botão de WhatsApp nativo; avaliar o Nuvem Chat", "note": "Sem mensalidade fixa — cobra por conversa atendida pela IA (24h = 1 conversa). No Plano Impulso: R$0,95/conversa. Teste grátis de 15 dias."}, {"id": "w13-03", "week": 13, "area": "SEO técnico", "color": "tp", "title": "Sitemap.xml, robots.txt, HTTPS, URLs canônicas, Core Web Vitals, dados estruturados, breadcrumbs, página 404", "note": ""}, {"id": "w13-04", "week": 13, "area": "SEO técnico", "color": "tp", "title": "Google Analytics 4, feed do Google Merchant Center, avaliações de clientes, página de FAQ", "note": ""}, {"id": "w13-05", "week": 13, "area": "SEO conteúdo", "color": "tp", "title": "Publicar as descrições de produto/categoria já escritas nas semanas 3–4", "note": ""}, {"id": "w13-06", "week": 13, "area": "Autoridade", "color": "tp", "title": "Criar/otimizar o Google Business Profile; garantir consistência de NAP", "note": "Nome, endereço e telefone consistentes entre site, Google Business Profile e Instagram."}, {"id": "w13-07", "week": 13, "area": "Blog/GEO", "color": "tp", "title": "Publicar os primeiros posts do blog (já escritos na semana 3)", "note": ""}, {"id": "w14-01", "week": 14, "area": "Autoridade", "color": "tp", "title": "Buscar parcerias e backlinks com blogs e influenciadores do nicho", "note": ""}, {"id": "w14-02", "week": 14, "area": "Autoridade", "color": "tp", "title": "Reaproveitar os ~61 mil seguidores da South Car linkando o site nas bios e conteúdos", "note": ""}, {"id": "w14-03", "week": 14, "area": "Marketing", "color": "tp", "title": "Definir como usar os seguidores da South Car sem canibalizar a marca de serviço", "note": ""}, {"id": "w14-04", "week": 14, "area": "Marketing", "color": "tp", "title": "Escolher o canal prioritário de lançamento", "note": ""}, {"id": "w14-05", "week": 14, "area": "Marketing", "color": "tp", "title": "Decidir orçamento de mídia paga no mês 1, ou início 100% orgânico", "note": ""}, {"id": "w14-06", "week": 14, "area": "Marketing", "color": "tp", "title": "Montar o plano de lançamento (data, campanha, oferta de estreia)", "note": ""}, {"id": "w15-01", "week": 15, "area": "Lançamento", "color": "tp", "title": "Fazer um pedido teste ponta a ponta (compra + login + pagamento + frete)", "note": ""}, {"id": "w15-02", "week": 15, "area": "Lançamento", "color": "tp", "title": "Confirmar que o pedido teste aparece corretamente no Mercado Livre", "note": ""}, {"id": "w15-03", "week": 15, "area": "Lançamento", "color": "tp", "title": "Revisar todas as páginas no celular", "note": ""}, {"id": "w15-04", "week": 15, "area": "Lançamento", "color": "tp", "title": "Anunciar o lançamento (Instagram South Shop + @southcarservice + WhatsApp)", "note": ""}, {"id": "bl-01", "week": 0, "area": "Acompanhamento", "color": "ta", "title": "Definir o que caracteriza sucesso aos 6 meses e ao 1 ano", "note": ""}, {"id": "bl-02", "week": 0, "area": "Acompanhamento", "color": "ta", "title": "Meta de avaliação/reputação no Mercado Livre nos primeiros 90 dias", "note": ""}, {"id": "bl-03", "week": 0, "area": "Acompanhamento", "color": "ta", "title": "Número mínimo de vendas mensais abaixo do qual o projeto é reavaliado", "note": ""}, {"id": "bl-04", "week": 0, "area": "Acompanhamento", "color": "ta", "title": "Definir quem acompanha as métricas, e com que frequência", "note": ""}, {"id": "bl-05", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Remover a aba \"Como aplicar\" do site", "note": "Substituída por uma aba \"Treinamentos\", com redirecionamento para a plataforma externa de curso/ebook."}, {"id": "bl-06", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Decidir se o treinamento fica na mesma empresa do South Shop ou em CNPJ separado", "note": "Simular o Fator R combinado (produtos + treinamento) com o contador antes de decidir."}, {"id": "bl-07", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Escolher a plataforma de hospedagem do curso", "note": "Checkout 100% Nuvemshop + plataforma só de hospedagem (LMS Estúdio, Tutor LMS/Moodle) vs. plataforma de infoproduto com checkout próprio (Hotmart, Kiwify, Eduzz)."}, {"id": "bl-08", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Configurar a entrega automática do ebook e do link de acesso por e-mail", "note": "Via app de produto digital da Nuvemshop, no mesmo checkout dos produtos físicos."}, {"id": "bl-09", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Definir a precificação do ebook e do treinamento separadamente", "note": "Documentar o valor de cada parte (produto x serviço) para recolher cada uma pelo seu próprio anexo do Simples — evita risco de reclassificação por simulação."}, {"id": "bl-10", "week": 0, "area": "Treinamentos", "color": "ta", "title": "Criar a página \"Todos os cursos/treinamentos\"", "note": ""}, {"id": "bl-11", "week": 0, "area": "Radar", "color": "ta", "title": "TTD 478 — incentivo de ICMS-SC", "note": "Só disponível fora do Simples Nacional. Avaliar mais à frente, não é prioridade agora."}, {"id": "bl-12", "week": 0, "area": "Radar", "color": "ta", "title": "CNPJ separado para os Treinamentos, caso virem operação substantiva", "note": "Cria um cálculo de Fator R independente, mais fácil de administrar."}, {"id": "bl-13", "week": 0, "area": "Monitoramento", "color": "ta", "title": "Monitorar o uptime do site continuamente", "note": "Ferramentas como UptimeRobot avisam se o site cair."}, {"id": "bl-14", "week": 0, "area": "Monitoramento", "color": "ta", "title": "Revisar periodicamente o tempo de carregamento e os Core Web Vitals", "note": ""}, {"id": "bl-15", "week": 0, "area": "Monitoramento", "color": "ta", "title": "Revisar o Google Search Console periodicamente", "note": ""}, {"id": "bl-16", "week": 0, "area": "Retenção", "color": "ta", "title": "Configurar recuperação de carrinho abandonado", "note": "E-mail automático para quem adiciona ao carrinho e não finaliza — recurso nativo em planos pagos da Nuvemshop."}, {"id": "bl-17", "week": 0, "area": "Retenção", "color": "ta", "title": "Estruturar e-mail marketing pós-compra", "note": "Confirmação, status de envio, pedido de avaliação, cupom de segunda compra."}, {"id": "bl-18", "week": 0, "area": "Retenção", "color": "ta", "title": "Avaliar programa de fidelidade/indicação", "note": ""}, {"id": "bl-19", "week": 0, "area": "Segurança", "color": "ta", "title": "Confirmar a política de backup e retenção de dados da Nuvemshop", "note": ""}, {"id": "bl-20", "week": 0, "area": "Segurança", "color": "ta", "title": "Monitorar tentativas de fraude nos pedidos, principalmente pagamentos com cartão", "note": ""}, {"id": "bl-21", "week": 0, "area": "Segurança", "color": "ta", "title": "Manter rotina de troca de senhas/acessos quando alguém saia da operação", "note": ""}, {"id": "bl-22", "week": 0, "area": "Atendimento e reputação", "color": "ta", "title": "Formalizar o processo de tratamento de reclamações e devoluções", "note": ""}, {"id": "bl-23", "week": 0, "area": "Atendimento e reputação", "color": "ta", "title": "Monitorar ativamente as avaliações no Mercado Livre e no Google", "note": ""}, {"id": "bl-24", "week": 0, "area": "CRO", "color": "ta", "title": "Acompanhar taxa de conversão, taxa de abandono de carrinho, ticket médio e principais páginas de saída", "note": ""}, {"id": "bl-25", "week": 0, "area": "CRO", "color": "ta", "title": "Testar mudanças pequenas com base em dado", "note": "Foto de produto, texto do botão de compra, valor do frete grátis."}, {"id": "bl-26", "week": 0, "area": "Fiscal contínuo", "color": "ta", "title": "Acompanhar mensalmente o Fator R", "note": ""}, {"id": "bl-27", "week": 0, "area": "Fiscal contínuo", "color": "ta", "title": "Revisar o enquadramento tributário se a receita crescer", "note": "O Simples Nacional tem teto de faturamento."}, {"id": "bl-28", "week": 0, "area": "Fiscal contínuo", "color": "ta", "title": "Manter a emissão de NF-e em dia, sem atraso", "note": ""}, {"id": "bl-29", "week": 0, "area": "Fiscal contínuo", "color": "ta", "title": "Ter um canal e processo interno para pedidos de exclusão de dados (LGPD)", "note": ""}, {"id": "bl-30", "week": 0, "area": "Sazonal", "color": "ta", "title": "Planejar com antecedência datas como Black Friday, Dia dos Pais e Natal", "note": ""}, {"id": "bl-31", "week": 0, "area": "Radar", "color": "ta", "title": "Montar o checklist de migração das respostas diárias do Claude Cowork para o Obsidian", "note": "Quando o computador novo (Lenovo Slim 3, Ryzen 7, 16GB RAM) e o Obsidian estiverem instalados: migrar as respostas diárias geradas pela automação Claude Cowork (hoje salvas em PDF no Drive) para a base de dados do Obsidian, para automatizar respostas de atendimento."}];
-const SS_WEEKS = [{"n": 1, "range": "17–23 ago", "start": "2026-08-17", "end": "2026-08-23", "theme": "Infraestrutura, CNPJ e WhatsApp — arrancada"}, {"n": 2, "range": "24–30 ago", "start": "2026-08-24", "end": "2026-08-30", "theme": "Sociedade, contratos e primeiros e-mails prontos"}, {"n": 3, "range": "31 ago–6 set", "start": "2026-08-31", "end": "2026-09-06", "theme": "Assinar contratos, conteúdo e palavras-chave"}, {"n": 4, "range": "7–13 set", "start": "2026-09-07", "end": "2026-09-13", "theme": "Contas de SEO, produto e Instagram preparados"}, {"n": 5, "range": "14–20 set", "start": "2026-09-14", "end": "2026-09-20", "theme": "Nuvemshop no ar (plano Impulso)"}, {"n": 6, "range": "21–27 set", "start": "2026-09-21", "end": "2026-09-27", "theme": "Migração — baixar tema e portar o código"}, {"n": 7, "range": "28 set–4 out", "start": "2026-09-28", "end": "2026-10-04", "theme": "Migração — dados reais, SEO e testes"}, {"n": 8, "range": "5–11 out", "start": "2026-10-05", "end": "2026-10-11", "theme": "Estruturar categorias e preço mínimo"}, {"n": 9, "range": "12–18 out", "start": "2026-10-12", "end": "2026-10-18", "theme": "Cadastrar produtos, kits e South Leather"}, {"n": 10, "range": "19–25 out", "start": "2026-10-19", "end": "2026-10-25", "theme": "Pagamento e frete ativos"}, {"n": 11, "range": "26 out–1 nov", "start": "2026-10-26", "end": "2026-11-01", "theme": "Mercado Livre e Shopee no ar"}, {"n": 12, "range": "2–8 nov", "start": "2026-11-02", "end": "2026-11-08", "theme": "Instagram, Bling, fiscal e jurídico do site"}, {"n": 13, "range": "9–15 nov", "start": "2026-11-09", "end": "2026-11-15", "theme": "INPI, atendimento e SEO técnico completo"}, {"n": 14, "range": "16–22 nov", "start": "2026-11-16", "end": "2026-11-22", "theme": "Autoridade, backlinks e plano de marketing"}, {"n": 15, "range": "23–29 nov", "start": "2026-11-23", "end": "2026-11-29", "theme": "Teste final e lançamento — meta: tudo pronto"}];
-const SS_DEFAULT_DECISIONS = [{"id": "modelo_negocio", "title": "Modelo de negócio", "html": "<p>O South Shop opera em <b>consignação com fulfillment próprio</b>, hoje com dois fornecedores: a <b>Gralha Azul Import</b> (importadora exclusiva da CarPro no Brasil) e a <b>ColorTek</b> (couro automotivo). Os dois continuam donos do estoque até a venda — o South Shop não compra o produto antecipadamente.</p>\n<p>Deixou de ser uma loja exclusiva de estética automotiva CarPro: agora é uma <b>plataforma multi-categoria</b> para qualquer produto abaixo do teto do complexo South — CarPro, kits de tinta para couro (South Leather/ColorTek), peças automotivas e kits de carbono importados, entre outras categorias futuras.</p>\n<p>O estoque fica fisicamente numa loja de portas fechadas do South Shop, que assume separação, embalagem e envio de cada pedido. O catálogo de lançamento CarPro é uma <b>seleção mono-marca</b> (não a linha inteira), com liberdade para vender unitário ou montar kits próprios e liberdade de precificação — o reajuste acompanha o reajuste do próprio distribuidor.</p>\n<p>Dois canais de venda: site de e-commerce próprio e loja oficial no Mercado Livre.</p>"}, {"id": "south_leather", "title": "South Leather — parceria com a ColorTek", "html": "<p>Segunda parceria de consignação, no mesmo modelo da Gralha Azul. A ColorTek entra como fornecedora de tinta/corante para couro automotivo, mas <b>não pode vender direto ao consumidor final</b> — atende só aplicadores credenciados e treinados pela marca.</p>\n<p>O South Shop resolve essa restrição vendendo o produto sob marca própria, em kits ou avulso, através da linha <b>South Leather</b> (inspirada no modelo da Colour Lock nos EUA). A tinta é a mesma fabricada na fábrica da ColorTek, só embalada como produto South — <b>o nome ColorTek não pode aparecer em nenhum ponto da operação</b> (embalagem, site, comunicação). O pagamento segue a mesma lógica de repasse mensal da Gralha Azul.</p>\n<p>Estoque de pronta-entrega nas cores <b>Preto, Cinza e Caramelo</b>. Também haverá pedido de cor personalizada pelo site: o cliente anexa uma foto da cor desejada, e a fábrica da ColorTek produz sob encomenda.</p>"}, {"id": "sociedade", "title": "Sociedade e papéis", "html": "<p>O South Shop terá <b>CNPJ novo, próprio, com participação societária 100% de Eduardo</b> — substitui o modelo anterior de sociedade entre os três (Eduardo, Alan e Marcão), incluindo o pró-labore de R$6 mil/mês dividido entre eles e a cláusula de palavra final de Alan e Marcão em desacordos.</p>\n<p>Alan, Marcão e France continuam com papéis operacionais, mas sem participação no capital:</p>\n<ul>\n<li><b>Alan</b> — responsável comercial, dividindo com France a administração do Instagram do South Shop.</li>\n<li><b>Marcão</b> — especialista de produto e credibilidade técnica da marca, agora incluindo a linha South Leather.</li>\n<li><b>Eduardo</b> — administração geral do projeto e, com 100% do capital, decisão final.</li>\n</ul>\n<p><b>Pendente:</b> como Alan, Marcão e France serão remunerados (CLT, pró-labore sem participação, comissão ou PJ). Avaliar com o contador se o tipo societário mais adequado é uma <b>Sociedade Limitada Unipessoal (SLU)</b> em vez de sociedade limitada tradicional, dado o capital 100% Eduardo.</p>"}, {"id": "marca_identidade", "title": "Marca e identidade", "html": "<p>O e-commerce herda a identidade visual e o tom da South Car Exclusive — paleta escura e premium (azul-marinho quase preto) e a mesma personalidade sofisticada e exclusiva. Alan e Marcão são o rosto do South Shop nos conteúdos, cada um em papel diferente. Material visual (fotos e vídeos de produto) é produção própria — a ligação entre South Car (serviço) e South Shop (produto multi-categoria) é explícita na comunicação.</p>\n<p><b>Instagram próprio:</b> haverá um Instagram separado e próprio para o South Shop, com administração de Alan e France — substitui o plano anterior de reaproveitar só o perfil da South Car (~61 mil seguidores), que segue como reforço/cross-promotion.</p>\n<p>Domínio <b>southshop.com.br</b> já registrado (renovação anual ~R$40/ano no registro.br).</p>"}, {"id": "infraestrutura_pronta", "title": "Infraestrutura já resolvida", "html": "<p>Itens de base já saíram do papel:</p>\n<ul>\n<li>E-mail profissional <b>contato@southshop.com.br</b> criado via Zoho Mail (migração para Google Workspace planejada, sem data — Business Starter gira em torno de R$27–35/usuário/mês).</li>\n<li>Drive colaborativo com acessos entre os sócios.</li>\n<li>Layout do site 100% construído (protótipo HTML/CSS/JS, 19 páginas), publicado no GitHub Pages, aguardando aprovação formal de Alan e Marcão.</li>\n<li>Conta gratuita da Nuvemshop já criada para uso exploratório do painel — migração para o plano pago (Impulso) pendente do CNPJ.</li>\n<li>Tributos aplicáveis já levantados: mecânica do DAS, comparação Anexo I x III/V, situações de ICMS, e confirmação de que a <b>antecipação de ICMS-SC não se aplica</b> (operação intra-estado, Gralha Azul e South Shop ambos em SC).</li>\n</ul>\n<p>No radar, sem prazo definido: automações com Claude e Obsidian para parte do fluxo de e-mails.</p>"}, {"id": "logistica", "title": "Logística", "html": "<p>Loja física de portas fechadas dentro do complexo South, em Balneário Camboriú — sem necessidade de alvará específico para armazenagem/expedição, com segurança (câmeras e vigilantes) por conta do complexo. No início, <b>Eduardo faz a separação e embalagem</b> dos pedidos.</p>\n<p>Entrega pelo <b>Nuvem Envio</b> (Correios e Jadlog, despacho em ponto de postagem — a coleta porta-a-porta do Nuvem Envio hoje só existe para SP e MG). Frete calculado por tabela de CEP, com frete grátis a partir de um valor ainda a definir; rastreio automático ao cliente.</p>\n<p>Estoque controlado pelo <b>ERP Bling</b>, integrado ao campo de estoque nativo da Nuvemshop. Em devoluções, Eduardo recebe o produto e decide se volta ao estoque ou retorna ao fornecedor de origem (Gralha Azul ou ColorTek).</p>"}, {"id": "classificacao_tributaria", "title": "Classificação tributária — por que comércio", "html": "<p>O Simples Nacional segrega receitas por natureza — não existe um enquadramento único para a empresa inteira. O South Shop tem quatro frentes possíveis: venda de produtos (CarPro e South Leather), intermediação/consignação com os dois fornecedores, e cursos/treinamentos.</p>\n<p><b>Decisão tomada:</b> estruturar a venda como <b>comércio</b> — o South Shop emite a nota fiscal ao cliente final em nome próprio, em vez de operar por comissão sobre a venda do fornecedor. Isso classifica a receita no <b>Anexo I do Simples Nacional (4% a 19%)</b>, o único anexo que não depende do Fator R. Se fosse comissão por intermediação, a mesma receita cairia no Anexo III (6% a 33%) ou Anexo V (15,5% a 30,5%), dependendo do Fator R.</p>\n<p><b>Tensão real:</b> o modelo enxuto (poucos funcionários) empurra o Fator R para baixo de 28%, jogando intermediação e cursos para o Anexo V — mais caro. A venda de produtos, por ser Anexo I, não sofre esse efeito. Por isso, <b>a redação do contrato de consignação com a Gralha Azul e a ColorTek é prioridade número um</b>: é ela que decide se a receita nasce como comércio (barato) ou como serviço (caro).</p>\n<p><b>INSS sobre o pró-labore:</b> no Anexo I a empresa é isenta dos 20% de INSS patronal (CPP), já embutido no DAS. Existe a retenção de <b>11% sobre o pró-labore</b> (via GPS/eSocial), limitada ao teto de contribuição 2026 (R$8.475,55) — no máximo R$932,31/mês de retenção. Com a sociedade 100% Eduardo, esse cálculo passa a ser sobre um único pró-labore.</p>"}, {"id": "treinamentos_tributacao", "title": "Treinamentos — tributação e plataforma", "html": "<p>Não é obrigatório abrir empresa nova para vender curso/ebook — o Simples Nacional permite atividades mistas no mesmo CNPJ, com segregação de receitas no PGDAS-D mensal. CNAE mais usado: <b>85.99-6/04</b> (Treinamento em desenvolvimento profissional e gerencial), Anexo III (alíquota nominal inicial de 6%).</p>\n<p><b>Ponto de atenção:</b> o Fator R é calculado sobre folha e receita <i>totais</i> da empresa, não só da parte de treinamento. Como o modelo é enxuto, isso pode empurrar a receita de treinamento para o Anexo V (mais caro) em vez do Anexo III — simular com o contador. Alternativa de médio prazo: CNPJ separado para treinamentos (Fator R independente).</p>\n<p><b>Checkout:</b> pode continuar 100% na Nuvemshop, com entrega automática do ebook/link de acesso por e-mail. Para hospedar o curso: plataforma de infoproduto pronta (Hotmart, Kiwify, Eduzz — mais simples, mas cobra comissão própria e geralmente exige checkout próprio) ou checkout Nuvemshop + plataforma só de hospedagem (LMS Estúdio, Tutor LMS, Moodle — mais alinhado, exige mais configuração).</p>\n<p><b>Ebook x curso:</b> o ebook é imune de ICMS (STF, RE 330.817, Tema 593, Súmula Vinculante 57), mas entra no Anexo I como mercadoria, com alíquota efetiva menor. O curso online é serviço, sujeito a ISS, tributado no Anexo III/V conforme o Fator R.</p>\n<p><b>Risco a evitar:</b> vender um \"ebook\" caro com aula ao vivo/mentoria embutida como cortesia, na prática para tributar tudo como Anexo I — o Fisco pode reclassificar por simulação, olhando a substância da operação. Prática segura: <b>segregar e documentar os dois valores</b> (ebook x serviço) e recolher cada parte pelo seu próprio anexo.</p>"}, {"id": "custos_fixos", "title": "Custos fixos mensais", "html": "<p>Levantado na planilha <code>South_Shop_Breakeven.xlsx</code> (aba \"Custos Fixos\"). Itens com * são estimativas ainda a confirmar pelo valor real contratado.</p>\n<table class=\"htable\"><thead><tr><th>Item</th><th>Mensal</th><th>Observação</th></tr></thead><tbody>\n<tr><td>Nuvemshop (Plano Impulso)</td><td class=\"num\">R$ 164,00</td><td>Sem tarifa por venda usando Nuvem Pago</td></tr>\n<tr><td>Bling ERP*</td><td class=\"num\">R$ 150,00</td><td>Ajustar pelo plano efetivamente contratado</td></tr>\n<tr><td>HubNoov (Meli by HubNoov)</td><td class=\"num\">R$ 49,90</td><td>Integração ML, até 300 produtos/pedidos</td></tr>\n<tr><td>Certificado digital e-CNPJ*</td><td class=\"num\">R$ 20,00</td><td>~R$150–300/ano diluído no mês, para NF-e</td></tr>\n<tr><td>Contabilidade*</td><td class=\"num\">R$ 500,00</td><td>Comércio Simples com receitas segregadas tende ao topo da faixa (R$300–900)</td></tr>\n<tr><td>Taxas municipais (alvará/TFE)*</td><td class=\"num\">R$ 30,00</td><td>Confirmar valor exato com a prefeitura de Itajaí</td></tr>\n<tr><td>Buffer / imprevistos*</td><td class=\"num\">R$ 100,00</td><td>Sugestão, ajustável</td></tr>\n</tbody></table>\n<p style=\"margin-top:10px\"><b>Total sem pró-labore: ≈ R$1.014/mês.</b> O pró-labore está deliberadamente zerado nessa planilha (\"a definir\"). Já existia um valor combinado em princípio (R$6 mil/mês total, dividido entre os três sócios); com a sociedade agora 100% Eduardo, esse valor e sua divisão entre Eduardo (pró-labore) e Alan/Marcão/France (remuneração operacional) precisam ser refeitos.</p>"}, {"id": "taxas_pagamento", "title": "Taxas do Nuvem Pago", "html": "<p>Pesquisado em agosto de 2026 direto na documentação da Nuvemshop. No Plano Impulso não há tarifa de venda separada — só a taxa da transação, que varia pelo prazo de recebimento. Não existe antecipação: é sempre um dos três prazos abaixo.</p>\n<table class=\"htable\"><thead><tr><th>Meio de pagamento</th><th>Taxa (Plano Impulso)</th><th>Observação</th></tr></thead><tbody>\n<tr><td>Pix</td><td class=\"num\">0,99%</td><td>Recebimento instantâneo</td></tr>\n<tr><td>Boleto</td><td class=\"num\">R$ 2,39 fixo</td><td>Por boleto pago, até 2 dias</td></tr>\n<tr><td>Cartão — 30 dias</td><td class=\"num\">3,69% + R$0,35</td><td>Menor taxa, maior prazo</td></tr>\n<tr><td>Cartão — 14 dias</td><td class=\"num\">4,19% + R$0,35</td><td>—</td></tr>\n<tr><td>Cartão — 2 dias</td><td class=\"num\">4,69% + R$0,35</td><td>Maior taxa, menor prazo</td></tr>\n<tr><td>Parcelamento c/ juros ao cliente</td><td class=\"num\">16,65% a 23,44%</td><td>Pago pelo cliente, não pelo South Shop</td></tr>\n<tr><td>Saque do saldo</td><td class=\"num\">R$ 0,99</td><td>Manual no painel, mínimo R$2,00 por saque</td></tr>\n</tbody></table>"}, {"id": "custos_variaveis", "title": "Custos variáveis por venda", "html": "<p>Pesquisado em agosto de 2026. Ainda falta mapear comissão/taxas da <b>Shopee</b> (CarPro e South Leather/ColorTek) e o custo/tributação específica da linha South Leather.</p>\n<table class=\"htable\"><thead><tr><th>Item</th><th>Custo estimado</th><th>Observação</th></tr></thead><tbody>\n<tr><td>Comissão de venda no Mercado Livre</td><td class=\"num\">12% a 19%</td><td>Acessórios p/ Veículos: 12%(Clássico)/17%(Premium). Beleza: 14%/19%. Confirmar categoria real.</td></tr>\n<tr><td>Frete grátis obrigatório no ML</td><td class=\"num\">Assumido pelo vendedor</td><td>A partir de R$79 no pedido, desconto conforme reputação</td></tr>\n<tr><td>Embalagem e insumos de envio*</td><td class=\"num\">R$3 a R$8/pedido</td><td>Caixa, proteção, fita, etiqueta — estimativa</td></tr>\n</tbody></table>"}, {"id": "capital_giro", "title": "Capital de giro", "html": "<p>O Nuvem Pago não antecipa — o cartão pode levar até 30 dias para cair, mas o repasse aos fornecedores (Gralha Azul e ColorTek) é sempre no fim do mês, gerando possível <b>descasamento de caixa</b>. Vale reservar capital de giro inicial para cobrir esse hiato.</p>"}, {"id": "juridico", "title": "Jurídico", "html": "<p>Existe autorização disponível para usar imagens/vídeos institucionais da CarPro Global ou da Gralha Azul, mas <b>não será usada</b> — o material visual do South Shop é produção própria. O site terá termos de uso e conformidade com a LGPD (execução ainda pendente).</p>\n<p><b>Falta redigir</b> o contrato de consignação com a ColorTek, nos mesmos moldes do contrato com a Gralha Azul, incluindo cláusula específica de não identificação da marca ColorTek em qualquer ponto da operação.</p>"}, {"id": "operacao_diaria", "title": "Operação diária", "html": "<p>Eduardo e Alan respondem tanto pré-venda (WhatsApp, chat do site, direct do Instagram) quanto pós-venda (pedido atrasado, produto errado, reclamação). O SLA de resposta será ajustado na prática, sem tempo-limite fixo definido de antemão. Atendimento só em horário comercial da South, sem cobertura estendida em fins de semana e feriados.</p>"}];
-const SS_DEFAULT_CHANGELOG = [{"date": "2026-08-17", "text": "Painel criado a partir do Resumo de Decisões (PDFs v3/v4) e do cronograma de 15 semanas (17/ago–29/nov/2026) enviados por Eduardo. 120 tarefas cadastradas (90 do cronograma + 30 de backlog/pós-lançamento) e 14 seções de decisões consolidadas."}];
-
-// ══════════════════════════════════════════
-// SOUTH SHOP
-// ══════════════════════════════════════════
-let ssTab = 'checklist';
-let ssFilter = 'all'; // all | pending | done | notes
-let ssExpanded = null;
-
-function ssEscapeHtml(str) {
-  return String(str == null ? '' : str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function ssGetTaskState() {
-  const s = load('south_shop_task_state', {});
-  return (s && typeof s === 'object' && !Array.isArray(s)) ? s : {};
-}
-function ssSetTaskState(state) { save('south_shop_task_state', state); }
-function ssGetDecisions() {
-  const d = load('south_shop_decisions', SS_DEFAULT_DECISIONS);
-  return Array.isArray(d) ? d : SS_DEFAULT_DECISIONS;
-}
-function ssGetChangelog() {
-  const c = load('south_shop_changelog', SS_DEFAULT_CHANGELOG);
-  return Array.isArray(c) ? c : SS_DEFAULT_CHANGELOG;
-}
-
-function ssGetExpanded() {
-  if (Array.isArray(ssExpanded)) return ssExpanded;
-  const stored = load('south_shop_expanded', null);
-  // Dados antigos/corrompidos podem não ser um array (ex.: versão anterior
-  // salvava outro formato) — sem essa checagem, `.includes()` mais abaixo
-  // lança TypeError e trava ssRenderWeeks() no meio, deixando a lista de
-  // semanas em branco mesmo com os cards de estatística já preenchidos.
-  ssExpanded = Array.isArray(stored) ? stored : [ssCurrentWeek()];
-  return ssExpanded;
-}
-function ssSaveExpanded() { save('south_shop_expanded', ssExpanded); }
-
-function ssCurrentWeek() {
-  const t = today();
-  for (const w of SS_WEEKS) { if (t >= w.start && t <= w.end) return w.n; }
-  if (t < SS_WEEKS[0].start) return 1;
-  if (t > SS_WEEKS[SS_WEEKS.length - 1].end) return 15;
-  return 1;
-}
-
-function ssDaysToLaunch() {
-  const end = new Date(SS_WEEKS[SS_WEEKS.length - 1].end + 'T00:00:00');
-  const now = new Date(today() + 'T00:00:00');
-  return Math.round((end - now) / 86400000);
-}
-
-function ssFmtStamp(iso) {
-  const d = new Date(iso);
-  if (isNaN(d)) return '';
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mi = String(d.getMinutes()).padStart(2, '0');
-  return `${dd}/${mm} ${hh}:${mi}`;
-}
-
-function ssFmtDatePt(dateStr) {
-  const parts = String(dateStr).split('-');
-  if (parts.length < 3) return dateStr;
-  const [y, m, d] = parts;
-  return `${d}/${m}/${y.slice(2)}`;
-}
-
-function ssSwitchTab(tab) {
-  ssTab = tab;
-  $('ss-tab-checklist').classList.toggle('on', tab === 'checklist');
-  $('ss-tab-decisions').classList.toggle('on', tab === 'decisions');
-  $('ss-view-checklist').style.display = tab === 'checklist' ? '' : 'none';
-  $('ss-view-decisions').style.display = tab === 'decisions' ? '' : 'none';
-}
-
-function ssSetFilter(f) {
-  ssFilter = f;
-  ssRenderFilterbar();
-  ssRenderWeeks();
-}
-
-function ssRenderFilterbar() {
-  const opts = [
-    { id: 'all', label: 'Todas' },
-    { id: 'pending', label: 'Pendentes' },
-    { id: 'done', label: 'Concluídas' },
-    { id: 'notes', label: 'Com anotação' },
-  ];
-  const el = $('ss-filterbar');
-  if (!el) return;
-  el.innerHTML = opts.map(o => `<button class="ss-filter${ssFilter === o.id ? ' on' : ''}" onclick="ssSetFilter('${o.id}')">${o.label}</button>`).join('');
-}
-
-function ssRenderStats() {
-  const el = $('ss-stats');
-  if (!el) return;
-  const state = ssGetTaskState();
-  const total = SS_TASKS.length;
-  const done = SS_TASKS.filter(t => state[t.id] && state[t.id].done).length;
-  const pct = total ? Math.round(done / total * 100) : 0;
-  const cw = ssCurrentWeek();
-  const dtl = ssDaysToLaunch();
-  const cwMeta = SS_WEEKS[cw - 1];
-  el.innerHTML = `
-    <div class="stat c-gold"><div class="lbl">Progresso geral</div><div class="val">${pct}%</div><div class="pb"><div class="pf" style="width:${pct}%"></div></div></div>
-    <div class="stat c-green"><div class="lbl">Tarefas concluídas</div><div class="val">${done}<span style="font-size:16px;color:var(--text3)">/${total}</span></div><div class="sub">${total - done} pendentes</div></div>
-    <div class="stat c-blue"><div class="lbl">Semana atual</div><div class="val">${cw}<span style="font-size:16px;color:var(--text3)">/15</span></div><div class="sub">${cwMeta ? cwMeta.theme : ''}</div></div>
-    <div class="stat c-purple"><div class="lbl">Meta de lançamento</div><div class="val">${dtl >= 0 ? dtl : 0}<span style="font-size:14px;color:var(--text3)">${dtl === 1 ? ' dia' : ' dias'}</span></div><div class="sub">${dtl >= 0 ? 'até 29/nov/2026' : 'prazo estourado'}</div></div>
-  `;
-}
-
-function ssTaskMatchesFilter(t, state) {
-  const s = state[t.id] || {};
-  if (ssFilter === 'pending') return !s.done;
-  if (ssFilter === 'done') return !!s.done;
-  if (ssFilter === 'notes') return !!(s.note && s.note.trim());
-  return true;
-}
-
-function ssTaskHtml(t, state) {
-  const s = state[t.id] || {};
-  const done = !!s.done;
-  const hasNote = !!(s.note && s.note.trim());
-  return `
-    <div class="ss-task" id="ss-task-${t.id}">
-      <div class="ss-task-row">
-        <div class="cb${done ? ' on' : ''}" onclick="ssToggleTask('${t.id}')">${done ? '✓' : ''}</div>
-        <div class="ss-task-title${done ? ' x' : ''}" onclick="ssToggleTask('${t.id}')">
-          ${t.title}
-          <span class="tag ${t.color}" style="margin-left:8px;font-size:8.5px">${t.area}</span>
-          ${t.note ? `<div class="ss-task-note-txt">${t.note}</div>` : ''}
-        </div>
-        <div class="ss-task-toggle${hasNote ? ' has' : ''}" onclick="ssToggleNoteBox('${t.id}')">${hasNote ? '✎ anotação' : '+ anotar'}</div>
-      </div>
-      <div class="ss-note-box${hasNote ? ' open' : ''}" id="ss-note-box-${t.id}">
-        <textarea id="ss-note-input-${t.id}" placeholder="O que você fez ou decidiu sobre isso...">${ssEscapeHtml(s.note || '')}</textarea>
-        <div class="ss-note-meta">
-          <span class="ss-note-stamp" id="ss-note-stamp-${t.id}">${s.updatedAt ? 'atualizado ' + ssFmtStamp(s.updatedAt) : ''}</span>
-          <button class="btn btn-p ss-note-save" onclick="ssSaveNote('${t.id}')">💾 Salvar</button>
-        </div>
-      </div>
-    </div>`;
-}
-
-function ssRenderWeeks() {
-  const el = $('ss-weeks');
-  if (!el) return;
-  const state = ssGetTaskState();
-  const expanded = ssGetExpanded();
-  const cw = ssCurrentWeek();
-  const order = [...SS_WEEKS.map(w => w.n), 0];
-  const html = order.map(wn => {
-    const allWtasks = SS_TASKS.filter(t => t.week === wn);
-    if (!allWtasks.length) return '';
-    const wtasks = allWtasks.filter(t => ssTaskMatchesFilter(t, state));
-    if (!wtasks.length) return '';
-    const doneCount = allWtasks.filter(t => state[t.id] && state[t.id].done).length;
-    const pct = Math.round(doneCount / allWtasks.length * 100);
-    const meta = wn === 0 ? { range: 'sem semana fixa', theme: 'Backlog / pós-lançamento' } : SS_WEEKS[wn - 1];
-    const isOpen = expanded.includes(wn);
-    const isCurrent = wn === cw;
-    return `
-      <div class="card ss-wk${isOpen ? ' open' : ''}${isCurrent ? ' current' : ''}">
-        <div class="ss-wk-head" onclick="ssToggleWeek(${wn})">
-          <div class="ss-wk-num">${wn === 0 ? '—' : String(wn).padStart(2, '0')}</div>
-          <div class="ss-wk-info">
-            <div class="ss-wk-title">${meta.theme}</div>
-            <div class="ss-wk-range">${wn === 0 ? 'Backlog · sem semana fixa' : 'Semana ' + wn + ' · ' + meta.range}</div>
-          </div>
-          ${isCurrent ? '<span class="ss-wk-badge">Semana atual</span>' : ''}
-          <div class="ss-wk-pct">${pct}%</div>
-          <svg class="ss-wk-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div class="pb"><div class="pf${isCurrent ? '' : ' b'}" style="width:${pct}%"></div></div>
-        <div class="ss-wk-body">
-          ${wtasks.map(t => ssTaskHtml(t, state)).join('')}
-        </div>
-      </div>`;
-  }).join('');
-  el.innerHTML = html || '<div class="empty"><span class="ei">🔍</span>Nenhuma tarefa nesse filtro</div>';
-}
-
-function ssToggleTask(id) {
-  const state = ssGetTaskState();
-  const cur = state[id] || {};
-  cur.done = !cur.done;
-  cur.updatedAt = new Date().toISOString();
-  state[id] = cur;
-  ssSetTaskState(state);
-  ssRenderStats();
-  ssRenderWeeks();
-}
-
-function ssToggleNoteBox(id) {
-  const box = $('ss-note-box-' + id);
-  if (!box) return;
-  box.classList.toggle('open');
-  if (box.classList.contains('open')) {
-    const ta = $('ss-note-input-' + id);
-    if (ta) ta.focus();
-  }
-}
-
-function ssSaveNote(id) {
-  const ta = $('ss-note-input-' + id);
-  if (!ta) return;
-  const state = ssGetTaskState();
-  const cur = state[id] || {};
-  cur.note = ta.value;
-  cur.updatedAt = new Date().toISOString();
-  state[id] = cur;
-  ssSetTaskState(state);
-
-  const btn = event && event.target ? event.target.closest('button') : null;
-  if (btn) {
-    const orig = btn.textContent;
-    btn.textContent = '✓ Salvo';
-    setTimeout(() => { btn.textContent = orig; }, 1500);
-  }
-  ssRenderStats();
-  const taskEl = $('ss-task-' + id);
-  if (taskEl) {
-    const toggle = taskEl.querySelector('.ss-task-toggle');
-    const hasNote = !!(cur.note && cur.note.trim());
-    if (toggle) {
-      toggle.classList.toggle('has', hasNote);
-      toggle.textContent = hasNote ? '✎ anotação' : '+ anotar';
-    }
-    const stamp = $('ss-note-stamp-' + id);
-    if (stamp) stamp.textContent = 'atualizado ' + ssFmtStamp(cur.updatedAt);
-  }
-}
-
-function ssToggleWeek(wn) {
-  const expanded = ssGetExpanded();
-  const idx = expanded.indexOf(wn);
-  if (idx >= 0) expanded.splice(idx, 1);
-  else expanded.push(wn);
-  ssExpanded = expanded;
-  ssSaveExpanded();
-  ssRenderWeeks();
-}
-
-function ssRenderDecisions() {
-  const decEl = $('ss-decisions');
-  if (!decEl) return;
-  const decisions = ssGetDecisions();
-  decEl.innerHTML = decisions.map(d => `
-    <div class="card ss-dec-card">
-      <h2>${d.title}</h2>
-      ${d.html}
-    </div>`).join('');
-  const cl = ssGetChangelog();
-  const clEl = $('ss-changelog');
-  if (clEl) {
-    clEl.innerHTML = cl.length
-      ? [...cl].reverse().map(c => `
-        <div class="ss-cl-item">
-          <div class="ss-cl-date">${ssFmtDatePt(c.date)}</div>
-          <div class="ss-cl-text">${c.text}</div>
-        </div>`).join('')
-      : '<div class="empty" style="padding:20px 0">Nenhuma atualização registrada ainda</div>';
-  }
-}
-
-function renderSouthShop() {
-  if (!$('page-southshop')) return;
-  // Cada etapa isolada no seu próprio try/catch: antes, um erro em
-  // qualquer uma delas (ex.: dado antigo no localStorage) travava a
-  // execução no meio e deixava tudo que vem depois em branco — mesmo
-  // que os cards de estatística já tivessem sido preenchidos com sucesso.
-  try { ssRenderStats(); } catch (e) { console.error('Falha em ssRenderStats:', e); }
-  try { ssRenderFilterbar(); } catch (e) { console.error('Falha em ssRenderFilterbar:', e); }
-  try { ssRenderWeeks(); } catch (e) { console.error('Falha em ssRenderWeeks:', e); }
-  try { ssRenderDecisions(); } catch (e) { console.error('Falha em ssRenderDecisions:', e); }
-}
-</script>
-
 </body>
 </html>
