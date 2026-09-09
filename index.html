@@ -1614,6 +1614,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Início</span></button>
   <button class="nb" onclick="go('agenda')" id="n-agenda">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Agenda</span></button>
+  <button class="nb" onclick="go('tarefas')" id="n-tarefas">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><span>Tarefas</span></button>
   <button class="nb" onclick="go('corpo')" id="n-corpo">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
@@ -2079,6 +2081,54 @@ body.dens-compact .gap{margin-bottom:14px}
 <section class="page" id="page-agenda">
   <h1>Agenda</h1><p class="psub">Compromissos e eventos</p>
 
+  <!-- GOOGLE CALENDAR SYNC -->
+  <div class="card gap" id="gcal-config-card">
+    <div class="sh"><h2>📆 Google Calendar</h2></div>
+    <div id="gcal-status-area"><!-- preenchido por JS --></div>
+    <div id="gcal-form" style="display:none">
+      <div class="fg"><label>OAuth Client ID</label><input id="gcal-id-inp" type="text" placeholder="xxxxx.apps.googleusercontent.com"></div>
+      <button class="btn btn-p btn-sm" onclick="gcalSalvarClientId()" style="width:100%;justify-content:center">💾 Salvar Client ID</button>
+    </div>
+    <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-p btn-sm" onclick="gcalConectar()" style="flex:1;justify-content:center">🔗 Conectar</button>
+      <button class="btn btn-g btn-sm" onclick="gcalPullAndMerge()" style="flex:1;justify-content:center">🔄 Sincronizar agora</button>
+      <button class="btn btn-g btn-sm" onclick="toggleGcalForm()" style="flex:1;justify-content:center" id="gcal-config-btn">⚙️ Configurar</button>
+    </div>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.4px;user-select:none">📖 Como configurar o Google Calendar (passo a passo)</summary>
+      <div style="margin-top:12px;font-size:12px;line-height:1.8;color:var(--text2)">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">1. Criar projeto no Google Cloud</strong><br>
+            Acesse <a href="https://console.cloud.google.com/projectcreate" target="_blank" style="color:var(--blue)">console.cloud.google.com</a> → crie um projeto (ex: "meu-tracker").
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">2. Ativar a Google Calendar API</strong><br>
+            Menu → <em>APIs e serviços → Biblioteca</em> → procure <em>Google Calendar API</em> → <em>Ativar</em>.
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">3. Tela de consentimento OAuth</strong><br>
+            <em>APIs e serviços → Tela de permissão OAuth</em> → tipo <em>Externo</em> → preencha nome do app e seu e-mail → em <em>Usuários de teste</em>, adicione seu próprio Gmail.
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">4. Criar credenciais</strong><br>
+            <em>APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth</em> → tipo <em>Aplicativo da Web</em> → em <em>Origens JavaScript autorizadas</em>, adicione:
+            <pre style="background:#0d0f14;padding:10px;border-radius:6px;margin-top:8px;overflow-x:auto;font-size:10px;color:#4ade80">https://duduhacken-beep.github.io</pre>
+            Clique <em>Criar</em> e copie o <strong>Client ID</strong>.
+          </div>
+          <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;border-left:3px solid var(--accent)">
+            <strong style="color:var(--text)">5. Colar aqui</strong><br>
+            Clique em <em>⚙️ Configurar</em> acima, cole o Client ID, salve, depois clique em <em>🔗 Conectar</em> e autorize com sua conta Google.
+          </div>
+          <div style="background:var(--rdim);border-radius:var(--rs);padding:12px;border-left:3px solid var(--red);color:var(--text2)">
+            <strong style="color:var(--text)">⚠️ Só funciona na versão hospedada</strong><br>
+            O Google exige um endereço https:// autorizado — a versão local em arquivo (file://) do PC não consegue conectar. Use sempre <code>duduhacken-beep.github.io/Tracker/</code> para a sincronização com o Google Calendar.
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
   <div class="card gap">
     <h3>Adicionar evento</h3>
     <div class="row"><div class="fg" style="flex:2"><label>Nome do evento</label><input id="ev-n" type="text" placeholder="Reunião, médico, academia..."></div><div class="fg"><label>Categoria</label><select id="ev-cat"><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select></div></div>
@@ -2091,6 +2141,42 @@ body.dens-compact .gap{margin-bottom:14px}
       <select id="ev-filter" onchange="renderAgenda()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos</option><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option></select>
     </div>
     <div id="lista-eventos"></div>
+  </div>
+</section>
+
+<!-- ════════════════ TAREFAS ════════════════ -->
+<section class="page" id="page-tarefas">
+  <h1>✅ Tarefas</h1><p class="psub">Organizadas por projeto — Claude Code também pode adicionar aqui</p>
+
+  <div class="g4 gap" style="grid-template-columns:repeat(2,1fr)">
+    <div class="stat c-orange"><div class="lbl">Pendentes</div><div class="val" id="tar-cp">0</div></div>
+    <div class="stat c-green"><div class="lbl">Concluídas</div><div class="val" id="tar-cd">0</div></div>
+  </div>
+
+  <div class="card gap">
+    <h3>+ Nova tarefa</h3>
+    <div class="row">
+      <div class="fg" style="flex:2"><label>Tarefa</label><input id="tar-n" type="text" placeholder="O que precisa ser feito?"></div>
+      <div class="fg"><label>Prioridade</label><select id="tar-p"><option value="a">🔴 Alta</option><option value="m" selected>🟡 Média</option><option value="b">🟢 Baixa</option></select></div>
+    </div>
+    <div class="row">
+      <div class="fg"><label>Projeto</label><input id="tar-proj" type="text" list="tar-proj-list" placeholder="Geral"><datalist id="tar-proj-list"></datalist></div>
+      <div class="fg"><label>Prazo (opcional)</label><input id="tar-prazo" type="date"></div>
+    </div>
+    <input type="hidden" id="tar-c" value="">
+    <button class="btn btn-p btn-sm" onclick="addTarefa()">+ Adicionar tarefa</button>
+  </div>
+
+  <div class="card">
+    <div class="sh"><h2>Pendentes</h2>
+      <select id="tar-filter" onchange="renderTarefas()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos os projetos</option></select>
+    </div>
+    <div id="tar-pend"></div>
+  </div>
+
+  <div class="card">
+    <h2>Concluídas</h2>
+    <div id="tar-done"></div>
   </div>
 </section>
 
@@ -2129,10 +2215,18 @@ body.dens-compact .gap{margin-bottom:14px}
       <div class="row">
         <div class="fg"><label>Sono (horas)</label><input type="number" id="cp-sono" placeholder="7.5" step="0.5" onchange="saveCorpoDiario()"></div>
         <div class="fg"><label>Peso (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
+        <div class="fg"><label>Passos</label><input type="number" id="cp-passos" placeholder="8000" step="100" onchange="saveCorpoDiario()"></div>
       </div>
       <div class="fg"><label>Notas do dia</label><textarea id="cp-notas" placeholder="Como você se sentiu..." onchange="saveCorpoDiario()"></textarea></div>
       <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
     </div>
+  </div>
+
+  <!-- TREINO DA SEMANA -->
+  <div class="card gap">
+    <h2>📅 Treino da semana</h2>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Associe um template a cada dia (ou deixe como Descanso). O Claude Code também pode montar isso pra você.</p>
+    <div id="treino-semana-grid" style="display:flex;flex-direction:column;gap:6px"></div>
   </div>
 
   <!-- EXERCÍCIOS — TREINO COMPLETO -->
@@ -2849,6 +2943,7 @@ create policy "acesso total"
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__sbCdnFailed=true"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 // ══════════════════════════════════════════════════
 //  ⚙️  SUPABASE CONFIG — cole suas credenciais aqui
@@ -2966,6 +3061,9 @@ const load = (k, d) => _lsLoad(k, d);
 
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const localDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+// IDs de eventos vindos do Google Calendar são strings ('g_xxx'); esta função serializa
+// o id corretamente para uso dentro de atributos onclick, sejam eles numéricos ou string.
+const _eid = id => typeof id === 'string' ? `'${id.replace(/'/g, "\\'")}'` : id;
 
 // ──────────────────────────────────
 // INITIAL PULL  — on startup, fetch all keys from Supabase
@@ -3033,7 +3131,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3064,7 +3162,9 @@ function reRenderAll() {
   safeCall(aplicarNavFavs, 'aplicarNavFavs');
   safeCall(refreshHome, 'refreshHome');
   safeCall(renderAgenda, 'renderAgenda');
+  safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
+  safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderAguaDisplay, 'renderAguaDisplay');
   safeCall(renderExLog, 'renderExLog');
   safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
@@ -3137,6 +3237,7 @@ const fmtTime = () => { const d = new Date(); return `${String(d.getHours()).pad
 const catColor = { Trabalho:'tb', Saúde:'tg', Pessoal:'ta', Social:'tp', Educação:'ta', Outro:'tb', Financeiro:'ta', Relacionamentos:'tp', Espiritual:'tp', Criatividade:'to', Carreira:'tb' };
 const prioClass = { a:'pd a', m:'pd m', b:'pd b' };
 const prioTag = { a:'tr', m:'ta', b:'tg' };
+const PROJETOS_BASE = ['Geral','South Shop','Recanté','Sem Troco','BetBank','Yumy Life','Renda Extra','Tracker','Cidadania Luxemburguesa','Dropshipping Peças de Luxo','Hermes Agent'];
 const finCatColors = {
   Alimentação:'#e07c3c',Moradia:'#5c8de0',Transporte:'#3cbdb8',Saúde:'#4caf82',
   Educação:'#9b72e0',Lazer:'#c9a84c',Roupas:'#e05c6a',Assinaturas:'#7c9be0',
@@ -3182,8 +3283,9 @@ function go(p) {
 
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
-  if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); }
-  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(updateMuscleDiagram,'updateMuscleDiagram'); safeCall(renderExLog,'renderExLog'); safeCall(renderAguaDisplay,'renderAguaDisplay'); safeCall(renderHistorico,'renderHistorico'); safeCall(renderMapaHome,'renderMapaHome'); safeCall(renderHistChart,'renderHistChart'); safeCall(renderTemplates,'renderTemplates'); safeCall(renderRecordes,'renderRecordes'); safeCall(atualizarKcalModeUI,'atualizarKcalModeUI'); }
+  if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
+  if (p === 'tarefas')  { safeCall(renderTarefas, 'renderTarefas'); }
+  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(updateMuscleDiagram,'updateMuscleDiagram'); safeCall(renderExLog,'renderExLog'); safeCall(renderAguaDisplay,'renderAguaDisplay'); safeCall(renderHistorico,'renderHistorico'); safeCall(renderMapaHome,'renderMapaHome'); safeCall(renderHistChart,'renderHistChart'); safeCall(renderTemplates,'renderTemplates'); safeCall(renderRecordes,'renderRecordes'); safeCall(atualizarKcalModeUI,'atualizarKcalModeUI'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'cursos')   { safeCall(renderCursos, 'renderCursos'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
@@ -3550,7 +3652,7 @@ function openEdit(id) {
 }
 function closeModal() { $('modal').classList.remove('on'); }
 function saveModal() {
-  const id = parseInt($('m-id').value);
+  const idRaw = $('m-id').value; const id = /^-?\d+$/.test(idRaw) ? parseInt(idRaw) : idRaw;
   const eventos = load('eventos', []);
   const ev = eventos.find(e => e.id === id);
   if (!ev) return;
@@ -3563,6 +3665,7 @@ function saveModal() {
   closeModal();
   renderAgenda();
   refreshHome();
+  safeCall(() => gcalPush(ev, 'update'), 'gcalPush');
 }
 $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
 
@@ -3574,11 +3677,13 @@ function addEvento() {
   const dt = $('ev-dt').value;
   if (!nome || !dt) return alert('Preencha nome e data/hora.');
   const eventos = load('eventos', []);
-  eventos.push({ id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false });
+  const novo = { id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false };
+  eventos.push(novo);
   eventos.sort((a, b) => a.dt.localeCompare(b.dt));
   save('eventos', eventos);
   $('ev-n').value = ''; $('ev-dt').value = ''; $('ev-no').value = '';
   renderAgenda();
+  safeCall(() => gcalPush(novo, 'create'), 'gcalPush');
 }
 
 function toggleEvento(id) {
@@ -3591,8 +3696,11 @@ function toggleEvento(id) {
 }
 
 function delEvento(id) {
-  save('eventos', load('eventos', []).filter(e => e.id !== id));
+  const eventos = load('eventos', []);
+  const ev = eventos.find(e => e.id === id);
+  save('eventos', eventos.filter(e => e.id !== id));
   renderAgenda(); refreshHome();
+  if (ev) safeCall(() => gcalPush(ev, 'delete'), 'gcalPush');
 }
 
 function renderAgenda() {
@@ -3602,11 +3710,11 @@ function renderAgenda() {
   if (!eventos.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento</div>'; return; }
   cont.innerHTML = eventos.map(e => `
     <div class="evi${e.done ? ' done' : ''}">
-      <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${e.id})">${e.done ? '✓' : ''}</div>
+      <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${_eid(e.id)})">${e.done ? '✓' : ''}</div>
       <div class="evi-t">${fmtDt(e.dt)}</div>
-      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}</div></div>
-      <button class="ib edt" onclick="openEdit(${e.id})">✏️</button>
-      <button class="ib del" onclick="delEvento(${e.id})">×</button>
+      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}${e.googleId ? ' · 🔗 Google' : ''}</div></div>
+      <button class="ib edt" onclick="openEdit(${_eid(e.id)})">✏️</button>
+      <button class="ib del" onclick="delEvento(${_eid(e.id)})">×</button>
     </div>`).join('');
 }
 
@@ -3696,9 +3804,13 @@ function addTarefa() {
   const nome = $('tar-n').value.trim();
   if (!nome) return;
   const tarefas = load('tarefas', []);
-  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c').value, done: false, data: today() });
+  const projInp = $('tar-proj');
+  const prazoInp = $('tar-prazo');
+  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c') ? $('tar-c').value : '', projeto: projInp ? projInp.value.trim() : '', prazo: prazoInp ? prazoInp.value : '', done: false, data: today() });
   save('tarefas', tarefas);
   $('tar-n').value = '';
+  if (projInp) projInp.value = '';
+  if (prazoInp) prazoInp.value = '';
   renderTarefas(); refreshHome();
 }
 
@@ -3716,28 +3828,63 @@ function delTarefa(id) {
 }
 
 function renderTarefas() {
+  if (!$('tar-cp')) return;
   const tarefas = load('tarefas', []);
-  const pend = tarefas.filter(t => !t.done);
-  const done = tarefas.filter(t => t.done);
-  $('tar-cp').textContent = pend.length;
-  $('tar-cd').textContent = done.length;
-  const rl = (list, el, showPrio) => {
-    if (!list.length) { $(el).innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa</div>'; return; }
-    $(el).innerHTML = list.map(t => `
+  const pendAll = tarefas.filter(t => !t.done);
+  const doneAll = tarefas.filter(t => t.done);
+  $('tar-cp').textContent = pendAll.length;
+  $('tar-cd').textContent = doneAll.length;
+
+  // Projetos conhecidos (lista base + qualquer projeto já usado em alguma tarefa)
+  const usados = [...new Set(tarefas.map(t => (t.projeto || '').trim()).filter(Boolean))];
+  const todosProjetos = [...new Set([...PROJETOS_BASE, ...usados])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const dl = $('tar-proj-list');
+  if (dl) dl.innerHTML = todosProjetos.map(p => `<option value="${p}">`).join('');
+  const filtSel = $('tar-filter');
+  const filtro = filtSel ? filtSel.value : '';
+  if (filtSel) {
+    filtSel.innerHTML = '<option value="">Todos os projetos</option>' + todosProjetos.map(p => `<option value="${p}"${p === filtro ? ' selected' : ''}>${p}</option>`).join('');
+  }
+
+  const hojeStr = today();
+  const taskRow = (t, showPrio) => {
+    const atrasada = t.prazo && !t.done && t.prazo < hojeStr;
+    const prazoTag = t.prazo ? ` <span style="font-size:9px;font-weight:600;color:${atrasada ? 'var(--red)' : 'var(--text3)'}">· ${atrasada ? '⚠ ' : ''}${t.prazo.split('-').reverse().join('/')}</span>` : '';
+    return `
       <div class="ci">
         <div class="cb${t.done ? ' on' : ''}" onclick="toggleTarefa(${t.id})">${t.done ? '✓' : ''}</div>
         <div class="${prioClass[t.prio]}"></div>
-        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}</span>
+        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}${prazoTag}</span>
         ${showPrio ? `<select onchange="mudaPrioHome(${t.id},this.value)" style="font-size:10px;padding:2px 4px;width:auto;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2)">
           <option value="a"${t.prio==='a'?' selected':''}>🔴 Alta</option>
           <option value="m"${t.prio==='m'?' selected':''}>🟡 Média</option>
           <option value="b"${t.prio==='b'?' selected':''}>🟢 Baixa</option>
-        </select>` : `<span class="tag ${prioTag[t.prio]}" style="font-size:9px">${t.cat}</span>`}
+        </select>` : ''}
+        <span class="tag tb" style="font-size:9px">${t.projeto || 'Geral'}</span>
         <button class="ib del" onclick="delTarefa(${t.id})">×</button>
-      </div>`).join('');
+      </div>`;
   };
-  rl(pend, 'tar-pend', true);
-  rl(done, 'tar-done', false);
+
+  const pend = filtro ? pendAll.filter(t => (t.projeto || 'Geral') === filtro) : pendAll;
+  const done = filtro ? doneAll.filter(t => (t.projeto || 'Geral') === filtro) : doneAll;
+
+  if (!$('tar-pend')) { /* página não montada nesta view */ }
+  else if (!pend.length) {
+    $('tar-pend').innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa pendente</div>';
+  } else if (filtro) {
+    $('tar-pend').innerHTML = pend.map(t => taskRow(t, true)).join('');
+  } else {
+    const grupos = {};
+    pend.forEach(t => { const k = t.projeto || 'Geral'; (grupos[k] = grupos[k] || []).push(t); });
+    $('tar-pend').innerHTML = Object.keys(grupos).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(proj => `
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.4px;margin-bottom:6px;text-transform:uppercase">${proj} · ${grupos[proj].length}</div>
+        ${grupos[proj].map(t => taskRow(t, true)).join('')}
+      </div>`).join('');
+  }
+  if ($('tar-done')) {
+    $('tar-done').innerHTML = done.length ? done.map(t => taskRow(t, false)).join('') : '<div class="empty" style="padding:12px 0">Nenhuma tarefa concluída</div>';
+  }
 }
 
 // ──────────────────────────────────
@@ -3788,7 +3935,7 @@ function renderAguaDisplay() {
 function saveCorpoDiario() {
   const t = today();
   const dados = load('corpo_d', {});
-  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value };
+  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value, passos: $('cp-passos').value };
   save('corpo_d', dados);
   loadCorpoDiario();
   renderHistorico();
@@ -3801,6 +3948,7 @@ function loadCorpoDiario() {
   if (d.sono) $('cp-sono').value = d.sono;
   if (d.peso) $('cp-peso').value = d.peso;
   if (d.notas) $('cp-notas').value = d.notas;
+  if (d.passos) $('cp-passos').value = d.passos;
   if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
   else $('cp-sono-v').textContent = '—';
   if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
@@ -4135,7 +4283,7 @@ function openEdit(id) {
 }
 function closeModal() { $('modal').classList.remove('on'); }
 function saveModal() {
-  const id = parseInt($('m-id').value);
+  const idRaw = $('m-id').value; const id = /^-?\d+$/.test(idRaw) ? parseInt(idRaw) : idRaw;
   const eventos = load('eventos', []);
   const ev = eventos.find(e => e.id === id);
   if (!ev) return;
@@ -4148,6 +4296,7 @@ function saveModal() {
   closeModal();
   renderAgenda();
   refreshHome();
+  safeCall(() => gcalPush(ev, 'update'), 'gcalPush');
 }
 $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
 
@@ -4159,11 +4308,13 @@ function addEvento() {
   const dt = $('ev-dt').value;
   if (!nome || !dt) return alert('Preencha nome e data/hora.');
   const eventos = load('eventos', []);
-  eventos.push({ id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false });
+  const novo = { id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false };
+  eventos.push(novo);
   eventos.sort((a, b) => a.dt.localeCompare(b.dt));
   save('eventos', eventos);
   $('ev-n').value = ''; $('ev-dt').value = ''; $('ev-no').value = '';
   renderAgenda();
+  safeCall(() => gcalPush(novo, 'create'), 'gcalPush');
 }
 
 function toggleEvento(id) {
@@ -4176,8 +4327,11 @@ function toggleEvento(id) {
 }
 
 function delEvento(id) {
-  save('eventos', load('eventos', []).filter(e => e.id !== id));
+  const eventos = load('eventos', []);
+  const ev = eventos.find(e => e.id === id);
+  save('eventos', eventos.filter(e => e.id !== id));
   renderAgenda(); refreshHome();
+  if (ev) safeCall(() => gcalPush(ev, 'delete'), 'gcalPush');
 }
 
 
@@ -4267,9 +4421,13 @@ function addTarefa() {
   const nome = $('tar-n').value.trim();
   if (!nome) return;
   const tarefas = load('tarefas', []);
-  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c').value, done: false, data: today() });
+  const projInp = $('tar-proj');
+  const prazoInp = $('tar-prazo');
+  tarefas.unshift({ id: Date.now(), nome, prio: $('tar-p').value, cat: $('tar-c') ? $('tar-c').value : '', projeto: projInp ? projInp.value.trim() : '', prazo: prazoInp ? prazoInp.value : '', done: false, data: today() });
   save('tarefas', tarefas);
   $('tar-n').value = '';
+  if (projInp) projInp.value = '';
+  if (prazoInp) prazoInp.value = '';
   renderTarefas(); refreshHome();
 }
 
@@ -4287,28 +4445,63 @@ function delTarefa(id) {
 }
 
 function renderTarefas() {
+  if (!$('tar-cp')) return;
   const tarefas = load('tarefas', []);
-  const pend = tarefas.filter(t => !t.done);
-  const done = tarefas.filter(t => t.done);
-  $('tar-cp').textContent = pend.length;
-  $('tar-cd').textContent = done.length;
-  const rl = (list, el, showPrio) => {
-    if (!list.length) { $(el).innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa</div>'; return; }
-    $(el).innerHTML = list.map(t => `
+  const pendAll = tarefas.filter(t => !t.done);
+  const doneAll = tarefas.filter(t => t.done);
+  $('tar-cp').textContent = pendAll.length;
+  $('tar-cd').textContent = doneAll.length;
+
+  // Projetos conhecidos (lista base + qualquer projeto já usado em alguma tarefa)
+  const usados = [...new Set(tarefas.map(t => (t.projeto || '').trim()).filter(Boolean))];
+  const todosProjetos = [...new Set([...PROJETOS_BASE, ...usados])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const dl = $('tar-proj-list');
+  if (dl) dl.innerHTML = todosProjetos.map(p => `<option value="${p}">`).join('');
+  const filtSel = $('tar-filter');
+  const filtro = filtSel ? filtSel.value : '';
+  if (filtSel) {
+    filtSel.innerHTML = '<option value="">Todos os projetos</option>' + todosProjetos.map(p => `<option value="${p}"${p === filtro ? ' selected' : ''}>${p}</option>`).join('');
+  }
+
+  const hojeStr = today();
+  const taskRow = (t, showPrio) => {
+    const atrasada = t.prazo && !t.done && t.prazo < hojeStr;
+    const prazoTag = t.prazo ? ` <span style="font-size:9px;font-weight:600;color:${atrasada ? 'var(--red)' : 'var(--text3)'}">· ${atrasada ? '⚠ ' : ''}${t.prazo.split('-').reverse().join('/')}</span>` : '';
+    return `
       <div class="ci">
         <div class="cb${t.done ? ' on' : ''}" onclick="toggleTarefa(${t.id})">${t.done ? '✓' : ''}</div>
         <div class="${prioClass[t.prio]}"></div>
-        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}</span>
+        <span class="cl${t.done ? ' x' : ''}" style="flex:1">${t.nome}${prazoTag}</span>
         ${showPrio ? `<select onchange="mudaPrioHome(${t.id},this.value)" style="font-size:10px;padding:2px 4px;width:auto;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2)">
           <option value="a"${t.prio==='a'?' selected':''}>🔴 Alta</option>
           <option value="m"${t.prio==='m'?' selected':''}>🟡 Média</option>
           <option value="b"${t.prio==='b'?' selected':''}>🟢 Baixa</option>
-        </select>` : `<span class="tag ${prioTag[t.prio]}" style="font-size:9px">${t.cat}</span>`}
+        </select>` : ''}
+        <span class="tag tb" style="font-size:9px">${t.projeto || 'Geral'}</span>
         <button class="ib del" onclick="delTarefa(${t.id})">×</button>
-      </div>`).join('');
+      </div>`;
   };
-  rl(pend, 'tar-pend', true);
-  rl(done, 'tar-done', false);
+
+  const pend = filtro ? pendAll.filter(t => (t.projeto || 'Geral') === filtro) : pendAll;
+  const done = filtro ? doneAll.filter(t => (t.projeto || 'Geral') === filtro) : doneAll;
+
+  if (!$('tar-pend')) { /* página não montada nesta view */ }
+  else if (!pend.length) {
+    $('tar-pend').innerHTML = '<div class="empty" style="padding:12px 0">Nenhuma tarefa pendente</div>';
+  } else if (filtro) {
+    $('tar-pend').innerHTML = pend.map(t => taskRow(t, true)).join('');
+  } else {
+    const grupos = {};
+    pend.forEach(t => { const k = t.projeto || 'Geral'; (grupos[k] = grupos[k] || []).push(t); });
+    $('tar-pend').innerHTML = Object.keys(grupos).sort((a, b) => a.localeCompare(b, 'pt-BR')).map(proj => `
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.4px;margin-bottom:6px;text-transform:uppercase">${proj} · ${grupos[proj].length}</div>
+        ${grupos[proj].map(t => taskRow(t, true)).join('')}
+      </div>`).join('');
+  }
+  if ($('tar-done')) {
+    $('tar-done').innerHTML = done.length ? done.map(t => taskRow(t, false)).join('') : '<div class="empty" style="padding:12px 0">Nenhuma tarefa concluída</div>';
+  }
 }
 
 // ──────────────────────────────────
@@ -4359,7 +4552,7 @@ function renderAguaDisplay() {
 function saveCorpoDiario() {
   const t = today();
   const dados = load('corpo_d', {});
-  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value };
+  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value, passos: $('cp-passos').value };
   save('corpo_d', dados);
   loadCorpoDiario();
   renderHistorico();
@@ -4372,6 +4565,7 @@ function loadCorpoDiario() {
   if (d.sono) $('cp-sono').value = d.sono;
   if (d.peso) $('cp-peso').value = d.peso;
   if (d.notas) $('cp-notas').value = d.notas;
+  if (d.passos) $('cp-passos').value = d.passos;
   if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
   else $('cp-sono-v').textContent = '—';
   if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
@@ -5277,7 +5471,7 @@ function renderHistChart() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','treino_semana','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -5843,6 +6037,36 @@ function lancarTemplate(id) {
   go('corpo');
   // Scroll to the treino card
   setTimeout(() => { const el = $('treino-fila'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 300);
+}
+
+// ──────────────────────────────────
+// TREINO DA SEMANA — mapa dia-da-semana → template
+// ──────────────────────────────────
+const DIAS_SEMANA_LBL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+function renderTreinoSemana() {
+  const cont = $('treino-semana-grid');
+  if (!cont) return;
+  const plano = load('treino_semana', {});
+  const templates = load('treino_templates', []);
+  const hojeDow = new Date().getDay();
+  cont.innerHTML = DIAS_SEMANA_LBL.map((lbl, dow) => {
+    const val = plano[dow] || '';
+    const opts = ['<option value="">Descanso</option>']
+      .concat(templates.map(t => `<option value="${t.id}"${String(val) === String(t.id) ? ' selected' : ''}>${t.nome}</option>`))
+      .join('');
+    const isHoje = dow === hojeDow;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:var(--rs);border:1px solid ${isHoje ? 'var(--accent)' : 'var(--border)'}">
+      <span style="font-size:11px;font-weight:${isHoje ? '700' : '500'};color:${isHoje ? 'var(--accent)' : 'var(--text2)'};width:82px;flex-shrink:0">${lbl}${isHoje ? ' · hoje' : ''}</span>
+      <select onchange="setTreinoDia(${dow}, this.value)" style="flex:1;font-size:12px">${opts}</select>
+      ${val ? `<button class="btn btn-p btn-sm" onclick="lancarTemplate(${val})" style="flex-shrink:0">▶</button>` : ''}
+    </div>`;
+  }).join('');
+}
+function setTreinoDia(dow, templateId) {
+  const plano = load('treino_semana', {});
+  if (templateId) plano[dow] = parseInt(templateId); else delete plano[dow];
+  save('treino_semana', plano);
+  renderTreinoSemana();
 }
 
 function renderTemplates() {
@@ -6553,7 +6777,7 @@ function renderProxSemana() {
     evsDia.forEach(ev => {
       const hora = ev.dt.split('T')[1]?.slice(0,5) || '';
       html += `<div class="evi${ev.done ? ' done' : ''}" style="border-radius:6px;margin-bottom:4px;padding:8px 8px 8px 10px;border-left:2px solid ${ev.done ? 'var(--border)' : 'var(--accent)'}">
-        <div class="cb${ev.done ? ' on' : ''}" onclick="toggleEvento(${ev.id});renderProxSemana()" style="flex-shrink:0">${ev.done ? '✓' : ''}</div>
+        <div class="cb${ev.done ? ' on' : ''}" onclick="toggleEvento(${_eid(ev.id)});renderProxSemana()" style="flex-shrink:0">${ev.done ? '✓' : ''}</div>
         ${hora ? `<div class="evi-t" style="min-width:38px;font-size:11px">${hora}</div>` : ''}
         <div class="evi-info" style="flex:1">
           <div class="evi-n" style="font-size:12px">${ev.nome}</div>
@@ -7541,6 +7765,7 @@ function carregarTema() {
 const ALL_PAGES = [
   { id:'home',     label:'Início',    icon:'🏠' },
   { id:'agenda',   label:'Agenda',    icon:'📅' },
+  { id:'tarefas',  label:'Tarefas',   icon:'✅' },
   { id:'corpo',    label:'Corpo',     icon:'💪' },
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'cursos',   label:'Cursos',    icon:'📚' },
@@ -7550,7 +7775,7 @@ const ALL_PAGES = [
 ];
 
 function getNavFavs() {
-  return load('nav_favs', ['home','agenda','corpo','financas','backup']);
+  return load('nav_favs', ['home','agenda','tarefas','corpo','financas','backup']);
 }
 
 function aplicarNavFavs() {
@@ -7626,6 +7851,201 @@ function updateSbStatusArea() {
       Supabase não configurado.<br>
       <span style="color:var(--text2)">Clique em <strong>⚙️ Configurar</strong> e siga o guia para ativar o sync.</span>
     </div>`;
+  }
+}
+
+// ──────────────────────────────────
+// GOOGLE CALENDAR SYNC — bidirecional com a Agenda
+// ──────────────────────────────────
+const GCAL_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
+let GCAL_CLIENT_ID = localStorage.getItem('gcal_client_id') || '';
+let _gcalTokenClient = null;
+let _gcalToken = '';
+let _gcalTokenExp = 0;
+let _gcalPulling = false;
+
+function _gcalInitTokenClient() {
+  if (!GCAL_CLIENT_ID) return false;
+  if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) return false;
+  try {
+    _gcalTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GCAL_CLIENT_ID,
+      scope: GCAL_SCOPE,
+      callback: (resp) => {
+        if (resp && resp.access_token) {
+          _gcalToken = resp.access_token;
+          _gcalTokenExp = Date.now() + ((resp.expires_in || 3300) * 1000);
+          localStorage.setItem('gcal_connected', '1');
+          updateGcalStatusArea();
+          safeCall(() => gcalPullAndMerge(), 'gcalPullAndMerge');
+        } else {
+          console.warn('[GCal] Token não retornado', resp);
+        }
+      },
+    });
+    return true;
+  } catch (e) {
+    console.error('[GCal] Falha ao iniciar token client:', e.message);
+    return false;
+  }
+}
+
+function initGcal() {
+  if (!GCAL_CLIENT_ID) return;
+  if (_gcalInitTokenClient()) return;
+  let tries = 0;
+  const t = setInterval(() => {
+    tries++;
+    if (_gcalInitTokenClient() || tries >= 15) clearInterval(t);
+  }, 1000);
+}
+
+function gcalConectar() {
+  if (!GCAL_CLIENT_ID) { toggleGcalForm(); return; }
+  if (!_gcalTokenClient) { alert('Aguarde o carregamento do Google Sign-In (verifique sua conexão) e tente novamente.'); return; }
+  _gcalTokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+async function gcalEnsureToken(interactive) {
+  if (_gcalToken && Date.now() < _gcalTokenExp - 30000) return _gcalToken;
+  if (!_gcalTokenClient) return '';
+  return new Promise((resolve) => {
+    const prevCb = _gcalTokenClient.callback;
+    _gcalTokenClient.callback = (resp) => {
+      _gcalTokenClient.callback = prevCb;
+      if (resp && resp.access_token) {
+        _gcalToken = resp.access_token;
+        _gcalTokenExp = Date.now() + ((resp.expires_in || 3300) * 1000);
+        updateGcalStatusArea();
+        resolve(_gcalToken);
+      } else resolve('');
+    };
+    try { _gcalTokenClient.requestAccessToken({ prompt: interactive ? 'consent' : '' }); }
+    catch (e) { resolve(''); }
+  });
+}
+
+function gcalSalvarClientId() {
+  const id = ($('gcal-id-inp').value || '').trim();
+  if (!id) { alert('Cole o Client ID.'); return; }
+  localStorage.setItem('gcal_client_id', id);
+  alert('✅ Client ID salvo! A página vai recarregar.');
+  location.reload();
+}
+
+function toggleGcalForm() {
+  const f = $('gcal-form');
+  if (!f) return;
+  const visible = f.style.display !== 'none';
+  f.style.display = visible ? 'none' : 'block';
+  if (!visible && $('gcal-id-inp')) $('gcal-id-inp').value = localStorage.getItem('gcal_client_id') || '';
+}
+
+function updateGcalStatusArea() {
+  const area = $('gcal-status-area');
+  if (!area) return;
+  if (_gcalToken) {
+    area.innerHTML = `<div style="background:var(--gdim);border:1px solid var(--green);border-radius:var(--rs);padding:10px 13px;font-size:12px;color:var(--green);line-height:1.6">
+      <strong>Conectado</strong> ao Google Calendar<br>
+      <span style="color:var(--text3)">Eventos criados/editados aqui são enviados automaticamente, e eventos do Google aparecem na Agenda.</span>
+    </div>`;
+  } else if (GCAL_CLIENT_ID) {
+    area.innerHTML = `<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--text3);text-align:center;line-height:1.7">
+      Client ID salvo, mas não conectado.<br>
+      <span style="color:var(--text2)">Clique em <strong>🔗 Conectar</strong> para autorizar com sua conta Google.</span>
+    </div>`;
+  } else {
+    area.innerHTML = `<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--text3);text-align:center;line-height:1.7">
+      Google Calendar não configurado.<br>
+      <span style="color:var(--text2)">Clique em <strong>⚙️ Configurar</strong> e siga o guia abaixo.</span>
+    </div>`;
+  }
+}
+
+function _gcalToLocalDtStr(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// PUSH — cria/atualiza/apaga eventos no Google a partir de um evento local
+async function gcalPush(ev, tipo) {
+  if (!GCAL_CLIENT_ID || !ev) return;
+  const token = await gcalEnsureToken(false);
+  if (!token) return;
+  const base = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+  try {
+    if (tipo === 'delete') {
+      if (!ev.googleId) return;
+      await fetch(`${base}/${ev.googleId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+      return;
+    }
+    const dataPart = (ev.dt || '').split('T')[0];
+    const startObj = ev.dt ? { dateTime: new Date(ev.dt).toISOString() } : { date: dataPart };
+    const endObj = ev.dt ? { dateTime: new Date(new Date(ev.dt).getTime() + 60 * 60 * 1000).toISOString() } : { date: dataPart };
+    const body = {
+      summary: ev.nome,
+      description: [ev.cat ? `Categoria: ${ev.cat}` : '', ev.notas || ''].filter(Boolean).join('\n'),
+      start: startObj,
+      end: endObj,
+    };
+    if (tipo === 'update' && ev.googleId) {
+      await fetch(`${base}/${ev.googleId}`, { method: 'PATCH', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    } else if (tipo !== 'update') {
+      const resp = await fetch(base, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await resp.json();
+      if (data.id) {
+        const eventos = load('eventos', []);
+        const local = eventos.find(e => e.id === ev.id);
+        if (local) { local.googleId = data.id; save('eventos', eventos); }
+      }
+    }
+  } catch (e) { console.warn('[GCal push]', e.message); }
+}
+
+// PULL — busca eventos do Google (janela -30d a +180d) e mescla no array local
+async function gcalPullAndMerge() {
+  if (!GCAL_CLIENT_ID || _gcalPulling) return;
+  const token = await gcalEnsureToken(false);
+  if (!token) return;
+  _gcalPulling = true;
+  try {
+    const timeMin = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+    const timeMax = new Date(Date.now() + 180 * 24 * 3600 * 1000).toISOString();
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&maxResults=250`;
+    const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const items = data.items || [];
+    const eventos = load('eventos', []);
+    let changed = false;
+    items.forEach(gi => {
+      if (gi.status === 'cancelled') return;
+      const isoStr = gi.start?.dateTime || (gi.start?.date ? gi.start.date + 'T00:00:00' : null);
+      if (!isoStr) return;
+      const dtStr = _gcalToLocalDtStr(isoStr);
+      const existing = eventos.find(e => e.googleId === gi.id);
+      if (existing) {
+        if (existing.nome !== gi.summary || existing.dt !== dtStr) {
+          existing.nome = gi.summary || existing.nome;
+          existing.dt = dtStr;
+          changed = true;
+        }
+      } else {
+        eventos.push({ id: 'g_' + gi.id, nome: gi.summary || '(sem título)', dt: dtStr, cat: 'Outro', notas: gi.description || '', done: false, googleId: gi.id });
+        changed = true;
+      }
+    });
+    if (changed) {
+      eventos.sort((a, b) => a.dt.localeCompare(b.dt));
+      save('eventos', eventos);
+      safeCall(renderAgenda, 'renderAgenda');
+      safeCall(refreshHome, 'refreshHome');
+    }
+  } catch (e) {
+    console.warn('[GCal pull]', e.message);
+  } finally {
+    _gcalPulling = false;
   }
 }
 
@@ -8827,7 +9247,9 @@ document.addEventListener('keydown', function(e) {
 (function init() {
   safeCall(refreshHome, 'refreshHome');
   safeCall(renderAgenda, 'renderAgenda');
+  safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
+  safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderAguaDisplay, 'renderAguaDisplay');
   safeCall(renderExLog, 'renderExLog');
   safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
@@ -8895,10 +9317,19 @@ document.addEventListener('keydown', function(e) {
   }
   updateSbStatusArea();
 
+  // Google Calendar: inicia o token client e sincroniza se já conectado antes
+  safeCall(initGcal, 'initGcal');
+  safeCall(updateGcalStatusArea, 'updateGcalStatusArea');
+  if (GCAL_CLIENT_ID) setTimeout(() => safeCall(() => gcalPullAndMerge(), 'gcalPullAndMerge'), 1500);
+  setInterval(() => safeCall(() => gcalPullAndMerge(), 'gcalPullAndMerge'), 5 * 60 * 1000);
+
   // Auto-pull sempre que o app voltar ao foco (troca de aba, PWA, retorno do background)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && _sbReady) {
       pullFromSupabase().then(got => { if (got) reRenderAll(); });
+    }
+    if (document.visibilityState === 'visible' && GCAL_CLIENT_ID) {
+      safeCall(() => gcalPullAndMerge(), 'gcalPullAndMerge');
     }
   });
 
