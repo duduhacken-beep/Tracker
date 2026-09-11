@@ -1645,60 +1645,6 @@ body.dens-compact .gap{margin-bottom:14px}
   </div>
 </div>
 
-<!-- MODAL TEMPLATE DE TREINO -->
-<div class="overlay" id="modal-template">
-  <div class="modal" style="width:500px">
-    <h2>⚡ Template de treino</h2>
-    <input type="hidden" id="tpl-id">
-    <div class="fg"><label>Nome do template</label><input id="tpl-nome" type="text" placeholder="Ex: Push A, Pernas, Full Body..."></div>
-    <div id="tpl-exercicios-lista" style="margin-bottom:10px"></div>
-    <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:10px">
-      <h3 style="margin-bottom:8px">Adicionar exercício ao template</h3>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Exercício</label><input id="tpl-ex-nome" type="text" placeholder="Supino, Agachamento..." list="tpl-ex-preset"><datalist id="tpl-ex-preset"></datalist></div>
-        <div class="fg"><label>Séries × Reps</label><input id="tpl-ex-sr" type="text" placeholder="4x10" oninput="estimarKcalTemplate()"></div>
-        <div class="fg"><label>Carga (kg)</label><input id="tpl-ex-kg" type="number" placeholder="60"></div>
-      </div>
-      <div class="row">
-        <div class="fg"><label>Duração (min)</label><input id="tpl-ex-dur" type="number" placeholder="45" oninput="estimarKcalTemplate()"></div>
-        <div class="fg"><label>Kcal estimadas</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input id="tpl-ex-kcal" type="number" placeholder="—" step="1" style="flex:1">
-            <span style="font-size:10px;color:var(--text3);white-space:nowrap" id="tpl-ex-kcal-hint"></span>
-          </div>
-        </div>
-      </div>
-      <div class="fg"><label>Músculos</label>
-        <div class="mchips" id="tpl-mc-sel">
-          <button type="button" class="mc" data-m="peito">Peito</button>
-          <button type="button" class="mc" data-m="ombros">Ombros</button>
-          <button type="button" class="mc" data-m="deltoide_anterior">Delt. anterior</button>
-          <button type="button" class="mc" data-m="deltoide_posterior">Delt. posterior</button>
-          <button type="button" class="mc" data-m="biceps">Bíceps</button>
-          <button type="button" class="mc" data-m="triceps">Tríceps</button>
-          <button type="button" class="mc" data-m="abdomen">Abdômen</button>
-          <button type="button" class="mc" data-m="obliquos">Oblíquos</button>
-          <button type="button" class="mc" data-m="costas">Costas</button>
-          <button type="button" class="mc" data-m="lombar">Lombar</button>
-          <button type="button" class="mc" data-m="quadriceps">Quadríceps</button>
-          <button type="button" class="mc" data-m="adutores">Adutores</button>
-          <button type="button" class="mc" data-m="abdutores">Abdutores</button>
-          <button type="button" class="mc" data-m="gluteos">Glúteos</button>
-          <button type="button" class="mc" data-m="isquiotibiais">Isquiot.</button>
-          <button type="button" class="mc" data-m="panturrilha">Panturrilha</button>
-          <button type="button" class="mc" data-m="antebraco">Antebraço</button>
-          <button type="button" class="mc" data-m="trapezio">Trapézio</button>
-        </div>
-      </div>
-      <button class="btn btn-g btn-sm" onclick="adicionarExAoTemplate()" style="width:100%;justify-content:center">+ Adicionar ao template</button>
-    </div>
-    <div class="mfooter">
-      <button class="btn btn-g" onclick="$('modal-template').classList.remove('on')">Cancelar</button>
-      <button class="btn btn-p" onclick="salvarTemplate()">💾 Salvar template</button>
-    </div>
-  </div>
-</div>
-
 <!-- EDIT MODAL -->
 <div class="overlay" id="modal">
   <div class="modal">
@@ -2184,332 +2130,26 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ CORPO ════════════════ -->
 <section class="page" id="page-corpo">
-  <h1>Corpo</h1><p class="psub">Saúde física, treino e mapa muscular</p>
+  <h1>Corpo</h1><p class="psub">Mural do treinador e peso</p>
 
-  <div class="g4 gap" style="grid-template-columns:repeat(5,1fr)">
-    <div class="stat c-blue"><div class="lbl">Água hoje</div><div class="val" id="cp-agua-v">0ml</div><div class="sub">meta: <span id="cp-agua-meta-lbl">2000</span>ml</div><div class="pb"><div class="pf b" id="cp-agua-pb" style="width:0%"></div></div></div>
-    <div class="stat c-green"><div class="lbl">Sono</div><div class="val" id="cp-sono-v">—</div><div class="sub">horas ontem</div></div>
+  <div class="g4 gap" style="grid-template-columns:minmax(160px,220px)">
     <div class="stat c-gold"><div class="lbl">Peso</div><div class="val" id="cp-peso-v">—</div><div class="sub">kg último reg.</div></div>
-    <div class="stat c-orange"><div class="lbl">Exercício</div><div class="val" id="cp-exc-v">—</div><div class="sub">min hoje</div></div>
-    <div class="stat c-purple"><div class="lbl">Kcal gastas</div><div class="val" id="cp-kcal-v">—</div><div class="sub">hoje</div></div>
   </div>
 
   <div class="g2 gap">
-    <!-- ÁGUA -->
+    <!-- MURAL DO TREINADOR -->
     <div class="card">
-      <h2>💧 Água</h2>
-      <div class="water-val" id="agua-total">0 ml</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px">Meta: <strong id="agua-meta-show">2000 ml</strong></div>
-      <div class="pb" style="margin-top:8px"><div class="pf b" id="agua-pb-big" style="width:0%"></div></div>
-      <div class="water-meta">
-        <input type="number" id="agua-add-ml" placeholder="ml" style="width:100px;text-align:center" min="1">
-        <button class="btn btn-p btn-sm" onclick="addAgua()">+ Adicionar</button>
-        <button class="btn btn-g btn-sm" onclick="resetAgua()">Zerar</button>
-      </div>
-      <div class="fg" style="margin-top:14px"><label>Meta diária (ml)</label><input type="number" id="agua-meta-inp" placeholder="2000" onchange="saveAguaMeta()"></div>
+      <h2>🗣️ Mural do Treinador</h2>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:10px">O Jefrey deixa aqui os treinos da semana. Só leitura.</p>
+      <div id="mural-treinador"></div>
     </div>
 
-    <!-- DADOS DO DIA -->
+    <!-- PESO -->
     <div class="card">
-      <h2>📊 Dados diários</h2>
-      <div class="row">
-        <div class="fg"><label>Sono (horas)</label><input type="number" id="cp-sono" placeholder="7.5" step="0.5" onchange="saveCorpoDiario()"></div>
-        <div class="fg"><label>Peso (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
-        <div class="fg"><label>Passos</label><input type="number" id="cp-passos" placeholder="8000" step="100" onchange="saveCorpoDiario()"></div>
-      </div>
-      <div class="fg"><label>Notas do dia</label><textarea id="cp-notas" placeholder="Como você se sentiu..." onchange="saveCorpoDiario()"></textarea></div>
+      <h2>⚖️ Peso</h2>
+      <div class="fg"><label>Peso de hoje (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
       <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
     </div>
-  </div>
-
-  <!-- TREINO DA SEMANA -->
-  <div class="card gap">
-    <h2>📅 Treino da semana</h2>
-    <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Associe um template a cada dia (ou deixe como Descanso). O Claude Code também pode montar isso pra você.</p>
-    <div id="treino-semana-grid" style="display:flex;flex-direction:column;gap:6px"></div>
-  </div>
-
-  <!-- EXERCÍCIOS — TREINO COMPLETO -->
-  <div class="card gap">
-    <h2>🏋️ Montar Treino</h2>
-
-    <!-- Fila de exercícios adicionados -->
-    <div id="treino-fila" style="margin-bottom:12px"></div>
-
-    <!-- Formulário para adicionar um exercício à fila -->
-    <div style="background:var(--bg3);border-radius:var(--rs);padding:13px;border:1px solid var(--border)">
-      <h3 style="margin-bottom:10px">Adicionar exercício</h3>
-      <div class="row">
-        <div class="fg" style="flex:2"><label>Exercício</label><input id="ex-nome" type="text" placeholder="Ex: Supino plano..." list="ex-preset"><datalist id="ex-preset"></datalist></div>
-        <div class="fg"><label>Séries × Reps</label><input id="ex-sr" type="text" placeholder="4x10" oninput="estimarKcal()"></div>
-        <div class="fg"><label>Carga (kg)</label><input id="ex-kg" type="number" placeholder="60" step="0.5"></div>
-        <div class="fg"><label>Duração (min)</label><input id="ex-dur" type="number" placeholder="45" oninput="estimarKcal()"></div>
-      </div>
-      <div class="row">
-        <div class="fg" style="flex:2">
-          <label>Calcular kcal por</label>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <button type="button" id="kcal-mode-tempo" class="btn btn-g btn-sm" onclick="setKcalMode('tempo')">⏱ Tempo</button>
-            <button type="button" id="kcal-mode-series" class="btn btn-g btn-sm" onclick="setKcalMode('series')">🔢 Séries</button>
-            <span id="kcal-min-serie-wrap" style="display:none;align-items:center;gap:5px;font-size:11px;color:var(--text3)">
-              <input id="ex-min-serie" type="number" step="0.5" value="2.5" style="width:50px;padding:5px 7px;font-size:12px" oninput="estimarKcal()">min/série
-            </span>
-          </div>
-        </div>
-        <div class="fg"><label>Duração (min)</label><input id="ex-dur" type="number" placeholder="45" oninput="estimarKcal()"></div>
-      </div>
-      <div class="row">
-        <div class="fg"><label>Seu peso (kg)</label><input id="ex-peso-corpo" type="number" placeholder="75" step="0.5" oninput="estimarKcal()"></div>
-        <div class="fg"><label>Kcal estimadas</label>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input id="ex-kcal" type="number" placeholder="—" step="1" style="flex:1">
-            <span style="font-size:10px;color:var(--text3);white-space:nowrap" id="ex-kcal-hint"></span>
-          </div>
-        </div>
-      </div>
-      <div class="fg">
-        <label>Músculos trabalhados</label>
-        <div class="mchips" id="mc-sel">
-          <button type="button" class="mc" data-m="peito">Peito</button>
-          <button type="button" class="mc" data-m="ombros">Ombros</button>
-          <button type="button" class="mc" data-m="deltoide_anterior">Delt. anterior</button>
-          <button type="button" class="mc" data-m="deltoide_posterior">Delt. posterior</button>
-          <button type="button" class="mc" data-m="biceps">Bíceps</button>
-          <button type="button" class="mc" data-m="triceps">Tríceps</button>
-          <button type="button" class="mc" data-m="abdomen">Abdômen</button>
-          <button type="button" class="mc" data-m="obliquos">Oblíquos</button>
-          <button type="button" class="mc" data-m="antebraco">Antebraço</button>
-          <button type="button" class="mc" data-m="costas">Costas</button>
-          <button type="button" class="mc" data-m="lombar">Lombar</button>
-          <button type="button" class="mc" data-m="trapezio">Trapézio</button>
-          <button type="button" class="mc" data-m="quadriceps">Quadríceps</button>
-          <button type="button" class="mc" data-m="adutores">Adutores</button>
-          <button type="button" class="mc" data-m="abdutores">Abdutores</button>
-          <button type="button" class="mc" data-m="gluteos">Glúteos</button>
-          <button type="button" class="mc" data-m="isquiotibiais">Isquiotibiais</button>
-          <button type="button" class="mc" data-m="panturrilha">Panturrilha</button>
-        </div>
-      </div>
-      <div class="fg"><label>Notas</label><input id="ex-notas" type="text" placeholder="Observações..."></div>
-      <button class="btn btn-g btn-sm" onclick="adicionarNaFila()" style="width:100%;justify-content:center">+ Adicionar à lista</button>
-    </div>
-
-    <!-- Resumo e botão de lançar -->
-    <div id="treino-resumo" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px;border:1px solid var(--border);margin-top:4px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:12px;font-weight:700;color:var(--text2)">Total do treino</span>
-        <div style="display:flex;gap:12px">
-          <span style="font-size:12px;color:var(--orange);font-family:'DM Mono',monospace" id="treino-total-dur">0 min</span>
-          <span style="font-size:12px;color:var(--purple);font-family:'DM Mono',monospace" id="treino-total-kcal">0 kcal</span>
-        </div>
-      </div>
-    </div>
-    <button id="treino-lancar-btn" class="btn btn-p btn-sm" onclick="lancarTreino()" style="display:none;width:100%;justify-content:center;margin-top:2px">🏋️ Lançar treino completo</button>
-  </div>
-
-  <!-- TEMPLATES DE TREINO -->
-  <div class="card gap">
-    <div class="sh">
-      <h2>⚡ Templates de treino</h2>
-      <button class="btn btn-g btn-sm" onclick="abrirModalTemplate()">+ Criar template</button>
-    </div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Salve seu treino favorito e lance tudo de uma vez com um toque.</p>
-    <div id="lista-templates"></div>
-  </div>
-
-  <!-- EXERCÍCIO LOG -->
-  <div class="card gap">
-    <div class="sh"><h2>📋 Log de treinos (últimos 7 dias)</h2></div>
-    <div id="ex-log"></div>
-  </div>
-
-  <!-- RECORDES PESSOAIS -->
-  <div class="card gap">
-    <div class="sh" style="margin-bottom:14px"><h2>🏆 Recordes pessoais</h2></div>
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-      <input id="rec-exercicio" type="text" placeholder="Exercício (ex: Supino reto)" style="flex:1;min-width:160px">
-      <input id="rec-nota" type="text" placeholder="Recorde / anotação (ex: 80kg x 6 reps)" style="flex:1;min-width:200px" onkeydown="if(event.key==='Enter')addRecorde()">
-      <button class="btn btn-p" onclick="addRecorde()">+ Adicionar</button>
-    </div>
-    <div id="recordes-lista" style="display:flex;flex-direction:column;gap:8px"></div>
-  </div>
-
-  <!-- MAPA MUSCULAR -->
-  <div class="card">
-    <div class="sh"><h2>🗺️ Mapa Muscular</h2><span style="font-size:11px;color:var(--text3)">Últimos 7 dias</span></div>
-    <div class="mmap-wrap">
-      <div class="mmap-col">
-        <div class="mmap-lbl">Frente</div>
-        <div class="scan-sweep"></div>
-        <svg id="svg-front" viewBox="0 0 120 280" width="148" style="overflow:visible">
-        <g class="figure-rig" id="rig-front">
-          <!-- Silhouette front -->
-          <g fill="#e8ecf4" stroke="#3a3f5e" stroke-width="1">
-            <!-- Head -->
-            <ellipse cx="60" cy="16" rx="14" ry="16"/>
-            <!-- Neck -->
-            <rect x="54" y="30" width="12" height="10" rx="3"/>
-            <!-- Torso -->
-            <path d="M32 42 Q19 49 18 70 Q17 84 18 96 Q19 110 24 119 Q32 123 38 124 Q39 135 40 148 Q43 174 46 200 Q41 226 36 250 L52 252 Q56 240 60 228 Q64 240 68 252 L84 250 Q79 226 74 200 Q77 174 80 148 Q81 135 82 124 Q88 123 96 119 Q101 110 102 96 Q103 84 102 70 Q101 49 88 42 Z"/>
-            <!-- Arms -->
-            <path d="M32 44 Q14 56 10 90 Q9 112 10 130 Q16 132 22 132 Q25 110 28 90 Q33 68 38 48 Z"/>
-            <path d="M88 44 Q106 56 110 90 Q111 112 110 130 Q104 132 98 132 Q95 110 92 90 Q87 68 82 48 Z"/>
-            <!-- Hands -->
-            <ellipse cx="14" cy="136" rx="8" ry="10"/>
-            <ellipse cx="106" cy="136" rx="8" ry="10"/>
-          </g>
-          <!-- === MUSCLES FRONT === -->
-          <!-- Trapezius upper (front visible) -->
-          <path id="f-trap" class="ms" data-g="trapezio" d="M42 42 Q60 56 78 42 Q70 48 60 50 Q50 48 42 42Z" opacity=".7" fill="#252840"/>
-          <!-- Deltoids front -->
-          <ellipse id="f-delt-l" class="ms" data-g="ombros" cx="24" cy="54" rx="12" ry="10" opacity=".75" fill="#252840"/>
-          <ellipse id="f-delt-r" class="ms" data-g="ombros" cx="96" cy="54" rx="12" ry="10" opacity=".75" fill="#252840"/>
-          <!-- Pec major left -->
-          <path id="f-pec-l" class="ms" data-g="peito" d="M36 50 Q34 64 40 76 Q48 80 58 76 L58 58 Q48 52 36 50Z" opacity=".75" fill="#252840"/>
-          <!-- Pec major right -->
-          <path id="f-pec-r" class="ms" data-g="peito" d="M84 50 Q86 64 80 76 Q72 80 62 76 L62 58 Q72 52 84 50Z" opacity=".75" fill="#252840"/>
-          <!-- Serratus anterior -->
-          <path id="f-serr-l" class="ms" data-g="peito" d="M36 76 Q32 86 34 100 L40 100 Q38 86 40 76Z" opacity=".5" fill="#252840"/>
-          <path id="f-serr-r" class="ms" data-g="peito" d="M84 76 Q88 86 86 100 L80 100 Q82 86 80 76Z" opacity=".5" fill="#252840"/>
-          <!-- Biceps -->
-          <path id="f-bic-l" class="ms" data-g="biceps" d="M14 62 Q8 72 10 90 Q10 100 16 102 Q22 100 24 88 Q26 72 22 62Z" opacity=".75" fill="#252840"/>
-          <path id="f-bic-r" class="ms" data-g="biceps" d="M106 62 Q112 72 110 90 Q110 100 104 102 Q98 100 96 88 Q94 72 98 62Z" opacity=".75" fill="#252840"/>
-          <!-- Brachioradialis (forearm top) -->
-          <path id="f-brad-l" class="ms" data-g="antebraco" d="M10 102 Q6 114 8 126 L16 128 Q18 116 16 104Z" opacity=".75" fill="#252840"/>
-          <path id="f-brad-r" class="ms" data-g="antebraco" d="M110 102 Q114 114 112 126 L104 128 Q102 116 104 104Z" opacity=".75" fill="#252840"/>
-          <!-- Wrist flexors (forearm inner) -->
-          <path id="f-flex-l" class="ms" data-g="antebraco" d="M16 104 Q14 116 14 130 L22 132 Q22 118 20 106Z" opacity=".6" fill="#252840"/>
-          <path id="f-flex-r" class="ms" data-g="antebraco" d="M104 104 Q106 116 106 130 L98 132 Q98 118 100 106Z" opacity=".6" fill="#252840"/>
-          <!-- Abs (6-pack) -->
-          <rect id="f-abs-1l" class="ms" data-g="abdomen" x="46" y="82" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <rect id="f-abs-1r" class="ms" data-g="abdomen" x="62" y="82" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <rect id="f-abs-2l" class="ms" data-g="abdomen" x="46" y="95" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <rect id="f-abs-2r" class="ms" data-g="abdomen" x="62" y="95" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <rect id="f-abs-3l" class="ms" data-g="abdomen" x="46" y="108" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <rect id="f-abs-3r" class="ms" data-g="abdomen" x="62" y="108" width="12" height="10" rx="4.5" opacity=".75" fill="#252840"/>
-          <!-- Obliques -->
-          <path id="f-obl-l" class="ms" data-g="abdomen" d="M38 88 Q36 104 38 120 L44 118 Q42 104 42 90Z" opacity=".6" fill="#252840"/>
-          <path id="f-obl-r" class="ms" data-g="abdomen" d="M82 88 Q84 104 82 120 L76 118 Q78 104 78 90Z" opacity=".6" fill="#252840"/>
-          <!-- Hip flexors -->
-          <path id="f-hip-l" class="ms" data-g="quadriceps" d="M40 148 Q38 158 40 166 L50 164 Q50 154 46 148Z" opacity=".6" fill="#252840"/>
-          <path id="f-hip-r" class="ms" data-g="quadriceps" d="M80 148 Q82 158 80 166 L70 164 Q70 154 74 148Z" opacity=".6" fill="#252840"/>
-          <!-- Quads (3 heads visible) -->
-          <path id="f-rec-l" class="ms" data-g="quadriceps" d="M46 162 Q44 178 46 198 L54 198 Q54 178 52 162Z" opacity=".75" fill="#252840"/>
-          <path id="f-rec-r" class="ms" data-g="quadriceps" d="M74 162 Q76 178 74 198 L66 198 Q66 178 68 162Z" opacity=".75" fill="#252840"/>
-          <path id="f-vas-l" class="ms" data-g="quadriceps" d="M40 164 Q36 180 38 200 L46 200 Q46 178 44 164Z" opacity=".65" fill="#252840"/>
-          <path id="f-vas-r" class="ms" data-g="quadriceps" d="M80 164 Q84 180 82 200 L74 200 Q74 178 76 164Z" opacity=".65" fill="#252840"/>
-          <!-- Adutores (face interna da coxa — NOVO) -->
-          <path id="f-add-l" class="ms" data-g="adutores" d="M55 162 Q53 180 55 199 L59 199 Q60 180 59 162Z" opacity=".65" fill="#252840"/>
-          <path id="f-add-r" class="ms" data-g="adutores" d="M65 162 Q67 180 65 199 L61 199 Q60 180 61 162Z" opacity=".65" fill="#252840"/>
-          <!-- Knee/patella area -->
-          <ellipse id="f-knee-l" class="ms" data-g="quadriceps" cx="44" cy="206" rx="8" ry="6" opacity=".4" fill="#252840"/>
-          <ellipse id="f-knee-r" class="ms" data-g="quadriceps" cx="76" cy="206" rx="8" ry="6" opacity=".4" fill="#252840"/>
-          <!-- Tibialis anterior (shin) -->
-          <path id="f-tib-l" class="ms" data-g="panturrilha" d="M40 212 Q38 228 40 246 L46 246 Q46 228 44 212Z" opacity=".65" fill="#252840"/>
-          <path id="f-tib-r" class="ms" data-g="panturrilha" d="M80 212 Q82 228 80 246 L74 246 Q74 228 76 212Z" opacity=".65" fill="#252840"/>
-          <!-- Calf (gastrocnemius) -->
-          <path id="f-gast-l" class="ms" data-g="panturrilha" d="M44 212 Q42 226 44 244 L52 244 Q52 226 50 212Z" opacity=".55" fill="#252840"/>
-          <path id="f-gast-r" class="ms" data-g="panturrilha" d="M76 212 Q78 226 76 244 L68 244 Q68 226 70 212Z" opacity=".55" fill="#252840"/>
-        </g>
-        </svg>
-      </div>
-      <div class="mmap-col">
-        <div class="mmap-lbl">Costas</div>
-        <div class="scan-sweep" style="animation-delay:1.1s"></div>
-        <svg id="svg-back" viewBox="0 0 120 280" width="148" style="overflow:visible">
-        <g class="figure-rig" id="rig-back">
-          <!-- Silhouette back -->
-          <g fill="#e8ecf4" stroke="#3a3f5e" stroke-width="1">
-            <ellipse cx="60" cy="16" rx="14" ry="16"/>
-            <rect x="54" y="30" width="12" height="10" rx="3"/>
-            <path d="M32 42 Q19 49 18 70 Q17 84 18 96 Q19 110 24 119 Q32 123 38 124 Q39 135 40 148 Q43 174 46 200 Q41 226 36 250 L52 252 Q56 240 60 228 Q64 240 68 252 L84 250 Q79 226 74 200 Q77 174 80 148 Q81 135 82 124 Q88 123 96 119 Q101 110 102 96 Q103 84 102 70 Q101 49 88 42 Z"/>
-            <path d="M32 44 Q14 56 10 90 Q9 112 10 130 Q16 132 22 132 Q25 110 28 90 Q33 68 38 48 Z"/>
-            <path d="M88 44 Q106 56 110 90 Q111 112 110 130 Q104 132 98 132 Q95 110 92 90 Q87 68 82 48 Z"/>
-            <ellipse cx="14" cy="136" rx="8" ry="10"/>
-            <ellipse cx="106" cy="136" rx="8" ry="10"/>
-          </g>
-          <!-- === MUSCLES BACK === -->
-          <!-- Trapezius (full — upper + mid + lower) -->
-          <path id="b-trap-u" class="ms" data-g="trapezio" d="M40 42 Q60 60 80 42 Q72 50 60 54 Q48 50 40 42Z" opacity=".8" fill="#252840"/>
-          <path id="b-trap-m" class="ms" data-g="trapezio" d="M36 54 Q60 68 84 54 Q74 62 60 66 Q46 62 36 54Z" opacity=".65" fill="#252840"/>
-          <path id="b-trap-l2" class="ms" data-g="trapezio" d="M40 66 Q48 74 60 76 Q52 78 44 76 Q40 72 40 66Z" opacity=".5" fill="#252840"/>
-          <path id="b-trap-r2" class="ms" data-g="trapezio" d="M80 66 Q72 74 60 76 Q68 78 76 76 Q80 72 80 66Z" opacity=".5" fill="#252840"/>
-          <!-- Rear delts -->
-          <ellipse id="b-delt-l" class="ms" data-g="ombros" cx="24" cy="56" rx="12" ry="10" opacity=".75" fill="#252840"/>
-          <ellipse id="b-delt-r" class="ms" data-g="ombros" cx="96" cy="56" rx="12" ry="10" opacity=".75" fill="#252840"/>
-          <!-- Infraspinatus / Rhomboids -->
-          <path id="b-infra-l" class="ms" data-g="costas" d="M36 62 Q32 72 34 84 L44 82 Q44 70 40 62Z" opacity=".7" fill="#252840"/>
-          <path id="b-infra-r" class="ms" data-g="costas" d="M84 62 Q88 72 86 84 L76 82 Q76 70 80 62Z" opacity=".7" fill="#252840"/>
-          <!-- Lats -->
-          <path id="b-lat-l" class="ms" data-g="costas" d="M32 72 Q26 90 28 114 L40 118 Q42 96 38 74Z" opacity=".8" fill="#252840"/>
-          <path id="b-lat-r" class="ms" data-g="costas" d="M88 72 Q94 90 92 114 L80 118 Q78 96 82 74Z" opacity=".8" fill="#252840"/>
-          <!-- Erector spinae -->
-          <path id="b-erect-l" class="ms" data-g="costas" d="M50 78 Q48 96 50 118 L56 118 Q56 96 54 78Z" opacity=".7" fill="#252840"/>
-          <path id="b-erect-r" class="ms" data-g="costas" d="M70 78 Q72 96 70 118 L64 118 Q64 96 66 78Z" opacity=".7" fill="#252840"/>
-          <!-- Lower back / Lumbar -->
-          <path id="b-low" class="ms" data-g="costas" d="M46 118 Q44 130 46 140 L74 140 Q76 130 74 118Z" opacity=".65" fill="#252840"/>
-          <!-- Triceps -->
-          <path id="b-tri-l" class="ms" data-g="triceps" d="M14 62 Q8 74 10 92 Q16 98 22 94 Q26 76 22 62Z" opacity=".8" fill="#252840"/>
-          <path id="b-tri-r" class="ms" data-g="triceps" d="M106 62 Q112 74 110 92 Q104 98 98 94 Q94 76 98 62Z" opacity=".8" fill="#252840"/>
-          <!-- Forearm extensors (back of forearm) -->
-          <path id="b-ext-l" class="ms" data-g="antebraco" d="M10 94 Q6 108 8 126 L16 126 Q16 110 14 96Z" opacity=".75" fill="#252840"/>
-          <path id="b-ext-r" class="ms" data-g="antebraco" d="M110 94 Q114 108 112 126 L104 126 Q104 110 106 96Z" opacity=".75" fill="#252840"/>
-          <!-- Wrist extensors -->
-          <path id="b-wext-l" class="ms" data-g="antebraco" d="M14 96 Q12 110 14 128 L20 128 Q20 112 18 98Z" opacity=".6" fill="#252840"/>
-          <path id="b-wext-r" class="ms" data-g="antebraco" d="M106 96 Q108 110 106 128 L100 128 Q100 112 102 98Z" opacity=".6" fill="#252840"/>
-          <!-- Glutes (max + med) -->
-          <path id="b-glut-max-l" class="ms" data-g="gluteos" d="M36 140 Q32 152 36 166 L50 166 Q52 152 48 140Z" opacity=".8" fill="#252840"/>
-          <path id="b-glut-max-r" class="ms" data-g="gluteos" d="M84 140 Q88 152 84 166 L70 166 Q68 152 72 140Z" opacity=".8" fill="#252840"/>
-          <path id="b-glut-med-l" class="ms" data-g="gluteos" d="M34 136 Q30 146 34 154 L40 152 Q40 142 36 136Z" opacity=".55" fill="#252840"/>
-          <path id="b-glut-med-r" class="ms" data-g="gluteos" d="M86 136 Q90 146 86 154 L80 152 Q80 142 84 136Z" opacity=".55" fill="#252840"/>
-          <!-- Hamstrings (biceps femoris + semitend) -->
-          <path id="b-ham-bf-l" class="ms" data-g="isquiotibiais" d="M38 166 Q34 186 36 206 L44 206 Q44 186 40 166Z" opacity=".8" fill="#252840"/>
-          <path id="b-ham-bf-r" class="ms" data-g="isquiotibiais" d="M82 166 Q86 186 84 206 L76 206 Q76 186 80 166Z" opacity=".8" fill="#252840"/>
-          <path id="b-ham-st-l" class="ms" data-g="isquiotibiais" d="M48 166 Q46 186 48 206 L56 206 Q56 186 52 166Z" opacity=".65" fill="#252840"/>
-          <path id="b-ham-st-r" class="ms" data-g="isquiotibiais" d="M72 166 Q74 186 72 206 L64 206 Q64 186 68 166Z" opacity=".65" fill="#252840"/>
-          <!-- Gastrocnemius (calf) -->
-          <path id="b-gas-l" class="ms" data-g="panturrilha" d="M36 212 Q34 228 38 246 L46 246 Q46 228 42 212Z" opacity=".8" fill="#252840"/>
-          <path id="b-gas-r" class="ms" data-g="panturrilha" d="M84 212 Q86 228 82 246 L74 246 Q74 228 78 212Z" opacity=".8" fill="#252840"/>
-          <!-- Soleus -->
-          <path id="b-sol-l" class="ms" data-g="panturrilha" d="M42 218 Q40 232 42 248 L50 248 Q50 232 48 218Z" opacity=".55" fill="#252840"/>
-          <path id="b-sol-r" class="ms" data-g="panturrilha" d="M78 218 Q80 232 78 248 L70 248 Q70 232 72 218Z" opacity=".55" fill="#252840"/>
-        </g>
-        </svg>
-      </div>
-    </div>
-    <div class="mmap-legend" id="mmap-legend"></div>
-    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">Quanto mais alaranjado, mais treinado nos últimos 7 dias</div>
-  </div>
-
-  <!-- HISTÓRICO DIÁRIO -->
-  <div class="card">
-    <div class="sh">
-      <h2>📈 Histórico de dados diários</h2>
-      <select id="hist-range" onchange="renderHistorico()" style="width:auto;font-size:11px;padding:5px 10px">
-        <option value="14">Últimos 14 dias</option>
-        <option value="30">Últimos 30 dias</option>
-        <option value="90">Últimos 90 dias</option>
-        <option value="all">Tudo</option>
-      </select>
-    </div>
-    <div id="hist-table" style="overflow-x:auto;margin-top:4px"></div>
-  </div>
-
-  <!-- GRÁFICO DE EVOLUÇÃO -->
-  <div class="card">
-    <div class="sh">
-      <h2>📊 Gráfico de evolução</h2>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="btn btn-sm chart-toggle on" data-key="peso" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(201,168,76,.15);color:var(--accent);border:1px solid var(--accent)">⚖️ Peso</button>
-        <button class="btn btn-sm chart-toggle on" data-key="sono" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(155,114,224,.15);color:var(--purple);border:1px solid var(--purple)">😴 Sono</button>
-        <button class="btn btn-sm chart-toggle on" data-key="agua" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(92,141,224,.15);color:var(--blue);border:1px solid var(--blue)">💧 Água</button>
-        <button class="btn btn-sm chart-toggle on" data-key="kcal" onclick="toggleChartLine(this)" style="font-size:10px;padding:4px 9px;background:rgba(224,136,60,.15);color:var(--orange);border:1px solid var(--orange)">🔥 Kcal</button>
-      </div>
-    </div>
-    <div style="position:relative;height:220px;margin-top:12px">
-      <canvas id="hist-chart" style="width:100%;height:220px"></canvas>
-    </div>
-    <div id="hist-chart-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;justify-content:center"></div>
   </div>
 </section>
 
@@ -3131,7 +2771,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3164,12 +2804,8 @@ function reRenderAll() {
   safeCall(renderAgenda, 'renderAgenda');
   safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
-  safeCall(renderTreinoSemana, 'renderTreinoSemana');
-  safeCall(renderAguaDisplay, 'renderAguaDisplay');
-  safeCall(renderExLog, 'renderExLog');
-  safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
+  safeCall(renderMuralTreinador, 'renderMuralTreinador');
   safeCall(renderMapaHome, 'renderMapaHome');
-  safeCall(renderHistorico, 'renderHistorico');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderCursos, 'renderCursos'); safeCall(renderReceitas, 'renderReceitas');
   safeCall(renderFinancas, 'renderFinancas');
@@ -3285,7 +2921,7 @@ function go(p) {
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'tarefas')  { safeCall(renderTarefas, 'renderTarefas'); }
-  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(updateMuscleDiagram,'updateMuscleDiagram'); safeCall(renderExLog,'renderExLog'); safeCall(renderAguaDisplay,'renderAguaDisplay'); safeCall(renderHistorico,'renderHistorico'); safeCall(renderMapaHome,'renderMapaHome'); safeCall(renderHistChart,'renderHistChart'); safeCall(renderTemplates,'renderTemplates'); safeCall(renderRecordes,'renderRecordes'); safeCall(atualizarKcalModeUI,'atualizarKcalModeUI'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
+  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'cursos')   { safeCall(renderCursos, 'renderCursos'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
@@ -3888,354 +3524,52 @@ function renderTarefas() {
 }
 
 // ──────────────────────────────────
-// CORPO - ÁGUA
-// ──────────────────────────────────
-function addAgua() {
-  const ml = parseInt($('agua-add-ml').value);
-  if (!ml || ml <= 0) return;
-  const agua = load('agua', {});
-  agua[today()] = (agua[today()] || 0) + ml;
-  save('agua', agua);
-  $('agua-add-ml').value = '';
-  renderAguaDisplay();
-  renderHistorico();
-  refreshHome();
-}
-
-function resetAgua() {
-  const agua = load('agua', {});
-  agua[today()] = 0;
-  save('agua', agua);
-  renderAguaDisplay();
-  refreshHome();
-}
-
-function saveAguaMeta() {
-  const meta = parseInt($('agua-meta-inp').value) || 2000;
-  save('agua_meta', meta);
-  renderAguaDisplay();
-}
-
-function renderAguaDisplay() {
-  const atual = load('agua', {})[today()] || 0;
-  const meta = load('agua_meta', 2000);
-  animateNumber($('agua-total'), atual, { suffix: ' ml', duration: 800 });
-  $('agua-meta-show').textContent = meta + ' ml';
-  $('agua-meta-inp').value = meta;
-  const pct = Math.min(100, (atual / meta) * 100);
-  $('agua-pb-big').style.width = pct + '%';
-  animateNumber($('cp-agua-v'), atual, { suffix: 'ml', duration: 700 });
-  $('cp-agua-meta-lbl').textContent = meta;
-  $('cp-agua-pb').style.width = pct + '%';
-}
-
-// ──────────────────────────────────
-// CORPO - DIÁRIO
+// CORPO - PESO
 // ──────────────────────────────────
 function saveCorpoDiario() {
   const t = today();
   const dados = load('corpo_d', {});
-  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value, passos: $('cp-passos').value };
+  dados[t] = { ...(dados[t] || {}), peso: $('cp-peso').value };
   save('corpo_d', dados);
   loadCorpoDiario();
-  renderHistorico();
   atualizarMetaHidratacaoAutomatica();
 }
 
 function loadCorpoDiario() {
   const t = today();
   const d = load('corpo_d', {})[t] || {};
-  if (d.sono) $('cp-sono').value = d.sono;
   if (d.peso) $('cp-peso').value = d.peso;
-  if (d.notas) $('cp-notas').value = d.notas;
-  if (d.passos) $('cp-passos').value = d.passos;
-  if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
-  else $('cp-sono-v').textContent = '—';
   if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
   else $('cp-peso-v').textContent = '—';
-  renderAguaDisplay();
 }
 
 // ──────────────────────────────────
-// CORPO - EXERCÍCIOS
+// CORPO - MURAL DO TREINADOR
+// Cards escritos pelo Treinador Jefrey (chave 'treino_mural' no Supabase).
+// Só leitura — Eduardo não edita pelo app.
 // ──────────────────────────────────
-const exPresets = ['Supino plano','Supino inclinado','Crucifixo','Desenvolvimento','Elevação lateral','Crucifixo invertido','Face pull','Remada curvada','Pulldown','Barra fixa','Agachamento','Leg press','Extensão de pernas','Flexão de pernas','Cadeira adutora','Cadeira abdutora','Stiff','Levantamento terra','Levantamento terra romeno','Hiperextensão','Rosca direta','Rosca martelo','Tríceps testa','Tríceps corda','Abdominal','Prancha','Prancha lateral','Rotação russa','Panturrilha','Hip thrust','Corrida','Ciclismo','Natação','Jiu Jitsu','Basquete'];
-const exToMuscle = {
-  'supino plano':['peito','deltoide_anterior','triceps'],'supino inclinado':['peito','deltoide_anterior','triceps'],'crucifixo':['peito'],'desenvolvimento':['deltoide_anterior','triceps'],'elevação lateral':['deltoide_anterior'],'crucifixo invertido':['deltoide_posterior','costas'],'face pull':['deltoide_posterior','trapezio'],'remada curvada':['costas','biceps','trapezio'],'pulldown':['costas','biceps'],'barra fixa':['costas','biceps'],'agachamento':['quadriceps','gluteos','isquiotibiais','adutores'],'leg press':['quadriceps','gluteos'],'extensão de pernas':['quadriceps'],'flexão de pernas':['isquiotibiais'],'cadeira adutora':['adutores'],'cadeira abdutora':['abdutores','gluteos'],'stiff':['isquiotibiais','gluteos','lombar'],'levantamento terra':['costas','lombar','gluteos','isquiotibiais','trapezio'],'levantamento terra romeno':['isquiotibiais','gluteos','lombar'],'hiperextensão':['lombar'],'rosca direta':['biceps'],'rosca martelo':['biceps','antebraco'],'tríceps testa':['triceps'],'tríceps corda':['triceps'],'abdominal':['abdomen'],'prancha':['abdomen','lombar'],'prancha lateral':['obliquos'],'rotação russa':['obliquos','abdomen'],'panturrilha':['panturrilha'],'hip thrust':['gluteos','isquiotibiais'],'corrida':['quadriceps','isquiotibiais','panturrilha'],'ciclismo':['quadriceps','isquiotibiais','gluteos'],'natação':['costas','ombros','peito','triceps','biceps'],
-  'jiu jitsu':['costas','abdomen','obliquos','quadriceps','isquiotibiais','gluteos','biceps','triceps','antebraco','ombros','trapezio'],
-  'basquete':['quadriceps','panturrilha','isquiotibiais','gluteos','abdomen','ombros']
-};
-
-// Populate datalist
-const dl = $('ex-preset');
-exPresets.forEach(e => { const o = document.createElement('option'); o.value = e; dl.appendChild(o); });
-
-// MET values for kcal estimation (kcal/kg/hour)
-const exMET = {
-  'supino plano':4,'supino inclinado':4,'crucifixo':3.5,'desenvolvimento':4,'elevação lateral':3,
-  'crucifixo invertido':3,'face pull':3,
-  'remada curvada':5,'pulldown':5,'barra fixa':6,'agachamento':6,'leg press':5,
-  'extensão de pernas':3.5,'flexão de pernas':3.5,'cadeira adutora':3,'cadeira abdutora':3,
-  'stiff':5,'levantamento terra':6,'levantamento terra romeno':5.5,'hiperextensão':3.5,
-  'rosca direta':3,'rosca martelo':3,'tríceps testa':3,'tríceps corda':3,
-  'abdominal':3.5,'prancha':4,'prancha lateral':3.5,'rotação russa':4,'panturrilha':3,'hip thrust':5,
-  'corrida':9,'ciclismo':7,'natação':8,'jiu jitsu':10,'basquete':8
-};
-
-function parseSeries(srText) {
-  const m = String(srText || '').match(/(\d+)\s*[x×X]/);
-  return m ? parseInt(m[1], 10) : 0;
-}
-
-function getKcalMode() { return load('kcal_mode', 'tempo'); }
-
-function setKcalMode(mode) {
-  save('kcal_mode', mode);
-  atualizarKcalModeUI();
-  estimarKcal();
-}
-
-function atualizarKcalModeUI() {
-  const mode = getKcalMode();
-  const btnT = $('kcal-mode-tempo'), btnS = $('kcal-mode-series');
-  if (!btnT || !btnS) return;
-  btnT.style.borderColor = mode === 'tempo' ? 'var(--accent)' : '';
-  btnT.style.color = mode === 'tempo' ? 'var(--accent)' : '';
-  btnS.style.borderColor = mode === 'series' ? 'var(--accent)' : '';
-  btnS.style.color = mode === 'series' ? 'var(--accent)' : '';
-  $('kcal-min-serie-wrap').style.display = mode === 'series' ? 'flex' : 'none';
-  $('ex-dur').closest('.fg').style.opacity = mode === 'series' ? '.45' : '1';
-}
-
-function estimarKcal() {
-  const nome = ($('ex-nome').value || '').toLowerCase();
-  const pesoInp = parseFloat($('ex-peso-corpo').value);
-  const pesoCorpo = pesoInp || parseFloat((load('corpo_d',{})[today()]||{}).peso) || 75;
-  const met = exMET[nome] || 5;
-  const mode = getKcalMode();
-
-  let durMin = 0, hint = '';
-  if (mode === 'series') {
-    const sets = parseSeries($('ex-sr').value);
-    const minPorSerie = parseFloat($('ex-min-serie').value) || 2.5;
-    if (!sets) { $('ex-kcal').value = ''; $('ex-kcal-hint').textContent = ''; return; }
-    durMin = sets * minPorSerie;
-    hint = `${sets} séries × ${minPorSerie}min ≈ ${durMin.toFixed(0)}min · MET ${met}`;
-  } else {
-    durMin = parseFloat($('ex-dur').value) || 0;
-    if (!durMin) { $('ex-kcal').value = ''; $('ex-kcal-hint').textContent = ''; return; }
-    hint = `MET ${met} · ${pesoCorpo}kg`;
-  }
-
-  const kcal = Math.round(met * pesoCorpo * (durMin / 60));
-  $('ex-kcal').value = kcal;
-  $('ex-kcal-hint').textContent = hint;
-}
-
-// Auto-select muscles from exercise name
-$('ex-nome').addEventListener('change', function() {
-  const key = this.value.toLowerCase();
-  const muscles = exToMuscle[key] || [];
-  document.querySelectorAll('#mc-sel .mc').forEach(c => {
-    c.classList.toggle('on', muscles.includes(c.dataset.m));
-  });
-  if (!$('ex-dur').value) {
-    const durMap = { corrida: 30, ciclismo: 45, natação: 45, 'jiu jitsu': 90, basquete: 60 };
-    if (durMap[key]) $('ex-dur').value = durMap[key];
-  }
-  estimarKcal();
-});
-
-document.querySelectorAll('#mc-sel .mc').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
-
-// ── TREINO QUEUE ──
-let treinoFila = [];
-
-function adicionarNaFila() {
-  const nome = $('ex-nome').value.trim();
-  if (!nome) { $('ex-nome').focus(); return; }
-  const musculos = [...document.querySelectorAll('#mc-sel .mc.on')].map(c => c.dataset.m);
-  const dur = parseInt($('ex-dur').value) || 0;
-  const kcal = parseInt($('ex-kcal').value) || 0;
-  treinoFila.push({ nome, sr: $('ex-sr').value, kg: $('ex-kg').value, dur, kcal, musculos, notas: $('ex-notas').value });
-  // Reset form fields
-  $('ex-nome').value = ''; $('ex-sr').value = ''; $('ex-kg').value = '';
-  $('ex-dur').value = ''; $('ex-kcal').value = ''; $('ex-kcal-hint').textContent = ''; $('ex-notas').value = '';
-  document.querySelectorAll('#mc-sel .mc').forEach(c => c.classList.remove('on'));
-  renderTreinoFila();
-}
-
-function removerDaFila(idx) {
-  treinoFila.splice(idx, 1);
-  renderTreinoFila();
-}
-
-function renderTreinoFila() {
-  const cont = $('treino-fila');
-  const resumo = $('treino-resumo');
-  const btn = $('treino-lancar-btn');
-  if (!treinoFila.length) {
-    cont.innerHTML = '';
-    resumo.style.display = 'none';
-    btn.style.display = 'none';
-    return;
-  }
-  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
-  cont.innerHTML = treinoFila.map((e, i) => `
-    <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px;border:1px solid var(--border)">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">
-          ${e.sr ? e.sr : ''}${e.kg ? ' · ' + e.kg + 'kg' : ''}${e.dur ? ' · ' + e.dur + 'min' : ''}${e.kcal ? ' · <span style="color:var(--purple)">🔥 ' + e.kcal + ' kcal</span>' : ''}
-        </div>
-        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">
-          ${e.musculos.map(m => `<span class="tag to" style="font-size:9px">${muscLabels[m]||m}</span>`).join('')}
-        </div>
-      </div>
-      <button class="ib del" onclick="removerDaFila(${i})">×</button>
+function renderMuralTreinador() {
+  const cont = $('mural-treinador');
+  if (!cont) return;
+  const cards = load('treino_mural', []);
+  if (!cards.length) { cont.innerHTML = '<div class="empty"><div class="ei">🗣️</div>O Jefrey ainda não deixou nenhum card esta semana</div>'; return; }
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  cont.innerHTML = cards.map(c => `
+    <div style="padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border);margin-bottom:8px">
+      <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(c.titulo || '')}</div>
+      <div style="font-size:12.5px;color:var(--text2);margin-top:4px;white-space:pre-wrap">${esc(c.texto || '')}</div>
     </div>`).join('');
-  const totalDur = treinoFila.reduce((s, e) => s + e.dur, 0);
-  const totalKcal = treinoFila.reduce((s, e) => s + e.kcal, 0);
-  $('treino-total-dur').textContent = totalDur + ' min';
-  $('treino-total-kcal').textContent = totalKcal + ' kcal';
-  resumo.style.display = 'block';
-  btn.style.display = 'flex';
-}
-
-function lancarTreino() {
-  if (!treinoFila.length) return;
-  const exs = load('exercicios', []);
-  const now = Date.now();
-  treinoFila.forEach((e, i) => {
-    exs.unshift({ id: now + i, date: today(), nome: e.nome, sr: e.sr, kg: e.kg, dur: e.dur, kcal: e.kcal, musculos: e.musculos, notas: e.notas });
-  });
-  save('exercicios', exs);
-  treinoFila = [];
-  renderTreinoFila();
-  renderExLog(); updateMuscleDiagram(); renderHistorico(); renderMapaHome(); renderHistChart();
-  verificarAlertaDescanso(); refreshHome();
-  const todayExs = load('exercicios', []).filter(e => e.date === today());
-  const totalDur = todayExs.reduce((s, e) => s + (e.dur || 0), 0);
-  const totalKcal = todayExs.reduce((s, e) => s + (e.kcal || 0), 0);
-  if (totalDur) animateNumber($('cp-exc-v'), totalDur, { suffix: ' min', duration: 800 });
-  else $('cp-exc-v').textContent = '—';
-  if ($('cp-kcal-v') && totalKcal) animateNumber($('cp-kcal-v'), totalKcal, { suffix: ' kcal', duration: 900 });
-  else if ($('cp-kcal-v')) $('cp-kcal-v').textContent = '—';
-  // Flash feedback
-  const btn = $('treino-lancar-btn');
-  btn.textContent = '✅ Treino lançado!';
-  setTimeout(() => { btn.style.display = 'none'; btn.textContent = '🏋️ Lançar treino completo'; }, 2000);
-}
-
-// Keep addExercicio as alias for backward compatibility
-function addExercicio() { adicionarNaFila(); }
-
-function delEx(id) {
-  save('exercicios', load('exercicios', []).filter(e => e.id !== id));
-  renderExLog(); updateMuscleDiagram(); renderMapaHome(); renderHistChart();
-}
-
-function renderExLog() {
-  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
-  const cutoff = localDateStr(sevenAgo);
-  const exs = load('exercicios', []).filter(e => e.date >= cutoff);
-  const cont = $('ex-log');
-  if (!exs.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏋️</div>Nenhum treino nos últimos 7 dias</div>'; return; }
-  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha' };
-  cont.innerHTML = exs.map(e => `
-    <div class="ex-e">
-      <div class="ex-top">
-        <div>
-          <div class="ex-nm">${e.nome}</div>
-          <div class="ex-det">${e.date}${e.sr ? ' · ' + e.sr : ''}${e.kg ? ' · ' + e.kg + ' kg' : ''}${e.dur ? ' · ' + e.dur + 'min' : ''}${e.kcal ? ' · <span style="color:var(--purple);font-weight:600">🔥 ' + e.kcal + ' kcal</span>' : ''}${e.notas ? ' · ' + e.notas : ''}</div>
-          <div class="ex-ms">${(e.musculos || []).map(m => `<span class="tag to">${muscLabels[m]||m}</span>`).join('')}</div>
-        </div>
-        <button class="ib del" onclick="delEx(${e.id})">×</button>
-      </div>
-    </div>`).join('');
-  // Update duration + kcal stats
-  const todayExs = exs.filter(e => e.date === today());
-  const totalDur = todayExs.reduce((s, e) => s + (e.dur || 0), 0);
-  const totalKcal = todayExs.reduce((s, e) => s + (e.kcal || 0), 0);
-  $('cp-exc-v').textContent = totalDur ? totalDur + ' min' : '—';
-  if ($('cp-kcal-v')) $('cp-kcal-v').textContent = totalKcal ? totalKcal + ' kcal' : '—';
 }
 
 // ──────────────────────────────────
-// MUSCLE DIAGRAM
+// JIU JITSU
 // ──────────────────────────────────
-const muscleElems = {
-  peito:              ['f-pec-l','f-pec-r','f-serr-l','f-serr-r'],
-  ombros:             ['f-delt-l','f-delt-r','b-delt-l','b-delt-r'],
-  deltoide_anterior:  ['f-delt-l','f-delt-r'],
-  deltoide_posterior: ['b-delt-l','b-delt-r'],
-  biceps:             ['f-bic-l','f-bic-r'],
-  triceps:            ['b-tri-l','b-tri-r'],
-  abdomen:            ['f-abs-1l','f-abs-1r','f-abs-2l','f-abs-2r','f-abs-3l','f-abs-3r','f-obl-l','f-obl-r'],
-  obliquos:           ['f-obl-l','f-obl-r'],
-  antebraco:          ['f-brad-l','f-brad-r','f-flex-l','f-flex-r','b-ext-l','b-ext-r','b-wext-l','b-wext-r'],
-  costas:             ['b-lat-l','b-lat-r','b-erect-l','b-erect-r','b-low','b-infra-l','b-infra-r'],
-  trapezio:           ['b-trap-u','b-trap-m','b-trap-l2','b-trap-r2'],
-  lombar:             ['b-erect-l','b-erect-r','b-low'],
-  quadriceps:         ['f-rec-l','f-rec-r','f-vas-l','f-vas-r','f-hip-l','f-hip-r','f-knee-l','f-knee-r'],
-  adutores:           ['f-add-l','f-add-r'],
-  gluteos:            ['b-glut-max-l','b-glut-max-r','b-glut-med-l','b-glut-med-r'],
-  abdutores:          ['b-glut-med-l','b-glut-med-r'],
-  isquiotibiais:      ['b-ham-bf-l','b-ham-bf-r','b-ham-st-l','b-ham-st-r'],
-  panturrilha:        ['f-tib-l','f-tib-r','f-gast-l','f-gast-r','b-gas-l','b-gas-r','b-sol-l','b-sol-r'],
-};
-
 const muscLabels = {
   peito:'Peito', ombros:'Ombros', deltoide_anterior:'Deltoide anterior', deltoide_posterior:'Deltoide posterior',
   biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', obliquos:'Oblíquos', antebraco:'Antebraço',
   costas:'Costas', trapezio:'Trapézio', lombar:'Lombar', quadriceps:'Quadríceps', adutores:'Adutores',
   abdutores:'Abdutores', gluteos:'Glúteos', isquiotibiais:'Isquiotibiais', panturrilha:'Panturrilha'
 };
-
-function muscleColor(ratio) {
-  if (ratio <= 0) return '#252840';
-  const r = Math.round(37 + ratio * (230 - 37));
-  const g = Math.round(42 + ratio * (110 - 42));
-  const b = Math.round(56 + ratio * (30 - 56));
-  return `rgb(${r},${g},${b})`;
-}
-
-function updateMuscleDiagram() {
-  const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
-  const cutoff = localDateStr(sevenAgo);
-  const exs = load('exercicios', []).filter(e => e.date >= cutoff);
-
-  // Frequência por ELEMENTO do SVG (não por nome de grupo) — assim uma tag
-  // genérica (ex: "ombros") e uma específica (ex: "deltoide_anterior") somam
-  // corretamente na mesma região física, em vez de uma sobrescrever a outra.
-  const idFreq = {};
-  const groupFreq = {};
-  exs.forEach(e => (e.musculos || []).forEach(m => {
-    groupFreq[m] = (groupFreq[m] || 0) + 1;
-    (muscleElems[m] || []).forEach(id => { idFreq[id] = (idFreq[id] || 0) + 1; });
-  }));
-  const maxIdFreq = Math.max(1, ...Object.values(idFreq));
-
-  // Apply colors — scope only to corpo SVGs to avoid conflict with home mini-map
-  document.querySelectorAll('#svg-front .ms, #svg-back .ms').forEach(el => {
-    const count = idFreq[el.id] || 0;
-    const ratio = count / maxIdFreq;
-    el.setAttribute('fill', muscleColor(ratio));
-    el.setAttribute('opacity', ratio > 0 ? '0.85' : '0.6');
-    el.classList.toggle('ms-hot', ratio >= 0.6);
-  });
-
-  // Legend
-  const legend = $('mmap-legend');
-  const maxGroupFreq = Math.max(1, ...Object.values(groupFreq));
-  const trained = Object.entries(groupFreq).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  if (!trained.length) { legend.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center">Registre treinos para ver o mapa muscular</div>'; return; }
-  legend.innerHTML = trained.map(([m, c]) => `<div class="mll"><div class="mlld" style="background:${muscleColor(c/maxGroupFreq)}"></div>${muscLabels[m]||m}: ${c}x</div>`).join('');
-}
-
-// ──────────────────────────────────
-// JIU JITSU
-// ──────────────────────────────────
 function addDiarioRapido() {
   const txt = $('h-diario-input').value.trim();
   if (!txt) return;
@@ -4502,75 +3836,6 @@ function renderTarefas() {
   if ($('tar-done')) {
     $('tar-done').innerHTML = done.length ? done.map(t => taskRow(t, false)).join('') : '<div class="empty" style="padding:12px 0">Nenhuma tarefa concluída</div>';
   }
-}
-
-// ──────────────────────────────────
-// CORPO - ÁGUA
-// ──────────────────────────────────
-function addAgua() {
-  const ml = parseInt($('agua-add-ml').value);
-  if (!ml || ml <= 0) return;
-  const agua = load('agua', {});
-  agua[today()] = (agua[today()] || 0) + ml;
-  save('agua', agua);
-  $('agua-add-ml').value = '';
-  renderAguaDisplay();
-  renderHistorico();
-  refreshHome();
-}
-
-function resetAgua() {
-  const agua = load('agua', {});
-  agua[today()] = 0;
-  save('agua', agua);
-  renderAguaDisplay();
-  refreshHome();
-}
-
-function saveAguaMeta() {
-  const meta = parseInt($('agua-meta-inp').value) || 2000;
-  save('agua_meta', meta);
-  renderAguaDisplay();
-}
-
-function renderAguaDisplay() {
-  const atual = load('agua', {})[today()] || 0;
-  const meta = load('agua_meta', 2000);
-  animateNumber($('agua-total'), atual, { suffix: ' ml', duration: 800 });
-  $('agua-meta-show').textContent = meta + ' ml';
-  $('agua-meta-inp').value = meta;
-  const pct = Math.min(100, (atual / meta) * 100);
-  $('agua-pb-big').style.width = pct + '%';
-  animateNumber($('cp-agua-v'), atual, { suffix: 'ml', duration: 700 });
-  $('cp-agua-meta-lbl').textContent = meta;
-  $('cp-agua-pb').style.width = pct + '%';
-}
-
-// ──────────────────────────────────
-// CORPO - DIÁRIO
-// ──────────────────────────────────
-function saveCorpoDiario() {
-  const t = today();
-  const dados = load('corpo_d', {});
-  dados[t] = { sono: $('cp-sono').value, peso: $('cp-peso').value, notas: $('cp-notas').value, passos: $('cp-passos').value };
-  save('corpo_d', dados);
-  loadCorpoDiario();
-  renderHistorico();
-  atualizarMetaHidratacaoAutomatica();
-}
-
-function loadCorpoDiario() {
-  const t = today();
-  const d = load('corpo_d', {})[t] || {};
-  if (d.sono) $('cp-sono').value = d.sono;
-  if (d.peso) $('cp-peso').value = d.peso;
-  if (d.notas) $('cp-notas').value = d.notas;
-  if (d.passos) $('cp-passos').value = d.passos;
-  if (d.sono) animateNumber($('cp-sono-v'), parseFloat(d.sono), { suffix: 'h', decimals: 1, duration: 700 });
-  else $('cp-sono-v').textContent = '—';
-  if (d.peso) animateNumber($('cp-peso-v'), parseFloat(d.peso), { suffix: ' kg', decimals: 1, duration: 700 });
-  else $('cp-peso-v').textContent = '—';
-  renderAguaDisplay();
 }
 
 // ──────────────────────────────────
@@ -4983,141 +4248,6 @@ function renderCompras() {
 }
 
 // ──────────────────────────────────
-// CORPO - HISTÓRICO DIÁRIO
-// ──────────────────────────────────
-function renderHistorico() {
-  const rangeVal = $('hist-range') ? $('hist-range').value : '14';
-  const corpoD = load('corpo_d', {});
-  const aguaD = load('agua', {});
-  const exsAll = load('exercicios', []);
-  const aguaMeta = load('agua_meta', 2000);
-
-  // Build set of all dates across all data sources
-  const allDates = new Set([...Object.keys(corpoD), ...Object.keys(aguaD), ...exsAll.map(e => e.date)]);
-  let dates = [...allDates].sort().reverse();
-
-  if (rangeVal !== 'all') {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - parseInt(rangeVal));
-    const cutoffStr = localDateStr(cutoff);
-    dates = dates.filter(d => d >= cutoffStr);
-  }
-
-  // Fill missing days in range for continuity
-  if (rangeVal !== 'all' && dates.length > 0) {
-    const days = parseInt(rangeVal);
-    const filled = [];
-    for (let i = 0; i < days; i++) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      filled.push(localDateStr(d));
-    }
-    const merged = [...new Set([...filled, ...dates])].sort().reverse();
-    dates = merged.slice(0, days);
-  }
-
-  const cont = $('hist-table');
-  if (!dates.length) {
-    cont.innerHTML = '<div class="empty"><div class="ei">📈</div>Nenhum dado registrado ainda</div>';
-    return;
-  }
-
-  // Max values for bar scaling
-  const maxAgua = Math.max(aguaMeta, ...dates.map(d => aguaD[d] || 0));
-  const maxPeso = Math.max(...dates.map(d => parseFloat((corpoD[d] || {}).peso) || 0).filter(Boolean));
-  const maxSono = 12;
-  const maxEx = Math.max(30, ...dates.map(d => {
-    return exsAll.filter(e => e.date === d).reduce((s, e) => s + (e.dur || 0), 0);
-  }));
-
-  const fmtDate = s => {
-    const [y, m, dd] = s.split('-');
-    const weekDays = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-    const dow = new Date(s + 'T12:00:00').getDay();
-    return `<span style="color:var(--text3);font-size:10px">${weekDays[dow]}</span> ${dd}/${m}`;
-  };
-
-  const tdBar = (val, max, color, unit) => {
-    if (!val) return `<td class="num" style="color:var(--text3)">—</td>`;
-    const pct = Math.min(100, (val / max) * 100);
-    return `<td><div class="bar-cell"><span class="num">${val}${unit}</span><div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div></div></div></td>`;
-  };
-
-  const t = today();
-  let rows = dates.map(d => {
-    const cd = corpoD[d] || {};
-    const agua = aguaD[d] || 0;
-    const exsDia = exsAll.filter(e => e.date === d);
-    const durTotal = exsDia.reduce((s, e) => s + (e.dur || 0), 0);
-    const kcalTotal = exsDia.reduce((s, e) => s + (e.kcal || 0), 0);
-    const exercNomes = exsDia.map(e => e.nome).join(', ') || '';
-    const isToday = d === t;
-    const pesoVal = parseFloat(cd.peso) || 0;
-    const sonoVal = parseFloat(cd.sono) || 0;
-    const aguaOk = agua >= aguaMeta;
-
-    return `<tr${isToday ? ' class="today-row"' : ''}>
-      <td style="white-space:nowrap;font-weight:${isToday?'700':'400'}">${fmtDate(d)}${isToday ? ' <span style="font-size:9px;color:var(--accent)">hoje</span>' : ''}</td>
-      ${tdBar(agua || null, maxAgua, aguaOk ? 'var(--green)' : 'var(--blue)', 'ml')}
-      ${pesoVal ? `<td class="num">${pesoVal} kg</td>` : '<td class="num" style="color:var(--text3)">—</td>'}
-      ${sonoVal ? tdBar(sonoVal, maxSono, 'var(--purple)', 'h') : '<td class="num" style="color:var(--text3)">—</td>'}
-      ${durTotal ? tdBar(durTotal, maxEx, 'var(--orange)', 'min') : '<td class="num" style="color:var(--text3)">—</td>'}
-      ${kcalTotal ? `<td class="num" style="color:var(--purple)">${kcalTotal}</td>` : '<td class="num" style="color:var(--text3)">—</td>'}
-      <td style="font-size:11px;color:var(--text3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${exercNomes}</td>
-      <td style="font-size:11px;color:var(--text3)">${cd.notas || ''}</td>
-      <td style="white-space:nowrap">
-        <button class="ib edt" title="Editar dia" onclick="editHistoricoDay('${d}')">✏️</button>
-        <button class="ib del" title="Excluir dia" onclick="delHistoricoDay('${d}')">×</button>
-      </td>
-    </tr>`;
-  }).join('');
-
-  cont.innerHTML = `<table class="htable">
-    <thead><tr>
-      <th>Data</th><th>💧 Água</th><th>⚖️ Peso</th><th>😴 Sono</th><th>🏋️ Treino</th><th>🔥 Kcal</th><th>Exercícios</th><th>Notas</th><th></th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-  renderHistChart();
-}
-
-// ──────────────────────────────────
-// CORPO - DELETAR DIA DO HISTÓRICO
-// ──────────────────────────────────
-function delHistoricoDay(d) {
-  if (!confirm(`Excluir todos os dados de ${d}? (água, peso, sono, notas e exercícios do dia)`)) return;
-  const cd = load('corpo_d', {}); delete cd[d]; save('corpo_d', cd);
-  const ag = load('agua', {}); delete ag[d]; save('agua', ag);
-  save('exercicios', load('exercicios', []).filter(e => e.date !== d));
-  renderHistorico(); renderExLog(); updateMuscleDiagram(); renderAguaDisplay(); loadCorpoDiario();
-}
-
-function editHistoricoDay(d) {
-  const cd = load('corpo_d', {})[d] || {};
-  const aguaD = load('agua', {})[d] || 0;
-  const novoAgua = prompt(`Água (ml) — ${d}:`, aguaD);
-  if (novoAgua === null) return;
-  const novoPeso = prompt(`Peso (kg) — ${d}:`, cd.peso || '');
-  if (novoPeso === null) return;
-  const novoSono = prompt(`Sono (horas) — ${d}:`, cd.sono || '');
-  if (novoSono === null) return;
-  const novasNotas = prompt(`Notas — ${d}:`, cd.notas || '');
-  if (novasNotas === null) return;
-
-  // Save agua
-  const ag = load('agua', {});
-  const ml = parseFloat(novoAgua);
-  if (!isNaN(ml) && ml >= 0) ag[d] = ml; else delete ag[d];
-  save('agua', ag);
-
-  // Save corpo_d
-  const corpo = load('corpo_d', {});
-  corpo[d] = { peso: novoPeso, sono: novoSono, notas: novasNotas };
-  save('corpo_d', corpo);
-
-  renderHistorico(); renderAguaDisplay(); loadCorpoDiario();
-}
-
-// ──────────────────────────────────
 // FINANÇAS
 // ──────────────────────────────────
 function saveFinConfig() {
@@ -5379,99 +4509,9 @@ function renderDespesas() {
 }
 
 // ──────────────────────────────────
-// HISTÓRICO — GRÁFICO
-// ──────────────────────────────────
-let histChartInstance = null;
-let chartActiveLines = { peso: true, sono: true, agua: true, kcal: true };
-
-function toggleChartLine(btn) {
-  const key = btn.dataset.key;
-  chartActiveLines[key] = !chartActiveLines[key];
-  btn.style.opacity = chartActiveLines[key] ? '1' : '0.35';
-  renderHistChart();
-}
-
-function renderHistChart() {
-  const canvas = $('hist-chart');
-  if (!canvas) return;
-  const rangeVal = $('hist-range') ? $('hist-range').value : '14';
-  const corpoD = load('corpo_d', {});
-  const aguaD = load('agua', {});
-  const exsAll = load('exercicios', []);
-
-  // Build date list (same logic as renderHistorico)
-  const allDates = new Set([...Object.keys(corpoD), ...Object.keys(aguaD), ...exsAll.map(e => e.date)]);
-  let dates = [...allDates].sort();
-  if (rangeVal !== 'all') {
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - parseInt(rangeVal));
-    const cutoffStr = localDateStr(cutoff);
-    dates = dates.filter(d => d >= cutoffStr);
-    // Fill with empty days
-    const days = parseInt(rangeVal);
-    const filled = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      filled.push(localDateStr(d));
-    }
-    dates = [...new Set([...filled, ...dates])].sort().slice(-days);
-  }
-  if (!dates.length) return;
-
-  const labels = dates.map(d => { const [,m,dd] = d.split('-'); return `${dd}/${m}`; });
-
-  // Build datasets - each on its own Y axis (normalized 0-100 for display)
-  const pesoVals  = dates.map(d => parseFloat((corpoD[d]||{}).peso) || null);
-  const sonoVals  = dates.map(d => parseFloat((corpoD[d]||{}).sono) || null);
-  const aguaVals  = dates.map(d => aguaD[d] || null);
-  const kcalVals  = dates.map(d => exsAll.filter(e => e.date === d).reduce((s,e) => s+(e.kcal||0), 0) || null);
-
-  const datasets = [
-    { key:'peso',  label:'Peso (kg)',   data: pesoVals, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.08)', yAxisID:'y1', tension:.4, pointRadius:3, spanGaps:true },
-    { key:'sono',  label:'Sono (h)',    data: sonoVals, borderColor:'#9b72e0', backgroundColor:'rgba(155,114,224,.08)', yAxisID:'y2', tension:.4, pointRadius:3, spanGaps:true },
-    { key:'agua',  label:'Água (ml)',   data: aguaVals, borderColor:'#5c8de0', backgroundColor:'rgba(92,141,224,.08)', yAxisID:'y3', tension:.4, pointRadius:3, spanGaps:true },
-    { key:'kcal',  label:'Kcal',        data: kcalVals, borderColor:'#e0883c', backgroundColor:'rgba(224,136,60,.08)', yAxisID:'y4', tension:.4, pointRadius:3, spanGaps:true },
-  ].filter(ds => chartActiveLines[ds.key]);
-
-  if (histChartInstance) { histChartInstance.destroy(); histChartInstance = null; }
-
-  histChartInstance = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { title: (items) => items[0].label } }
-      },
-      scales: {
-        x: { ticks: { color:'#5a6080', font:{ size:9 }, maxRotation:45 }, grid: { color:'rgba(46,50,80,.5)' } },
-        y1: { display: chartActiveLines.peso,  position:'left',  ticks:{ color:'#c9a84c', font:{size:9} }, grid:{ color:'rgba(46,50,80,.3)' } },
-        y2: { display: chartActiveLines.sono,  position:'right', ticks:{ color:'#9b72e0', font:{size:9} }, grid:{ display:false } },
-        y3: { display: chartActiveLines.agua,  position:'right', ticks:{ color:'#5c8de0', font:{size:9} }, grid:{ display:false } },
-        y4: { display: chartActiveLines.kcal,  position:'right', ticks:{ color:'#e0883c', font:{size:9} }, grid:{ display:false } },
-      }
-    }
-  });
-
-  // Legend
-  const leg = $('hist-chart-legend');
-  if (leg) {
-    leg.innerHTML = [
-      {key:'peso',  color:'#c9a84c', label:'Peso (kg)'},
-      {key:'sono',  color:'#9b72e0', label:'Sono (h)'},
-      {key:'agua',  color:'#5c8de0', label:'Água (ml)'},
-      {key:'kcal',  color:'#e0883c', label:'Kcal treino'},
-    ].map(l => `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);opacity:${chartActiveLines[l.key]?1:.4}">
-      <div style="width:20px;height:2px;background:${l.color};border-radius:1px"></div>${l.label}
-    </div>`).join('');
-  }
-}
-
-// ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','treino_semana','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -5893,238 +4933,6 @@ function renderPatrimonialChart() {
     }
   });
 }
-
-// ══════════════════════════════════════════
-// TEMPLATES DE TREINO
-// ══════════════════════════════════════════
-let _tplExs = []; // buffer while editing template
-
-function abrirModalTemplate(id) {
-  _tplExs = [];
-  $('tpl-id').value = '';
-  $('tpl-nome').value = '';
-  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => c.classList.remove('on'));
-  if (id) {
-    const tpl = (load('treino_templates',[])).find(t=>t.id===id);
-    if (!tpl) return;
-    $('tpl-id').value = id;
-    $('tpl-nome').value = tpl.nome;
-    _tplExs = [...(tpl.exercicios||[])];
-  }
-  renderTplExList();
-  $('modal-template').classList.add('on');
-  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
-}
-
-// Popula o autocomplete do template com a mesma base de exercícios do registro diário
-(function popularTplPreset() {
-  const dl = $('tpl-ex-preset');
-  if (!dl) return;
-  exPresets.forEach(e => { const o = document.createElement('option'); o.value = e; dl.appendChild(o); });
-})();
-
-function pesoCorporalEstimado() {
-  const dados = load('corpo_d', {});
-  const datas = Object.keys(dados).sort();
-  for (let i = datas.length - 1; i >= 0; i--) {
-    const p = parseFloat(dados[datas[i]].peso);
-    if (p) return p;
-  }
-  return 75;
-}
-
-function estimarKcalTemplate() {
-  const nome = ($('tpl-ex-nome').value || '').toLowerCase();
-  const met = exMET[nome] || 5;
-  const pesoCorpo = pesoCorporalEstimado();
-  let durMin = parseFloat($('tpl-ex-dur').value) || 0;
-
-  if (!durMin) {
-    const sets = parseSeries($('tpl-ex-sr').value);
-    if (sets) durMin = sets * 2.5;
-  }
-  if (!durMin) { $('tpl-ex-kcal').value = ''; $('tpl-ex-kcal-hint').textContent = ''; return; }
-
-  const kcal = Math.round(met * pesoCorpo * (durMin / 60));
-  $('tpl-ex-kcal').value = kcal;
-  $('tpl-ex-kcal-hint').textContent = `MET ${met} · ${pesoCorpo}kg · ${durMin.toFixed(0)}min`;
-}
-
-// Auto-seleciona músculos e estima duração/kcal a partir do nome do exercício
-$('tpl-ex-nome').addEventListener('change', function() {
-  const key = this.value.toLowerCase();
-  const muscles = exToMuscle[key] || [];
-  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c => {
-    c.classList.toggle('on', muscles.includes(c.dataset.m));
-  });
-  if (!$('tpl-ex-dur').value) {
-    const durMap = { corrida: 30, ciclismo: 45, natação: 45, 'jiu jitsu': 90, basquete: 60 };
-    if (durMap[key]) $('tpl-ex-dur').value = durMap[key];
-  }
-  estimarKcalTemplate();
-});
-
-function renderTplExList() {
-  const cont = $('tpl-exercicios-lista');
-  if (!cont) return;
-  if (!_tplExs.length) { cont.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:6px 0">Nenhum exercício adicionado ainda</div>'; return; }
-  const muscLabels = { peito:'Peito', ombros:'Ombros', biceps:'Bíceps', triceps:'Tríceps', abdomen:'Abdômen', antebraco:'Antebraço', costas:'Costas', trapezio:'Trapézio', quadriceps:'Quadríceps', gluteos:'Glúteos', isquiotibiais:'Isquiot.', panturrilha:'Panturrilha' };
-  cont.innerHTML = _tplExs.map((e,i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px">
-      <div style="flex:1">
-        <div style="font-size:12px;font-weight:600">${e.nome}</div>
-        <div style="font-size:10px;color:var(--text3)">${[e.sr,e.kg?e.kg+'kg':'',e.kcal?'🔥'+e.kcal+' kcal':''].filter(Boolean).join(' · ')} ${e.musculos?.map(m=>muscLabels[m]||m).join(', ')}</div>
-      </div>
-      <button class="ib del" onclick="_tplExs.splice(${i},1);renderTplExList()">×</button>
-    </div>`).join('');
-}
-
-function adicionarExAoTemplate() {
-  const nome = $('tpl-ex-nome').value.trim();
-  if (!nome) { $('tpl-ex-nome').focus(); return; }
-  let musculos = [...document.querySelectorAll('#tpl-mc-sel .mc.on')].map(c=>c.dataset.m);
-  if (!musculos.length) musculos = exToMuscle[nome.toLowerCase()] || []; // fallback caso o auto-select não tenha disparado
-  _tplExs.push({
-    nome,
-    sr: $('tpl-ex-sr').value,
-    kg: $('tpl-ex-kg').value,
-    dur: parseFloat($('tpl-ex-dur').value) || 0,
-    kcal: parseInt($('tpl-ex-kcal').value) || 0,
-    musculos
-  });
-  $('tpl-ex-nome').value=''; $('tpl-ex-sr').value=''; $('tpl-ex-kg').value=''; $('tpl-ex-dur').value=''; $('tpl-ex-kcal').value=''; $('tpl-ex-kcal-hint').textContent='';
-  document.querySelectorAll('#tpl-mc-sel .mc').forEach(c=>c.classList.remove('on'));
-  renderTplExList();
-}
-
-function salvarTemplate() {
-  const nome = $('tpl-nome').value.trim();
-  if (!nome || !_tplExs.length) { alert('Dê um nome e adicione pelo menos um exercício.'); return; }
-  const lista = load('treino_templates', []);
-  const id = parseInt($('tpl-id').value) || Date.now();
-  const tpl = { id, nome, exercicios: _tplExs };
-  const idx = lista.findIndex(t=>t.id===id);
-  if (idx>=0) lista[idx]=tpl; else lista.push(tpl);
-  save('treino_templates', lista);
-  $('modal-template').classList.remove('on');
-  renderTemplates();
-}
-
-function delTemplate(id) {
-  if (!confirm('Excluir template?')) return;
-  save('treino_templates', load('treino_templates',[]).filter(t=>t.id!==id));
-  renderTemplates();
-}
-
-function lancarTemplate(id) {
-  const tpl = (load('treino_templates',[])).find(t=>t.id===id);
-  if (!tpl) return;
-  const pesoCorpo = pesoCorporalEstimado();
-  // Add all exercises to the queue, recalculando kcal/músculos quando o template não os tiver salvo (templates antigos)
-  tpl.exercicios.forEach(e => {
-    const key = (e.nome||'').toLowerCase();
-    let dur = e.dur || 0;
-    let kcal = e.kcal || 0;
-    let musculos = (e.musculos && e.musculos.length) ? e.musculos : (exToMuscle[key] || []);
-    if (!kcal) {
-      const met = exMET[key] || 5;
-      if (!dur) { const sets = parseSeries(e.sr); if (sets) dur = sets * 2.5; }
-      if (dur) kcal = Math.round(met * pesoCorpo * (dur / 60));
-    }
-    treinoFila.push({ nome:e.nome, sr:e.sr, kg:e.kg, dur, kcal, musculos, notas:'' });
-  });
-  renderTreinoFila();
-  go('corpo');
-  // Scroll to the treino card
-  setTimeout(() => { const el = $('treino-fila'); if (el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 300);
-}
-
-// ──────────────────────────────────
-// TREINO DA SEMANA — mapa dia-da-semana → template
-// ──────────────────────────────────
-const DIAS_SEMANA_LBL = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
-function renderTreinoSemana() {
-  const cont = $('treino-semana-grid');
-  if (!cont) return;
-  const plano = load('treino_semana', {});
-  const templates = load('treino_templates', []);
-  const hojeDow = new Date().getDay();
-  cont.innerHTML = DIAS_SEMANA_LBL.map((lbl, dow) => {
-    const val = plano[dow] || '';
-    const opts = ['<option value="">Descanso</option>']
-      .concat(templates.map(t => `<option value="${t.id}"${String(val) === String(t.id) ? ' selected' : ''}>${t.nome}</option>`))
-      .join('');
-    const isHoje = dow === hojeDow;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:var(--rs);border:1px solid ${isHoje ? 'var(--accent)' : 'var(--border)'}">
-      <span style="font-size:11px;font-weight:${isHoje ? '700' : '500'};color:${isHoje ? 'var(--accent)' : 'var(--text2)'};width:82px;flex-shrink:0">${lbl}${isHoje ? ' · hoje' : ''}</span>
-      <select onchange="setTreinoDia(${dow}, this.value)" style="flex:1;font-size:12px">${opts}</select>
-      ${val ? `<button class="btn btn-p btn-sm" onclick="lancarTemplate(${val})" style="flex-shrink:0">▶</button>` : ''}
-    </div>`;
-  }).join('');
-}
-function setTreinoDia(dow, templateId) {
-  const plano = load('treino_semana', {});
-  if (templateId) plano[dow] = parseInt(templateId); else delete plano[dow];
-  save('treino_semana', plano);
-  renderTreinoSemana();
-}
-
-function renderTemplates() {
-  const cont = $('lista-templates');
-  if (!cont) return;
-  const lista = load('treino_templates', []);
-  if (!lista.length) { cont.innerHTML = '<div class="empty"><div class="ei">⚡</div>Nenhum template criado ainda</div>'; return; }
-  cont.innerHTML = lista.map(t => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg3);border-radius:var(--rs);margin-bottom:7px;border:1px solid var(--border)">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">${t.nome}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">${t.exercicios.length} exercício${t.exercicios.length!==1?'s':''}: ${t.exercicios.map(e=>e.nome).join(', ')}</div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="lancarTemplate(${t.id})">▶ Lançar</button>
-      <button class="ib edt" onclick="abrirModalTemplate(${t.id})">✏️</button>
-      <button class="ib del" onclick="delTemplate(${t.id})">×</button>
-    </div>`).join('');
-}
-
-// ══════════════════════════════════════════
-// RECORDES PESSOAIS
-// ══════════════════════════════════════════
-function addRecorde() {
-  const exIn = $('rec-exercicio');
-  const notaIn = $('rec-nota');
-  const exercicio = exIn.value.trim();
-  const nota = notaIn.value.trim();
-  if (!exercicio || !nota) { exIn.focus(); return; }
-  const lista = load('recordes', []);
-  lista.unshift({ id: Date.now(), exercicio, nota, data: localDateStr(new Date()) });
-  save('recordes', lista);
-  exIn.value = ''; notaIn.value = '';
-  exIn.focus();
-  renderRecordes();
-}
-
-function delRecorde(id) {
-  save('recordes', load('recordes', []).filter(r => r.id !== id));
-  renderRecordes();
-}
-
-function renderRecordes() {
-  const cont = $('recordes-lista');
-  if (!cont) return;
-  const lista = load('recordes', []);
-  if (!lista.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏆</div>Nenhum recorde anotado ainda</div>'; return; }
-  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  cont.innerHTML = lista.map(r => `
-    <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(r.exercicio)}</div>
-        <div style="font-size:12.5px;color:var(--accent);margin-top:2px">${esc(r.nota)}</div>
-      </div>
-      <div style="font-size:10.5px;color:var(--text3);font-family:var(--f-mono);flex-shrink:0">${r.data ? r.data.slice(8,10)+'/'+r.data.slice(5,7) : ''}</div>
-      <button class="ib del" onclick="delRecorde(${r.id})" title="Remover">×</button>
-    </div>`).join('');
-}
-
 
 // ══════════════════════════════════════════
 // NEGÓCIOS — QUADRO KANBAN
@@ -6550,7 +5358,6 @@ function atualizarMetaHidratacaoAutomatica() {
   const metaAtual = load('agua_meta', 2000);
   if (meta === metaAtual) return;
   save('agua_meta', meta);
-  renderAguaDisplay();
   refreshHome();
   const banner = document.createElement('div');
   banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--blue);border-radius:var(--rs);padding:10px 18px;z-index:9000;font-size:12px;color:var(--blue);box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap';
@@ -7275,7 +6082,7 @@ function processarComando(texto) {
   // ══════════════════════════════════════
   if (match(/treinei|academia|exercici|malhei|fiz.{0,15}(supino|agachamento|corrida|peito|costas|perna|bumbum|abdomen|funcional|crossfit)|foi treinar|fui treinar|treino feito/)) {
     go('corpo');
-    executarComando({ action:'insight', resposta: 'Ótimo! Abrindo a aba Corpo para você registrar seu treino completo.' });
+    executarComando({ action:'insight', resposta: 'Bom treino! O planejamento da semana é feito pelo Treinador Jefrey — dá uma olhada no Mural do Treinador na aba Corpo.' });
     return;
   }
 
@@ -7398,7 +6205,6 @@ function executarComando(cmd) {
         const aguaD = load('agua', {});
         aguaD[today()] = (aguaD[today()] || 0) + ml;
         save('agua', aguaD);
-        renderAguaDisplay();
         refreshHome();
       }
       break;
@@ -7643,7 +6449,6 @@ function qaAgua(ml) {
   const aguaD = load('agua', {});
   aguaD[today()] = (aguaD[today()] || 0) + ml;
   save('agua', aguaD);
-  renderAguaDisplay();
   refreshHome();
   // Flash feedback on button
   const btns = document.querySelectorAll('.qa-btn');
@@ -7708,7 +6513,7 @@ function qaConfirmarDespesa() {
   $('modal-qa-despesa').classList.remove('on');
 }
 
-function qaExercicio() { go('corpo'); setTimeout(() => $('ex-nome')?.focus(), 300); }
+function qaExercicio() { go('corpo'); }
 
 function qaPeso(val) {
   const kg = parseFloat(val);
@@ -9249,12 +8054,7 @@ document.addEventListener('keydown', function(e) {
   safeCall(renderAgenda, 'renderAgenda');
   safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
-  safeCall(renderTreinoSemana, 'renderTreinoSemana');
-  safeCall(renderAguaDisplay, 'renderAguaDisplay');
-  safeCall(renderExLog, 'renderExLog');
-  safeCall(updateMuscleDiagram, 'updateMuscleDiagram');
-  safeCall(renderHistorico, 'renderHistorico');
-  safeCall(renderHistChart, 'renderHistChart');
+  safeCall(renderMuralTreinador, 'renderMuralTreinador');
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderCursos, 'renderCursos');
@@ -9264,12 +8064,10 @@ document.addEventListener('keydown', function(e) {
   safeCall(carregarTema, 'carregarTema');
   safeCall(aplicarNavFavs, 'aplicarNavFavs');
   safeCall(initParticles, 'initParticles');
-  safeCall(atualizarKcalModeUI, 'atualizarKcalModeUI');
   safeCall(() => setupScrollReveal('home'), 'setupScrollReveal');
   safeCall(atualizarMetaHidratacaoAutomatica, 'atualizarMetaHidratacaoAutomatica');
   safeCall(verificarAlertaGastos, 'verificarAlertaGastos');
   safeCall(verificarAlertaDescanso, 'verificarAlertaDescanso');
-  safeCall(renderTemplates, 'renderTemplates');
   safeCall(renderGratDiaria, 'renderGratDiaria');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
