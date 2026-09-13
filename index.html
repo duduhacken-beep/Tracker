@@ -2151,6 +2151,13 @@ body.dens-compact .gap{margin-bottom:14px}
       <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
     </div>
   </div>
+
+  <!-- TREINO DA SEMANA -->
+  <div class="card">
+    <h2>🏋️ Treino da Semana</h2>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Montado pelo Treinador Jefrey. Só leitura.</p>
+    <div id="treino-semana-list"></div>
+  </div>
 </section>
 
 
@@ -2805,6 +2812,7 @@ function reRenderAll() {
   safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
   safeCall(renderMuralTreinador, 'renderMuralTreinador');
+  safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderMapaHome, 'renderMapaHome');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderCursos, 'renderCursos'); safeCall(renderReceitas, 'renderReceitas');
@@ -2921,7 +2929,7 @@ function go(p) {
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'tarefas')  { safeCall(renderTarefas, 'renderTarefas'); }
-  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); }
+  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'cursos')   { safeCall(renderCursos, 'renderCursos'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
@@ -3559,6 +3567,39 @@ function renderMuralTreinador() {
       <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(c.titulo || '')}</div>
       <div style="font-size:12.5px;color:var(--text2);margin-top:4px;white-space:pre-wrap">${esc(c.texto || '')}</div>
     </div>`).join('');
+}
+
+// ──────────────────────────────────
+// CORPO - TREINO DA SEMANA
+// Templates + agenda semanal (chaves 'treino_templates' e 'treino_semana').
+// Só leitura — montado pelo Treinador Jefrey.
+// ──────────────────────────────────
+const DIAS_SEMANA_ORDEM = [1,2,3,4,5,6,0];
+const DIAS_SEMANA_LABEL = {0:'Domingo',1:'Segunda',2:'Terça',3:'Quarta',4:'Quinta',5:'Sexta',6:'Sábado'};
+function renderTreinoSemana() {
+  const cont = $('treino-semana-list');
+  if (!cont) return;
+  const semana = load('treino_semana', {});
+  const templates = load('treino_templates', []);
+  const dias = DIAS_SEMANA_ORDEM.filter(d => semana[d] != null);
+  if (!dias.length) { cont.innerHTML = '<div class="empty"><div class="ei">🏋️</div>Nenhum treino montado pra essa semana ainda</div>'; return; }
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  cont.innerHTML = dias.map(d => {
+    const tid = semana[d];
+    const tpl = templates.find(t => t.id === tid);
+    if (!tpl) return '';
+    const exs = (tpl.exercicios || []).map(e => `
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:3px 0">
+        <span>${esc(e.nome)}</span>
+        <span style="color:var(--text3)">${esc(e.sr || '')}${e.kg ? ' · ' + esc(e.kg) + 'kg' : ''}</span>
+      </div>`).join('');
+    return `
+      <div style="padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border);margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">${esc(DIAS_SEMANA_LABEL[d])}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-top:2px">${esc(tpl.nome || '')}</div>
+        <div style="margin-top:6px">${exs}</div>
+      </div>`;
+  }).join('');
 }
 
 // ──────────────────────────────────
@@ -8055,6 +8096,7 @@ document.addEventListener('keydown', function(e) {
   safeCall(renderTarefas, 'renderTarefas');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
   safeCall(renderMuralTreinador, 'renderMuralTreinador');
+  safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderCursos, 'renderCursos');
