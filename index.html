@@ -618,6 +618,34 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .evi-m{font-size:11.5px;color:var(--text3);margin-top:2px}
 .evi.done .evi-n{text-decoration:line-through;color:var(--text3)}
 
+/* ── AGENDA (grade mensal estilo Google Calendar) ── */
+.ag-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.ag-top h2{flex:1;min-width:140px;margin:0}
+.ag-nav{min-width:36px;height:36px;justify-content:center;padding:0 10px}
+.ag-sem,.ag-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.ag-sem span{font-size:10.5px;font-weight:600;color:var(--text3);text-align:center;padding:4px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.ag-grid{border-top:1px solid var(--border);border-left:1px solid var(--border)}
+.ag-d{
+  all:unset;box-sizing:border-box;cursor:pointer;
+  min-height:96px;padding:4px 3px;display:flex;flex-direction:column;gap:2px;overflow:hidden;
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  transition:background .15s;
+}
+.ag-d:hover{background:var(--bg3)}
+.ag-d:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.ag-d.sel{background:var(--adim)}
+.ag-d.fora .ag-n{color:var(--text3)}
+.ag-n{align-self:center;font-size:12px;font-weight:500;color:var(--text);width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;margin-bottom:2px}
+.ag-d.hoje .ag-n{background:var(--accent);color:#0d0f14;font-weight:700}
+.ag-c{display:block;font-size:10.5px;line-height:1.5;padding:0 5px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-c.done{opacity:.45;text-decoration:line-through}
+.ag-mais{font-size:10px;color:var(--text2);padding:0 5px}
+@media(max-width:640px){
+  .ag-d{min-height:58px;padding:3px 1px}
+  .ag-c{height:5px;padding:0;font-size:0;border-radius:3px;margin:0 2px}
+  .ag-mais{font-size:9px;padding:0;text-align:center}
+}
+
 /* ── DAYS ── */
 .days-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
 .db{
@@ -2027,8 +2055,34 @@ body.dens-compact .gap{margin-bottom:14px}
 <section class="page" id="page-agenda">
   <h1>Agenda</h1><p class="psub">Compromissos e eventos</p>
 
+  <div class="card gap">
+    <div class="ag-top">
+      <button class="btn btn-g btn-sm" onclick="agNav(0)">Hoje</button>
+      <button class="btn btn-g btn-sm ag-nav" onclick="agNav(-1)" aria-label="Mês anterior">‹</button>
+      <button class="btn btn-g btn-sm ag-nav" onclick="agNav(1)" aria-label="Próximo mês">›</button>
+      <h2 id="ag-titulo"></h2>
+      <select id="ev-filter" onchange="renderAgenda()" aria-label="Filtrar categoria" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos</option><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select>
+    </div>
+    <div class="ag-sem"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+    <div class="ag-grid" id="ag-grid"></div>
+  </div>
+
+  <div class="card gap">
+    <div class="sh"><h2 id="ag-dia-titulo"></h2>
+      <button class="btn btn-p btn-sm" onclick="agNovoNoDia()">+ Evento neste dia</button>
+    </div>
+    <div id="lista-eventos"></div>
+  </div>
+
+  <div class="card gap">
+    <h3>Adicionar evento</h3>
+    <div class="row"><div class="fg" style="flex:2"><label>Nome do evento</label><input id="ev-n" type="text" placeholder="Reunião, médico, academia..."></div><div class="fg"><label>Categoria</label><select id="ev-cat"><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select></div></div>
+    <div class="row"><div class="fg"><label>Data & Hora</label><input id="ev-dt" type="datetime-local"></div><div class="fg"><label>Notas</label><input id="ev-no" type="text" placeholder="Opcional..."></div></div>
+    <button class="btn btn-p btn-sm" onclick="addEvento()">+ Adicionar evento</button>
+  </div>
+
   <!-- GOOGLE CALENDAR SYNC -->
-  <div class="card gap" id="gcal-config-card">
+  <div class="card" id="gcal-config-card">
     <div class="sh"><h2>📆 Google Calendar</h2></div>
     <div id="gcal-status-area"><!-- preenchido por JS --></div>
     <div id="gcal-form" style="display:none">
@@ -2073,20 +2127,6 @@ body.dens-compact .gap{margin-bottom:14px}
         </div>
       </div>
     </details>
-  </div>
-
-  <div class="card gap">
-    <h3>Adicionar evento</h3>
-    <div class="row"><div class="fg" style="flex:2"><label>Nome do evento</label><input id="ev-n" type="text" placeholder="Reunião, médico, academia..."></div><div class="fg"><label>Categoria</label><select id="ev-cat"><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select></div></div>
-    <div class="row"><div class="fg"><label>Data & Hora</label><input id="ev-dt" type="datetime-local"></div><div class="fg"><label>Notas</label><input id="ev-no" type="text" placeholder="Opcional..."></div></div>
-    <button class="btn btn-p btn-sm" onclick="addEvento()">+ Adicionar evento</button>
-  </div>
-
-  <div class="card">
-    <div class="sh"><h2>Todos os eventos</h2>
-      <select id="ev-filter" onchange="renderAgenda()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todos</option><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option></select>
-    </div>
-    <div id="lista-eventos"></div>
   </div>
 </section>
 
@@ -3347,18 +3387,62 @@ function delEvento(id) {
   if (ev) safeCall(() => gcalPush(ev, 'delete'), 'gcalPush');
 }
 
+let agMes = new Date(); agMes.setDate(1);
+
+const _escH = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let agDia = localDateStr(new Date());
+
+function agNav(n) {
+  if (n === 0) { agMes = new Date(); agMes.setDate(1); agDia = localDateStr(new Date()); }
+  else agMes = new Date(agMes.getFullYear(), agMes.getMonth() + n, 1);
+  renderAgenda();
+}
+function agSel(k) { agDia = k; renderAgenda(); }
+function agNovoNoDia() {
+  $('ev-dt').value = agDia + 'T09:00';
+  $('ev-n').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  $('ev-n').focus({ preventScroll: true });
+}
+
 function renderAgenda() {
   const filter = $('ev-filter').value;
-  const eventos = load('eventos', []).filter(e => !filter || e.cat === filter);
+  const eventos = load('eventos', []).filter(e => e.dt && (!filter || e.cat === filter));
+  const porDia = {};
+  eventos.forEach(e => (porDia[e.dt.slice(0, 10)] ||= []).push(e));
+  Object.values(porDia).forEach(l => l.sort((a, b) => a.dt.localeCompare(b.dt)));
+  const hora = e => { const t = e.dt.slice(11, 16); return t === '00:00' ? '' : t; }; // 00:00 = dia inteiro (Google)
+
+  // Grade do mês: começa no domingo, 5 ou 6 semanas
+  const cap = t => t[0].toUpperCase() + t.slice(1);
+  $('ag-titulo').textContent = cap(agMes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }));
+  const hoje = localDateStr(new Date());
+  const diasMes = new Date(agMes.getFullYear(), agMes.getMonth() + 1, 0).getDate();
+  const cells = Math.ceil((agMes.getDay() + diasMes) / 7) * 7;
+  let html = '';
+  for (let i = 0; i < cells; i++) {
+    const d = new Date(agMes.getFullYear(), agMes.getMonth(), 1 - agMes.getDay() + i);
+    const k = localDateStr(d), evs = porDia[k] || [];
+    const cls = ['ag-d', d.getMonth() !== agMes.getMonth() && 'fora', k === hoje && 'hoje', k === agDia && 'sel'].filter(Boolean).join(' ');
+    html += `<button class="${cls}" onclick="agSel('${k}')" aria-label="${d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}, ${evs.length} evento(s)">`
+      + `<span class="ag-n">${d.getDate()}</span>`
+      + evs.slice(0, 3).map(e => `<span class="ag-c ${catColor[e.cat] || 'tb'}${e.done ? ' done' : ''}">${hora(e)} ${_escH(e.nome)}</span>`).join('')
+      + (evs.length > 3 ? `<span class="ag-mais">+${evs.length - 3}</span>` : '')
+      + '</button>';
+  }
+  $('ag-grid').innerHTML = html;
+
+  // Eventos do dia selecionado
+  $('ag-dia-titulo').textContent = cap(new Date(agDia + 'T12:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }));
+  const doDia = porDia[agDia] || [];
   const cont = $('lista-eventos');
-  if (!eventos.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nenhum evento</div>'; return; }
-  cont.innerHTML = eventos.map(e => `
+  if (!doDia.length) { cont.innerHTML = '<div class="empty"><div class="ei">📅</div>Nada marcado neste dia</div>'; return; }
+  cont.innerHTML = doDia.map(e => `
     <div class="evi${e.done ? ' done' : ''}">
       <div class="cb${e.done ? ' on' : ''}" onclick="toggleEvento(${_eid(e.id)})">${e.done ? '✓' : ''}</div>
-      <div class="evi-t">${fmtDt(e.dt)}</div>
-      <div class="evi-info" style="flex:1"><div class="evi-n">${e.nome}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + e.notas : ''}${e.googleId ? ' · 🔗 Google' : ''}</div></div>
-      <button class="ib edt" onclick="openEdit(${_eid(e.id)})">✏️</button>
-      <button class="ib del" onclick="delEvento(${_eid(e.id)})">×</button>
+      <div class="evi-t">${hora(e) || 'Dia todo'}</div>
+      <div class="evi-info" style="flex:1"><div class="evi-n">${_escH(e.nome)}</div><div class="evi-m"><span class="tag ${catColor[e.cat]||'tb'}">${e.cat}</span>${e.notas ? ' · ' + _escH(e.notas) : ''}${e.googleId ? ' · 🔗 Google' : ''}</div></div>
+      <button class="ib edt" onclick="openEdit(${_eid(e.id)})" aria-label="Editar">✏️</button>
+      <button class="ib del" onclick="delEvento(${_eid(e.id)})" aria-label="Excluir">×</button>
     </div>`).join('');
 }
 
