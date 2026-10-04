@@ -1531,46 +1531,32 @@ body.dens-compact .gap{margin-bottom:14px}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
 
-/* ── MOVIMENTAÇÃO DO MÊS ── desktop grid, mobile horizontal scroll ── */
-.mov-scroll{
-  display:grid;grid-template-columns:1fr 1fr;gap:14px;
-}
-.mov-col-h{
-  font-size:10px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.8px;margin-bottom:8px;
-  display:flex;align-items:center;gap:5px;
-}
-.mov-col-h.up{color:var(--green)}
-.mov-col-h.down{color:var(--red)}
-.mov-list{display:flex;flex-direction:column;gap:6px}
-.mov-item{
-  display:flex;align-items:center;gap:10px;
-  padding:9px 11px;background:var(--bg3);
-  border-radius:var(--rs);border:1px solid var(--border);
-}
-@media(max-width:720px){
-  .mov-scroll{
-    display:flex;
-    grid-template-columns:unset;
-    gap:14px;
-    overflow-x:auto;overflow-y:hidden;
-    -webkit-overflow-scrolling:touch;
-    scroll-snap-type:x mandatory;
-    scrollbar-width:none;
-    margin:0 -16px;
-    padding:2px 16px 10px;
-  }
-  .mov-scroll::-webkit-scrollbar{display:none}
-  .mov-col{
-    flex:0 0 78%;
-    min-width:78%;
-    scroll-snap-align:start;
-  }
-  .mov-col:last-child{margin-right:4px}
-}
-@media(max-width:420px){
-  .mov-col{flex-basis:84%;min-width:84%}
-}
+/* ── INVESTIMENTOS ── */
+.inv-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.inv-h h2{margin:0}
+.inv-sub{font-size:12.5px;color:var(--text2);margin-top:4px}
+.inv-acoes{display:flex;gap:8px}
+.mov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px 28px}
+.mov-cat h3{text-transform:none;letter-spacing:0;font-family:var(--f-sans);display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:14px;font-weight:600;color:var(--text);margin:0 0 6px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.mov-cat h3 span{font-size:11.5px;font-weight:400;color:var(--text3)}
+.mov-sub{font-size:11.5px;color:var(--text3);margin:10px 0 2px}
+.mov-lista{list-style:none;margin:0;padding:0}
+.mov-row{display:grid;grid-template-columns:1fr auto auto;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid var(--border)}
+.mov-row:last-child{border-bottom:none}
+.mov-tk{font-size:13px;font-weight:600;color:var(--text)}
+.mov-preco{font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums}
+.mov-var{font-size:13px;font-weight:600;min-width:64px;text-align:right;font-variant-numeric:tabular-nums}
+.mov-var.up{color:var(--green)}
+.mov-var.down{color:var(--red)}
+.mov-rodape{font-size:11.5px;color:var(--text3);margin:16px 0 0}
+.mov-msg{font-size:13px;color:var(--text2);padding:18px 0;line-height:1.6}
+.mov-msg a,.mov-vazio a{color:var(--accent);font-weight:600}
+.mov-vazio{font-size:13px;color:var(--text2);line-height:1.6;max-width:560px}
+.mov-vazio p{margin:0 0 10px}
+.mov-vazio strong{color:var(--text)}
+.mov-vazio ol{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.inv-pools{margin-top:34px}
+.inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
 </style>
 </head>
 <body>
@@ -1621,6 +1607,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
+  <button class="nb" onclick="go('investimentos')" id="n-investimentos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Investimentos</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
   <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
@@ -1796,68 +1784,6 @@ body.dens-compact .gap{margin-bottom:14px}
 
 
 
-<!-- MOVIMENTAÇÃO DO MÊS -->
-  <div class="card gap" id="mov-card" style="border-left:3px solid var(--accent)">
-    <div class="sh" style="margin-bottom:10px">
-      <h2 style="font-size:14px">📈 Movimentação do mês</h2>
-      <div style="display:flex;gap:4px;align-items:center">
-        <span id="mov-updated" style="font-size:10px;color:var(--text3);font-family:var(--f-mono);margin-right:4px"></span>
-        <button class="ib" onclick="mostrarDebugMov()" title="Ver log de debug">🐛</button>
-        <button class="ib" onclick="abrirConfigMov()" title="Configurar fonte de dados">⚙️</button>
-        <button class="ib" onclick="atualizarMovimentacao(true)" title="Atualizar agora">🔄</button>
-      </div>
-    </div>
-    <div id="mov-content"><div style="text-align:center;padding:16px 0;color:var(--text3);font-size:12px">Carregando cotações...</div></div>
-  </div>
-
-  <!-- POOLS DE LIQUIDEZ — botão -->
-  <div class="card gap" id="lp-card" onclick="abrirPoolsLiquidez()" style="cursor:pointer;border-left:3px solid var(--purple);transition:transform .15s, background .15s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
-    <div style="display:flex;align-items:center;gap:14px">
-      <div style="line-height:1;display:flex;align-items:center;justify-content:center;width:36px;height:36px"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" style="color:var(--purple);display:block">
-        <path d="M3 17c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2"/>
-        <path d="M3 12.5c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2" opacity=".6"/>
-        <path d="M3 8c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2" opacity=".3"/>
-      </svg></div>
-      <div style="flex:1;min-width:0">
-        <h2 style="font-size:14px;margin:0 0 3px 0">Pools de Liquidez</h2>
-        <div style="font-size:11.5px;color:var(--text3);line-height:1.5">Multi-chain DeFi tracker — IL, posições e histórico</div>
-      </div>
-      <div style="font-size:18px;color:var(--text3)">›</div>
-    </div>
-  </div>
-
-
-<!-- MODAL CONFIG MOVIMENTAÇÃO -->
-  <div class="overlay" id="modal-mov-config">
-    <div class="modal" style="width:480px">
-      <h2>📈 Movimentação — Configurar</h2>
-
-      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-        Os tickers são lidos automaticamente das abas <strong>Ações BR</strong>, <strong>Stocks (BDRs)</strong>, <strong>FIIs</strong> e <strong>Cripto</strong> da sua planilha. A variação dos últimos 30 dias vem da brapi.dev.
-      </p>
-
-      <div class="fg">
-        <label>Token brapi.dev <span style="color:var(--red)">(obrigatório)</span></label>
-        <input id="mov-token" type="text" placeholder="Cole seu token aqui">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
-          Cadastro grátis em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> (login com Google). Copie a chave em "Chaves de API".
-        </div>
-      </div>
-
-      <div class="fg">
-        <label>ID da planilha</label>
-        <input id="mov-sheet-id" type="text" placeholder="ID do Google Sheets">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
-          ID extraído da URL <code style="background:var(--bg);padding:1px 4px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>{ID}</strong>/...</code>. A planilha precisa estar pública ("qualquer pessoa com link pode visualizar").
-        </div>
-      </div>
-
-      <div class="mfooter">
-        <button class="btn btn-g" onclick="$('modal-mov-config').classList.remove('on')">Cancelar</button>
-        <button class="btn btn-p" onclick="salvarConfigMov()">💾 Salvar e atualizar</button>
-      </div>
-    </div>
-  </div>
 
   <!-- MODAL ATALHO GASTO -->
   <div class="overlay" id="modal-qa-despesa">
@@ -2234,6 +2160,67 @@ body.dens-compact .gap{margin-bottom:14px}
 
 
 
+<!-- ════════════════ INVESTIMENTOS ════════════════ -->
+<section class="page" id="page-investimentos">
+  <h1>Investimentos</h1><p class="psub">Como seus ativos andaram nos últimos 30 dias e suas posições em pools de liquidez.</p>
+
+  <div class="card gap" id="mov-card">
+    <div class="inv-h">
+      <div>
+        <h2>Movimentação do mês</h2>
+        <div class="inv-sub" id="mov-updated">Variação dos ativos da sua planilha</div>
+      </div>
+      <div class="inv-acoes">
+        <button class="btn btn-g btn-sm" onclick="abrirConfigMov()">Configurar</button>
+        <button class="btn btn-g btn-sm" onclick="atualizarMovimentacao(true)">Atualizar</button>
+      </div>
+    </div>
+    <div id="mov-content"><div class="mov-msg">Carregando cotações…</div></div>
+  </div>
+
+  <div class="inv-pools">
+    <div class="inv-h">
+      <div>
+        <h2>Pools de liquidez</h2>
+        <div class="inv-sub">Posições, perda impermanente e histórico em várias redes.</div>
+      </div>
+    </div>
+    <iframe id="lp-iframe" class="inv-pools-frame" title="Pools de liquidez" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe>
+  </div>
+
+  <div class="overlay" id="modal-mov-config">
+    <div class="modal" style="width:480px">
+      <h2>Configurar movimentação</h2>
+
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+        Os tickers são lidos automaticamente das abas <strong>Ações BR</strong>, <strong>Stocks (BDRs)</strong>, <strong>FIIs</strong> e <strong>Cripto</strong> da sua planilha. A variação dos últimos 30 dias vem da brapi.dev.
+      </p>
+
+      <div class="fg">
+        <label>Token brapi.dev <span style="color:var(--red)">(obrigatório)</span></label>
+        <input id="mov-token" type="text" placeholder="Cole seu token aqui">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
+          Cadastro grátis em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> (login com Google). Copie a chave em "Chaves de API".
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>ID da planilha</label>
+        <input id="mov-sheet-id" type="text" placeholder="ID do Google Sheets">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
+          ID extraído da URL <code style="background:var(--bg);padding:1px 4px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>{ID}</strong>/...</code>. A planilha precisa estar pública ("qualquer pessoa com link pode visualizar").
+        </div>
+      </div>
+
+      <div class="mfooter">
+        <button class="btn btn-g" onclick="mostrarDebugMov()" style="margin-right:auto">Ver log</button>
+        <button class="btn btn-g" onclick="$('modal-mov-config').classList.remove('on')">Cancelar</button>
+        <button class="btn btn-p" onclick="salvarConfigMov()">Salvar e atualizar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ════════════════ BACKUP ════════════════ -->
 <section class="page" id="page-backup">
   <h1>☁️ Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
@@ -2358,24 +2345,6 @@ create policy "acesso total"
 </section>
 
 </main>
-
-<!-- OVERLAY FULL-SCREEN — consolidador de pools (iframe). Filho direto do body
-     de propósito: nunca pode ficar preso num contexto de empilhamento de uma
-     página animada (senão o z-index para de funcionar contra a sidebar). -->
-<div id="lp-overlay" style="display:none;position:fixed;inset:0;background:#0a0b0d;z-index:9999;flex-direction:column">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#16181c;border-bottom:1px solid #25272c;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:10px">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#c4ff3d" stroke-width="1.8" stroke-linecap="round" style="display:block">
-        <path d="M3 17c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2"/>
-        <path d="M3 12.5c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2" opacity=".6"/>
-        <path d="M3 8c1.5 0 1.5-1.2 3-1.2s1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2 1.5-1.2 3-1.2 1.5 1.2 3 1.2" opacity=".3"/>
-      </svg>
-      <span style="font-size:13px;color:#e8e6e0;font-weight:600">Pools de Liquidez</span>
-    </div>
-    <button onclick="fecharPoolsLiquidez()" style="background:#25272c;color:#e8e6e0;border:none;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border-radius:4px">✕ Fechar</button>
-  </div>
-  <iframe id="lp-iframe" style="flex:1;width:100%;border:none;background:#0a0b0d" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__sbCdnFailed=true"></script>
@@ -2720,6 +2689,7 @@ function go(p) {
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
+  if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
 }
 
@@ -6133,11 +6103,19 @@ const ALL_PAGES = [
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'financas', label:'Finanças',  icon:'💰' },
+  { id:'investimentos', label:'Investimentos', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
 ];
 
 function getNavFavs() {
-  return load('nav_favs', ['home','agenda','corpo','financas','backup']);
+  const favs = load('nav_favs', null);
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','backup'];
+  // Investimentos entrou em 04/10/2026: aparece uma vez para quem já tinha favoritos salvos
+  if (!load('nav_inv_visto', false)) {
+    if (!favs.includes('investimentos')) { favs.push('investimentos'); save('nav_favs', favs); }
+    save('nav_inv_visto', true);
+  }
+  return favs;
 }
 
 function aplicarNavFavs() {
@@ -7317,18 +7295,16 @@ async function atualizarMovimentacao(force = false) {
   const token = localStorage.getItem('mov_token') || '';
   const sheetId = localStorage.getItem('mov_sheet_id') || MOV_SHEET_DEFAULT_ID;
 
-  // Sem token → CTA explicando como obter
+  // Sem token → passo a passo para obter
   if (!token) {
-    cont.innerHTML = `<div style="padding:14px 12px;line-height:1.7">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">
-        ⚠️ <strong style="color:var(--red)">Token brapi.dev necessário</strong> — para buscar variação dos ativos da planilha.
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text2);margin:10px 0 12px;padding-left:14px;line-height:1.7">
-        <div><strong>1.</strong> Acesse <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> e faça login com Google</div>
-        <div><strong>2.</strong> Vá em <strong>Chaves de API</strong> → copie o token</div>
-        <div><strong>3.</strong> Cole no botão abaixo</div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="abrirConfigMov()" style="width:100%;justify-content:center">⚙️ Colar token agora</button>
+    cont.innerHTML = `<div class="mov-vazio">
+      <p><strong>Falta o token da brapi.dev</strong> para buscar a variação dos ativos da sua planilha.</p>
+      <ol>
+        <li>Entre em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard</a> com sua conta Google.</li>
+        <li>Em <strong>Chaves de API</strong>, copie o token.</li>
+        <li>Clique em <strong>Colar token</strong> e salve.</li>
+      </ol>
+      <button class="btn btn-p btn-sm" onclick="abrirConfigMov()">Colar token</button>
     </div>`;
     return;
   }
@@ -7346,7 +7322,7 @@ async function atualizarMovimentacao(force = false) {
     } catch(e) {}
   }
 
-  cont.innerHTML = '<div style="text-align:center;padding:18px 0;color:var(--text3);font-size:12px"><span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Lendo planilha...</div>';
+  cont.innerHTML = '<div class="mov-msg">Lendo a planilha…</div>';
 
   const { acoesBr, bdrs, fiis, cryptos } = await _movFetchTickersDaPlanilha(sheetId);
   const allStocksLikes = [...acoesBr, ...bdrs, ...fiis]; // brapi trata todos como ticker comum
@@ -7356,18 +7332,12 @@ async function atualizarMovimentacao(force = false) {
   const totalTickers = allStocksLikes.length + cryptos.length;
 
   if (!totalTickers) {
-    cont.innerHTML = `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7">
-      ⚠️ Nenhum ticker encontrado nas abas da planilha.<br>
-      <a href="#" onclick="abrirConfigMov();return false" style="color:var(--accent);font-weight:600">Verificar ID da planilha →</a>
-    </div>`;
+    cont.innerHTML = `<div class="mov-msg">Nenhum ativo encontrado nas abas da planilha. <a href="#" onclick="abrirConfigMov();return false">Conferir o ID da planilha</a></div>`;
     return;
   }
 
   const updateProgress = (n, total) => {
-    cont.innerHTML = `<div style="text-align:center;padding:18px 0;color:var(--text3);font-size:12px;line-height:1.6">
-      <span style="display:inline-block;animation:spin .8s linear infinite">⏳</span> Buscando cotações...<br>
-      <span style="font-family:var(--f-mono);font-size:11px">${n} / ${total}</span>
-    </div>`;
+    cont.innerHTML = `<div class="mov-msg">Buscando cotações… ${n} de ${total}</div>`;
   };
   updateProgress(0, totalTickers);
 
@@ -7387,10 +7357,7 @@ async function atualizarMovimentacao(force = false) {
 
   const all = [...stockDataMarcado, ...cryptoData].filter(x => isFinite(x.variation));
   if (!all.length) {
-    cont.innerHTML = `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px;line-height:1.7">
-      ⚠️ Não consegui obter cotações. Verifique se o token está correto.<br>
-      <a href="#" onclick="abrirConfigMov();return false" style="color:var(--accent);font-weight:600">Revisar configuração →</a>
-    </div>`;
+    cont.innerHTML = `<div class="mov-msg">Nenhuma cotação voltou. Confira se o token está certo em <a href="#" onclick="abrirConfigMov();return false">Configurar</a>.</div>`;
     return;
   }
 
@@ -7405,98 +7372,35 @@ function _movRender(data, ts) {
   if (!cont) return;
   if (updated) {
     const mins = Math.floor((Date.now() - ts) / 60000);
-    updated.textContent = mins < 1 ? 'agora' : mins < 60 ? `há ${mins}min` : `há ${Math.floor(mins/60)}h`;
+    updated.textContent = 'Atualizado ' + (mins < 1 ? 'agora' : mins < 60 ? `há ${mins} min` : `há ${Math.floor(mins / 60)} h`);
   }
 
-  const sortByVar = arr => [...arr].sort((a,b) => b.variation - a.variation);
+  const fmtPrice = p => !p || !isFinite(p) ? '—' : 'R$ ' + p.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtVar = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2).replace('.', ',') + '%';
+  const row = i => `<li class="mov-row">
+      <span class="mov-tk">${i.ticker}</span>
+      <span class="mov-preco">${fmtPrice(i.price)}</span>
+      <span class="mov-var ${i.variation >= 0 ? 'up' : 'down'}">${fmtVar(i.variation)}</span>
+    </li>`;
 
-  // Pega top N e bottom N SEM overlap: bottom é dos "restantes" depois do top
-  const splitTopBot = (sorted, n) => {
-    const top = sorted.slice(0, n);
-    const restantes = sorted.slice(n);
-    const bot = restantes.slice(-n).reverse();
-    return [top, bot];
+  // Até 6 ativos: lista inteira. Mais que isso: 3 maiores altas + 3 maiores quedas, sem repetir.
+  const lista = sorted => {
+    if (sorted.length <= 6) return `<ul class="mov-lista">${sorted.map(row).join('')}</ul>`;
+    const top = sorted.slice(0, 3), bot = sorted.slice(3).slice(-3).reverse();
+    return `<div class="mov-sub">Maiores altas</div><ul class="mov-lista">${top.map(row).join('')}</ul>
+      <div class="mov-sub">Maiores quedas</div><ul class="mov-lista">${bot.map(row).join('')}</ul>`;
   };
 
-  const fmtPrice = p => {
-    if (!p || !isFinite(p)) return '—';
-    if (p >= 1000) return 'R$ ' + p.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-    return 'R$ ' + p.toFixed(2).replace('.', ',');
-  };
+  const categorias = [['br', 'Ações BR'], ['bdr', 'BDRs e stocks'], ['fii', 'FIIs'], ['crypto', 'Cripto']];
+  const blocos = categorias.map(([key, label]) => {
+    const itens = data.filter(d => d.type === key).sort((a, b) => b.variation - a.variation);
+    if (!itens.length) return '';
+    return `<section class="mov-cat"><h3>${label}<span>${itens.length} ${itens.length === 1 ? 'ativo' : 'ativos'}</span></h3>${lista(itens)}</section>`;
+  }).join('');
 
-  // compact=true → padding e fontes menores (usado nos FIIs)
-  const renderItem = (item, isUp, compact) => {
-    const color = isUp ? 'var(--green)' : 'var(--red)';
-    const arrow = isUp ? '▲' : '▼';
-    const bgDim = isUp ? 'var(--gdim)' : 'var(--rdim)';
-    const pad = compact ? '6px 9px' : '9px 11px';
-    const fs = compact ? '12px' : '13px';
-    const priceFs = compact ? '9.5px' : '10.5px';
-    const badgeFs = compact ? '12px' : '13px';
-    return `<div class="mov-item" style="padding:${pad};gap:8px">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:${fs};font-weight:700;color:var(--text)">${item.ticker}</div>
-        <div style="font-size:${priceFs};color:var(--text3);font-family:var(--f-mono);margin-top:1px">${fmtPrice(item.price)}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:3px;font-family:var(--f-mono);font-size:${badgeFs};font-weight:700;color:${color};padding:3px 7px;background:${bgDim};border-radius:6px">
-        ${arrow} ${Math.abs(item.variation).toFixed(2)}%
-      </div>
-    </div>`;
-  };
-
-  // Renderiza uma seção. Se a categoria tiver poucos itens, mostra todos numa lista só;
-  // se tiver muitos, divide em maiores altas / maiores quedas pra não estourar o card.
-  const renderSecao = (sorted, compact) => {
-    if (sorted.length <= 6) {
-      return `<div class="mov-list">${sorted.map(i => renderItem(i, i.variation >= 0, compact)).join('')}</div>`;
-    }
-    const [top, bot] = splitTopBot(sorted, 3);
-    const upLbl = compact ? 'Altas' : 'Maiores altas';
-    const downLbl = compact ? 'Quedas' : 'Maiores quedas';
-    return `<div class="mov-scroll">
-      <div class="mov-col">
-        <div class="mov-col-h up"><span>▲</span> ${upLbl}</div>
-        <div class="mov-list">${top.map(i => renderItem(i, true, compact)).join('') || `<div style="font-size:11px;color:var(--text3);padding:6px 0">—</div>`}</div>
-      </div>
-      <div class="mov-col">
-        <div class="mov-col-h down"><span>▼</span> ${downLbl}</div>
-        <div class="mov-list">${bot.map(i => renderItem(i, false, compact)).join('')}</div>
-      </div>
-    </div>`;
-  };
-
-  const headerLabel = (txt, count) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
-    <div style="font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1.2px">${txt}</div>
-    <div style="flex:1;height:1px;background:var(--border)"></div>
-    <div style="font-size:9.5px;color:var(--text3);font-family:var(--f-mono)">${count}</div>
-  </div>`;
-
-  const categorias = [
-    { key:'br',     label:'Ações BR',     compact:false },
-    { key:'bdr',    label:'BDRs / Stocks', compact:false },
-    { key:'fii',    label:'FIIs',          compact:true  },
-    { key:'crypto', label:'Cripto',        compact:false },
-  ];
-
-  let html = '';
-  let primeira = true;
-  categorias.forEach(cat => {
-    const itens = sortByVar(data.filter(d => d.type === cat.key));
-    if (!itens.length) return;
-    html += `<div style="margin-top:${primeira?'0':'14px'};padding-top:${primeira?'0':'12px'};${primeira?'':'border-top:1px dashed var(--border)'}">
-      ${headerLabel(cat.label, itens.length)}
-      ${renderSecao(itens, cat.compact)}
-    </div>`;
-    primeira = false;
-  });
-
-  if (!html) html = `<div style="padding:14px;text-align:center;color:var(--text3);font-size:12px">Sem dados disponíveis.</div>`;
-
-  cont.innerHTML = html + `
-    <div style="margin-top:11px;font-size:10px;color:var(--text3);text-align:center;font-family:var(--f-mono);letter-spacing:.3px">
-      ${data.length} ativo${data.length!==1?'s':''} · variação ~30 dias · brapi + coingecko
-    </div>
-  `;
+  cont.innerHTML = blocos
+    ? `<div class="mov-grid">${blocos}</div><p class="mov-rodape">Variação dos últimos 30 dias. Cotações da brapi.dev e da CoinGecko.</p>`
+    : '<div class="mov-msg">Sem dados para mostrar.</div>';
 }
 // ══════════════════════════════════════════
 // POOLS DE LIQUIDEZ — consolidador embutido
@@ -7548,15 +7452,14 @@ function _coletarLpInitial() {
   return out;
 }
 
-function abrirPoolsLiquidez() {
-  const overlay = document.getElementById('lp-overlay');
+function carregarPools() {
   const iframe = document.getElementById('lp-iframe');
-  overlay.style.display = 'flex';
+  if (!iframe) return;
   _instalarLpBridge();
   // Só carrega o HTML uma vez por sessão (rápido reabrir)
   if (!_lpJaCarregou) {
     try {
-      const html = atob(LP_HTML_B64);
+      const html = new TextDecoder().decode(Uint8Array.from(atob(LP_HTML_B64), c => c.charCodeAt(0))); // UTF-8 (atob sozinho quebra acentos)
       const initial = _coletarLpInitial();
       // Script que substitui localStorage do iframe por um shim que:
       //  1) lê do dataset pré-carregado do parent (initial)
@@ -7578,7 +7481,7 @@ function abrirPoolsLiquidez() {
         'catch(e){window.localStorage=shim;}' +
       '})();<\/script>';
       // Injeta o pre-script logo após <head> pra rodar antes de qualquer outro JS
-      const htmlPatched = html.replace('<head>', '<head>' + preScript);
+      const htmlPatched = _lpTema(html).replace('<head>', '<head>' + preScript);
       iframe.srcdoc = htmlPatched;
       _lpJaCarregou = true;
     } catch (e) {
@@ -7586,22 +7489,33 @@ function abrirPoolsLiquidez() {
       iframe.srcdoc = '<body style="background:#0a0b0d;color:#ff5e5e;font-family:monospace;padding:20px">Erro ao carregar consolidador: ' + e.message + '</body>';
     }
   }
-  // Bloqueia scroll do body por trás
-  document.body.style.overflow = 'hidden';
 }
 
-function fecharPoolsLiquidez() {
-  document.getElementById('lp-overlay').style.display = 'none';
-  document.body.style.overflow = '';
+// O consolidador de pools é um app à parte (cores e fontes próprias). Antes de carregar,
+// troca a paleta dele pelos tokens do tema atual do Tracker, pra ficar alinhado com o resto.
+function _lpTema(html) {
+  const cs = getComputedStyle(document.body);
+  const v = n => cs.getPropertyValue(n).trim();
+  const rgb = hex => {
+    let h = hex.replace('#', '');
+    if (h.length === 3) h = h.split('').map(c => c + c).join('');
+    const n = parseInt(h, 16);
+    return [n >> 16 & 255, n >> 8 & 255, n & 255].join(', ');
+  };
+  const cores = {
+    '#c4ff3d': v('--accent'), '#d8ff66': v('--accent2'),
+    '#0a0b0d': v('--bg'), '#0f1114': v('--bg2'), '#16181c': v('--bg3'),
+    '#25272c': v('--border-strong'), '#3a3d44': v('--border-strong'),
+    '#e8e6e0': v('--text'), '#71747b': v('--text2'), '#4a4d54': v('--text3'),
+  };
+  let out = html;
+  Object.entries(cores).forEach(([de, para]) => { if (para) out = out.split(de).join(para); });
+  if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(v('--accent'))) out = out.replace(/rgba\(196, ?255, ?61,/g, `rgba(${rgb(v('--accent'))},`);
+  return out
+    .replace('family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800', 'family=Instrument+Serif&family=Inter:wght@400;500;600;700')
+    .replace("font-family: 'Fraunces', serif; font-variation-settings: 'opsz' 144;", "font-family: 'Instrument Serif', serif;")
+    .replace(".pf-root { font-family: 'JetBrains Mono', ui-monospace, monospace;", ".pf-root { font-family: 'Inter', system-ui, sans-serif;");
 }
-
-// Fecha com ESC
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && document.getElementById('lp-overlay').style.display === 'flex') {
-    fecharPoolsLiquidez();
-  }
-});
-
 
 // ══════════════════════════════════════════
 // INIT
