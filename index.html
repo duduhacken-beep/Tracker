@@ -1646,8 +1646,6 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Evolução</span></button>
-  <button class="nb" onclick="go('cursos')" id="n-cursos">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span>Cursos</span></button>
   <button class="nb" onclick="go('receitas')" id="n-receitas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
@@ -1745,8 +1743,7 @@ body.dens-compact .gap{margin-bottom:14px}
     </div>
   </div>
 
-  <div class="g2 gap" style="margin-top:28px">
-    <div class="stat c-blue"><div class="lbl">Água</div><div class="val" id="hs-agua">0ml</div><div class="sub">de <span id="hs-agua-meta">2000</span>ml</div></div>
+  <div class="gap" style="margin-top:28px">
     <div class="stat c-orange" style="cursor:default" onclick="document.getElementById('hs-peso-inp').focus()">
       <div class="lbl">Peso hoje</div>
       <div style="display:flex;align-items:baseline;gap:4px;margin:6px 0 4px">
@@ -1755,14 +1752,6 @@ body.dens-compact .gap{margin-bottom:14px}
       </div>
       <div class="sub" id="hs-peso-sub">toque para registrar</div>
     </div>
-  </div>
-
-  <!-- ATALHOS RÁPIDOS -->
-  <div class="qa-bar">
-    <button class="qa-btn" onclick="qaAgua(250)"><span class="qi">💧</span>+250ml</button>
-    <button class="qa-btn" onclick="qaAgua(500)"><span class="qi">🚰</span>+500ml</button>
-    <button class="qa-btn" onclick="qaDespesa()"><span class="qi">💸</span>Gasto</button>
-    <button class="qa-btn" onclick="qaExercicio()"><span class="qi">🏋️</span>Treino</button>
   </div>
 
   <!-- ALERTA DE GASTOS -->
@@ -1786,15 +1775,6 @@ body.dens-compact .gap{margin-bottom:14px}
       </div>
       <button class="ib" onclick="dispensarAlertaRecovery()" title="Dispensar" style="flex-shrink:0;color:var(--teal)">×</button>
     </div>
-  </div>
-
-  <!-- INSIGHTS CARD -->
-  <div class="card gap" id="insights-card" style="border-left:3px solid var(--accent);display:none">
-    <div class="sh" style="margin-bottom:8px">
-      <h2 style="font-size:14px">✨ Insights da semana</h2>
-      <button class="ib" onclick="gerarInsights()" title="Atualizar">🔄</button>
-    </div>
-    <div id="insights-lista" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 
     <!-- RESUMO DA SEMANA SEGUINTE -->
@@ -2077,29 +2057,6 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="card"><h2>Minhas metas de <span id="ano-atual"></span></h2><div id="lista-ma"></div></div>
 </section>
 
-
-<!-- ════════════════ CURSOS ════════════════ -->
-<section class="page" id="page-cursos">
-  <h1>📚 Cursos</h1><p class="psub">Cursos que quer fazer ou está fazendo</p>
-
-  <div class="card gap">
-    <h3>Adicionar curso</h3>
-    <div class="row">
-      <div class="fg" style="flex:2"><label>Nome do curso</label><input id="cu-nome" type="text" placeholder="Ex: Python para Data Science..."></div>
-      <div class="fg"><label>Plataforma</label><input id="cu-plat" type="text" placeholder="Udemy, Coursera, YouTube..."></div>
-      <div class="fg"><label>Status</label><select id="cu-status"><option>Quero fazer</option><option>Em andamento</option><option>Pausado</option><option>Concluído</option></select></div>
-    </div>
-    <div class="row">
-      <div class="fg"><label>Link</label><input id="cu-link" type="url" placeholder="https://..."></div>
-      <div class="fg"><label>Área</label><input id="cu-area" type="text" placeholder="Programação, Marketing, Design..."></div>
-      <div class="fg"><label>Progresso (%)</label><input id="cu-pct" type="number" min="0" max="100" value="0"></div>
-    </div>
-    <div class="fg"><label>Notas</label><input id="cu-notas" type="text" placeholder="Motivação, aplicação..."></div>
-    <button class="btn btn-p btn-sm" onclick="addCurso()">+ Adicionar curso</button>
-  </div>
-
-  <div class="card"><h2>Meus cursos</h2><div id="lista-cursos"></div></div>
-</section>
 
 <!-- ════════════════ RECEITAS ════════════════ -->
 <section class="page" id="page-receitas">
@@ -2675,7 +2632,7 @@ function reRenderAll() {
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderMapaHome, 'renderMapaHome');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
-  safeCall(renderCursos, 'renderCursos'); safeCall(renderReceitas, 'renderReceitas');
+  safeCall(renderReceitas, 'renderReceitas');
   safeCall(renderFinancas, 'renderFinancas');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
@@ -2790,7 +2747,6 @@ function go(p) {
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
-  if (p === 'cursos')   { safeCall(renderCursos, 'renderCursos'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -2942,8 +2898,6 @@ function refreshHome() {
   // Água stat
   const aguaHoje = load('agua', {})[today()] || 0;
   const aguaMeta = load('agua_meta', 2000);
-  animN('hs-agua', aguaHoje, { suffix: 'ml', duration: 800 });
-  $('hs-agua-meta').textContent = aguaMeta;
 
   // Partículas do hero — ritmo do dia (água)
   const aguaRatio = Math.min(1, aguaHoje / (aguaMeta || 2000));
@@ -3870,50 +3824,6 @@ function renderGames() {
 }
 
 // ──────────────────────────────────
-// CURSOS
-// ──────────────────────────────────
-const curStatusCor = { 'Quero fazer':'tb', 'Em andamento':'to', 'Pausado':'ta', 'Concluído':'tg' };
-
-function addCurso() {
-  const nome = $('cu-nome').value.trim();
-  if (!nome) return;
-  const list = load('cursos', []);
-  list.unshift({ id: Date.now(), nome, plat: $('cu-plat').value, status: $('cu-status').value, link: $('cu-link').value, area: $('cu-area').value, pct: parseInt($('cu-pct').value) || 0, notas: $('cu-notas').value });
-  save('cursos', list);
-  $('cu-nome').value = ''; $('cu-plat').value = ''; $('cu-link').value = ''; $('cu-area').value = ''; $('cu-pct').value = 0; $('cu-notas').value = '';
-  renderCursos();
-}
-
-function updateCursoPct(id, val) {
-  const list = load('cursos', []);
-  const c = list.find(c => c.id === id);
-  if (c) c.pct = parseInt(val) || 0;
-  save('cursos', list);
-}
-
-function delCurso(id) { save('cursos', load('cursos', []).filter(c => c.id !== id)); renderCursos(); }
-
-function renderCursos() {
-  const list = load('cursos', []);
-  const cont = $('lista-cursos');
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">📚</div>Nenhum curso adicionado</div>'; return; }
-  cont.innerHTML = list.map(c => `
-    <div class="li">
-      <div style="font-size:22px">📚</div>
-      <div class="li-info">
-        <div class="li-nm">${c.link ? `<a href="${c.link}" target="_blank" style="color:var(--accent);text-decoration:none">${c.nome}</a>` : c.nome} <span class="tag ${curStatusCor[c.status]||'ta'}">${c.status}</span></div>
-        <div class="li-sub">${c.plat || ''}${c.area ? ' · ' + c.area : ''}${c.notas ? ' · ' + c.notas : ''}</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
-          <div class="pb" style="flex:1;margin-top:0"><div class="pf b" style="width:${c.pct}%"></div></div>
-          <input type="range" min="0" max="100" value="${c.pct}" onchange="updateCursoPct(${c.id},this.value)" style="width:80px;accent-color:var(--accent)">
-          <span style="font-size:10px;color:var(--blue);font-family:'DM Mono',monospace">${c.pct}%</span>
-        </div>
-      </div>
-      <button class="ib del" onclick="delCurso(${c.id})">×</button>
-    </div>`).join('');
-}
-
-// ──────────────────────────────────
 // RECEITAS
 // ──────────────────────────────────
 const difCor = { Fácil:'tg', Médio:'ta', Difícil:'tr' };
@@ -4272,7 +4182,7 @@ const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','ag
 function bkStats() {
   const cont = $('bk-stats');
   if (!cont) return;
-  const labels = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', cursos:'Cursos', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
+  const labels = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
   const items = Object.entries(labels).map(([k, lbl]) => {
     const v = load(k, []);
     const count = Array.isArray(v) ? v.length : (typeof v === 'object' ? Object.keys(v).length : '—');
@@ -6239,7 +6149,6 @@ const ALL_PAGES = [
   { id:'agenda',   label:'Agenda',    icon:'📅' },
   { id:'corpo',    label:'Corpo',     icon:'💪' },
   { id:'evolucao', label:'Evolução',  icon:'📈' },
-  { id:'cursos',   label:'Cursos',    icon:'📚' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
@@ -7723,7 +7632,6 @@ document.addEventListener('keydown', function(e) {
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
-  safeCall(renderCursos, 'renderCursos');
   safeCall(renderReceitas, 'renderReceitas');
   safeCall(renderFinancas, 'renderFinancas');
   // Automações no início
