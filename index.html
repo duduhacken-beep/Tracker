@@ -773,43 +773,18 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 
 /* ── HOME HEADER ── */
 .hh{margin-bottom:38px}
-.hh-name{
-  font-size:11px;
-  color:var(--text3);
-  font-weight:500;
-  text-transform:uppercase;
-  letter-spacing:3px;
-  margin-bottom:8px;
-  font-family:var(--f-mono);
-}
 .hh-greet{
   font-family:var(--f-serif);
   font-size:56px;
   font-weight:400;
   line-height:1;
-  letter-spacing:-0.025em;
+  letter-spacing:-0.02em;
   color:var(--text);
-}
-.hh-greet em{
-  font-style:italic;
-  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 45%,#a78bfa 100%);
-  background-size:200% 200%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:gradientShift 6s ease-in-out infinite;
-}
-@keyframes gradientShift{
-  0%,100%{background-position:0% 50%}
-  50%{background-position:100% 50%}
 }
 .hh-date{
   color:var(--text2);
-  font-size:13px;
-  margin-top:10px;
-  font-family:var(--f-mono);
-  letter-spacing:.02em;
-  text-transform:lowercase;
+  font-size:14px;
+  margin-top:12px;
 }
 
 /* ── SECTION HEADER ── */
@@ -999,20 +974,18 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
   pointer-events:none;
 }
 .hero-fg .hh{pointer-events:auto}
-.hero-momentum{
-  position:absolute;right:0;bottom:18px;z-index:1;
-  text-align:right;
-  pointer-events:none;
+.hero-ritmo{
+  all:unset;box-sizing:border-box;cursor:pointer;
+  position:absolute;left:0;bottom:20px;z-index:1;
+  display:flex;flex-direction:column;gap:8px;max-width:min(100%,460px);
+  border-radius:var(--rs);
 }
-.hero-momentum .lbl{
-  font-family:var(--f-mono);font-size:10px;font-weight:600;
-  text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);
-}
-.hero-momentum .val{
-  font-family:var(--f-serif);font-size:20px;color:var(--text);
-  margin-top:2px;
-  transition:opacity .3s var(--ease-out);
-}
+.hero-ritmo:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.hero-ritmo .rt-estado{font-family:var(--f-serif);font-size:24px;line-height:1;color:var(--text)}
+.hero-ritmo .rt-marcas{display:flex;gap:4px;flex-wrap:wrap}
+.hero-ritmo .rt-marcas i{width:22px;height:4px;border-radius:2px;background:var(--border-strong);transition:background .4s var(--ease-out)}
+.hero-ritmo .rt-marcas i.on{background:var(--accent)}
+.hero-ritmo .rt-legenda{font-size:12.5px;color:var(--text2);line-height:1.4}
 
 /* MUSCLE CHIPS */
 .mchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
@@ -1324,9 +1297,10 @@ body.dens-compact .gap{margin-bottom:14px}
 /* ── MOBILE ── */
 @media(max-width:640px){
   :root{--sb:0px}
-  .home-hero{height:170px}
   .hero-fg{padding-top:14px}
-  .hero-momentum .val{font-size:16px}
+  .home-hero{height:auto;min-height:200px}
+  .hero-fg{padding-bottom:96px}
+  .hero-ritmo .rt-estado{font-size:20px}
   .sidebar{
     width:100%;height:64px;
     top:auto;bottom:0;left:0;right:0;
@@ -1377,7 +1351,6 @@ body.dens-compact .gap{margin-bottom:14px}
 
   h1{font-size:30px}
   .hh-greet{font-size:36px}
-  .hh-name{font-size:10px;letter-spacing:2px}
   h2{font-size:18px}
   .psub{font-size:13px;margin-bottom:22px}
 
@@ -1450,9 +1423,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 /* Hero greeting */
 .hh-greet{animation:slideUp .65s var(--ease-out) both}
-.hh-name{animation:slideRight .6s var(--ease-out) both;animation-delay:.06s}
 .hh-date{animation:slideRight .6s var(--ease-out) both;animation-delay:.14s}
-.hh-greet em{display:inline-block;animation:floaty 5s ease-in-out infinite}
 
 /* Sidebar nav: subtle pulse on active */
 .nb.on::before{animation:ringIn .4s var(--ease)}
@@ -1726,8 +1697,7 @@ body.dens-compact .gap{margin-bottom:14px}
       <div class="hh">
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div>
-            <div class="hh-name">Eduardo Hackenhaar</div>
-            <div class="hh-greet" id="h-greet">Bom dia</div>
+            <div class="hh-greet" id="h-greet">Bom dia, Eduardo.</div>
             <div class="hh-date" id="h-date"></div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
@@ -1737,10 +1707,11 @@ body.dens-compact .gap{margin-bottom:14px}
         </div>
       </div>
     </div>
-    <div class="hero-momentum">
-      <div class="lbl">ritmo de hoje</div>
-      <div class="val" id="heroMomentumVal">começando o dia</div>
-    </div>
+    <button class="hero-ritmo" onclick="go('agenda')" aria-label="Ritmo de hoje: abrir a Agenda">
+      <span class="rt-estado" id="rt-estado">Começando o dia</span>
+      <span class="rt-marcas" id="rt-marcas" aria-hidden="true"></span>
+      <span class="rt-legenda" id="rt-legenda"></span>
+    </button>
   </div>
 
   <div class="gap" style="margin-top:28px">
@@ -2886,30 +2857,41 @@ function stopParticleLoop() {
 }
 
 
+// Eventos de hoje, sem duplicar o mesmo compromisso salvo local + Google (mesmo dt + nome)
+function ritmoDoDia() {
+  const hoje = today();
+  const porChave = {};
+  load('eventos', []).filter(e => e.dt && e.dt.startsWith(hoje)).forEach(e => {
+    const k = e.dt + '|' + e.nome;
+    porChave[k] = porChave[k] ? { ...porChave[k], done: porChave[k].done || e.done } : e;
+  });
+  const evs = Object.values(porChave).sort((a, b) => a.dt.localeCompare(b.dt));
+  return { evs, total: evs.length, feitos: evs.filter(e => e.done).length };
+}
+
 function refreshHome() {
   const d = new Date();
   const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
   const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const h = d.getHours();
-  const greet = h < 12 ? 'Bom <em>dia</em>' : h < 18 ? 'Boa <em>tarde</em>' : 'Boa <em>noite</em>';
-  $('h-greet').innerHTML = greet;
-  $('h-date').textContent = `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+  $('h-greet').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ', Eduardo.';
+  $('h-date').textContent = `${dias[d.getDay()]}, ${d.getDate()} de ${meses[d.getMonth()]}`;
 
-  // Água stat
-  const aguaHoje = load('agua', {})[today()] || 0;
-  const aguaMeta = load('agua_meta', 2000);
-
-  // Partículas do hero — ritmo do dia (água)
-  const aguaRatio = Math.min(1, aguaHoje / (aguaMeta || 2000));
-  const momentum = aguaRatio;
-  _particles.momentum = momentum;
+  // Ritmo do dia — compromissos de hoje feitos / total
+  const r = ritmoDoDia();
+  _particles.momentum = r.total ? r.feitos / r.total : 0.25;
   if (_particles.reduceMotion && _particles.ctx) drawParticlesFrame();
-  const heroVal = $('heroMomentumVal');
-  if (heroVal) {
-    heroVal.textContent = momentum < 0.15 ? 'começando o dia'
-      : momentum < 0.4  ? 'ritmo leve'
-      : momentum < 0.7  ? 'bom ritmo'
-      : 'em chamas';
+  if ($('rt-estado')) {
+    $('rt-estado').textContent = !r.total ? 'Dia livre'
+      : r.feitos === r.total ? 'Dia completo'
+      : r.feitos / r.total >= 0.5 ? 'Bom ritmo'
+      : r.feitos ? 'Ritmo leve'
+      : 'Começando o dia';
+    $('rt-marcas').innerHTML = r.evs.map(e => `<i class="${e.done ? 'on' : ''}"></i>`).join('');
+    const prox = r.evs.find(e => !e.done);
+    const hora = prox && prox.dt.slice(11, 16) !== '00:00' ? ` às ${prox.dt.slice(11, 16)}` : '';
+    $('rt-legenda').textContent = !r.total ? 'Nada na agenda hoje.'
+      : `${r.feitos} de ${r.total} compromissos feitos.` + (prox ? ` Próximo: ${prox.nome}${hora}.` : '');
   }
 
   // Peso rápido — pré-preencher com o valor de hoje se já registrado
