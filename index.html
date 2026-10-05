@@ -806,6 +806,58 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 #page-evolucao[data-rpg="16bit"] .cv-balao,#modal-cv[data-rpg="16bit"] .cv-balao{background:#0d1660}
 #page-evolucao[data-rpg="16bit"] .cv-balao::before,#modal-cv[data-rpg="16bit"] .cv-balao::before{background:#0d1660;border-color:#f4f4f4}
 #modal-cv[data-rpg="16bit"] .btn-p,#page-evolucao[data-rpg="16bit"] .btn-p{background:#ffd84a;color:#070a3a;border:2px solid #fff;border-radius:2px;box-shadow:3px 3px 0 #000}
+
+/* ══ TAVERNA (05/10/2026) — mesma paleta da Masmorra ══ */
+#page-taverna{
+  --bg:#15120e;--bg2:#1f1b16;--bg3:#0f0d0a;--card:#26221b;--card-glass:#26221b;
+  --border:#5e4a24;--border-strong:#8a6b2e;--text:#efe2c2;--text2:#bfaa80;--text3:#7f7055;
+  --accent:#e2b24c;--accent2:#f0c96a;--adim:rgba(226,178,76,.14);--aglow:rgba(226,178,76,.25);
+  --f-serif:'Cinzel',Georgia,serif;--f-sans:'Alegreya Sans',system-ui,sans-serif;--r:4px;--rs:3px;
+  font-family:var(--f-sans)
+}
+#page-taverna::before{content:"";position:fixed;inset:0 0 0 var(--sb,0);z-index:-1;pointer-events:none;background:
+  radial-gradient(ellipse at 50% -10%,rgba(255,140,50,.16),transparent 55%),
+  repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 2px,transparent 2px 38px),
+  repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 2px,transparent 2px 76px),#1b1712}
+#page-taverna h1,#page-taverna h2{font-family:var(--f-serif);color:#f3e3bb}
+#page-taverna .card{backdrop-filter:none;-webkit-backdrop-filter:none;background:
+    radial-gradient(circle at 9px 9px,#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#c9a24a 0 2px,transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px),#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#c9a24a 0 2px,transparent 3px),
+    linear-gradient(180deg,#2d2820,#1e1a15);
+  border:2px solid #6e5427;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(232,190,100,.16),0 12px 26px rgba(0,0,0,.55)}
+#page-taverna .card::before{display:none}
+.tv-cena{border:3px solid #6e5427;border-radius:4px;overflow-x:auto;background:#120d08;box-shadow:0 0 0 2px #140f18,0 14px 30px rgba(0,0,0,.6)}
+.tv-cena svg{display:block;width:100%;min-width:560px;height:auto}
+.tv-ag{cursor:pointer;outline:none}
+.tv-ag .tv-spr{transform-box:fill-box;transform-origin:50% 100%}
+.tv-ag.trabalhando .tv-spr{animation:tv-bob .45s steps(2,end) infinite}
+.tv-ag.descansando .tv-spr{animation:tv-bob 2.6s steps(2,end) infinite}
+.tv-ag.dormindo .tv-spr,.tv-ag.desligado .tv-spr,.tv-ag.preso .tv-spr{opacity:.78}
+.tv-ag:focus-visible .tv-sel,.tv-ag.sel .tv-sel{opacity:1}
+.tv-sel{opacity:0}
+@keyframes tv-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+.tv-z{animation:tv-z 2.4s ease-in-out infinite;transform-box:fill-box}
+.tv-z.z2{animation-delay:1.2s}
+@keyframes tv-z{0%{opacity:0;transform:translate(0,2px)}30%{opacity:1}100%{opacity:0;transform:translate(3px,-6px)}}
+.tv-dot{animation:tv-dot 1.2s steps(1,end) infinite}
+.tv-dot.d2{animation-delay:.4s}.tv-dot.d3{animation-delay:.8s}
+@keyframes tv-dot{0%{opacity:1}33%{opacity:.25}100%{opacity:.25}}
+.tv-chama{animation:fogo-quadro .54s steps(1,end) infinite}
+.tv-chama.c1{animation-delay:.18s;opacity:0}.tv-chama.c2{animation-delay:.36s;opacity:0}
+.tv-lista{display:flex;flex-direction:column}
+.tv-row{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);border-radius:3px}
+.tv-row:last-child{border-bottom:none}
+.tv-row:hover,.tv-row.sel{background:rgba(226,178,76,.08)}
+.tv-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.tv-row b{display:block;font-size:14.5px;color:var(--text)}
+.tv-row .tv-papel{font-size:12.5px;color:var(--text2)}
+.tv-row .tv-det{grid-column:2 / -1;font-size:12.5px;color:var(--text2);line-height:1.5}
+.tv-row .tv-det strong{color:var(--text);font-weight:600}
+.tv-est{font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--text2);white-space:nowrap}
+.tv-est.trabalhando{border-color:#e2b24c;color:#f0c96a;background:rgba(226,178,76,.14)}
+.tv-est.erro{border-color:#d94848;color:#ff9a8a;background:rgba(217,72,72,.14)}
+.tv-est.recente{border-color:#3a8a4a;color:#8fe0a0}
+@media (prefers-reduced-motion: reduce){.tv-ag .tv-spr,.tv-z,.tv-dot,.tv-chama{animation:none}.tv-chama.c1,.tv-chama.c2{opacity:0}}
 @media (prefers-reduced-motion: reduce){
   .cv-eu,.fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
   .fogo.vivo .f0{opacity:1}
@@ -1560,7 +1612,7 @@ body.dens-compact .gap{margin-bottom:14px}
     border-radius:3px 3px 0 0;
   }
   .nb{
-    flex:1 0 40px;height:64px;min-width:40px;width:auto;
+    flex:1 0 36px;height:64px;min-width:36px;width:auto;
     border-radius:0;margin:0;
     gap:4px;
     -webkit-tap-highlight-color:transparent;
@@ -1568,7 +1620,7 @@ body.dens-compact .gap{margin-bottom:14px}
   .nb.on::before{display:none}
   .nb.on{border-bottom:2px solid var(--accent);background:var(--adim)}
   .nb svg{width:20px;height:20px}
-  .nb span{font-size:9px}
+  .nb span{font-size:8.5px}
 
   .main{
     margin-left:0;
@@ -1870,6 +1922,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('leitura')" id="n-leitura">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg><span>Leitura</span></button>
+  <button class="nb" onclick="go('taverna')" id="n-taverna">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h11v11a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M16 11h2a2 2 0 012 2v2a2 2 0 01-2 2h-2"/><path d="M6 8c0-3 2-4 4-4 1-1 4-1 5 1 1.5 0 2 1.5 1 3"/></svg><span>Taverna</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
@@ -2233,6 +2287,13 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="card"><h2>Minhas metas de <span id="ano-atual"></span></h2><div id="lista-ma"></div></div>
 </section>
 
+
+<!-- ════════════════ TAVERNA ════════════════ -->
+<section class="page" id="page-taverna">
+  <h1>Taverna</h1><p class="psub">Onde seus agentes descansam e trabalham. Toque num personagem pra ver o que ele fez.</p>
+  <div class="tv-cena gap" id="tv-cena"></div>
+  <div class="card gap" id="tv-painel"></div>
+</section>
 
 <!-- ════════════════ LEITURA ════════════════ -->
 <section class="page" id="page-leitura">
@@ -2824,7 +2885,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -2978,6 +3039,7 @@ function go(p) {
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
+  if (p === 'taverna')  { safeCall(renderTaverna, 'renderTaverna'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -3953,6 +4015,11 @@ function _cvDatas() {
 // Bonecos 20x28 estilo RPG medieval (contorno, sombra, objetos) (agentes + uma versão do Eduardo por classe), fonte: Projetos/Tracker/Pixel Art/sprites.py
 const PX_COR = {"S": "#f2c49b", "s": "#d9a07a", "z": "#b07a55", "k": "#1b1d24", "H": "#6b4226", "h": "#4a2c18", "A": "#e2e5ea", "a": "#a9aeb8", "R": "#e05252", "r": "#b33a3a", "x": "#7a2424", "B": "#4a7fe0", "b": "#3561b8", "N": "#33467a", "m": "#253358", "M": "#1a2440", "W": "#f4f4f4", "w": "#cfd3da", "v": "#a3a9b3", "Y": "#f5c542", "y": "#c99a1f", "G": "#4f9a63", "g": "#3a7a4c", "L": "#8a5a32", "l": "#6a4122", "o": "#3e2614", "O": "#e88a3a", "p": "#b0662a", "E": "#c4c9d2", "e": "#949aa6", "t": "#6b717d", "D": "#3a3f4c", "d": "#2a2e38", "P": "#7b5cc9", "i": "#5a3fa0", "u": "#3e2a78", "c": "#c2404a", "f": "#eb9a9a", "T": "#e8d5a3", "j": "#c4ad78", "K": "#140f18", "Q": "rgba(0,0,0,.35)", "C": "#8fd3ff"};
 const PX_SPR = {
+  'Friday': ["....................", "....................", ".......KKKKKK.......", "......KyYYYYyK......", ".....KyYYYYYYyK.....", "....KyYYYYYYYYyK....", "....KyYSSSSSSYyK....", "....KySSkSSkSSyK....", "....KySSSSSSSSyK....", "....KySSSccSSSyK....", "....KyYsSSSSsYyK....", "....KyYKssssKYyK....", "....KyYKBBBBKYyK....", ".....KBBBYYBBBK.....", "....KBBBBYYBBBBK....", "...KBBBBBYYBBBBBK...", "...KBbBBBYYBBBbBK...", "...KSbBTTTTTTBbSK...", "...KbBBTjTTjTBBbK...", "....KBBBYYYYBBBK....", "....KBBBBBBBBBBK....", "...KBBBBBBBBBBBBK...", "...KbBBBBBBBBBBbK...", "...KbbbbbbbbbbbbK...", "....KKooKKKKooKK....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
+  'Arauto': ["....................", "....................", "............KK......", "......KKKKKKWWK.....", ".....KRRRRRRWK......", "....KRRRRRRRRRK.....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "......KKssssKK......", ".....KRRRYYYYYK.....", "....KRRRRYYYYYYK....", "...KRRRRRYYYYYYYKK..", "...KYYYYYRRRRRRSKYK.", "...KSYYYYRRRRRRYYYK.", "....KYYYYRRRRRRKYRK.", ".....KyyyyyyyyK.KK..", "......KDDDKDDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Tesoureiro': ["....................", "....................", "....................", ".......KKKKKK.......", "......KhHHHHhK......", ".....KhHHHHHHhK.....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", "....KsSHHzzHHSsK....", ".....KsSSSSSSsK.....", ".....KKsssssKKK.....", "....KGGGYYYYGGGKK...", "...KGGGGGYYGGGGGyK..", "..KGGGGGGYYGGGGGGYK.", "..KGGGGGGGGGGGGGGK..", "..KSgGGGGGGGGGgSLK..", "...KgGGGGGGGGGgLYLK.", "...KgYYYYYYYYYgLLLK.", "....KgGGGGGGGgKKKK..", ".....KKDDDKDDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Escrivão': ["....................", "....................", "....................", ".......KKKKKK.......", "......KaAAAAaK......", ".....KaAAAAAAaK.....", "....KaAAAAAAAAaK....", "....KaSSSSSSSSaK....", "....KaEkESSEkEaK....", "....KaSSSSSSSSaK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "......KKssssKK......", ".....KLLWWWWLLK.....", "....KLLLWWWWLLLK....", "...KLLLLLLLLLLLLK...", "...KLLLLLLLLLLLLK...", "...KSLLLLLLLLLLSWK..", "...KlLLLLLLLLLLlWK..", "...KlYYYYYYYYYYlK...", "...KlLLLLLLLLLLlK...", "...KlLLLLLLLLLLlK...", "...KllLLLLLLLLllK...", "....KllllllllllK....", ".....KooKKKKooK.....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
+  'Kobe': ["....................", "....................", ".......KKKKKK.......", "......KdDDDDdK......", ".....KdDDDDDDdK.....", "....KdDDDDDDDDdK....", "....KdDhSSSShDdK....", "....KdDSkSSkSDdK....", "....KdDSSSSSSDdK....", "....KdDkkkkkkDdK....", "....KdDkkkkkkDdK....", ".....KdDDDDDDdK.....", "....KdDDDDDDDDdK....", "...KdDDDDLLDDDDdK...", "...KDDDDLLDDDDDDK...", "...KDDDLLDDDDDDDK...", "...KSDLLDDDDDDDSEK..", "...KdDDDDDDDDDDdK...", "...KdLLLLLLLLLLdK...", "....KdDDDDDDDDdK....", ".....KKDDdKdDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KdddKdddK.....", ".....KooooKooooK....", "......KKKK.KKKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
   'Jefrey': ["................K...", "...............KeK..", "...............KEK..", ".......KKKKKK..KEK..", "......KhHHHHhK.KEK..", ".....KhHHHHHHhKKEK..", "....KhHHHHHHHHhKEK..", "....KhHhhSShhHhKEK..", "....KhSSkSSkSShKEK..", "....KHSSSSSSrSHKEK..", "....KHHSSzzSrHHKEK..", ".....KHHHHHHHHKKEK..", "...KKKKhHHHHhKKKEK..", "..KxEEtLLLLLLLlKEK..", "..KxeEtLLLyLLLlKEK..", ".KrxSSlLLLyLLLlyYyK.", ".KrxSSlLLLyLLLlSSK..", ".KrxzzKYYYYYYYKLLK..", ".KrxKKKLLLLLLLKKxK..", ".KrxK.KlLLlLLlKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KlLlKlLlKKxK..", "..KxKKolllKllloKxK..", "...K.KooooKooooKK...", "......KKKKQKKKK.....", ".......QQQQQQ......."],
   'Mônica': ["................KWK.", "................KWK.", ".......KKKKKK..KWWK.", "......KwWWWWwK.KWwK.", ".....KwWWWWWWwKwKK..", "....KwWWWWWWWWwkK...", "....KwWhHHHhhWwK....", "....KwWShSSShWwK....", "....KwWSkSSkSWwK....", "....KwWSSSSSSWwK....", "....KwWSSccSSWwK....", ".....KwWsSSsWwK.....", "......KwWWWWwK......", ".....KNNNYYNNNK.....", "....KNNNNNNNNNNK....", "...KNNNNNNNNNNNNK...", "...KNmNNTjjTNNmNK...", "...KSSTTTRTTTTSSK...", "...KmNNNYYYYNNYmK...", "....KNNNNNNNNNyK....", "....KNNNNNNNNNNmK...", "...KNNNNNNNNNNNmK...", "...KmNNNNNNNNNNmK...", "...KmmmmmmmmmmmmK...", "....KKooKKKKooKK....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
   'Maria': ["....................", "....................", "....................", ".......KKKKKK.......", "......KrRRRRrK......", ".....KrRRRRRRrK.....", "....KrRRWRRWRRrK....", "....KhHRRRRRRHhK....", "....KhSSkSSkSShK....", "....KhfShSShSfhK....", ".....KSSSzzSSSKKK...", "......KsSSSSsKKeeK..", "......KKssssKKKeEK..", ".....KGGWWWWGGKEK...", "....KGGGWWWWGGGEK...", "...KGGGGWWWWGGGSK...", "...KGGWWWWWWWWGGK...", "..KKSGWWWWWWWWGK....", ".KwKKGWWWWWWWWGK....", "KwKwKGWWWWWWWWGK....", "KKwKKGGWwwwwWGGK....", "kGGGGkGGGGGGGGGgK...", "dDDDDdGGGGGGGGGgK...", "dDDDDdggggggggggK...", "KddddKooKKKKooKK....", ".KKKKoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
@@ -4661,6 +4728,157 @@ function toggleLivroLido(id) {
 }
 
 // ──────────────────────────────────
+// TAVERNA — os agentes (automações do Routines) num salão em pixel art
+// ──────────────────────────────────
+// Estado vem de `agentes_status` ({<id>: {estado: trabalhando|ok|erro, inicio, fim, resumo}}), escrito pelos
+// próprios agentes no começo e no fim de cada execução (passo "Taverna" nos playbooks). Horários = cron do Routines.
+const TV_AGENTES = [
+  { id: 'mosley', nome: 'Mosley', papel: 'Monge bibliotecário · Leitura', sprite: 'Mosley', x: 8, y: 70, agenda: { tipo: 'semanal', dow: 0, h: 9 }, faz: 'Mantém 5 livros na aba Leitura e conta os lidos.' },
+  { id: 'escrivao', nome: 'Escrivão', papel: 'Sync Checklist South Shop', sprite: 'Escrivão', x: 44, y: 70, desligado: true, faz: 'Sincronizava o Checklist da South Shop com o Tracker. Desligado desde 21/09/2026.' },
+  { id: 'monica', nome: 'Mônica', papel: 'Escriba · Revisão semanal', sprite: 'Mônica', x: 80, y: 70, agenda: { tipo: 'semanal', dow: 0, h: 22 }, faz: 'Revisa a semana no Tracker e agenda meditação, aparência e leitura.' },
+  { id: 'maria', nome: 'Maria', papel: 'Cozinheira · Receitas', sprite: 'Maria', x: 154, y: 70, agenda: { tipo: 'diario', h: 7 }, faz: 'Mantém 5 receitas na aba Receitas, com kcal, e agenda os almoços.' },
+  { id: 'tesoureiro', nome: 'Tesoureiro', papel: 'Radar de Aportes', sprite: 'Tesoureiro', x: 196, y: 66, agenda: { tipo: 'mensal', dom: 1, h: 8 }, faz: 'Todo dia 1 procura oportunidades de aporte e escreve o relatório do mês.' },
+  { id: 'jefrey', nome: 'Jefrey', papel: 'Mestre de armas · Treino', sprite: 'Jefrey', x: 22, y: 108, agenda: { tipo: 'semanal', dow: 0, h: 16 }, faz: 'Monta o treino da semana, o alongamento e acompanha o peso.' },
+  { id: 'friday', nome: 'Friday', papel: 'Embaixadora · Inglês', sprite: 'Friday', x: 90, y: 108, agenda: { tipo: 'semanal', dow: 1, h: 8 }, faz: 'Define o cenário de inglês da semana e marca a sessão de prática.' },
+  { id: 'arauto', nome: 'Arauto', papel: 'Pesquisas e Notícias', sprite: 'Arauto', x: 150, y: 108, agenda: { tipo: 'diario', h: 6 }, faz: 'Toda manhã traz um conhecimento novo pro vault.' },
+  { id: 'kobe', nome: 'Kobe', papel: 'Prospector de Ofertas · Drop', sprite: 'Kobe', x: 218, y: 108, desligado: true, preso: true, faz: 'Minerava ofertas pro Drop. Preso desde que o Drop travou (24/09/2026).' },
+];
+const TV_EST_TXT = { trabalhando: 'Trabalhando agora', descansando: 'Descansando', dormindo: 'Dormindo', erro: 'Deu erro', desligado: 'Desligado', preso: 'Preso' };
+const TV_DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+let _tvSel = null;
+
+function _tvProxima(a) {
+  if (a.desligado || !a.agenda) return null;
+  const n = new Date(), g = a.agenda;
+  for (let i = 0; i < 40; i++) {
+    const d = new Date(n.getFullYear(), n.getMonth(), n.getDate() + i, g.h, 0);
+    if (d <= n) continue;
+    if (g.tipo === 'semanal' && d.getDay() !== g.dow) continue;
+    if (g.tipo === 'mensal' && d.getDate() !== g.dom) continue;
+    return d;
+  }
+  return null;
+}
+const _tvFmt = d => `${TV_DIAS[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}h${d.getMinutes() ? String(d.getMinutes()).padStart(2, '0') : ''}`;
+function _tvEstado(a, st) {
+  if (a.preso) return 'preso';
+  if (a.desligado) return 'desligado';
+  if (st?.estado === 'trabalhando') return st.inicio && Date.now() - Date.parse(st.inicio) < 3 * 36e5 ? 'trabalhando' : 'erro';
+  if (st?.estado === 'erro') return 'erro';
+  const h = new Date().getHours();
+  return h >= 22 || h < 6 ? 'dormindo' : 'descansando';
+}
+const _tvRecente = st => st?.estado === 'ok' && st.fim && Date.now() - Date.parse(st.fim) < 12 * 36e5;
+
+function _tvR(x, y, w, h, c, extra = '') { return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c}" ${extra}/>`; }
+function _tvCenario() {
+  const h = new Date().getHours(), dia = h >= 6 && h < 18, noite = h >= 22 || h < 6;
+  const ceu = dia ? '#8fc4e8' : h < 20 ? '#e08a5a' : '#1b2550';
+  let g = '';
+  g += _tvR(0, 0, 256, 92, '#3b2716');
+  for (let x = 0; x < 256; x += 12) g += _tvR(x, 0, 1, 92, '#2f1f11') + _tvR(x + 1, 0, 1, 92, '#46301b');
+  g += _tvR(0, 0, 256, 6, '#24170c') + _tvR(0, 6, 256, 2, '#4a311c');
+  g += _tvR(0, 92, 256, 52, '#4a3020');
+  for (let y = 98; y < 144; y += 8) g += _tvR(0, y, 256, 1, '#3c2618');
+  for (let y = 92, i = 0; y < 144; y += 8, i++) for (let x = (i % 2) * 20; x < 256; x += 40) g += _tvR(x, y + 1, 1, 7, '#3c2618');
+  g += _tvR(0, 90, 256, 3, '#24170c');
+  // estante (Mosley)
+  g += _tvR(2, 28, 32, 62, '#24170c') + _tvR(4, 30, 28, 58, '#2f1f11');
+  const livros = ['#d94848', '#3b6fd8', '#3d7a52', '#c99a1f', '#7b5cc9', '#b0662a', '#e8d5a3'];
+  [32, 46, 60, 74].forEach((y, r) => { g += _tvR(4, y + 12, 28, 2, '#5a3a1e'); for (let x = 5, i = r; x < 31; x += 3, i++) g += _tvR(x, y + 2 + (i % 3), 2, 10 - (i % 3), livros[i % livros.length]); });
+  // quadro de avisos (Escrivão)
+  g += _tvR(40, 18, 32, 24, '#24170c') + _tvR(42, 20, 28, 20, '#6b4426');
+  [[44, 22, 8, 7], [55, 23, 9, 6], [46, 31, 7, 7], [57, 31, 10, 6]].forEach(([x, y, w, hh]) => { g += _tvR(x, y, w, hh, '#e8d5a3') + _tvR(x + 1, y + 2, w - 2, 1, '#8a6a3e') + _tvR(x + w / 2 - 1, y - 1, 2, 2, '#d94848'); });
+  // janelas
+  [[78, 14], [224, 12]].forEach(([x, y]) => { g += _tvR(x - 2, y - 2, 26, 30, '#24170c') + _tvR(x, y, 22, 26, ceu) + _tvR(x + 10, y, 2, 26, '#24170c') + _tvR(x, y + 12, 22, 2, '#24170c'); if (!dia) g += _tvR(x + 4, y + 4, 3, 3, '#f4f4f4') + _tvR(x + 16, y + 18, 1, 1, '#f4f4f4'); });
+  // lareira
+  g += _tvR(106, 30, 44, 62, '#5d5a62');
+  for (let y = 32, i = 0; y < 90; y += 6, i++) { g += _tvR(106, y + 5, 44, 1, '#4b4850'); for (let x = 106 + (i % 2) * 6; x < 150; x += 12) g += _tvR(x, y, 1, 5, '#4b4850'); }
+  g += _tvR(102, 27, 52, 5, '#6b4426') + _tvR(102, 31, 52, 1, '#3b2716');
+  g += _tvR(116, 56, 24, 36, '#120b07') + _tvR(118, 86, 20, 3, '#6b4426') + _tvR(121, 84, 14, 2, '#4a2c16');
+  g += `<defs><radialGradient id="tv-luz"><stop offset="0" stop-color="#ffb347" stop-opacity=".45"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient></defs>`;
+  g += `<circle cx="128" cy="84" r="${noite ? 60 : 46}" fill="url(#tv-luz)"/>`;
+  g += FOGO_F.map((f, i) => `<svg class="tv-chama c${i}" x="120" y="66" width="16" height="20" viewBox="0 0 8 10" shape-rendering="crispEdges">${_px(f, FOGO_COR.laranja)}</svg>`).join('');
+  g += _tvR(112, 14, 32, 11, '#24170c') + _tvR(113, 15, 30, 9, '#6b4426');
+  g += `<text x="128" y="22" text-anchor="middle" font-family="Cinzel,serif" font-weight="700" font-size="6.5" fill="#e2b24c">TAVERNA</text>`;
+  // prateleiras e garrafas atrás do balcão
+  [46, 62].forEach((y, r) => { g += _tvR(180, y, 40, 2, '#5a3a1e'); ['#3d7a52', '#7a2424', '#c99a1f', '#3b6fd8', '#3d7a52', '#7a2424'].forEach((c, i) => { const x = 182 + i * 6 + r * 2; g += _tvR(x, y - 8, 4, 8, c) + _tvR(x + 1, y - 11, 2, 3, c) + _tvR(x + 1, y - 6, 1, 3, 'rgba(255,255,255,.35)'); }); });
+  // balcão (Tesoureiro fica atrás)
+  return g;
+}
+function _tvFrente() {
+  let g = '';
+  g += _tvR(182, 92, 74, 4, '#7a4e2a') + _tvR(182, 96, 74, 18, '#4a2c16');
+  for (let x = 186; x < 256; x += 14) g += _tvR(x, 99, 10, 12, '#5a361c');
+  g += _tvR(234, 85, 14, 7, '#6b4426') + _tvR(234, 85, 14, 2, '#8a5a32') + _tvR(236, 83, 3, 2, '#f5c542') + _tvR(240, 82, 3, 3, '#f5c542') + _tvR(244, 83, 2, 2, '#c99a1f');
+  g += _tvR(212, 86, 5, 6, '#c4c9d2') + _tvR(217, 87, 2, 3, '#c4c9d2') + _tvR(212, 85, 5, 2, '#f4f4f4');
+  // mesa da Mônica
+  g += _tvR(74, 96, 34, 3, '#7a4e2a') + _tvR(76, 99, 2, 9, '#4a2c16') + _tvR(104, 99, 2, 9, '#4a2c16');
+  g += _tvR(80, 93, 10, 3, '#e8d5a3') + _tvR(100, 89, 2, 7, '#f4f4f4') + `<rect class="tv-dot" x="100" y="87" width="2" height="2" fill="#f5c542"/>`;
+  // boneco de treino (Jefrey)
+  g += _tvR(9, 112, 3, 26, '#6b4426') + _tvR(5, 114, 11, 12, '#c4ad78') + _tvR(6, 106, 9, 8, '#c4ad78') + _tvR(5, 119, 11, 1, '#8a6a3e') + _tvR(4, 136, 13, 2, '#4a2c16');
+  // mesa da Friday com mapa
+  g += _tvR(112, 124, 30, 3, '#7a4e2a') + _tvR(114, 127, 2, 11, '#4a2c16') + _tvR(138, 127, 2, 11, '#4a2c16');
+  g += _tvR(118, 121, 14, 3, '#e8d5a3') + _tvR(121, 122, 5, 1, '#3d7a52') + _tvR(127, 121, 3, 1, '#3b6fd8');
+  g += _tvR(134, 119, 4, 5, '#c4c9d2') + _tvR(134, 118, 4, 1, '#f4f4f4');
+  return g;
+}
+function _tvJaula() {
+  let g = _tvR(214, 100, 30, 2, '#4b505c') + _tvR(214, 136, 30, 2, '#4b505c');
+  for (let x = 214; x <= 242; x += 4) g += _tvR(x, 100, 2, 38, '#6b717d');
+  return g + _tvR(226, 116, 6, 5, '#c99a1f') + _tvR(228, 113, 2, 3, '#c99a1f');
+}
+function _tvIndicador(est, recente, x, y) {
+  if (est === 'trabalhando') return _tvR(x + 12, y - 7, 13, 7, '#efe2c2', 'stroke="#140f18" stroke-width=".6"') + [0, 1, 2].map(i => `<rect class="tv-dot d${i + 1}" x="${x + 14 + i * 3.5}" y="${y - 4.5}" width="2" height="2" fill="#140f18"/>`).join('');
+  if (est === 'erro') return _tvR(x + 13, y - 9, 6, 9, '#d94848', 'stroke="#140f18" stroke-width=".6"') + _tvR(x + 15, y - 7, 2, 4, '#f4f4f4') + _tvR(x + 15, y - 2, 2, 1.5, '#f4f4f4');
+  if (est === 'dormindo' || est === 'desligado' || est === 'preso')
+    return [[x + 15, y - 2, 3, 'tv-z'], [x + 18, y - 8, 4, 'tv-z z2']].map(([zx, zy, t, c]) =>   // Z em pixel: topo, diagonal, base
+      `<g class="${c}" fill="#cdd3ff">${_tvR(zx, zy, t, 1, '#cdd3ff')}${Array.from({ length: t - 2 }, (_, i) => _tvR(zx + t - 2 - i, zy + 1 + i, 1, 1, '#cdd3ff')).join('')}${_tvR(zx, zy + t - 1, t, 1, '#cdd3ff')}</g>`).join('');
+  if (recente) return _tvR(x + 14, y - 6, 7, 6, '#3a8a4a', 'stroke="#140f18" stroke-width=".6"') + _tvR(x + 15, y - 3, 1, 1, '#f4f4f4') + _tvR(x + 16, y - 2, 1, 1, '#f4f4f4') + _tvR(x + 17, y - 3, 1, 1, '#f4f4f4') + _tvR(x + 18, y - 4, 1, 1, '#f4f4f4') + _tvR(x + 19, y - 5, 1, 1, '#f4f4f4');
+  return '';
+}
+
+function renderTaverna() {
+  const cena = $('tv-cena'), painel = $('tv-painel');
+  if (!cena) return;
+  const status = load('agentes_status', {});
+  const ags = TV_AGENTES.map(a => ({ a, st: status[a.id], est: _tvEstado(a, status[a.id]), rec: _tvRecente(status[a.id]) }));
+  const noite = (h => h >= 22 || h < 6)(new Date().getHours());
+  const agenteSvg = ({ a, est, rec }) => `
+    <g class="tv-ag ${est}${_tvSel === a.id ? ' sel' : ''}" data-id="${a.id}" tabindex="0" role="button" aria-label="${a.nome}, ${TV_EST_TXT[est]}" onclick="tvSelecionar('${a.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();tvSelecionar('${a.id}')}">
+      <ellipse class="tv-sel" cx="${a.x + 10}" cy="${a.y + 27}" rx="10" ry="2.5" fill="none" stroke="#f0c96a" stroke-width="1"/>
+      <svg class="tv-spr" x="${a.x}" y="${a.y}" width="20" height="28" viewBox="0 0 20 28" shape-rendering="crispEdges">${_px(PX_SPR[a.sprite], PX_COR)}</svg>
+      ${_tvIndicador(est, rec, a.x, a.y)}
+    </g>`;
+  const tras = ags.filter(x => x.a.y < 100), frente = ags.filter(x => x.a.y >= 100);
+  cena.innerHTML = `<svg viewBox="0 0 256 144" role="img" aria-label="Taverna com ${ags.length} agentes" shape-rendering="crispEdges">
+    ${_tvCenario()}${tras.map(agenteSvg).join('')}${_tvFrente()}${frente.map(agenteSvg).join('')}${_tvJaula()}
+    ${noite ? '<rect x="0" y="0" width="256" height="144" fill="#0a0c28" opacity=".28" pointer-events="none"/>' : ''}
+  </svg>`;
+
+  painel.innerHTML = `<h2>Quem está na taverna</h2><div class="tv-lista">${ags.map(({ a, st, est, rec }) => {
+    const prox = _tvProxima(a);
+    const ult = st && (st.fim || st.inicio) ? _tvFmt(new Date(st.fim || st.inicio)) : '';
+    return `<button class="tv-row${_tvSel === a.id ? ' sel' : ''}" id="tv-row-${a.id}" onclick="tvSelecionar('${a.id}')">
+      ${pxSvg(PX_SPR[a.sprite], 34, PX_COR)}
+      <div><b>${a.nome}</b><span class="tv-papel">${a.papel}</span></div>
+      <span class="tv-est ${est === 'trabalhando' || est === 'erro' ? est : rec ? 'recente' : ''}">${rec && est !== 'erro' && est !== 'trabalhando' ? 'Terminou há pouco' : TV_EST_TXT[est]}</span>
+      <div class="tv-det">${_escH(a.faz)}<br>
+        ${ult ? `Última vez: <strong>${ult}</strong>${st.resumo ? ' — ' + _escH(st.resumo) : ''}` : a.desligado ? '' : 'Ainda não registrou nenhuma execução.'}
+        ${prox ? `<br>Próxima: <strong>${_tvFmt(prox)}</strong>` : a.desligado ? '<br>Não tem próxima execução: está desligado.' : ''}
+      </div>
+    </button>`;
+  }).join('')}</div>
+  <p class="tv-papel" style="margin-top:12px;font-size:12px;color:var(--text3)">As rotinas só rodam com o app do Claude aberto no computador; se ele estiver fechado no horário, o agente roda quando o app abrir.</p>`;
+}
+function tvSelecionar(id) {
+  _tvSel = _tvSel === id ? null : id;
+  renderTaverna();
+  if (_tvSel) $('tv-row-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+setInterval(() => { if ($('page-taverna')?.classList.contains('on')) safeCall(renderTaverna, 'renderTaverna'); }, 60000);
+
+// ──────────────────────────────────
 // COMPRAS
 // ──────────────────────────────────
 function addCompra() {
@@ -4971,7 +5189,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -6945,6 +7163,7 @@ const ALL_PAGES = [
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'leitura',  label:'Leitura',   icon:'📚' },
+  { id:'taverna',  label:'Taverna',   icon:'🍺' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'investimentos', label:'Investimentos', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
@@ -6952,9 +7171,9 @@ const ALL_PAGES = [
 
 function getNavFavs() {
   const favs = load('nav_favs', null);
-  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','backup'];
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','taverna','backup'];
   // Abas que entraram depois (04/10/2026) aparecem uma vez para quem já tinha favoritos salvos
-  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto']].forEach(([aba, flag]) => {
+  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto'], ['taverna', 'nav_tv_visto']].forEach(([aba, flag]) => {
     if (load(flag, false)) return;
     if (!favs.includes(aba)) { favs.push(aba); save('nav_favs', favs); }
     save(flag, true);
