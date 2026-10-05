@@ -2046,7 +2046,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ LEITURA ════════════════ -->
 <section class="page" id="page-leitura">
-  <h1>Leitura</h1><p class="psub">Cinco livros grátis que o Mosley escolheu pra você. Todo domingo ele troca os que você já leu.</p>
+  <h1>Leitura</h1><p class="psub">Cinco livros que o Mosley escolheu pra você, de preferência ebooks baratos no Kindle. Todo domingo ele troca os que você já leu.</p>
 
   <div class="rc-grid gap" id="lista-leitura"></div>
 
@@ -3992,7 +3992,7 @@ function rcFoto(ev) {
 // ──────────────────────────────────
 // LEITURA
 // ──────────────────────────────────
-// Livros escritos pelo Mosley (Routines, todo domingo): chave `leitura` = os 5 ativos,
+// Livros escritos pelo Mosley (Routines, todo domingo; ebooks Kindle baratos ou grátis): chave `leitura` = os 5 ativos,
 // `leitura_lidos` = histórico. O app só marca lido/desmarca e grava `avaliacao` (gostei/nao_gostei).
 let _lvAberto = null;
 
@@ -4000,7 +4000,7 @@ function _lvCapaHtml(l) {
   const src = _rcUrl(l.capa);
   return src ? `<img src="${_escH(src)}" alt="" loading="lazy">` : `<span class="rc-sem-foto">${_escH((l.titulo || '?')[0])}</span>`;
 }
-const _lvMeta = l => [l.autor, l.ano, l.paginas ? l.paginas + ' págs.' : '', l.idioma].filter(Boolean).map(x => _escH(String(x))).join(' · ');
+const _lvMeta = l => [l.autor, l.ano, l.paginas ? l.paginas + ' págs.' : '', l.idioma, l.preco].filter(Boolean).map(x => _escH(String(x))).join(' · ');
 
 function renderLeitura() {
   const cont = $('lista-leitura');
@@ -4048,13 +4048,13 @@ function abrirLivro(id) {
       <div class="rc-meta">${_lvMeta(l)}</div>
       ${l.descricao ? `<p class="rc-desc" style="margin-top:12px">${_escH(l.descricao)}</p>` : ''}
       ${l.porque ? `<div class="rc-dica"><strong>Por que o Mosley indicou:</strong> ${_escH(l.porque)}</div>` : ''}
-      ${l.fonte ? `<p class="rc-meta" style="margin-top:14px">Grátis em ${_escH(l.fonte)}${l.formato ? ' (' + _escH(l.formato) + ')' : ''}</p>` : ''}
+      ${l.fonte ? `<p class="rc-meta" style="margin-top:14px">${l.preco ? '' : 'Grátis em '}${_escH(l.fonte)}${l.formato ? ' (' + _escH(l.formato) + ')' : ''}${l.precoEm ? ' · preço visto em ' + _rcData(l.precoEm) : ''}</p>` : ''}
       <div class="lv-aval">
         <button class="btn btn-g${l.avaliacao === 'gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura', ${_eid(l.id)}, 'gostei')" aria-pressed="${l.avaliacao === 'gostei'}">👍 Gostei</button>
         <button class="btn btn-g${l.avaliacao === 'nao_gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura', ${_eid(l.id)}, 'nao_gostei')" aria-pressed="${l.avaliacao === 'nao_gostei'}">👎 Não gostei</button>
       </div>
       <div class="mfooter rc-acoes">
-        ${link ? `<a class="btn btn-g" href="${_escH(link)}" target="_blank" rel="noopener">Ler grátis</a>` : ''}
+        ${link ? `<a class="btn btn-g" href="${_escH(link)}" target="_blank" rel="noopener">${/amazon\./.test(link) ? 'Abrir no Kindle' : 'Ler grátis'}</a>` : ''}
         <button class="btn ${l.lido ? 'btn-g' : 'btn-p'}" onclick="toggleLivroLido(${_eid(l.id)})">${l.lido ? 'Desmarcar' : 'Marcar como lido'}</button>
       </div>
     </div>`;
