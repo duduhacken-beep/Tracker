@@ -3814,7 +3814,7 @@ function delMetaAnual(id) { save('metas_a', load('metas_a', []).filter(m => m.id
 // o alvo vem de lá (assim, se o Eduardo mudar o alvo, a seção acompanha).
 // Gamificação (05/10/2026): classe (maior atributo), título (nível), conquistas, cerimônia de nível,
 // fogo de sequência com escudos (1 por semana perfeita, máx. 3), NPCs em pixel e tela final.
-const CV_INI = '2026-10-21', CV_FIM = '2026-12-31', CV_TELA_FINAL = '2026-12-21';
+const CV_INI = '2026-10-21', CV_FIM = '2026-12-31', CV_TELA_FINAL = '2026-12-30';
 const _cvDia = d => d.slice(0, 10);
 const _cvNaJanela = d => d && d >= CV_INI && d <= CV_FIM && d <= today();   // evento futuro marcado por engano não conta
 
@@ -4113,7 +4113,8 @@ function _cvCerimonia(st) {
   const visto = load('cv_visto', null);
   if (!visto) { save('cv_visto', { nivel: st.nivel, conquistas: ok, final: false }); return; }   // 1ª vez: não comemora o passado
   _cvPendente = { nivel: Math.max(st.nivel, visto.nivel), conquistas: [...new Set([...visto.conquistas, ...ok])], final: visto.final };
-  if (st.hoje >= CV_TELA_FINAL && !visto.final) { _cvPendente.final = true; return abrirTelaFinal(st); }
+  // Tela final abre sozinha uma vez em 30/12 e de novo em 31/12 (números finais); `final` guarda o último dia mostrado
+  if (st.hoje >= CV_TELA_FINAL && st.hoje <= CV_FIM && visto.final !== st.hoje) { _cvPendente.final = st.hoje; return abrirTelaFinal(st); }
   const novas = st.conquistas.filter(c => c.ok && !visto.conquistas.includes(c.id));
   const subiu = st.nivel > visto.nivel;
   if (!subiu && !novas.length) return;
