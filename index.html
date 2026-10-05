@@ -40,7 +40,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IM+Fell+English:ital@0;1&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────
    EH TRACKER — Redesign v2
@@ -722,6 +722,90 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .cv-confete i{position:absolute;top:-10px;width:6px;height:6px;animation:confete 2.2s linear forwards}
 @keyframes confete{to{transform:translateY(520px) rotate(360deg);opacity:0}}
 @keyframes cer-entra{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ══ Teste de estilo RPG — só a aba Evolução e a cerimônia do Modo Caverna (05/10/2026) ══ */
+.evo-estilos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-18px 0 24px;font-size:12.5px;color:var(--text2)}
+.evo-estilos span{margin-right:4px}
+.evo-estilos button{all:unset;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:12.5px}
+.evo-estilos button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--adim)}
+.evo-estilos button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#page-evolucao[data-rpg]::before{content:"";position:fixed;inset:0 0 0 var(--sb,0);z-index:-1;pointer-events:none}
+#page-evolucao[data-rpg] .evo-estilos button{background:var(--card);color:var(--text)}
+#page-evolucao[data-rpg] .evo-estilos button[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+#page-evolucao[data-rpg] .card::before{display:none}
+#page-evolucao[data-rpg] .card,#modal-cv[data-rpg] .modal{backdrop-filter:none;-webkit-backdrop-filter:none}
+#page-evolucao[data-rpg],#modal-cv[data-rpg]{font-family:var(--f-sans)}
+#page-evolucao[data-rpg] h1,#page-evolucao[data-rpg] h2,#page-evolucao[data-rpg] .cv-ovr b,#page-evolucao[data-rpg] .cv-num b,
+#page-evolucao[data-rpg] .cv-lv strong,#page-evolucao[data-rpg] .cv-seq-num b,#modal-cv[data-rpg] .cv-cer-nivel,#modal-cv[data-rpg] h2{font-family:var(--f-serif)}
+#page-evolucao[data-rpg] input,#page-evolucao[data-rpg] select,#page-evolucao[data-rpg] .btn,#modal-cv[data-rpg] .btn{font-family:var(--f-sans)}
+
+/* Pergaminho: manuscrito, tinta sépia, selo de cera */
+#page-evolucao[data-rpg="pergaminho"],#modal-cv[data-rpg="pergaminho"]{
+  --bg:#d9c08a;--bg2:#efe0b8;--bg3:#e3cd98;--card:#f4e6c2;--card-glass:#f4e6c2;
+  --border:#b39466;--border-strong:#8a6a3e;--text:#3a2716;--text2:#664a2e;--text3:#8f7552;
+  --accent:#9a2a1f;--accent2:#b8442f;--adim:rgba(154,42,31,.12);--aglow:rgba(154,42,31,.2);
+  --f-serif:'IM Fell English',Georgia,serif;--f-sans:'IM Fell English',Georgia,serif;--r:3px;--rs:2px;
+}
+#page-evolucao[data-rpg="pergaminho"]::before{background:radial-gradient(ellipse at 50% 20%,#ecd9ab 0%,#d6bb83 55%,#a9864f 100%)}
+#page-evolucao[data-rpg="pergaminho"] .card,#modal-cv[data-rpg="pergaminho"] .modal{
+  background:#f4e6c2 radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.35),transparent 60%);border:1px solid #8a6a3e;border-radius:3px;
+  box-shadow:inset 0 0 0 4px #f4e6c2,inset 0 0 0 5px #c4a46e,0 1px 0 #8a6a3e,0 10px 22px rgba(70,40,10,.22)}
+#page-evolucao[data-rpg="pergaminho"] h1{font-size:46px;color:#3a2716}
+#page-evolucao[data-rpg="pergaminho"] .cv-ovr b{color:#9a2a1f;font-size:72px}
+#page-evolucao[data-rpg="pergaminho"] .cv-bar{background:#e0c993;border:1px solid #c4a46e;height:7px}
+#page-evolucao[data-rpg="pergaminho"] .cv-bar>i{background:linear-gradient(#b8442f,#8a2318)}
+#page-evolucao[data-rpg="pergaminho"] .cv-balao,#modal-cv[data-rpg="pergaminho"] .cv-balao{background:#fbf3dc}
+#page-evolucao[data-rpg="pergaminho"] .cv-balao::before,#modal-cv[data-rpg="pergaminho"] .cv-balao::before{background:#fbf3dc}
+#page-evolucao[data-rpg="pergaminho"] .cv-d.fut{box-shadow:inset 0 0 0 1px #c9ad78}
+
+/* Masmorra: pedra, bronze e luz de tocha */
+#page-evolucao[data-rpg="masmorra"],#modal-cv[data-rpg="masmorra"]{
+  --bg:#15120e;--bg2:#1f1b16;--bg3:#0f0d0a;--card:#26221b;--card-glass:#26221b;
+  --border:#5e4a24;--border-strong:#8a6b2e;--text:#efe2c2;--text2:#bfaa80;--text3:#7f7055;
+  --accent:#e2b24c;--accent2:#f0c96a;--adim:rgba(226,178,76,.14);--aglow:rgba(226,178,76,.25);
+  --f-serif:'Cinzel',Georgia,serif;--f-sans:'Alegreya Sans',system-ui,sans-serif;--r:4px;--rs:3px;
+}
+#page-evolucao[data-rpg="masmorra"]::before{background:
+  radial-gradient(ellipse at 50% -10%,rgba(255,140,50,.16),transparent 55%),
+  repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 2px,transparent 2px 38px),
+  repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 2px,transparent 2px 76px),#1b1712}
+#page-evolucao[data-rpg="masmorra"] .card,#modal-cv[data-rpg="masmorra"] .modal{
+  background:
+    radial-gradient(circle at 9px 9px,#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#c9a24a 0 2px,transparent 3px),
+    radial-gradient(circle at 9px calc(100% - 9px),#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#c9a24a 0 2px,transparent 3px),
+    linear-gradient(180deg,#2d2820,#1e1a15);
+  border:2px solid #6e5427;border-radius:4px;
+  box-shadow:inset 0 0 0 1px rgba(232,190,100,.16),inset 0 1px 0 rgba(255,255,255,.05),0 12px 26px rgba(0,0,0,.55)}
+#page-evolucao[data-rpg="masmorra"] h1{letter-spacing:.02em;color:#f3e3bb}
+#page-evolucao[data-rpg="masmorra"] .cv-ovr b{color:#f0c96a;text-shadow:0 0 18px rgba(255,150,40,.45)}
+#page-evolucao[data-rpg="masmorra"] .cv-bar{background:#0c0a07;border:1px solid #4a3a1c;height:8px;border-radius:2px}
+#page-evolucao[data-rpg="masmorra"] .cv-bar>i{background:linear-gradient(#f0c96a,#b8862c);border-radius:1px}
+#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(1) .cv-bar>i{background:linear-gradient(#e86a5a,#a8322a)}
+#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(3) .cv-bar>i{background:linear-gradient(#6aa8f0,#2f5fb0)}
+#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(4) .cv-bar>i{background:linear-gradient(#b48af0,#6a3fb8)}
+#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(6) .cv-bar>i{background:linear-gradient(#7fd08a,#3a8a4a)}
+
+/* 16-bit: janela de JRPG antigo */
+#page-evolucao[data-rpg="16bit"],#modal-cv[data-rpg="16bit"]{
+  --bg:#070a3a;--bg2:#0d1560;--bg3:#0a1150;--card:#1a2687;--card-glass:#1a2687;
+  --border:#5a6cff;--border-strong:#ffffff;--text:#ffffff;--text2:#cdd3ff;--text3:#8d97e0;
+  --accent:#ffd84a;--accent2:#ffe788;--adim:rgba(255,216,74,.16);--aglow:rgba(255,216,74,.25);
+  --f-serif:'Pixelify Sans',monospace;--f-sans:'Pixelify Sans',monospace;--r:8px;--rs:4px;
+}
+#page-evolucao[data-rpg="16bit"]::before{background:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.5px) 0 0/26px 26px,linear-gradient(#070a3a,#0c1250)}
+#page-evolucao[data-rpg="16bit"] .card,#modal-cv[data-rpg="16bit"] .modal{
+  background:linear-gradient(180deg,#3447c9 0%,#1b288c 55%,#111a66 100%);border:3px solid #f4f4f4;border-radius:8px;
+  box-shadow:0 0 0 3px #070a3a,inset 0 0 0 2px rgba(120,140,255,.35),5px 5px 0 3px rgba(0,0,0,.45)}
+#page-evolucao[data-rpg="16bit"] h1{font-weight:600;font-size:38px;text-shadow:3px 3px 0 #000}
+#page-evolucao[data-rpg="16bit"] h2,#page-evolucao[data-rpg="16bit"] .cv-ovr b,#page-evolucao[data-rpg="16bit"] .cv-num b{text-shadow:2px 2px 0 #000}
+#page-evolucao[data-rpg="16bit"] .cv-ovr b{color:#ffd84a}
+#page-evolucao[data-rpg="16bit"] .cv-bar{background:#070a3a;border:2px solid #f4f4f4;height:10px;border-radius:0}
+#page-evolucao[data-rpg="16bit"] .cv-bar>i{border-radius:0;background:repeating-linear-gradient(90deg,#ffd84a 0 6px,#e8b820 6px 8px)}
+#page-evolucao[data-rpg="16bit"] .cv-d{border-radius:0}
+#page-evolucao[data-rpg="16bit"] .cv-tag,#page-evolucao[data-rpg="16bit"] .cv-balao,#modal-cv[data-rpg="16bit"] .cv-balao{border-radius:2px;border-color:#f4f4f4}
+#page-evolucao[data-rpg="16bit"] .cv-balao,#modal-cv[data-rpg="16bit"] .cv-balao{background:#0d1660}
+#page-evolucao[data-rpg="16bit"] .cv-balao::before,#modal-cv[data-rpg="16bit"] .cv-balao::before{background:#0d1660;border-color:#f4f4f4}
+#modal-cv[data-rpg="16bit"] .btn-p,#page-evolucao[data-rpg="16bit"] .btn-p{background:#ffd84a;color:#070a3a;border:2px solid #fff;border-radius:2px;box-shadow:3px 3px 0 #000}
 @media (prefers-reduced-motion: reduce){
   .cv-eu,.fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
   .fogo.vivo .f0{opacity:1}
@@ -2125,6 +2209,13 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- ════════════════ EVOLUÇÃO ════════════════ -->
 <section class="page" id="page-evolucao">
   <h1>Evolução Pessoal</h1><p class="psub">Modo Caverna e metas anuais</p>
+  <div class="evo-estilos" role="group" aria-label="Estilo desta página">
+    <span>Estilo da página:</span>
+    <button data-v="original" onclick="aplicarEstiloEvo('original')">Original</button>
+    <button data-v="pergaminho" onclick="aplicarEstiloEvo('pergaminho')">Pergaminho</button>
+    <button data-v="masmorra" onclick="aplicarEstiloEvo('masmorra')">Masmorra</button>
+    <button data-v="16bit" onclick="aplicarEstiloEvo('16bit')">16-bit</button>
+  </div>
 
   <div class="card gap" id="cv-hero"></div>
   <div class="cv-metas gap" id="cv-metas"></div>
@@ -2733,7 +2824,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3859,20 +3950,20 @@ function _cvDatas() {
 }
 
 // ── Pixel art ──
-// Bonecos 16x24 estilo RPG medieval (agentes + uma versão do Eduardo por classe), fonte: Projetos/Tracker/Pixel Art/sprites.py
-const PX_COR = {"S": "#f2c49b", "s": "#d9a07a", "z": "#b07a55", "k": "#1b1d24", "H": "#6b4226", "h": "#4a2c18", "A": "#e2e5ea", "a": "#a9aeb8", "R": "#e05252", "r": "#b33a3a", "x": "#7a2424", "B": "#4a7fe0", "b": "#3561b8", "N": "#33467a", "m": "#253358", "M": "#1a2440", "W": "#f4f4f4", "w": "#cfd3da", "v": "#a3a9b3", "Y": "#f5c542", "y": "#c99a1f", "G": "#4f9a63", "g": "#3a7a4c", "L": "#8a5a32", "l": "#6a4122", "o": "#3e2614", "O": "#e88a3a", "p": "#b0662a", "E": "#c4c9d2", "e": "#949aa6", "t": "#6b717d", "D": "#3a3f4c", "d": "#2a2e38", "P": "#7b5cc9", "i": "#5a3fa0", "u": "#3e2a78", "c": "#c2404a", "f": "#eb9a9a", "T": "#e8d5a3", "j": "#c4ad78"};
+// Bonecos 20x28 estilo RPG medieval (contorno, sombra, objetos) (agentes + uma versão do Eduardo por classe), fonte: Projetos/Tracker/Pixel Art/sprites.py
+const PX_COR = {"S": "#f2c49b", "s": "#d9a07a", "z": "#b07a55", "k": "#1b1d24", "H": "#6b4226", "h": "#4a2c18", "A": "#e2e5ea", "a": "#a9aeb8", "R": "#e05252", "r": "#b33a3a", "x": "#7a2424", "B": "#4a7fe0", "b": "#3561b8", "N": "#33467a", "m": "#253358", "M": "#1a2440", "W": "#f4f4f4", "w": "#cfd3da", "v": "#a3a9b3", "Y": "#f5c542", "y": "#c99a1f", "G": "#4f9a63", "g": "#3a7a4c", "L": "#8a5a32", "l": "#6a4122", "o": "#3e2614", "O": "#e88a3a", "p": "#b0662a", "E": "#c4c9d2", "e": "#949aa6", "t": "#6b717d", "D": "#3a3f4c", "d": "#2a2e38", "P": "#7b5cc9", "i": "#5a3fa0", "u": "#3e2a78", "c": "#c2404a", "f": "#eb9a9a", "T": "#e8d5a3", "j": "#c4ad78", "K": "#140f18", "Q": "rgba(0,0,0,.35)", "C": "#8fd3ff"};
 const PX_SPR = {
-  'Jefrey': ["................", "................", ".....hHHHHh.....", "....hHHHHHHh..E.", "...hHHHHHHHHh.E.", "...hHSSSSSSHh.E.", "...hSSkSSkSSh.E.", "...HSSSSSSSSH.E.", "...HHSSzzSSHH.E.", "....HHHHHHHH..E.", ".....hHHHHh...E.", "..EEtLLLLLLLl.E.", "..eEtLLLyLLLl.E.", "..SSlLLLyLLLlyYy", "..SSlLLLyLLLlSS.", "..zz.YYYYYYY.LL.", ".....LLLLLLL....", ".....lLLlLLl....", ".....DDd.dDD....", ".....DDd.dDD....", ".....DDd.dDD....", ".....lLl.lLl....", "....olll.lllo...", "....oooo.oooo..."],
-  'Mônica': ["................", ".....wWWWWw.....", "....wWWWWWWw....", "...wWWWWWWWWw...", "...wWhHHHHhWw...", "...wWSSSSSSWw...", "...wWSkSSkSWw...", "...wWSSSSSSWw...", "...wWSSccSSWw...", "....wWsSSsWw....", ".....wWWWWw.....", "....NNNYYNNN....", "...NNNNNNNNNN...", "..NNNNNNNNNNNN..", "..NmNNTjjTNNmN..", "..SSTTTTTTTTSS..", "..mNNNYYYYNNNm..", "...NNNNNNNNNN...", "...NNNNNNNNNNm..", "..NNNNNNNNNNNm..", "..mNNNNNNNNNNm..", "..mmmmmmmmmmmm..", "....oo....oo....", "...ooo....ooo..."],
-  'Maria': ["................", "................", ".....rRRRRr.....", "....rRRRRRRr....", "...rRRWRRWRRr...", "...hHRRRRRRHh...", "...hSSkSSkSSh...", "...hfSSSSSSfh...", "....SSSzzSSS....", ".....sSSSSs..ee.", "......ssss...eE.", "....GGWWWWGG.E..", "...GGGWWWWGGGE..", "..GGGGWWWWGGGS..", "..GGWWWWWWWWGG..", "..SGWWWWWWWWG...", "...GWWWWWWWWG...", "...GWWWWWWWWG...", "...GGWwwwwWGG...", "..gGGGGGGGGGGg..", "..gGGGGGGGGGGg..", "..gggggggggggg..", "....oo....oo....", "...ooo....ooo..."],
-  'Mosley': ["................", ".....lLLLLl.....", "....lLLLLLLl....", "...lLLLLLLLLl...", "...lLaAAAAaLl...", "...lLSSSSSSLl...", "...lLSkSSkSLl...", "...lLSSSSSSLl...", "...lLAASSAALl...", "...lLAAAAAALl...", "...lLLAAAALLl...", "..lLLLLAAALLLl..", "..lLLLLLAALLLl..", "..lLxRRRRRRxLl..", "..lSxRRYYRRxSl..", "..lLxRRRRRRxLl..", "..lLLYYYYYYLLl..", "..lLLLLLYLLLLl..", "..lLLLLLYLLLLl..", "..lLLLLLLLLLLl..", "..llLLLLLLLLll..", "...llllllllll...", "....oo....oo....", "...ooo....ooo..."],
-  'Andarilho': ["................", "................", ".....lLLLLl.....", "....lLLLLLLl....", "...lLLLLLLLLl...", "...lLhSSSShLl...", "...lLSkSSkSLl...", "...lLSSSSSSLl...", "...llsSzzSsll...", "....lLsSSsLl....", "...lLLLssLLLl...", "..lLLLLLLLLLLl.L", "..lLLoLLLLoLLl.L", "..lLLoLLLLoLLlSL", "..lLLLLLLLLLLl.L", "..llLLLLLLLLll.L", "..llLLLYYLLLll.L", "...llLLLLLLll..L", "....lllllll....L", ".....DDd.dDD...L", ".....DDd.dDD...L", ".....DDd.dDD...L", ".....ooo.ooo...L", "....oooo.oooo..."],
-  'Guerreiro': ["................", "................", ".....eEEEEe.....", "....eEEEEEEe....", "...tEEEEEEEEt...", "...tESSSSSSEt...", "...tSSkSSkSSt...", "...tSSSSSSSSt...", "....sSSzzSSs....", ".....sSSSSs.....", "......ttt.......", "...eEEEEEEEEe..E", "..eEEEEeeEEEEe.E", "RRrEEEEeeEEEEeSE", "RYrEEEEeeEEEEe.y", "RRreEEEEEEEEe...", "RRr.YYYYYYYY....", ".r..eEEeeEEe....", ".....EEe.eEE....", ".....EEe.eEE....", ".....eEe.eEe....", ".....tEt.tEt....", "....ttte.ettt...", "....tttt.tttt..."],
-  'Acrobata': ["................", "..Y..........Y..", "..RR........GG..", "...RRR.YY.GGG...", "....RRRRGGGG....", "...yRRRRGGGGy...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "....YWYWYWYW....", "..S.RRRRGGGG.S..", "..sRRRRRGGGGGs..", "..sRRRYRGYGGGs..", "...RRRRRGGGGG...", "....RRRRGGGG....", "....YYYYYYYY....", "....RRRRGGGG....", "....RRR..GGG....", "....RRR..GGG....", "....rRR..GGg....", "....GGG..RRR....", "...GGGY..YRRR...", "................"],
-  'Monge': ["................", "................", ".....sSSSSs.....", "....HsSSSSsH....", "...hHHSSSSHHh...", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "....DDdssdDD....", "...DDDDDDDDDD...", "..DDDDDxDDDDDD..", "..DDDDDSSDDDDd..", "..DDDDSSSSDDDd..", "..dDDDDxDDDDdd..", "..dYYYYYYYYYYd..", "..dDDDDYDDDDDd..", "..dDDDDYDDDDDd..", "..dDDDDDDDDDDd..", "..ddDDDDDDDDdd..", "...dddddddddd...", ".....LL..LL.....", "....LLL..LLL...."],
-  'Sábio': ["........uu......", ".......uPu......", "......uPPi......", ".....uPPPPi.....", "..iiiiiiiiiiii..", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", ".YY.sSSzzSSs....", ".YY..sSSSSs.....", "..L...ssss......", "..L.PPPPPPPP....", "..LPPPiPPiPPP...", "..SPPPPiiPPPPP..", "..LPPPPYYPPPPS..", "..LiPPPPPPPPi...", "..LiPPPPPPPPPi..", "..LiPPPPPPPPPi..", "..LiiPPPPPPPii..", "..LuiiPPPPPiiu..", "..Luuuuuuuuuuu..", "..L..oo...oo....", "..L.ooo...ooo...", "................"],
-  'Nobre': ["................", "..........W.....", "....xRRRRRRWw...", "...xRRRRRRRRx...", "...hHHHHHHHHh...", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "....MWWWWWWM....", "..MMRRRYYRRRMM..", "..MNRRRYYRRRNM..", "..MNRRRYYRRRNM..", "..MNSRRYYRRSNM..", "..MNNYYYYYYNNM..", "..MN.RRRRRR.NM..", "..MN.WWW.WWW.NM.", "..MM.WWw.wWW.MM.", "..MM.WWw.wWW.MM.", "...M.WWw.wWW.M..", ".....WWw.wWW....", ".....ooo.ooo....", "....oooo.oooo..."],
-  'Chef': ["................", "................", ".....TTTTTT.....", "....TTTTTTTj....", "...jTTTTTTTTj...", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "......ssss..WW..", "....LLWWWWLLOp..", "...LLLWWWWLLOOp.", "..LLLWWWWWWLSp..", "..LLWWWWWWWWLL..", "..SLWWWWWWWWL...", "...LWWWWWWWWL...", "...LwWWWWWWwL...", ".....DDd.dDD....", ".....DDd.dDD....", ".....DDd.dDD....", ".....lLl.lLl....", "....olll.lllo...", "....oooo.oooo..."],
+  'Jefrey': ["................K...", "...............KeK..", "...............KEK..", ".......KKKKKK..KEK..", "......KhHHHHhK.KEK..", ".....KhHHHHHHhKKEK..", "....KhHHHHHHHHhKEK..", "....KhHhhSShhHhKEK..", "....KhSSkSSkSShKEK..", "....KHSSSSSSrSHKEK..", "....KHHSSzzSrHHKEK..", ".....KHHHHHHHHKKEK..", "...KKKKhHHHHhKKKEK..", "..KxEEtLLLLLLLlKEK..", "..KxeEtLLLyLLLlKEK..", ".KrxSSlLLLyLLLlyYyK.", ".KrxSSlLLLyLLLlSSK..", ".KrxzzKYYYYYYYKLLK..", ".KrxKKKLLLLLLLKKxK..", ".KrxK.KlLLlLLlKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KlLlKlLlKKxK..", "..KxKKolllKllloKxK..", "...K.KooooKooooKK...", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Mônica': ["................KWK.", "................KWK.", ".......KKKKKK..KWWK.", "......KwWWWWwK.KWwK.", ".....KwWWWWWWwKwKK..", "....KwWWWWWWWWwkK...", "....KwWhHHHhhWwK....", "....KwWShSSShWwK....", "....KwWSkSSkSWwK....", "....KwWSSSSSSWwK....", "....KwWSSccSSWwK....", ".....KwWsSSsWwK.....", "......KwWWWWwK......", ".....KNNNYYNNNK.....", "....KNNNNNNNNNNK....", "...KNNNNNNNNNNNNK...", "...KNmNNTjjTNNmNK...", "...KSSTTTRTTTTSSK...", "...KmNNNYYYYNNYmK...", "....KNNNNNNNNNyK....", "....KNNNNNNNNNNmK...", "...KNNNNNNNNNNNmK...", "...KmNNNNNNNNNNmK...", "...KmmmmmmmmmmmmK...", "....KKooKKKKooKK....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
+  'Maria': ["....................", "....................", "....................", ".......KKKKKK.......", "......KrRRRRrK......", ".....KrRRRRRRrK.....", "....KrRRWRRWRRrK....", "....KhHRRRRRRHhK....", "....KhSSkSSkSShK....", "....KhfShSShSfhK....", ".....KSSSzzSSSKKK...", "......KsSSSSsKKeeK..", "......KKssssKKKeEK..", ".....KGGWWWWGGKEK...", "....KGGGWWWWGGGEK...", "...KGGGGWWWWGGGSK...", "...KGGWWWWWWWWGGK...", "..KKSGWWWWWWWWGK....", ".KwKKGWWWWWWWWGK....", "KwKwKGWWWWWWWWGK....", "KKwKKGGWwwwwWGGK....", "kGGGGkGGGGGGGGGgK...", "dDDDDdGGGGGGGGGgK...", "dDDDDdggggggggggK...", "KddddKooKKKKooKK....", ".KKKKoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
+  'Mosley': ["....................", "....................", ".......KKKKKK.......", ".K....KlLLLLlK......", "KYK..KlLLLLLLlK.....", "YWYKKlLLLLLLLLlK....", "KWK.KlLaAAAAaLlK....", "KWK.KlLAASSAALlK....", "KwK.KlLSkSSkSLlK....", "yYyKKlLSSSSSSLlK....", "KKK.KlLAASSAALlK....", "....KlLAAAAAALlK.K..", "....KlLLAAAALLlKKyK.", "...KlLLLLAAALLLlKK..", "...KlLLLLLAALLLlYK..", "...KlLxRRRRRRxLlK...", "...KlSxRRYYRRxSlK...", "...KlLxRRRRRRxLlK...", "...KlLLYYYYYYLLlK...", "...KlLLLLLYLLLLlK...", "...KlLLLLLYLLLLlK...", "...KlLLLLLLLLLLlK...", "...KllLLLLLLLLllK...", "....KllllllllllK....", ".....KooKKKKooK.....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
+  'Andarilho': ["....................", "....................", "....................", ".......KKKKKK.......", "......KlLLLLlK......", ".....KlLLLLLLlK.....", "....KlLLLLLLLLlK....", "....KlLhSSSShLlK....", "....KlLSkSSkSLlK.K..", "....KlLSSSSSSLlKKkK.", "....KllsSzzSsllKtYtK", ".....KlLsSSsLlKKYWYK", "....KlLLLssLLLlKtYtK", "..KKlLLLLLLLLLLlKLK.", ".KlKlLLoLLLLoLLlKLK.", ".KlKlLLoLLLLoLLlSLK.", ".KlKlLLLLLLLLLLlKLK.", ".KlKllLLLLLLLLllKLK.", ".KlKllLLLYYLLLllKLK.", ".KlKKllLLLLLLllKKLK.", ".KlK.KlllllllKK.KLK.", ".KlK..KDDdKdDDK.KLK.", "..KlK.KDDdKdDDK.KLK.", "...K..KDDdKdDDK.KLK.", "......KoooKoooK.KLK.", ".....KooooKooooK.K..", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Guerreiro': ["........KRRKK.......", ".........KRRrK......", "..........KRrK......", ".......KKKKKK.......", "......KeEEEEeK......", ".....KeEEEEEEeK..K..", "....KtEEEEEEEEtKKeK.", "....KtESSSSSSEtKKEK.", "....KtSSkSSkSStKKEK.", "....KtSSSSSSSStKKEK.", ".....KsSSzzSSsK.KEK.", "......KsSSSSsK..KEK.", "...K.KKKtttKKKK.KEK.", ".KKxKeEEEEEEEEeKKEK.", "KeEEEeEEEeeEEEEeKEK.", "KERYREEEEeeEEEEeSEK.", "KEYYYEEEEeeEEEEeKyK.", "KERYREEEEEEEEEeKxK..", ".KEREKYYYYYYYYKKxK..", "..KEKKeEEeeEEeKKxK..", "...K..KEEeKeEEKKxK..", "......KEEeKeEEKKxK..", "......KeEeKeEeKKxK..", "......KtEtKtEtKKxK..", ".....KttteKetttKxK..", ".....KttttKttttKK...", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Acrobata': [".....KBK.KYK.KRK....", "......K...K...K.....", "....K..........K....", "...KYK........KYK...", "...KRRKK.KK.KKGGK...", "....KRRRKYYKGGGK....", ".....KRRRRGGGGK.....", "....KyRRRRGGGGyK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "....KKYWYWYWYWKK....", "...KSKRRRRGGGGKSK...", "...KsRRRRRGGGGGsK...", "...KsRRRYRGYGGGsK...", "....KRRRRRGGGGGK....", ".....KRRRRGGGGK.....", ".....KYYYYYYYYK.....", ".....KRRRRGGGGK.....", ".....KRRRKKGGGK.....", ".....KRRRKKGGGK.....", ".....KrRRKKGGgK.....", ".....KGGGKKRRRK.....", "....KGGGYKKYRRRK....", ".....KKKK..KKKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
+  'Monge': ["....................", ".......KKKKKK.......", ".....KKYYYYYYKK.....", "....KYKKKKKKKKYK....", ".....KKsSSSSsKK.....", ".....KHsSSSSsHK..K..", "..K.KhHHSSSSHHhKKYK.", ".KYKKhHSSSSSSHhK.K..", "..K.KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK....K.", ".K...KDDdssdDDK..KyK", "KyK.KDDDDDDDDDDK..K.", ".K.KDDDDDxDDDDDDK...", "...KDDDDDSSDDDDdK...", "...KDDDDSSSSDDDdK...", "...KdDDDDxDDDDddK...", "...KdYYYYYYYYYYdK...", "...KdDDDDYDDDDDdK...", "...KdDDDDYDDDDDdK...", "...KdDDDDDDDDDDdK...", "...KddDDDDDDDDddK...", "....KddddddddddK....", ".....KKLLKKLLKK.....", ".....KLLLKKLLLK.....", "......KKKQQKKK......", ".......QQQQQQ......."],
+  'Sábio': ["....................", "..........KK........", ".........KuuK.......", "........KuPuK.......", ".K...K.KuPPiK.......", "KWKKKWKuPPPPiKKK....", ".KKCiiiiiiiiiiiiK...", ".KCWChHSSSSSSHhK....", "KKCCChSSkSSkSShK....", "WKKBKsSSSSSSSSsK....", "K.KYYKsSSzzSSsK.....", "..KYYKKsSSSSsK......", "...KLKKKssssKK......", "...KLKPPPPPPPPK.....", "...KLPPPiPPiPPPK....", "...KSPPPPiiPPPPPK...", "...KLPPPPYYPPPPSK...", "...KLiPPPPPPPPiK....", "...KLiPPPPPPPPPiK...", "...KLiPPPPPPPYPiK...", "...KLiiPPPPPPPiiK...", "...KLuiiYPPPPiiuK...", "...KLuuuuuuuuuuuK...", "...KLKKooKKKooKK....", "...KLKoooK.KoooK....", "....K.KKK...KKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
+  'Nobre': ["....................", "....................", "............K.......", "......KKKKKKWKK.....", ".....KxRYRRRRWwK....", "....KxRRRRRRRRxK....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "....KKMWWWWWWMKK....", "...KMMRRRYYRRRMMK...", "...KMNRRRYYRRRNMK...", "...KMNRRRYYRRRNMKK..", "...KMNSRRYYRRSNMKYK.", "...KMNNYYYYYYNNMKEK.", "...KMNKRRRRRRKNMKEK.", "...KMNKWWWKWWWKNMEK.", "...KMMKWWwKwWWKMMEK.", "...KMMKWWwKwWWKMMEK.", "....KMKWWwKwWWKMKEK.", ".....KKWWwKwWWKKKeK.", "......KoooKoooK..K..", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
+  'Chef': ["....................", "....................", "....................", ".......KKKKKK.......", "......KTTTTTTK......", ".....KTTTTTTTjK.....", "....KjTTTTTTTTjK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShKK...", "....KsSSSSSSSSsKwK..", ".....KsSSzzSSsKKKK..", "......KsSSSSsKKwKwK.", "......KKssssKKWWKK..", ".....KLLWWWWLLOpK...", "....KLLLWWWWLLOOpK..", "...KLLLWWWWWWLSpK...", "...KLLWWWWWWWWLLK...", "...KSLWWWWWWWWLK....", "....KLWWWWWWWWLK....", "....KLwWWWWWWwLK....", ".....KKDDdKdDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
 };
 function _px(mapa, cores) {
   let r = '';
@@ -4053,7 +4144,16 @@ function _cvStats() {
 
 function _cvMedalha(c, w = 32) { return pxSvg(MEDALHA, w, MEDALHA_COR[c.ok ? c.tier : 'off']); }
 
+// Teste de estilo da aba Evolução (e da cerimônia): original | pergaminho | masmorra | 16bit — sincroniza como as outras chaves
+function aplicarEstiloEvo(v) {
+  if (v) save('evo_estilo', v);
+  const e = load('evo_estilo', 'original');
+  ['page-evolucao', 'modal-cv'].forEach(id => { const el = $(id); if (!el) return; if (e === 'original') delete el.dataset.rpg; else el.dataset.rpg = e; });
+  document.querySelectorAll('.evo-estilos button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === e)));
+}
+
 function renderCaverna() {
+  aplicarEstiloEvo();
   const hero = $('cv-hero'), metasEl = $('cv-metas'), conqEl = $('cv-conq');
   if (!hero) return;
   const st = _cvStats();
@@ -4870,7 +4970,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
