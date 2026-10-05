@@ -599,6 +599,52 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .meta-row.done .meta-nome{text-decoration:line-through;color:var(--text3)}
 .meta-row.done .meta-info{opacity:.6}
 
+/* ── RECEITAS ── */
+.rc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.rc-card{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;background:var(--card-glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s var(--ease-out)}
+.rc-card:hover{border-color:var(--border-strong)}
+.rc-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rc-foto{position:relative;aspect-ratio:4/3;background:var(--bg3);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rc-foto img,.rc-hist-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.rc-sem-foto{font-family:var(--f-serif);font-size:48px;color:var(--text3)}
+.rc-selo{position:absolute;top:10px;left:10px;background:var(--accent);color:#0a0c10;font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px}
+.rc-card.feita .rc-foto img{opacity:.5}
+.rc-corpo{padding:14px 16px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.rc-nome{font-family:var(--f-serif);font-size:21px;font-weight:400;line-height:1.15;color:var(--text);margin:0}
+.rc-meta{font-size:12.5px;color:var(--text2)}
+.rc-hist summary{cursor:pointer;list-style:none}
+.rc-hist summary::-webkit-details-marker{display:none}
+.rc-hist summary h2{margin:0;display:inline}
+.rc-hist summary h2 span{color:var(--text3);font-size:.8em}
+.rc-hist[open] summary{margin-bottom:12px}
+.rc-hist-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.rc-hist-row:last-child{border-bottom:none}
+.rc-hist-foto{width:48px;height:48px;border-radius:8px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rc-hist-foto .rc-sem-foto{font-size:22px}
+.rc-hist-nome{font-size:14px;color:var(--text)}
+.modal.rc-modal{width:640px;padding:0;position:relative}
+.rc-fechar{position:absolute;top:10px;right:10px;z-index:2;background:rgba(10,12,16,.7);color:var(--text);font-size:20px}
+.rc-det-foto img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.rc-credito{font-size:11.5px;color:var(--text3);padding:6px 24px 0}
+.rc-det-corpo{padding:20px 24px 24px}
+.rc-det-corpo h2{margin:10px 0 6px}
+.rc-det-corpo h3{margin:24px 0 10px}
+.rc-desc{font-size:14px;line-height:1.6;color:var(--text2);margin:0 0 8px}
+.rc-ingr{list-style:none;margin:0;padding:0}
+.rc-ingr label{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:14px;line-height:1.45;cursor:pointer}
+.rc-ingr input{width:18px;height:18px;padding:0;margin-top:1px;flex-shrink:0;accent-color:var(--accent)}
+.rc-ingr input:checked+span{text-decoration:line-through;color:var(--text3)}
+.rc-passos{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.6}
+.rc-passos li::marker{color:var(--accent);font-weight:600}
+.rc-dica{margin-top:20px;background:var(--adim);border-radius:var(--rs);padding:12px 14px;font-size:13.5px;line-height:1.55}
+.rc-acoes{flex-wrap:wrap}
+@media(max-width:640px){
+  .rc-grid{grid-template-columns:1fr;gap:12px}
+  .rc-foto{aspect-ratio:16/9}
+  .rc-det-corpo{padding:16px 18px 20px}
+  .rc-acoes .btn{flex:1;justify-content:center}
+}
+
 /* ── EVENT ── */
 .evi{
   display:flex;align-items:flex-start;gap:14px;
@@ -1328,7 +1374,7 @@ body.dens-compact .gap{margin-bottom:14px}
     border-radius:3px 3px 0 0;
   }
   .nb{
-    flex:1 0 50px;height:64px;min-width:50px;width:auto;
+    flex:1 0 46px;height:64px;min-width:46px;width:auto;
     border-radius:0;margin:0;
     gap:4px;
     -webkit-tap-highlight-color:transparent;
@@ -1988,26 +2034,19 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ RECEITAS ════════════════ -->
 <section class="page" id="page-receitas">
-  <h1>Receitas</h1><p class="psub">Receitas que quer experimentar</p>
+  <h1>Receitas</h1><p class="psub">Cinco receitas da Maria para você praticar. Toda manhã, às 7h, ela troca as que você já fez.</p>
 
-  <div class="card gap">
-    <h3>Adicionar receita</h3>
-    <div class="row">
-      <div class="fg" style="flex:2"><label>Nome da receita</label><input id="rc-nome" type="text" placeholder="Ex: Risoto de cogumelos, Bolo de cenoura..."></div>
-      <div class="fg"><label>Categoria</label><select id="rc-cat"><option>Almoço/Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Sobremesa</option><option>Bebida</option><option>Fitness</option></select></div>
-      <div class="fg"><label>Dificuldade</label><select id="rc-dif"><option>Fácil</option><option>Médio</option><option>Difícil</option></select></div>
-    </div>
-    <div class="row">
-      <div class="fg"><label>Link/fonte</label><input id="rc-link" type="url" placeholder="https://... (opcional)"></div>
-      <div class="fg"><label>Tempo estimado</label><input id="rc-tempo" type="text" placeholder="30 min, 1h..."></div>
-    </div>
-    <div class="fg"><label>Notas / ingredientes-chave</label><textarea id="rc-notas" placeholder="Anote ingredientes especiais, dicas..."></textarea></div>
-    <button class="btn btn-p btn-sm" onclick="addReceita()">+ Adicionar receita</button>
+  <div class="rc-grid gap" id="lista-receitas"></div>
+
+  <details class="card rc-hist">
+    <summary><h2>Já feitas <span id="rc-feitas-n"></span></h2></summary>
+    <div id="lista-receitas-feitas"></div>
+  </details>
+
+  <div class="overlay" id="modal-receita" onclick="if (event.target === this) fecharReceita()">
+    <div class="modal rc-modal" role="dialog" aria-modal="true" aria-labelledby="rc-det-nome"><div id="rc-detalhe"></div></div>
   </div>
-
-  <div class="card"><div class="sh"><h2>Minhas receitas</h2>
-    <select id="rc-filter" onchange="renderReceitas()" style="width:auto;font-size:11px;padding:5px 10px"><option value="">Todas</option><option>Almoço/Jantar</option><option>Café da manhã</option><option>Lanche</option><option>Sobremesa</option><option>Fitness</option></select>
-  </div><div id="lista-receitas"></div></div>
+  <input type="file" id="rc-foto-inp" accept="image/*" hidden onchange="rcFoto(event)">
 </section>
 
 
@@ -2567,7 +2606,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3810,44 +3849,114 @@ function renderGames() {
 // ──────────────────────────────────
 // RECEITAS
 // ──────────────────────────────────
-const difCor = { Fácil:'tg', Médio:'ta', Difícil:'tr' };
+// Receitas são escritas pela Maria (Routines, todo dia 7h): chave `receitas` = as 5 ativas,
+// `receitas_feitas` = histórico. O app só marca feita/desmarca e anexa a foto do Eduardo.
+const RC_CAT_COR = { 'Almoço/Jantar':'ta', 'Café da manhã':'to', 'Lanche':'tb', 'Sobremesa':'tp' };
+let _rcAberta = null;
+const _rcUrl = u => /^(https:\/\/|data:image\/)/.test(u || '') ? u : '';
+const _rcData = d => d ? d.split('-').reverse().join('/') : '';
 
-function addReceita() {
-  const nome = $('rc-nome').value.trim();
-  if (!nome) return;
-  const list = load('receitas', []);
-  list.unshift({ id: Date.now(), nome, cat: $('rc-cat').value, dif: $('rc-dif').value, link: $('rc-link').value, tempo: $('rc-tempo').value, notas: $('rc-notas').value, feita: false });
-  save('receitas', list);
-  $('rc-nome').value = ''; $('rc-link').value = ''; $('rc-tempo').value = ''; $('rc-notas').value = '';
-  renderReceitas();
+function _rcFotoHtml(r) {
+  const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
+  return src ? `<img src="${_escH(src)}" alt="" loading="lazy">` : `<span class="rc-sem-foto">${_escH((r.nome || '?')[0])}</span>`;
 }
-
-function toggleReceita(id) {
-  const list = load('receitas', []);
-  const r = list.find(r => r.id === id);
-  if (r) r.feita = !r.feita;
-  save('receitas', list);
-  renderReceitas();
-}
-
-function delReceita(id) { save('receitas', load('receitas', []).filter(r => r.id !== id)); renderReceitas(); }
 
 function renderReceitas() {
-  const filter = $('rc-filter').value;
-  const list = load('receitas', []).filter(r => !filter || r.cat === filter);
   const cont = $('lista-receitas');
-  if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🍳</div>Nenhuma receita adicionada</div>'; return; }
-  const catEmoji = { 'Almoço/Jantar':'🍽️', 'Café da manhã':'☕', 'Lanche':'🥪', 'Sobremesa':'🍰', 'Bebida':'🥤', 'Fitness':'💪' };
-  cont.innerHTML = list.map(r => `
-    <div class="li${r.feita ? ' done' : ''}">
-      <div style="font-size:22px">${catEmoji[r.cat]||'🍳'}</div>
-      <div class="li-info">
-        <div class="li-nm">${r.link ? `<a href="${r.link}" target="_blank" style="color:var(--accent);text-decoration:none">${r.nome}</a>` : r.nome} <span class="tag ${difCor[r.dif]||'ta'}">${r.dif}</span>${r.feita ? ' <span class="tag tg">Feita ✓</span>' : ''}</div>
-        <div class="li-sub">${r.cat}${r.tempo ? ' · ' + r.tempo : ''}${r.notas ? ' · ' + r.notas : ''}</div>
+  if (!cont) return;
+  const ativas = load('receitas', []);
+  cont.innerHTML = ativas.length ? ativas.map(r => `
+    <button class="rc-card${r.feita ? ' feita' : ''}" onclick="abrirReceita(${_eid(r.id)})">
+      <div class="rc-foto">${_rcFotoHtml(r)}${r.feita ? '<span class="rc-selo">Feita</span>' : ''}</div>
+      <div class="rc-corpo">
+        <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
+        <h3 class="rc-nome">${_escH(r.nome)}</h3>
+        <div class="rc-meta">${[r.tempo, r.porcoes, r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
       </div>
-      <button class="ib ${r.feita ? 'del' : 'chk'}" onclick="toggleReceita(${r.id})">${r.feita ? '↩' : '✓'}</button>
-      <button class="ib del" onclick="delReceita(${r.id})">×</button>
-    </div>`).join('');
+    </button>`).join('')
+    : '<div class="card empty" style="grid-column:1/-1"><div class="ei">🍳</div>A Maria deixa 5 receitas aqui toda manhã, às 7h.</div>';
+
+  const feitas = load('receitas_feitas', []);
+  $('rc-feitas-n').textContent = feitas.length ? `(${feitas.length})` : '';
+  $('lista-receitas-feitas').innerHTML = feitas.length ? feitas.slice().reverse().map(r => `
+    <div class="rc-hist-row">
+      <div class="rc-hist-foto">${_rcFotoHtml(r)}</div>
+      <div><div class="rc-hist-nome">${_escH(r.nome)}</div><div class="rc-meta">${_escH(r.categoria || '')}${r.feitaEm ? ' · feita em ' + _rcData(r.feitaEm) : ''}</div></div>
+    </div>`).join('')
+    : '<p class="rc-meta" style="margin:0">Quando você marcar uma receita como feita, ela vem pra cá na manhã seguinte.</p>';
+
+  if (_rcAberta != null && $('modal-receita').classList.contains('on')) abrirReceita(_rcAberta);
+}
+
+function abrirReceita(id) {
+  const r = load('receitas', []).find(x => x.id === id);
+  if (!r) return fecharReceita();
+  _rcAberta = id;
+  const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
+  $('rc-detalhe').innerHTML = `
+    <button class="ib rc-fechar" onclick="fecharReceita()" aria-label="Fechar">×</button>
+    ${src ? `<div class="rc-det-foto"><img src="${_escH(src)}" alt="${_escH(r.nome)}"></div>` : ''}
+    ${src && !_rcUrl(r.minhaFoto) && r.fotoCredito ? `<div class="rc-credito">Foto: ${_escH(r.fotoCredito)}</div>` : ''}
+    <div class="rc-det-corpo">
+      <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
+      <h2 id="rc-det-nome">${_escH(r.nome)}</h2>
+      ${r.descricao ? `<p class="rc-desc">${_escH(r.descricao)}</p>` : ''}
+      <div class="rc-meta">${[r.tempo, r.porcoes, r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
+
+      <h3>Ingredientes</h3>
+      <ul class="rc-ingr">${(r.ingredientes || []).map(i => `<li><label><input type="checkbox"><span>${_escH(i)}</span></label></li>`).join('')}</ul>
+
+      <h3>Modo de preparo</h3>
+      <ol class="rc-passos">${(r.passos || []).map(p => `<li>${_escH(p)}</li>`).join('')}</ol>
+
+      ${r.dica ? `<div class="rc-dica"><strong>Dica da Maria:</strong> ${_escH(r.dica)}</div>` : ''}
+
+      <div class="mfooter rc-acoes">
+        <button class="btn btn-g" onclick="$('rc-foto-inp').click()">${r.minhaFoto ? 'Trocar minha foto' : 'Adicionar minha foto'}</button>
+        <button class="btn ${r.feita ? 'btn-g' : 'btn-p'}" onclick="toggleReceitaFeita(${_eid(r.id)})">${r.feita ? 'Desmarcar' : 'Marcar como feita'}</button>
+      </div>
+    </div>`;
+  $('modal-receita').classList.add('on');
+}
+
+function fecharReceita() { _rcAberta = null; $('modal-receita').classList.remove('on'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _rcAberta != null) fecharReceita(); });
+
+function toggleReceitaFeita(id) {
+  const list = load('receitas', []);
+  const r = list.find(x => x.id === id);
+  if (!r) return;
+  r.feita = !r.feita;
+  r.feitaEm = r.feita ? today() : null;
+  save('receitas', list);
+  renderReceitas();
+}
+
+// Foto do Eduardo: reduzida pra 900px/JPEG antes de salvar
+// ponytail: vai dentro do blob `receitas`/`receitas_feitas` (~80-120KB cada); se o histórico crescer muito, mover pro Supabase Storage
+function rcFoto(ev) {
+  const file = ev.target.files[0];
+  ev.target.value = '';
+  if (!file || _rcAberta == null) return;
+  const id = _rcAberta;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 900 / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width * scale; canvas.height = img.height * scale;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      const list = load('receitas', []);
+      const r = list.find(x => x.id === id);
+      if (!r) return;
+      r.minhaFoto = canvas.toDataURL('image/jpeg', 0.72);
+      save('receitas', list);
+      renderReceitas();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 // ──────────────────────────────────
@@ -4161,7 +4270,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -6141,12 +6250,13 @@ const ALL_PAGES = [
 
 function getNavFavs() {
   const favs = load('nav_favs', null);
-  if (!favs) return ['home','agenda','corpo','financas','investimentos','backup'];
-  // Investimentos entrou em 04/10/2026: aparece uma vez para quem já tinha favoritos salvos
-  if (!load('nav_inv_visto', false)) {
-    if (!favs.includes('investimentos')) { favs.push('investimentos'); save('nav_favs', favs); }
-    save('nav_inv_visto', true);
-  }
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','backup'];
+  // Abas que entraram depois (04/10/2026) aparecem uma vez para quem já tinha favoritos salvos
+  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto']].forEach(([aba, flag]) => {
+    if (load(flag, false)) return;
+    if (!favs.includes(aba)) { favs.push(aba); save('nav_favs', favs); }
+    save(flag, true);
+  });
   return favs;
 }
 
