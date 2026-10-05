@@ -588,6 +588,17 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .cl{flex:1;font-size:13.5px;line-height:1.45}
 .cl.x{text-decoration:line-through;color:var(--text3)}
 
+
+/* ── METAS ── */
+.meta-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)}
+.meta-row:last-child{border-bottom:none}
+.meta-row .cb{margin-top:1px}
+.meta-txt{flex:1;min-width:0}
+.meta-nome{font-size:14px;line-height:1.45;color:var(--text)}
+.meta-info{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:12px;color:var(--text3)}
+.meta-row.done .meta-nome{text-decoration:line-through;color:var(--text3)}
+.meta-row.done .meta-info{opacity:.6}
+
 /* ── EVENT ── */
 .evi{
   display:flex;align-items:flex-start;gap:14px;
@@ -2921,13 +2932,7 @@ function refreshHome() {
     ht2.innerHTML = '<div class="empty"><div class="ei">🎯</div>Nenhuma meta anual cadastrada</div>';
   } else {
     const catColorH = { 'Saúde':'tp', 'Finanças':'tg', 'Carreira':'tb', 'Pessoal':'tv', 'Educação':'ta', 'Outro':'tx' };
-    ht2.innerHTML = metasAnuais.map(m => `
-      <div class="ci" onclick="toggleMetaAnual(${m.id})" style="cursor:pointer;padding:10px 0;border-bottom:1px solid var(--border);gap:8px">
-        <div class="cb${m.done ? ' on' : ''}" style="flex-shrink:0">${m.done ? '✓' : ''}</div>
-        <span class="cl${m.done ? ' x' : ''}" style="flex:1;font-size:13px">${m.nome}</span>
-        <span class="tag ${catColorH[m.cat]||'ta'}" style="flex-shrink:0">${m.cat}</span>
-        ${m.prazo ? `<span style="font-size:10px;color:var(--text3);flex-shrink:0">até ${m.prazo}</span>` : ''}
-      </div>`).join('');
+    ht2.innerHTML = ordenarMetas(metasAnuais).map(m => metaRow(m, catColorH[m.cat], false)).join('');
   }
 
   // Home Mapa Muscular
@@ -3640,14 +3645,21 @@ function renderMetasAnuais() {
   const list = load('metas_a', []).filter(m => m.ano === ano);
   const cont = $('lista-ma');
   if (!list.length) { cont.innerHTML = '<div class="empty"><div class="ei">🎯</div>Nenhuma meta anual</div>'; return; }
-  cont.innerHTML = list.map(m => `
-    <div class="ci">
-      <div class="cb${m.done ? ' on' : ''}" onclick="toggleMetaAnual(${m.id})">${m.done ? '✓' : ''}</div>
-      <span class="cl${m.done ? ' x' : ''}" style="flex:1">${m.nome}</span>
-      <span class="tag ${catColor[m.cat]||'ta'}">${m.cat}</span>
-      ${m.prazo ? `<span style="font-size:10px;color:var(--text3)">até ${m.prazo}</span>` : ''}
-      <button class="ib del" onclick="delMetaAnual(${m.id})">×</button>
-    </div>`).join('');
+  cont.innerHTML = ordenarMetas(list).map(m => metaRow(m, catColor[m.cat], true)).join('');
+}
+
+// Linha de meta: nome em cima (largura toda), categoria e prazo embaixo. Concluídas vão pro fim.
+const ordenarMetas = list => [...list].sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+function metaRow(m, cor, comExcluir) {
+  const prazo = m.prazo ? m.prazo.split('-').reverse().join('/') : '';
+  return `<div class="meta-row${m.done ? ' done' : ''}">
+      <div class="cb${m.done ? ' on' : ''}" onclick="toggleMetaAnual(${m.id})" role="checkbox" aria-checked="${!!m.done}" aria-label="Marcar meta">${m.done ? '✓' : ''}</div>
+      <div class="meta-txt">
+        <div class="meta-nome">${m.nome}</div>
+        <div class="meta-info"><span class="tag ${cor || 'ta'}">${m.cat}</span>${prazo ? `<span>até ${prazo}</span>` : ''}</div>
+      </div>
+      ${comExcluir ? `<button class="ib del" onclick="delMetaAnual(${m.id})" aria-label="Excluir meta">×</button>` : ''}
+    </div>`;
 }
 
 function addMetaTracking() {
