@@ -642,6 +642,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .lv-det-capa{background:var(--bg3);display:flex;justify-content:center}
 .lv-det-capa img{max-height:300px;width:auto!important;aspect-ratio:auto!important}
 .meta-prog{color:var(--text2)}
+.lv-aval{display:flex;gap:8px;margin-top:16px}
+.lv-aval .btn.on{border-color:var(--accent);color:var(--accent);background:var(--adim)}
+.lv-hist-aval{margin-left:auto;display:flex;gap:4px;flex-shrink:0}
+.lv-hist-aval .ib{opacity:.45}
+.lv-hist-aval .ib.on{opacity:1}
 a.btn{text-decoration:none}
 @media(max-width:640px){
   .rc-grid{grid-template-columns:1fr;gap:12px}
@@ -3988,7 +3993,7 @@ function rcFoto(ev) {
 // LEITURA
 // ──────────────────────────────────
 // Livros escritos pelo Mosley (Routines, todo domingo): chave `leitura` = os 5 ativos,
-// `leitura_lidos` = histórico. O app só marca lido/desmarca.
+// `leitura_lidos` = histórico. O app só marca lido/desmarca e grava `avaliacao` (gostei/nao_gostei).
 let _lvAberto = null;
 
 function _lvCapaHtml(l) {
@@ -4018,6 +4023,10 @@ function renderLeitura() {
     <div class="rc-hist-row">
       <div class="rc-hist-foto">${_lvCapaHtml(l)}</div>
       <div><div class="rc-hist-nome">${_escH(l.titulo)}</div><div class="rc-meta">${_escH(l.autor || '')}${l.lidoEm ? ' · lido em ' + _rcData(l.lidoEm) : ''}</div></div>
+      <div class="lv-hist-aval">
+        <button class="ib${l.avaliacao === 'gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura_lidos', ${_eid(l.id)}, 'gostei')" aria-label="Gostei" aria-pressed="${l.avaliacao === 'gostei'}">👍</button>
+        <button class="ib${l.avaliacao === 'nao_gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura_lidos', ${_eid(l.id)}, 'nao_gostei')" aria-label="Não gostei" aria-pressed="${l.avaliacao === 'nao_gostei'}">👎</button>
+      </div>
     </div>`).join('')
     : '<p class="rc-meta" style="margin:0">Quando você marcar um livro como lido, ele vem pra cá no domingo seguinte.</p>';
 
@@ -4040,6 +4049,10 @@ function abrirLivro(id) {
       ${l.descricao ? `<p class="rc-desc" style="margin-top:12px">${_escH(l.descricao)}</p>` : ''}
       ${l.porque ? `<div class="rc-dica"><strong>Por que o Mosley indicou:</strong> ${_escH(l.porque)}</div>` : ''}
       ${l.fonte ? `<p class="rc-meta" style="margin-top:14px">Grátis em ${_escH(l.fonte)}${l.formato ? ' (' + _escH(l.formato) + ')' : ''}</p>` : ''}
+      <div class="lv-aval">
+        <button class="btn btn-g${l.avaliacao === 'gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura', ${_eid(l.id)}, 'gostei')" aria-pressed="${l.avaliacao === 'gostei'}">👍 Gostei</button>
+        <button class="btn btn-g${l.avaliacao === 'nao_gostei' ? ' on' : ''}" onclick="avaliarLivro('leitura', ${_eid(l.id)}, 'nao_gostei')" aria-pressed="${l.avaliacao === 'nao_gostei'}">👎 Não gostei</button>
+      </div>
       <div class="mfooter rc-acoes">
         ${link ? `<a class="btn btn-g" href="${_escH(link)}" target="_blank" rel="noopener">Ler grátis</a>` : ''}
         <button class="btn ${l.lido ? 'btn-g' : 'btn-p'}" onclick="toggleLivroLido(${_eid(l.id)})">${l.lido ? 'Desmarcar' : 'Marcar como lido'}</button>
@@ -4050,6 +4063,16 @@ function abrirLivro(id) {
 
 function fecharLivro() { _lvAberto = null; $('modal-livro').classList.remove('on'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && _lvAberto != null) fecharLivro(); });
+
+// Gostei/Não gostei: o Mosley usa pra calibrar as próximas indicações; clicar de novo tira a avaliação
+function avaliarLivro(chave, id, val) {
+  const list = load(chave, []);
+  const l = list.find(x => x.id === id);
+  if (!l) return;
+  l.avaliacao = l.avaliacao === val ? null : val;
+  save(chave, list);
+  renderLeitura();
+}
 
 function toggleLivroLido(id) {
   const list = load('leitura', []);
