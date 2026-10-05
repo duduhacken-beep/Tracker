@@ -642,7 +642,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .lv-det-capa{background:var(--bg3);display:flex;justify-content:center}
 .lv-det-capa img{max-height:300px;width:auto!important;aspect-ratio:auto!important}
 .meta-prog{color:var(--text2)}
-.cv-hero{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
+.cv-hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
 .cv-ovr{text-align:center;min-width:92px}
 .cv-ovr b{display:block;font-family:var(--f-serif);font-weight:400;font-size:68px;line-height:.95;color:var(--accent)}
 .cv-ovr span{font-size:12.5px;color:var(--text2)}
@@ -673,8 +673,61 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .cv-d.hoje{outline:1px solid var(--text2);outline-offset:1px}
 .cv-leg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text3);margin-top:8px}
 .cv-leg .cv-d{width:10px;height:10px;display:inline-block}
+.px{display:block;image-rendering:pixelated}
+.cv-id{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.cv-tag{font-size:12px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2)}
+.cv-tag b{color:var(--text);font-weight:600}
+.cv-tag.cls{border-color:var(--accent);color:var(--accent);background:var(--adim)}
+.cv-seq{display:flex;align-items:flex-end;gap:12px}
+.cv-seq-num{line-height:1.1}
+.cv-seq-num b{display:block;font-family:var(--f-serif);font-weight:400;font-size:34px;color:var(--text)}
+.cv-seq-num span{font-size:12px;color:var(--text2)}
+.cv-escudos{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text2);margin-left:4px}
+.cv-escudos b{color:var(--text)}
+.fogo{position:relative;display:inline-block;aspect-ratio:8/10;flex-shrink:0}
+.fogo-f{position:absolute;inset:0;width:100%;height:100%}
+.fogo .f1,.fogo .f2{opacity:0}
+.fogo.vivo .fogo-f{animation:fogo-quadro .54s steps(1,end) infinite}
+.fogo.vivo .f1{animation-delay:.18s}
+.fogo.vivo .f2{animation-delay:.36s}
+.fogo.vivo{animation:fogo-pulso 1.8s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes fogo-quadro{0%{opacity:1}33.33%{opacity:0}100%{opacity:0}}
+@keyframes fogo-pulso{0%,100%{transform:scale(1)}50%{transform:scale(1.06,1.1)}}
+.cv-npc{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.cv-npc .px{flex-shrink:0;animation:npc-idle 2.4s steps(2,end) infinite}
+@keyframes npc-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.cv-balao{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;color:var(--text)}
+.cv-balao::before{content:"";position:absolute;left:-6px;top:12px;width:10px;height:10px;background:var(--bg3);border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
+.cv-balao small{display:block;color:var(--text3);font-size:11px;margin-bottom:2px}
+.cv-conq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.cv-conq{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs)}
+.cv-conq.off{opacity:.55}
+.cv-conq b{display:block;font-size:13px;color:var(--text)}
+.cv-conq span{font-size:12px;color:var(--text2)}
+.cv-conq.off b{color:var(--text2)}
+.cv-titulos{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.modal.cv-cer{width:440px;text-align:center;position:relative;overflow-x:hidden;overflow-y:auto;max-height:90vh;background:var(--bg2);backdrop-filter:none}
+.cv-cer-top{font-size:12.5px;color:var(--accent);letter-spacing:.04em}
+.cv-cer-nivel{font-family:var(--f-serif);font-size:58px;line-height:1.05;color:var(--text);margin:6px 0 4px;animation:cer-entra .6s var(--ease-out) both}
+.cv-cer h2{margin:8px 0 2px}
+.cv-cer p{color:var(--text2);font-size:13.5px;margin:6px 0}
+.cv-cer-lista{display:flex;flex-direction:column;gap:8px;margin:16px 0;text-align:left}
+.cv-cer .cv-npc{justify-content:center;text-align:left;margin:18px 0 6px}
+.cv-cer .btn{width:100%;justify-content:center;margin-top:10px}
+.cv-cer-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;text-align:left}
+.cv-cer-stats div{background:var(--bg3);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--text2)}
+.cv-cer-stats b{display:block;font-size:16px;color:var(--text)}
+.cv-confete{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.cv-confete i{position:absolute;top:-10px;width:6px;height:6px;animation:confete 2.2s linear forwards}
+@keyframes confete{to{transform:translateY(520px) rotate(360deg);opacity:0}}
+@keyframes cer-entra{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  .fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
+  .fogo.vivo .f0{opacity:1}
+}
 @media(max-width:640px){
   .cv-hero{grid-template-columns:1fr;gap:12px}
+  .cv-seq{order:-1}
   .cv-ovr{display:flex;align-items:baseline;gap:10px;text-align:left}
   .cv-ovr b{font-size:56px}
   .cv-attrs{grid-template-columns:1fr 1fr;gap:12px 16px}
@@ -1741,6 +1794,9 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg><span>Mais</span></button>
 </nav>
 
+<!-- MODAL MODO CAVERNA (cerimônia de nível/conquista e tela final) — fora das páginas pra abrir em qualquer aba -->
+<div class="overlay" id="modal-cv"><div class="modal cv-cer" role="dialog" aria-modal="true" aria-labelledby="cv-cer-tit"><div id="cv-cer"></div></div></div>
+
 <!-- MODAL CONFIGURAR NAVEGAÇÃO -->
 <div class="overlay" id="modal-nav-config">
   <div class="modal" style="width:420px">
@@ -2070,6 +2126,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
   <div class="card gap" id="cv-hero"></div>
   <div class="cv-metas gap" id="cv-metas"></div>
+  <div class="card gap" id="cv-conq"></div>
 
   <div class="card gap">
     <h3>Nova meta anual</h3>
@@ -2674,7 +2731,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3749,15 +3806,17 @@ function toggleMetaAnual(id) {
 function delMetaAnual(id) { save('metas_a', load('metas_a', []).filter(m => m.id !== id)); renderMetasAnuais(); }
 
 // ──────────────────────────────────
-// MODO CAVERNA (21/10–31/12/2026) — progresso ao vivo
+// MODO CAVERNA (21/10–31/12/2026) — progresso ao vivo + gamificação
 // ──────────────────────────────────
 // Conta direto do que o Eduardo marca no app: eventos dos agentes (marca na descrição do Calendar,
 // que o app guarda em `notas` e mantém mesmo depois que o agente apaga o evento), receitas e livros.
 // Os agentes continuam atualizando `contadores` em metas_a e marcando a meta como concluída;
 // o alvo vem de lá (assim, se o Eduardo mudar o alvo, a seção acompanha).
-const CV_INI = '2026-10-21', CV_FIM = '2026-12-31';
+// Gamificação (05/10/2026): classe (maior atributo), título (nível), conquistas, cerimônia de nível,
+// fogo de sequência com escudos (1 por semana perfeita, máx. 3), NPCs em pixel e tela final.
+const CV_INI = '2026-10-21', CV_FIM = '2026-12-31', CV_TELA_FINAL = '2026-12-21';
 const _cvDia = d => d.slice(0, 10);
-const _cvNaJanela = d => d && d >= CV_INI && d <= CV_FIM;
+const _cvNaJanela = d => d && d >= CV_INI && d <= CV_FIM && d <= today();   // evento futuro marcado por engano não conta
 
 function _cvEventos(marca, filtroNome) {
   const vistos = new Set(), dias = [];
@@ -3788,17 +3847,6 @@ function _cvPeso() {
   const atual = parseFloat(pesos[pesos.length - 1][1].peso);
   return { base, atual, data: pesos[pesos.length - 1][0] };
 }
-
-const CV_METAS = [
-  { id: 1791158400001, nome: 'Peso', attr: 'Corpo', quem: 'Jefrey', peso: true, alvoKg: 92 },
-  { id: 1791158400004, nome: 'Alongamento', attr: 'Flexibilidade', quem: 'Jefrey', un: 'sessões', alvo: 40, xp: 10, dias: () => _cvEventos('Alongamento (Jefrey)') },
-  { id: 1791158400003, nome: 'Meditação e respiração', attr: 'Mente', quem: 'Mônica', un: 'sessões', alvo: 50, xp: 10, dias: () => _cvEventos('Meditação (Mônica)') },
-  { id: 1791158400002, nome: 'Leitura', attr: 'Sabedoria', quem: 'Mosley · horário: Mônica', un: 'livros', alvo: 4, xp: 100, dias: () => _cvItens(['leitura', 'leitura_lidos'], 'lido', 'lidoEm') },
-  { id: 1791158400008, nome: 'Aparência', attr: 'Estilo', quem: 'Mônica', un: 'skincare', alvo: 120, xp: 5, dias: () => _cvEventos('Aparência (Mônica)', /skincare/i),
-    extra: { un: 'cortes', alvo: 3, xp: 20, dias: () => _cvEventos('Aparência (Mônica)', /corte/i) } },
-  { id: 1791158400009, nome: 'Cozinhar', attr: 'Cozinha', quem: 'Maria', un: 'receitas', alvo: 30, xp: 30, dias: () => _cvItens(['receitas', 'receitas_feitas'], 'feita', 'feitaEm') },
-];
-
 function _cvDatas() {
   const out = [];
   for (let d = new Date(CV_INI + 'T12:00'); ; d.setDate(d.getDate() + 1)) {
@@ -3808,6 +3856,95 @@ function _cvDatas() {
   }
 }
 
+// ── Pixel art ──
+const PX_COR = { r:'#d94848', h:'#3b2a20', s:'#e8b88a', k:'#1b1d24', m:'#9a4a3a', b:'#3b6fd8', w:'#f2f2f2', y:'#f5c542', g:'#2b2f3a', n:'#27345c', l:'#c2404a', p:'#e88a8a', a:'#b8bcc6', v:'#3d7a52', o:'#d98a3a' };
+function _px(mapa, cores) {
+  let r = '';
+  mapa.forEach((linha, y) => [...linha].forEach((c, x) => { if (c !== '.') r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${cores[c]}"/>`; }));
+  return r;
+}
+const pxSvg = (mapa, w, cores = PX_COR, cls = '') =>
+  `<svg class="px ${cls}" viewBox="0 0 ${mapa[0].length} ${mapa.length}" width="${w}" shape-rendering="crispEdges" aria-hidden="true">${_px(mapa, cores)}</svg>`;
+
+const NPCS = {
+  Jefrey: { papel: 'Treinador', mapa: ['..rrrrrr..', '.rrrrrrrrr', '.hssssssh.', '.ssksskss.', '.ssssssss.', '..ssmmss..', '...ssss...', '.bbbwwbbb.', 'bbbbwbbbbb', 'bbbbybbbbb', 'bbbbbbbbbb', 'bbbbbbbbbb'],
+    falas: { antes: 'Dia 21 começa. Até lá, dorme cedo e chega inteiro.', frente: 'Tá voando. Mantém a técnica, não só o volume.', ritmo: 'No ritmo. É assim que se constrói.', atras: 'Ficou pra trás, mas dá pra tirar. Amanhã, sem desculpa.', feito: 'Meta batida. Agora é manter.' } },
+  'Mônica': { papel: 'Secretária', mapa: ['...hhhh...', '..hhhhhh..', '.hhhhhhhh.', '.hssssssh.', '.sggssggs.', '.hssssssh.', '..ssllss..', '...ssss...', '.nnnwwnnn.', 'nnnnwwnnnn', 'nnnnwwnnnn', 'nnnnnnnnnn'],
+    falas: { antes: 'Sua agenda nova já começa em 21/10. Eu cuido dos horários.', frente: 'Adiantado. Vou anotar isso com orgulho.', ritmo: 'Tudo em dia na agenda.', atras: 'Reorganizei a semana. Só aparece no horário.', feito: 'Meta concluída, já registrei.' } },
+  Maria: { papel: 'Cozinheira', mapa: ['..wwwwww..', '.wwwwwwww.', '.wwwwwwww.', '..wwwwww..', '.hssssssh.', '.ssksskss.', '.spssssps.', '..ssmmss..', '...ssss...', '.rrwwwwrr.', 'rrrwwwwrrr', 'rrrwwwwrrr'],
+    falas: { antes: 'Separa o avental, dia 21 a gente começa.', frente: 'Tá cozinhando mais que eu, menino!', ritmo: 'Do jeitinho que eu gosto.', atras: 'A panela tá fria... bora uma receita fácil hoje?', feito: 'Trinta receitas! Já pode me substituir.' } },
+  Mosley: { papel: 'Bibliotecário', mapa: ['..aaaaaa..', '.aaaaaaaa.', '.assssssa.', '.sggssggs.', '.ssssssss.', '.aassssaa.', '.aaammaaa.', '..aaaaaa..', '.vvvvvvvv.', 'vvvoooovvv', 'vvvoooovvv', 'vvvvvvvvvv'],
+    falas: { antes: 'Sua estante já está pronta. Escolha o primeiro.', frente: 'Lendo acima do ritmo. Admirável.', ritmo: 'Página por página, como deve ser.', atras: 'Um capítulo por manhã resolve. Sem pressa, sem pausa.', feito: 'Quatro livros. Nada mal para um homem de ação.' } },
+};
+// Fala escrita pelo agente na rotina dele (`npc_falas[<meta>] = {agente, texto, em}`) vale por 8 dias; senão, a padrão pelo ritmo
+function _npcFala(chave, agente, status) {
+  const f = load('npc_falas', {})[chave];
+  if (f && f.texto && f.em && (Date.parse(today()) - Date.parse(f.em)) <= 8 * 864e5) return f.texto;
+  return NPCS[agente].falas[status];
+}
+const _npcHtml = (agente, fala, w = 40) =>
+  `<div class="cv-npc">${pxSvg(NPCS[agente].mapa, w)}<div class="cv-balao"><small>${agente} · ${NPCS[agente].papel}</small>${_escH(fala)}</div></div>`;
+
+const FOGO_F = [
+  ['...o....', '..oo....', '..ooo.o.', '.oooooo.', '.ooyyooo', 'oooyyyoo', 'ooyyyyoo', 'ooyywyyo', '.oywwyo.', '..oooo..'],
+  ['....o...', '...oo...', '.o.ooo..', '.oooooo.', 'oooyyoo.', 'ooyyyooo', 'ooyyyyoo', 'oyywyyoo', '.oywwyo.', '..oooo..'],
+  ['..o.....', '..oo..o.', '..ooo.o.', '.ooooooo', '.oooyyoo', 'ooyyyyoo', 'ooyyyyoo', 'ooyywwyo', '.oywwyo.', '..oooo..'],
+];
+const FOGO_COR = { laranja: { o:'#f97316', y:'#fbbf24', w:'#fff7c2' }, azul: { o:'#3b82f6', y:'#93c5fd', w:'#e0f2fe' }, cinza: { o:'#3a3f4c', y:'#4b5160', w:'#5d6475' } };
+function fogoHtml(seq) {
+  const cor = !seq ? 'cinza' : seq >= 21 ? 'azul' : 'laranja';
+  const tam = !seq ? 26 : seq < 3 ? 30 : seq < 7 ? 38 : seq < 21 ? 46 : 54;
+  return `<span class="fogo${seq ? ' vivo' : ''}" style="width:${tam}px" role="img" aria-label="Fogo da sequência: ${seq} dias">${FOGO_F.map((f, i) =>
+    `<svg class="px fogo-f f${i}" viewBox="0 0 8 10" shape-rendering="crispEdges" aria-hidden="true">${_px(f, FOGO_COR[cor])}</svg>`).join('')}</span>`;
+}
+const ESCUDO = ['dddddddd', 'dbbbbbbd', 'dbwbbbbd', 'dbwbbbbd', 'dbbbbbbd', '.dbbbbd.', '.dbbbbd.', '..dbbd..', '...dd...'];
+const escudoHtml = (w, apagado) => pxSvg(ESCUDO, w, apagado ? { d:'#2a2f3a', b:'#1f232c', w:'#2a2f3a' } : { d:'#1e3a8a', b:'#60a5fa', w:'#dbeafe' });
+const MEDALHA = ['.bb..bb.', '..bbbb..', '..cccc..', '.cyyyyc.', 'cyywyyyc', 'cyyyyyyc', '.cyyyyc.', '..cccc..'];
+const MEDALHA_COR = {
+  bronze: { b:'#d94848', c:'#7a4a1e', y:'#cd7f32', w:'#f0c08a' }, prata: { b:'#3b6fd8', c:'#6b7280', y:'#c0c6d0', w:'#f3f4f6' },
+  ouro: { b:'#22a06b', c:'#a16207', y:'#f5c542', w:'#fff3b0' }, off: { b:'#2a2f3a', c:'#1f232c', y:'#2a2f3a', w:'#2a2f3a' },
+};
+
+// ── Regras do jogo ──
+const CV_XP_NIVEL = 250;
+const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Dândi', Cozinha: 'Chef' };
+const CV_TITULOS = [[1, 'Recruta'], [3, 'Aprendiz'], [5, 'Disciplinado'], [8, 'Implacável'], [11, 'Homem da Caverna'], [13, 'Lenda']];
+const _cvTitulo = n => CV_TITULOS.filter(([lv]) => n >= lv).pop()[1];
+const CV_CONQUISTAS = [
+  ['primeiro-passo', 'Primeiro passo', 'Primeiro registro do Modo Caverna', 'bronze', st => st.diasComRegistro >= 1],
+  ['semana-perfeita', 'Semana perfeita', 'Algo feito todo dia de uma semana (ganha um escudo)', 'prata', st => st.seq.semanasPerf >= 1],
+  ['salvo', 'Salvo pelo escudo', 'Um escudo protegeu sua sequência', 'bronze', st => st.seq.usados >= 1],
+  ['seq-7', 'Uma semana de fogo', 'Sequência de 7 dias', 'bronze', st => st.seq.max >= 7],
+  ['seq-21', 'Hábito formado', 'Sequência de 21 dias (o fogo fica azul)', 'prata', st => st.seq.max >= 21],
+  ['seq-50', 'Imparável', 'Sequência de 50 dias', 'ouro', st => st.seq.max >= 50],
+  ['respiro', 'Primeiro respiro', '10 sessões de meditação', 'bronze', st => st.n.meditacao >= 10],
+  ['estoico', 'Estoico', 'Meta de meditação batida', 'ouro', st => st.ok.meditacao],
+  ['elastico', 'Elástico', 'Meta de alongamento batida', 'ouro', st => st.ok.alongamento],
+  ['primeiro-livro', 'Primeiro livro', '1 livro lido', 'bronze', st => st.n.leitura >= 1],
+  ['biblioteca', 'Rato de biblioteca', 'Meta de leitura batida', 'ouro', st => st.ok.leitura],
+  ['fogao', 'Fogão aceso', 'Primeira receita feita', 'bronze', st => st.n.cozinhar >= 1],
+  ['chef', 'Chef de casa', 'Meta de receitas batida', 'ouro', st => st.ok.cozinhar],
+  ['pele', 'Pele de vidro', '10 dias seguidos de skincare manhã e noite', 'prata', st => st.skinSeqMax >= 10],
+  ['regua', 'Na régua', 'Todos os cortes de cabelo feitos', 'prata', st => st.n.cortes >= st.alvo.cortes],
+  ['kg5', 'Menos 5 kg', '5 kg a menos desde 21/10', 'prata', st => st.perdidoKg >= 5],
+  ['peso-meta', 'No peso', 'Chegou nos 92 kg', 'ouro', st => st.ok.peso],
+  ['nivel5', 'Nível 5', 'Chegou ao nível 5', 'prata', st => st.nivel >= 5],
+  ['nivel10', 'Nível 10', 'Chegou ao nível 10', 'ouro', st => st.nivel >= 10],
+  ['overall50', 'Meio caminho', 'Overall 50', 'prata', st => st.overall >= 50],
+];
+
+function _cvStatus(frac, decorridos, total) {
+  if (frac >= 1) return 'feito';
+  if (!decorridos) return 'antes';
+  const esp = decorridos / total, f = frac;
+  return Math.abs(f - esp) < 0.5 / 72 + 0.01 ? 'ritmo' : f > esp ? 'frente' : 'atras';
+}
+function _cvRitmo(feitas, alvo, decorridos, total, un) {
+  if (!decorridos) return 'Começa em 21/10.';
+  const esperado = Math.round(alvo * decorridos / total);
+  const dif = feitas - esperado;
+  return `Esperado até hoje: <b>${esperado}</b> ${un} · ${dif === 0 ? '<b>no ritmo</b>' : dif > 0 ? `<b>${dif} à frente</b>` : `<b>${-dif} atrás</b>`}`;
+}
 function _cvGrade(dias, porDia) {
   const hoje = today(), cont = {};
   dias.forEach(d => { cont[d] = (cont[d] || 0) + 1; });
@@ -3822,92 +3959,209 @@ function _cvGrade(dias, porDia) {
   return `<div class="cv-dias" role="img" aria-label="${Object.keys(cont).length} dias com registro de ${datas.length}">${cel.join('')}</div>`;
 }
 
-function _cvRitmo(feitas, alvo, decorridos, total, un) {
-  if (!decorridos) return 'Começa em 21/10.';
-  const esperado = Math.round(alvo * decorridos / total);
-  const dif = feitas - esperado;
-  return `Esperado até hoje: <b>${esperado}</b> ${un} · ${dif === 0 ? '<b>no ritmo</b>' : dif > 0 ? `<b>${dif} à frente</b>` : `<b>${-dif} atrás</b>`}`;
+// Sequência com escudos: dia sem registro (que não seja hoje) gasta um escudo; sem escudo, zera.
+// Semana perfeita (todo dia da semana com registro, seg–dom; a primeira começa em 21/10) dá 1 escudo, máx. 3.
+function _cvSequencia(diasSet, datas, hoje) {
+  let seq = 0, max = 0, escudos = 0, ganhos = 0, usados = 0, semanasPerf = 0, semanaOk = true;
+  for (const d of datas) {
+    if (d > hoje) break;
+    const tem = diasSet.has(d);
+    if (tem) seq++;
+    else if (d !== hoje) {
+      semanaOk = false;
+      if (escudos > 0) { escudos--; usados++; } else seq = 0;
+    }
+    max = Math.max(max, seq);
+    if (new Date(d + 'T12:00').getDay() === 0) {
+      if (semanaOk && (d < hoje || tem)) { semanasPerf++; ganhos++; escudos = Math.min(3, escudos + 1); }
+      semanaOk = true;
+    }
+  }
+  return { atual: seq, max, escudos, ganhos, usados, semanasPerf };
 }
 
-function renderCaverna() {
-  const hero = $('cv-hero'), metasEl = $('cv-metas');
-  if (!hero) return;
+const CV_METAS = [
+  { chave: 'peso', id: 1791158400001, nome: 'Peso', attr: 'Corpo', npc: 'Jefrey', peso: true, alvoKg: 92 },
+  { chave: 'alongamento', id: 1791158400004, nome: 'Alongamento', attr: 'Flexibilidade', npc: 'Jefrey', un: 'sessões', alvo: 40, xp: 10, dias: () => _cvEventos('Alongamento (Jefrey)') },
+  { chave: 'meditacao', id: 1791158400003, nome: 'Meditação e respiração', attr: 'Mente', npc: 'Mônica', un: 'sessões', alvo: 50, xp: 10, dias: () => _cvEventos('Meditação (Mônica)') },
+  { chave: 'leitura', id: 1791158400002, nome: 'Leitura', attr: 'Sabedoria', npc: 'Mosley', quem: 'Mosley · horário: Mônica', un: 'livros', alvo: 4, xp: 100, dias: () => _cvItens(['leitura', 'leitura_lidos'], 'lido', 'lidoEm') },
+  { chave: 'aparencia', id: 1791158400008, nome: 'Aparência', attr: 'Estilo', npc: 'Mônica', un: 'skincare', alvo: 120, xp: 5, dias: () => _cvEventos('Aparência (Mônica)', /skincare/i),
+    extra: { chave: 'cortes', un: 'cortes', alvo: 3, xp: 20, dias: () => _cvEventos('Aparência (Mônica)', /corte/i) } },
+  { chave: 'cozinhar', id: 1791158400009, nome: 'Cozinhar', attr: 'Cozinha', npc: 'Maria', un: 'receitas', alvo: 30, xp: 30, dias: () => _cvItens(['receitas', 'receitas_feitas'], 'feita', 'feitaEm') },
+];
+
+function _cvStats() {
   const metasA = load('metas_a', []);
   const alvoDe = (m, i, padrao) => metasA.find(x => x.id === m.id)?.contadores?.[i]?.alvo || padrao;
   const datas = _cvDatas(), hoje = today();
   const decorridos = datas.filter(d => d <= hoje).length;
-  let xp = 0;
+  const st = { datas, hoje, decorridos, xp: 0, n: {}, ok: {}, alvo: {}, perdidoKg: 0, linhas: [], skinSeqMax: 0 };
   const todosDias = new Set();
-
-  const linhas = CV_METAS.map(m => {
+  CV_METAS.forEach(m => {
     if (m.peso) {
       const p = _cvPeso();
-      const alvoKg = m.alvoKg;
-      const frac = p && p.base > alvoKg ? Math.max(0, Math.min(1, (p.base - p.atual) / (p.base - alvoKg))) : 0;
-      if (p && p.atual < p.base) xp += Math.round((p.base - p.atual) * 50);
-      const card = `<div class="card cv-meta">
-        <h3>Peso</h3><div class="cv-quem">Acompanhado pelo ${m.quem}</div>
-        <div class="cv-num"><b>${p ? String(p.atual).replace('.', ',') : '—'}</b><span>kg · meta ${alvoKg} kg</span></div>
-        <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(frac * 100)}%"></i></div>
-        <div class="cv-ritmo">${p ? `Saiu de <b>${String(p.base).replace('.', ',')} kg</b> · faltam <b>${Math.max(0, p.atual - alvoKg).toFixed(1).replace('.', ',')} kg</b> · última pesagem ${_rcData(p.data)}` : 'Sem pesagem registrada.'}</div>
-      </div>`;
-      return { attr: m.attr, frac, card };
+      const frac = p && p.base > m.alvoKg ? Math.max(0, Math.min(1, (p.base - p.atual) / (p.base - m.alvoKg))) : 0;
+      st.perdidoKg = p ? Math.max(0, p.base - p.atual) : 0;
+      st.xp += Math.round(st.perdidoKg * 50);
+      st.ok.peso = !!p && p.atual <= m.alvoKg;
+      st.linhas.push({ m, frac, p });
+      return;
     }
-    const alvo = alvoDe(m, 0, m.alvo);
-    const dias = m.dias();
+    const alvo = alvoDe(m, 0, m.alvo), dias = m.dias();
     dias.forEach(d => todosDias.add(d));
-    xp += dias.length * m.xp;
-    let frac = Math.min(1, dias.length / alvo), extraHtml = '';
+    st.xp += dias.length * m.xp; st.n[m.chave] = dias.length; st.alvo[m.chave] = alvo;
+    let frac = Math.min(1, dias.length / alvo), extra = null;
     if (m.extra) {
       const ea = alvoDe(m, 1, m.extra.alvo), ed = m.extra.dias();
       ed.forEach(d => todosDias.add(d));
-      xp += ed.length * m.extra.xp;
+      st.xp += ed.length * m.extra.xp; st.n.cortes = ed.length; st.alvo.cortes = ea;
       frac = (frac + Math.min(1, ed.length / ea)) / 2;
-      extraHtml = ` · ${m.extra.un}: <b>${ed.length}/${ea}</b>`;
+      extra = { feitas: ed.length, alvo: ea };
+      const porDia = {}; dias.forEach(d => { porDia[d] = (porDia[d] || 0) + 1; });
+      let run = 0; datas.forEach(d => { run = porDia[d] >= 2 ? run + 1 : 0; st.skinSeqMax = Math.max(st.skinSeqMax, run); });
     }
-    const porDia = m.extra ? 2 : 1;   // skincare: manhã + noite enche o quadrado
-    const card = `<div class="card cv-meta">
-      <h3>${m.nome}</h3><div class="cv-quem">Acompanhado por ${m.quem}</div>
-      <div class="cv-num"><b>${dias.length}</b><span>de ${alvo} ${m.un}</span></div>
-      <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(Math.min(1, dias.length / alvo) * 100)}%"></i></div>
-      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, decorridos, datas.length, m.un)}${extraHtml}</div>
-      ${_cvGrade(dias, porDia)}
-    </div>`;
-    return { attr: m.attr, frac, card };
+    st.ok[m.chave] = frac >= 1;
+    st.linhas.push({ m, frac, dias, alvo, extra });
   });
+  st.diasComRegistro = todosDias.size;
+  st.seq = _cvSequencia(todosDias, datas, hoje);
+  st.attr = st.linhas.map(l => ({ nome: l.m.attr, val: Math.round(l.frac * 99), frac: l.frac }));
+  st.overall = Math.round(st.attr.reduce((s, a) => s + a.val, 0) / st.attr.length);
+  st.nivel = Math.floor(st.xp / CV_XP_NIVEL) + 1;
+  st.titulo = _cvTitulo(st.nivel);
+  const topo = st.attr.reduce((a, b) => (b.val > a.val ? b : a));
+  st.classe = topo.val > 0 ? CV_CLASSES[topo.nome] : 'Andarilho';
+  st.conquistas = CV_CONQUISTAS.map(([id, nome, desc, tier, teste]) => ({ id, nome, desc, tier, ok: !!teste(st) }));
+  return st;
+}
 
-  const attrVal = f => Math.round(f * 99);
-  const overall = Math.round(linhas.reduce((s, l) => s + attrVal(l.frac), 0) / linhas.length);
-  const XP_NIVEL = 250;
-  const nivel = Math.floor(xp / XP_NIVEL) + 1, xpNoNivel = xp % XP_NIVEL;
-  let seq = 0;
-  for (let i = datas.indexOf(hoje); i >= 0; i--) {
-    if (todosDias.has(datas[i])) seq++;
-    else if (datas[i] !== hoje) break;   // hoje ainda pode ser feito: não quebra a sequência
-  }
-  const diaAtual = Math.min(decorridos, datas.length);
+function _cvMedalha(c, w = 32) { return pxSvg(MEDALHA, w, MEDALHA_COR[c.ok ? c.tier : 'off']); }
+
+function renderCaverna() {
+  const hero = $('cv-hero'), metasEl = $('cv-metas'), conqEl = $('cv-conq');
+  if (!hero) return;
+  const st = _cvStats();
+  const total = st.datas.length;
+  const prox = CV_TITULOS.find(([lv]) => lv > st.nivel);
+  const xpNoNivel = st.xp % CV_XP_NIVEL;
+  const diaAtual = Math.min(st.decorridos, total);
 
   hero.innerHTML = `
     <div class="cv-hero">
-      <div class="cv-ovr"><b>${overall}</b><span>Overall</span></div>
+      <div class="cv-ovr"><b>${st.overall}</b><span>Overall</span></div>
       <div>
-        <div class="cv-lv"><span><strong>Nível ${nivel}</strong></span><span>${xpNoNivel} / ${XP_NIVEL} XP</span></div>
-        <div class="cv-bar" role="progressbar" aria-label="XP do nível" aria-valuenow="${xpNoNivel}" aria-valuemin="0" aria-valuemax="${XP_NIVEL}"><i style="width:${xpNoNivel / XP_NIVEL * 100}%"></i></div>
+        <div class="cv-id"><span class="cv-tag cls">Classe: <b>${st.classe}</b></span><span class="cv-tag">Título: <b>${st.titulo}</b></span>${prox ? `<span class="cv-tag">Próximo: ${prox[1]} no nível ${prox[0]}</span>` : ''}</div>
+        <div class="cv-lv"><span><strong>Nível ${st.nivel}</strong></span><span>${xpNoNivel} / ${CV_XP_NIVEL} XP</span></div>
+        <div class="cv-bar" role="progressbar" aria-label="XP do nível" aria-valuenow="${xpNoNivel}" aria-valuemin="0" aria-valuemax="${CV_XP_NIVEL}"><i style="width:${xpNoNivel / CV_XP_NIVEL * 100}%"></i></div>
         <div class="cv-chips">
-          <span>${diaAtual ? `Dia <b>${diaAtual}</b> de ${datas.length}` : 'Começa em <b>21/10</b>'}</span>
-          <span>Sequência: <b>${seq}</b> dia${seq === 1 ? '' : 's'}</span>
-          <span>Dias com registro: <b>${todosDias.size}</b></span>
+          <span>${diaAtual ? `Dia <b>${diaAtual}</b> de ${total}` : 'Começa em <b>21/10</b>'}</span>
+          <span>Dias com registro: <b>${st.diasComRegistro}</b></span>
+          <span>Recorde: <b>${st.seq.max}</b> dia${st.seq.max === 1 ? '' : 's'}</span>
+          ${st.hoje >= CV_TELA_FINAL ? '<span><a href="#" onclick="abrirTelaFinal();return false">Ver resultado final</a></span>' : ''}
         </div>
       </div>
+      <div class="cv-seq">
+        ${fogoHtml(st.seq.atual)}
+        <div class="cv-seq-num"><b>${st.seq.atual}</b><span>dia${st.seq.atual === 1 ? '' : 's'} seguidos</span></div>
+        <div class="cv-escudos" title="Escudos: cada semana perfeita dá 1 (máx. 3) e ele salva a sequência num dia em branco">${escudoHtml(18, !st.seq.escudos)}<b>${st.seq.escudos}</b>/3</div>
+      </div>
     </div>
-    <div class="cv-attrs">${linhas.map(l => `
-      <div class="cv-attr"><span>${l.attr}</span><b>${attrVal(l.frac)}</b>
-        <div class="cv-bar" role="progressbar" aria-label="${l.attr}" aria-valuenow="${attrVal(l.frac)}" aria-valuemin="0" aria-valuemax="99"><i style="width:${l.frac * 100}%"></i></div>
+    <div class="cv-attrs">${st.attr.map(a => `
+      <div class="cv-attr"><span>${a.nome}</span><b>${a.val}</b>
+        <div class="cv-bar" role="progressbar" aria-label="${a.nome}" aria-valuenow="${a.val}" aria-valuemin="0" aria-valuemax="99"><i style="width:${a.frac * 100}%"></i></div>
       </div>`).join('')}
     </div>`;
-  metasEl.innerHTML = linhas.map(l => l.card).join('') + `
+
+  metasEl.innerHTML = st.linhas.map(({ m, frac, p, dias, alvo, extra }) => {
+    const status = _cvStatus(frac, st.decorridos, total);
+    const npc = _npcHtml(m.npc, _npcFala(m.chave, m.npc, status));
+    if (m.peso) return `<div class="card cv-meta">
+        ${npc}
+        <h3>Peso</h3><div class="cv-quem">Acompanhado pelo Jefrey</div>
+        <div class="cv-num"><b>${p ? String(p.atual).replace('.', ',') : '—'}</b><span>kg · meta ${m.alvoKg} kg</span></div>
+        <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(frac * 100)}%"></i></div>
+        <div class="cv-ritmo">${p ? `Saiu de <b>${String(p.base).replace('.', ',')} kg</b> · faltam <b>${Math.max(0, p.atual - m.alvoKg).toFixed(1).replace('.', ',')} kg</b> · última pesagem ${_rcData(p.data)}` : 'Sem pesagem registrada.'}</div>
+      </div>`;
+    return `<div class="card cv-meta">
+      ${npc}
+      <h3>${m.nome}</h3><div class="cv-quem">Acompanhado por ${m.quem || m.npc}</div>
+      <div class="cv-num"><b>${dias.length}</b><span>de ${alvo} ${m.un}</span></div>
+      <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(Math.min(1, dias.length / alvo) * 100)}%"></i></div>
+      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, st.decorridos, total, m.un)}${extra ? ` · cortes: <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
+      ${_cvGrade(dias, extra ? 2 : 1)}
+    </div>`;
+  }).join('') + `
     <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, skincare 5, corte 20, receita 30, livro 100, kg perdido 50</div>`;
+
+  const nOk = st.conquistas.filter(c => c.ok).length;
+  conqEl.innerHTML = `<h2>Conquistas <span style="color:var(--text3);font-size:.8em">${nOk}/${st.conquistas.length}</span></h2>
+    <div class="cv-conq-grid">${st.conquistas.map(c => `
+      <div class="cv-conq${c.ok ? '' : ' off'}">${_cvMedalha(c)}<div><b>${c.nome}</b><span>${c.ok ? c.desc : 'Bloqueada: ' + c.desc}</span></div></div>`).join('')}
+    </div>
+    <h3 style="margin:18px 0 0">Títulos</h3>
+    <div class="cv-titulos">${CV_TITULOS.map(([lv, t]) => `<span class="cv-tag${st.nivel >= lv ? ' cls' : ''}">${t} · nível ${lv}</span>`).join('')}</div>`;
+
+  _cvCerimonia(st);
 }
+
+// ── Cerimônia (nível novo / conquista nova) e tela final ──
+// `cv_visto` = o que o Eduardo já viu {nivel, conquistas[], final}; sincroniza entre aparelhos como as outras chaves.
+let _cvPendente = null;
+function _cvCerimonia(st) {
+  if ($('modal-cv').classList.contains('on')) return;
+  const ok = st.conquistas.filter(c => c.ok).map(c => c.id);
+  const visto = load('cv_visto', null);
+  if (!visto) { save('cv_visto', { nivel: st.nivel, conquistas: ok, final: false }); return; }   // 1ª vez: não comemora o passado
+  _cvPendente = { nivel: Math.max(st.nivel, visto.nivel), conquistas: [...new Set([...visto.conquistas, ...ok])], final: visto.final };
+  if (st.hoje >= CV_TELA_FINAL && !visto.final) { _cvPendente.final = true; return abrirTelaFinal(st); }
+  const novas = st.conquistas.filter(c => c.ok && !visto.conquistas.includes(c.id));
+  const subiu = st.nivel > visto.nivel;
+  if (!subiu && !novas.length) return;
+  const tituloNovo = subiu && _cvTitulo(st.nivel) !== _cvTitulo(visto.nivel) ? _cvTitulo(st.nivel) : '';
+  const npc = ['Jefrey', 'Mônica', 'Maria', 'Mosley'][st.nivel % 4];
+  const fala = subiu ? `Nível ${st.nivel}! ${tituloNovo ? `Agora é ${tituloNovo}.` : 'Segue assim.'}` : 'Mais uma pra coleção. Bem feito.';
+  $('cv-cer').innerHTML = `${_cvConfete()}
+    <div class="cv-cer-top">${subiu ? 'Subiu de nível' : novas.length > 1 ? 'Conquistas desbloqueadas' : 'Conquista desbloqueada'}</div>
+    ${subiu ? `<div class="cv-cer-nivel" id="cv-cer-tit">Nível ${st.nivel}</div>` : `<h2 id="cv-cer-tit">${novas.length > 1 ? novas.length + ' conquistas novas' : _escH(novas[0].nome)}</h2>`}
+    ${tituloNovo ? `<p>Novo título desbloqueado: <b>${tituloNovo}</b></p>` : ''}
+    <p>Classe atual: <b>${st.classe}</b></p>
+    ${novas.length ? `<div class="cv-cer-lista">${novas.slice(0, 4).map(c => `<div class="cv-conq">${_cvMedalha(c, 36)}<div><b>${_escH(c.nome)}</b><span>${_escH(c.desc)}</span></div></div>`).join('')}${novas.length > 4 ? `<p>+ ${novas.length - 4} conquista${novas.length > 5 ? 's' : ''} — veja na aba Evolução</p>` : ''}</div>` : ''}
+    ${_npcHtml(npc, fala, 44)}
+    <button class="btn btn-p" onclick="fecharCerimonia()">Continuar</button>`;
+  $('modal-cv').classList.add('on');
+}
+function _cvConfete() {
+  const cores = ['#22d3a0', '#f5c542', '#f97316', '#60a5fa', '#e88a8a'];
+  return `<div class="cv-confete" aria-hidden="true">${Array.from({ length: 28 }, (_, i) =>
+    `<i style="left:${(i * 37) % 100}%;background:${cores[i % cores.length]};animation-delay:${(i % 7) * 0.12}s"></i>`).join('')}</div>`;
+}
+function fecharCerimonia() {
+  $('modal-cv').classList.remove('on');
+  if (_cvPendente) { save('cv_visto', _cvPendente); _cvPendente = null; }
+}
+function abrirTelaFinal(st = _cvStats()) {
+  const total = st.datas.length;
+  const metasOk = st.linhas.filter(l => l.frac >= 1).length;
+  const linhaMeta = l => l.m.peso
+    ? `<div><b>${l.p ? String(l.p.atual).replace('.', ',') + ' kg' : '—'}</b>Peso (meta ${l.m.alvoKg} kg)</div>`
+    : `<div><b>${l.dias.length}/${l.alvo}</b>${l.m.nome}${l.extra ? ` · cortes ${l.extra.feitas}/${l.extra.alvo}` : ''}</div>`;
+  $('cv-cer').innerHTML = `${_cvConfete()}
+    <div class="cv-cer-top">Modo Caverna · 21/10 a 31/12</div>
+    <div class="cv-cer-nivel" id="cv-cer-tit">${st.overall}</div>
+    <p>Overall final${st.hoje < CV_FIM ? ' (até agora — conta até 31/12)' : ''} · Nível <b>${st.nivel}</b> · <b>${st.titulo}</b> · classe <b>${st.classe}</b></p>
+    <div class="cv-cer-stats">
+      <div><b>${metasOk}/${st.linhas.length}</b>Metas batidas</div>
+      <div><b>${st.diasComRegistro}/${total}</b>Dias com registro</div>
+      <div><b>${st.seq.max} dias</b>Maior sequência</div>
+      <div><b>${st.conquistas.filter(c => c.ok).length}/${st.conquistas.length}</b>Conquistas</div>
+      ${st.linhas.map(linhaMeta).join('')}
+    </div>
+    ${_npcHtml('Jefrey', 'Foram 72 dias. Olha o que você construiu.', 40)}
+    ${_npcHtml('Mônica', 'Registrei tudo. Que venha 2027.', 40)}
+    <button class="btn btn-p" onclick="fecharCerimonia()">Fechar</button>`;
+  $('modal-cv').classList.add('on');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('modal-cv')?.classList.contains('on')) fecharCerimonia(); });
 
 function renderMetasAnuais() {
   safeCall(renderCaverna, 'renderCaverna');
@@ -4597,7 +4851,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
