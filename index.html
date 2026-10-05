@@ -4147,7 +4147,7 @@ function _cvMedalha(c, w = 32) { return pxSvg(MEDALHA, w, MEDALHA_COR[c.ok ? c.t
 // Teste de estilo da aba Evolução (e da cerimônia): original | pergaminho | masmorra | 16bit — sincroniza como as outras chaves
 function aplicarEstiloEvo(v) {
   if (v) save('evo_estilo', v);
-  const e = load('evo_estilo', 'original');
+  const e = load('evo_estilo', 'masmorra');   // Masmorra escolhida pelo Eduardo em 05/10/2026
   ['page-evolucao', 'modal-cv'].forEach(id => { const el = $(id); if (!el) return; if (e === 'original') delete el.dataset.rpg; else el.dataset.rpg = e; });
   document.querySelectorAll('.evo-estilos button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === e)));
 }
@@ -4460,6 +4460,7 @@ const RC_CAT_COR = { 'Almoço/Jantar':'ta', 'Café da manhã':'to', 'Lanche':'tb
 let _rcAberta = null;
 const _rcUrl = u => /^(https:\/\/|data:image\/)/.test(u || '') ? u : '';
 const _rcData = d => d ? d.split('-').reverse().join('/') : '';
+const _rcKcal = r => r.kcal ? `≈ ${r.kcal} kcal/${r.kcalPor || 'porção'}` : '';   // estimativa da Maria (TACO)
 
 function _rcFotoHtml(r) {
   const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
@@ -4476,7 +4477,7 @@ function renderReceitas() {
       <div class="rc-corpo">
         <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
         <h3 class="rc-nome">${_escH(r.nome)}</h3>
-        <div class="rc-meta">${[r.tempo, r.porcoes, r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
+        <div class="rc-meta">${[r.tempo, r.porcoes, _rcKcal(r), r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
       </div>
     </button>`).join('')
     : '<div class="card empty" style="grid-column:1/-1"><div class="ei">🍳</div>A Maria deixa 5 receitas aqui toda manhã, às 7h.</div>';
@@ -4506,7 +4507,7 @@ function abrirReceita(id) {
       <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
       <h2 id="rc-det-nome">${_escH(r.nome)}</h2>
       ${r.descricao ? `<p class="rc-desc">${_escH(r.descricao)}</p>` : ''}
-      <div class="rc-meta">${[r.tempo, r.porcoes, r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
+      <div class="rc-meta">${[r.tempo, r.porcoes, _rcKcal(r), r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
 
       <h3>Ingredientes</h3>
       <ul class="rc-ingr">${(r.ingredientes || []).map(i => `<li><label><input type="checkbox"><span>${_escH(i)}</span></label></li>`).join('')}</ul>
