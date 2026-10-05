@@ -8606,6 +8606,9 @@ function _lpTema(html) {
   safeCall(renderGratDiaria, 'renderGratDiaria');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
+  // Link direto pra uma aba: .../Tracker/#taverna (usado no atalho do painel do app do Claude)
+  const abaInicial = location.hash.slice(1);
+  if (abaInicial && $('page-' + abaInicial)) safeCall(() => go(abaInicial), 'abaInicial');
 
   // BOOT — on-brand intro sequence (replaces old generic sync splash)
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
