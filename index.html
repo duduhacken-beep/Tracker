@@ -643,7 +643,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .lv-det-capa img{max-height:300px;width:auto!important;aspect-ratio:auto!important}
 .meta-prog{color:var(--text2)}
 .cv-hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
-.cv-ovr{text-align:center;min-width:92px}
+.cv-ovr{display:flex;align-items:flex-end;gap:14px;text-align:center}
+.cv-eu{animation:npc-idle 2.4s steps(2,end) infinite}
 .cv-ovr b{display:block;font-family:var(--f-serif);font-weight:400;font-size:68px;line-height:.95;color:var(--accent)}
 .cv-ovr span{font-size:12.5px;color:var(--text2)}
 .cv-lv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:var(--text2);margin-bottom:6px}
@@ -722,7 +723,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 @keyframes confete{to{transform:translateY(520px) rotate(360deg);opacity:0}}
 @keyframes cer-entra{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion: reduce){
-  .fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
+  .cv-eu,.fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
   .fogo.vivo .f0{opacity:1}
 }
 @media(max-width:640px){
@@ -730,6 +731,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
   .cv-seq{order:-1}
   .cv-ovr{display:flex;align-items:baseline;gap:10px;text-align:left}
   .cv-ovr b{font-size:56px}
+  .cv-ovr{text-align:left}
   .cv-attrs{grid-template-columns:1fr 1fr;gap:12px 16px}
 }
 .lv-aval{display:flex;gap:8px;margin-top:16px}
@@ -3857,7 +3859,21 @@ function _cvDatas() {
 }
 
 // ── Pixel art ──
-const PX_COR = { r:'#d94848', h:'#3b2a20', s:'#e8b88a', k:'#1b1d24', m:'#9a4a3a', b:'#3b6fd8', w:'#f2f2f2', y:'#f5c542', g:'#2b2f3a', n:'#27345c', l:'#c2404a', p:'#e88a8a', a:'#b8bcc6', v:'#3d7a52', o:'#d98a3a' };
+// Bonecos 16x24 (agentes + uma versão do Eduardo por classe), sombreado em 2-3 tons por cor
+const PX_COR = {"S": "#f2c49b", "s": "#d9a07a", "z": "#b07a55", "k": "#1b1d24", "H": "#6b4226", "h": "#4a2c18", "A": "#e2e5ea", "a": "#a9aeb8", "R": "#e05252", "r": "#b33a3a", "x": "#7a2424", "B": "#4a7fe0", "b": "#3561b8", "N": "#33467a", "m": "#253358", "M": "#1a2440", "W": "#f4f4f4", "w": "#cfd3da", "v": "#a3a9b3", "Y": "#f5c542", "y": "#c99a1f", "G": "#4f9a63", "g": "#3a7a4c", "L": "#8a5a32", "l": "#6a4122", "o": "#3e2614", "O": "#e88a3a", "p": "#b0662a", "E": "#c4c9d2", "e": "#949aa6", "t": "#6b717d", "D": "#3a3f4c", "d": "#2a2e38", "P": "#7b5cc9", "i": "#5a3fa0", "u": "#3e2a78", "c": "#c2404a", "f": "#eb9a9a"};
+const PX_SPR = {
+  'Jefrey': ["................", ".....RRRRRR.....", "....RRRRRRRR....", "....rrrrrrrr....", "...xxxxxxxxxx...", "....hSSSSSSh....", "....SSkSSkSS....", "....SSSSSSSs....", "....sSSzzSSs....", ".....sSSSSs.....", "......ssss......", "...SSBBWWBBSS...", "..SSsBBBWBBBsSS.", "..SS.BBBYBBB.SS.", "..Ss.BBBBBbb.sS.", "..zs.bBBBBbb.sz.", "..SS.DDDDDDd.SS.", "..zz.DDDdDDd.EeE", "....sDDd.DDds...", ".....SSs.sSS....", ".....SSs.sSS....", ".....WWW.WWW....", "....WWWw.wWWW...", "....vvvv.vvvv..."],
+  'Mônica': ["......hHHh......", ".....hHHHHh.....", "....hHHHHHHh....", "...hHHHHHHHHh...", "...hHSSSSSSHh...", "...hEkEssEkEh...", "...hSSSSSSSSh...", "...hSSSccSSSh...", "....hsSSSSsh....", ".....hssssh.....", "......sSSs......", "....NNWWWWNN....", "...NNNmWWmNNN...", "..NNNNmWWmNNNN..", "..NNNNNmmNNNLW..", "..mNNNNNNNNNLW..", "..SmNNNNNNNmLWS.", "...SmmmmmmmmLL..", ".....mmmmmmm....", ".....MmmmmmM....", "......SS..SS....", "......SS..Ss....", "......kk..kk....", ".....kkk..kkk..."],
+  'Maria': [".....WWWWWW.....", "....WWWWWWWW....", "....WwWWWWwW....", ".....wWWWWw.....", "....wwwwwwww....", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...hfSSSSSSfh...", "....SSSzzSSS....", ".....sSSSSs.....", "......ssss......", "....RRWWWWRR....", "...RRRWWWWRRR...", "..RRRWWWWWWRRR.L", "..RRrWWWWWWrRRL.", "..SSrWWWWWWrSL..", "..zS.WWWWWW.SL..", ".....WwwwwW.....", ".....DDDDDD.....", ".....DDd.dDD....", ".....DDd.dDD....", ".....DDd.dDD....", ".....ooo.ooo....", "....oooo.oooo..."],
+  'Mosley': ["................", ".....aAAAAa.....", "....aAAAAAAa....", "...aAAAAAAAAa...", "...aSSSSSSSSa...", "...aEkESSEkEa...", "...aSSSSSSSSa...", "...AASSSSSSAA...", "...AAAAzzAAAA...", "....AAAAAAAA....", ".....aAAAAa.....", "....GGWWWWGG....", "...GGGgWWgGGG...", "..GGGGOOOOOGGG..", "..GGGOWWpWWOGG..", "..gGSOWWpWWOSg..", "..gG.OOOOOOO.Gg.", "....GGGGGGGG....", ".....LLLLLL.....", ".....LLl.lLL....", ".....LLl.lLL....", ".....LLl.lLL....", ".....ooo.ooo....", "....oooo.oooo..."],
+  'Andarilho': ["................", "................", ".....lLLLLl.....", "....lLLLLLLl....", "...lLLLLLLLLl...", "...lLhSSSShLl...", "...lLSkSSkSLl...", "...lLSSSSSSLl...", "...llsSzzSsll...", "....lLsSSsLl....", "...lLLLssLLLl...", "..lLLLLLLLLLLl.L", "..lLLoLLLLoLLl.L", "..lLLoLLLLoLLlSL", "..lLLLLLLLLLLl.L", "..llLLLLLLLLll.L", "..llLLLYYLLLll.L", "...llLLLLLLll..L", "....lllllll....L", ".....DDd.dDD...L", ".....DDd.dDD...L", ".....DDd.dDD...L", ".....ooo.ooo...L", "....oooo.oooo..."],
+  'Guerreiro': ["................", "................", ".....eEEEEe.....", "....eEEEEEEe....", "...tEEEEEEEEt...", "...tESSSSSSEt...", "...tSSkSSkSSt...", "...tSSSSSSSSt...", "....sSSzzSSs....", ".....sSSSSs.....", "......ttt.......", "...eEEEEEEEEe..E", "..eEEEEeeEEEEe.E", "RRrEEEEeeEEEEeSE", "RYrEEEEeeEEEEe.y", "RRreEEEEEEEEe...", "RRr.YYYYYYYY....", ".r..eEEeeEEe....", ".....EEe.eEE....", ".....EEe.eEE....", ".....eEe.eEe....", ".....tEt.tEt....", "....ttte.ettt...", "....tttt.tttt..."],
+  'Acrobata': ["..S..........S..", "..Ss........sS..", "...s........s...", "...s.hHHHHh.s...", "...shHHHHHHhs...", "...sRRRRRRRRs...", "...shSSSSSShs...", "...sSSkSSkSSs...", "...sSSSSSSSSs...", "...s.sSzzSs.s...", "...s..ssss..s...", "...sBBBYYBBBs...", "....BBBYYBBB....", "....BBBYYBBB....", ".....BBYYBB.....", ".....bBYYBb.....", ".....DDDDDD.....", "....DDd..dDD....", "....SSs..sSS....", "...SSs....sSS...", "...SSs....sSS...", "..WWW......WWW..", ".RRRW......WRRR.", "................"],
+  'Monge': ["................", "................", ".....sSSSSs.....", "....sSSSSSSs....", "...sSSSSSSSSs...", "...sSSSSSSSSs...", "...sSSkSSkSSs...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "......ssss......", "....OOxOOxOO....", "...OOOOxxOOOp...", "..OOOOOSSOOOpp..", "..OOOOSSSSOOpp..", "..pOOOOOOOOOpp..", "..pRRRRRRRRRRp..", "..pOOOOOOOOOOp..", "..pOOOOpOOOOOp..", "..ppOOOpOOOOpp..", "...ppOOpOOOpp...", "....pppppppp....", ".....LL..LL.....", "....LLL..LLL...."],
+  'Sábio': ["........uu......", ".......uPu......", "......uPPi......", ".....uPPPPi.....", "..iiiiiiiiiiii..", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", ".YY.sSSzzSSs....", ".YY..sSSSSs.....", "..L...ssss......", "..L.PPPPPPPP....", "..LPPPiPPiPPP...", "..SPPPPiiPPPPP..", "..LPPPPYYPPPPS..", "..LiPPPPPPPPi...", "..LiPPPPPPPPPi..", "..LiPPPPPPPPPi..", "..LiiPPPPPPPii..", "..LuiiPPPPPiiu..", "..Luuuuuuuuuuu..", "..L..oo...oo....", "..L.ooo...ooo...", "................"],
+  'Dândi': ["................", "................", ".....HHHHHH.....", "....HHHHHHHA....", "...HHHHHHHHHh...", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "......ssss......", "....NNWRRWNN....", "...NNNWRRWNNN...", "..NNNNWRRWNNYN..", "..NNNNmWRWmNNN..", "..NNNNNmRmNNNN..", "..SNNNNNNNNNNS..", "...mNNNNNNNNm...", ".....NNN.NNN....", ".....NNN.NNN....", ".....NNm.mNN....", ".....NNm.mNN....", ".....kkk.kkk....", "....kkkk.kkkk..."],
+  'Chef': [".....WWWWWW.....", "....WWWWWWWW....", "....WwWWWwWW....", ".....WWWWWW.....", "....wwwwwwww....", "...hHSSSSSSHh...", "...hSSkSSkSSh...", "...sSSSSSSSSs...", "....sSSzzSSs....", ".....sSSSSs.....", "......ssss......", "....DDWWWWDD....", "...DDDDWWDDDD...", "..DDDDWDDWDDDD..", "..DDDDDDDDDDDStt", "..SdDDWDDWDdS.ee", "...DDDDDDDDDD.ee", ".....wWwWwW.....", ".....WwW.wWw....", ".....wWw.WwW....", ".....WwW.wWw....", ".....wWw.WwW....", ".....kkk.kkk....", "....kkkk.kkkk..."],
+};
 function _px(mapa, cores) {
   let r = '';
   mapa.forEach((linha, y) => [...linha].forEach((c, x) => { if (c !== '.') r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${cores[c]}"/>`; }));
@@ -3867,13 +3883,13 @@ const pxSvg = (mapa, w, cores = PX_COR, cls = '') =>
   `<svg class="px ${cls}" viewBox="0 0 ${mapa[0].length} ${mapa.length}" width="${w}" shape-rendering="crispEdges" aria-hidden="true">${_px(mapa, cores)}</svg>`;
 
 const NPCS = {
-  Jefrey: { papel: 'Treinador', mapa: ['..rrrrrr..', '.rrrrrrrrr', '.hssssssh.', '.ssksskss.', '.ssssssss.', '..ssmmss..', '...ssss...', '.bbbwwbbb.', 'bbbbwbbbbb', 'bbbbybbbbb', 'bbbbbbbbbb', 'bbbbbbbbbb'],
+  Jefrey: { papel: 'Treinador', mapa: PX_SPR['Jefrey'],
     falas: { antes: 'Dia 21 começa. Até lá, dorme cedo e chega inteiro.', frente: 'Tá voando. Mantém a técnica, não só o volume.', ritmo: 'No ritmo. É assim que se constrói.', atras: 'Ficou pra trás, mas dá pra tirar. Amanhã, sem desculpa.', feito: 'Meta batida. Agora é manter.' } },
-  'Mônica': { papel: 'Secretária', mapa: ['...hhhh...', '..hhhhhh..', '.hhhhhhhh.', '.hssssssh.', '.sggssggs.', '.hssssssh.', '..ssllss..', '...ssss...', '.nnnwwnnn.', 'nnnnwwnnnn', 'nnnnwwnnnn', 'nnnnnnnnnn'],
+  'Mônica': { papel: 'Secretária', mapa: PX_SPR['Mônica'],
     falas: { antes: 'Sua agenda nova já começa em 21/10. Eu cuido dos horários.', frente: 'Adiantado. Vou anotar isso com orgulho.', ritmo: 'Tudo em dia na agenda.', atras: 'Reorganizei a semana. Só aparece no horário.', feito: 'Meta concluída, já registrei.' } },
-  Maria: { papel: 'Cozinheira', mapa: ['..wwwwww..', '.wwwwwwww.', '.wwwwwwww.', '..wwwwww..', '.hssssssh.', '.ssksskss.', '.spssssps.', '..ssmmss..', '...ssss...', '.rrwwwwrr.', 'rrrwwwwrrr', 'rrrwwwwrrr'],
+  Maria: { papel: 'Cozinheira', mapa: PX_SPR['Maria'],
     falas: { antes: 'Separa o avental, dia 21 a gente começa.', frente: 'Tá cozinhando mais que eu, menino!', ritmo: 'Do jeitinho que eu gosto.', atras: 'A panela tá fria... bora uma receita fácil hoje?', feito: 'Trinta receitas! Já pode me substituir.' } },
-  Mosley: { papel: 'Bibliotecário', mapa: ['..aaaaaa..', '.aaaaaaaa.', '.assssssa.', '.sggssggs.', '.ssssssss.', '.aassssaa.', '.aaammaaa.', '..aaaaaa..', '.vvvvvvvv.', 'vvvoooovvv', 'vvvoooovvv', 'vvvvvvvvvv'],
+  Mosley: { papel: 'Bibliotecário', mapa: PX_SPR['Mosley'],
     falas: { antes: 'Sua estante já está pronta. Escolha o primeiro.', frente: 'Lendo acima do ritmo. Admirável.', ritmo: 'Página por página, como deve ser.', atras: 'Um capítulo por manhã resolve. Sem pressa, sem pausa.', feito: 'Quatro livros. Nada mal para um homem de ação.' } },
 };
 // Fala escrita pelo agente na rotina dele (`npc_falas[<meta>] = {agente, texto, em}`) vale por 8 dias; senão, a padrão pelo ritmo
@@ -3882,7 +3898,7 @@ function _npcFala(chave, agente, status) {
   if (f && f.texto && f.em && (Date.parse(today()) - Date.parse(f.em)) <= 8 * 864e5) return f.texto;
   return NPCS[agente].falas[status];
 }
-const _npcHtml = (agente, fala, w = 40) =>
+const _npcHtml = (agente, fala, w = 36) =>
   `<div class="cv-npc">${pxSvg(NPCS[agente].mapa, w)}<div class="cv-balao"><small>${agente} · ${NPCS[agente].papel}</small>${_escH(fala)}</div></div>`;
 
 const FOGO_F = [
@@ -3909,7 +3925,7 @@ const MEDALHA_COR = {
 const CV_XP_NIVEL = 250;
 const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Dândi', Cozinha: 'Chef' };
 const CV_TITULOS = [[1, 'Recruta'], [3, 'Aprendiz'], [5, 'Disciplinado'], [8, 'Implacável'], [11, 'Homem da Caverna'], [13, 'Lenda']];
-const _cvTitulo = n => CV_TITULOS.filter(([lv]) => n >= lv).pop()[1];
+const _cvTitulo = n => (CV_TITULOS.filter(([lv]) => n >= lv).pop() || CV_TITULOS[0])[1];
 const CV_CONQUISTAS = [
   ['primeiro-passo', 'Primeiro passo', 'Primeiro registro do Modo Caverna', 'bronze', st => st.diasComRegistro >= 1],
   ['semana-perfeita', 'Semana perfeita', 'Algo feito todo dia de uma semana (ganha um escudo)', 'prata', st => st.seq.semanasPerf >= 1],
@@ -4048,7 +4064,7 @@ function renderCaverna() {
 
   hero.innerHTML = `
     <div class="cv-hero">
-      <div class="cv-ovr"><b>${st.overall}</b><span>Overall</span></div>
+      <div class="cv-ovr">${pxSvg(PX_SPR[st.classe], 64, PX_COR, 'cv-eu')}<div><b>${st.overall}</b><span>Overall</span></div></div>
       <div>
         <div class="cv-id"><span class="cv-tag cls">Classe: <b>${st.classe}</b></span><span class="cv-tag">Título: <b>${st.titulo}</b></span>${prox ? `<span class="cv-tag">Próximo: ${prox[1]} no nível ${prox[0]}</span>` : ''}</div>
         <div class="cv-lv"><span><strong>Nível ${st.nivel}</strong></span><span>${xpNoNivel} / ${CV_XP_NIVEL} XP</span></div>
@@ -4125,6 +4141,7 @@ function _cvCerimonia(st) {
     <div class="cv-cer-top">${subiu ? 'Subiu de nível' : novas.length > 1 ? 'Conquistas desbloqueadas' : 'Conquista desbloqueada'}</div>
     ${subiu ? `<div class="cv-cer-nivel" id="cv-cer-tit">Nível ${st.nivel}</div>` : `<h2 id="cv-cer-tit">${novas.length > 1 ? novas.length + ' conquistas novas' : _escH(novas[0].nome)}</h2>`}
     ${tituloNovo ? `<p>Novo título desbloqueado: <b>${tituloNovo}</b></p>` : ''}
+    <div style="display:flex;justify-content:center;margin:10px 0 4px">${pxSvg(PX_SPR[st.classe], 72, PX_COR, 'cv-eu')}</div>
     <p>Classe atual: <b>${st.classe}</b></p>
     ${novas.length ? `<div class="cv-cer-lista">${novas.slice(0, 4).map(c => `<div class="cv-conq">${_cvMedalha(c, 36)}<div><b>${_escH(c.nome)}</b><span>${_escH(c.desc)}</span></div></div>`).join('')}${novas.length > 4 ? `<p>+ ${novas.length - 4} conquista${novas.length > 5 ? 's' : ''} — veja na aba Evolução</p>` : ''}</div>` : ''}
     ${_npcHtml(npc, fala, 44)}
@@ -4148,6 +4165,7 @@ function abrirTelaFinal(st = _cvStats()) {
     : `<div><b>${l.dias.length}/${l.alvo}</b>${l.m.nome}${l.extra ? ` · cortes ${l.extra.feitas}/${l.extra.alvo}` : ''}</div>`;
   $('cv-cer').innerHTML = `${_cvConfete()}
     <div class="cv-cer-top">Modo Caverna · 21/10 a 31/12</div>
+    <div style="display:flex;justify-content:center;margin:12px 0 0">${pxSvg(PX_SPR[st.classe], 96, PX_COR, 'cv-eu')}</div>
     <div class="cv-cer-nivel" id="cv-cer-tit">${st.overall}</div>
     <p>Overall final${st.hoje < CV_FIM ? ' (até agora — conta até 31/12)' : ''} · Nível <b>${st.nivel}</b> · <b>${st.titulo}</b> · classe <b>${st.classe}</b></p>
     <div class="cv-cer-stats">
