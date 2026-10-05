@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>EH — Tracker</title>
 
 <!-- PWA: adicionar à tela inicial -->
@@ -160,12 +160,10 @@ h2{
   line-height:1.15;
 }
 h3{
-  font-size:10px;
+  font-size:13px;
   font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:1.4px;
-  color:var(--text3);
-  margin-bottom:10px;
+  color:var(--text2);
+  margin-bottom:12px;
 }
 .psub{
   color:var(--text2);
@@ -375,11 +373,9 @@ h3{
 }
 .stat:hover::after{opacity:.5}
 .stat .lbl{
-  font-size:10px;
-  color:var(--text3);
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:1.2px;
+  font-size:12.5px;
+  color:var(--text2);
+  font-weight:500;
 }
 .stat .val{
   font-family:var(--f-serif);
@@ -447,11 +443,9 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .fg{margin-bottom:13px}
 .fg label{
   display:block;
-  font-size:10px;
-  font-weight:600;
-  color:var(--text3);
-  text-transform:uppercase;
-  letter-spacing:1px;
+  font-size:12.5px;
+  font-weight:500;
+  color:var(--text2);
   margin-bottom:6px;
 }
 .row{display:flex;gap:10px;align-items:flex-start}
@@ -547,11 +541,8 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
   display:inline-block;
   padding:3px 10px;
   border-radius:20px;
-  font-size:10px;
-  font-weight:600;
-  letter-spacing:.4px;
-  font-family:var(--f-mono);
-  text-transform:uppercase;
+  font-size:11.5px;
+  font-weight:500;
 }
 .ta{background:var(--adim);color:var(--accent)}
 .tg{background:var(--gdim);color:var(--green)}
@@ -623,7 +614,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .ag-top h2{flex:1;min-width:140px;margin:0}
 .ag-nav{min-width:36px;height:36px;justify-content:center;padding:0 10px}
 .ag-sem,.ag-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.ag-sem span{font-size:10.5px;font-weight:600;color:var(--text3);text-align:center;padding:4px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.ag-sem span{font-size:12px;font-weight:500;color:var(--text3);text-align:center;padding:4px 0 8px}
 .ag-grid{border-top:1px solid var(--border);border-left:1px solid var(--border)}
 .ag-d{
   all:unset;box-sizing:border-box;cursor:pointer;
@@ -1287,6 +1278,10 @@ body.dens-compact .stat .val{font-size:28px}
 body.dens-compact .main{padding:24px 28px 60px}
 body.dens-compact .gap{margin-bottom:14px}
 
+
+/* ── PADRÃO DE RÓTULOS (inline) ── */
+[style*="text-transform:uppercase"]{text-transform:none!important;letter-spacing:normal!important}
+
 /* ── TABLET ── */
 @media(max-width:980px){
   .g3,.g4{grid-template-columns:1fr 1fr}
@@ -1388,6 +1383,31 @@ body.dens-compact .gap{margin-bottom:14px}
   .tw-panel{right:14px;bottom:130px;width:calc(100vw - 28px);max-width:300px}
   .qa-btn{padding:11px 8px;font-size:11px}
   .qa-btn .qi{font-size:18px}
+
+  /* ── Encaixe no celular ── */
+  .row{align-items:stretch}
+  .row>*{width:100%}
+  select[style*="width:auto"]{min-height:40px;font-size:14px!important;padding:8px 32px 8px 12px!important}
+  .btn-sm{min-height:40px}
+  .ib{width:40px;height:40px}
+  .stab{min-height:40px}
+  .sh .btn{white-space:nowrap}
+  .sh>div{flex-wrap:wrap;max-width:100%}
+  [style*="font-size:9px"],[style*="font-size:9.5px"],[style*="font-size:10px"]{font-size:11.5px!important}
+  [style*="font-size:10.5px"],[style*="font-size:11px"]{font-size:12px!important}
+
+  /* Resumos em trio (ex.: Finanças) viram linhas compactas: rótulo à esquerda, valor à direita */
+  .g3>.stat{display:grid;grid-template-columns:1fr auto;grid-template-areas:"lbl val" "sub val";column-gap:12px;align-items:center;padding:14px 16px}
+  .g3>.stat .lbl{grid-area:lbl}
+  .g3>.stat .val{grid-area:val;font-size:24px;margin:0}
+  .g3>.stat .sub{grid-area:sub;margin-top:2px}
+  .g3{gap:10px}
+  .card>.btn-p{width:100%;justify-content:center}
+
+  /* Área segura do iPhone (barra de gestos) */
+  .sidebar{height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+  .main{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+  .tw-fab{bottom:calc(80px + env(safe-area-inset-bottom))}
 }
 
 /* ───── EXTRA ANIMATIONS ───── */
@@ -1618,7 +1638,7 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- MODAL CONFIGURAR NAVEGAÇÃO -->
 <div class="overlay" id="modal-nav-config">
   <div class="modal" style="width:420px">
-    <h2>📌 Abas favoritas</h2>
+    <h2>Abas favoritas</h2>
     <p style="font-size:13px;color:var(--text3);margin-bottom:16px;line-height:1.5">Escolha quais abas aparecem diretamente na barra de navegação. As demais ficam ocultas (ainda acessíveis por aqui).</p>
     <div id="nav-config-list" style="display:flex;flex-direction:column;gap:6px"></div>
     <div class="mfooter" style="margin-top:16px">
@@ -1739,7 +1759,7 @@ body.dens-compact .gap{margin-bottom:14px}
     <!-- RESUMO DA SEMANA SEGUINTE -->
   <div class="card gap" id="prox-semana-card" style="border-left:3px solid var(--teal)">
     <div class="sh" style="margin-bottom:10px">
-      <h2 style="font-size:14px">📋 Esta semana</h2>
+      <h2 style="font-size:14px">Esta semana</h2>
       <div style="display:flex;gap:4px;align-items:center">
         <span id="prox-sem-range" style="font-size:10px;color:var(--text3);font-family:var(--f-mono)"></span>
         <button class="btn btn-g btn-sm" onclick="gerarPDFProxSemana()" style="gap:5px">
@@ -1754,7 +1774,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="g2 gap">
     <!-- FINANÇAS RÁPIDO -->
     <div class="card">
-      <div class="sh"><h2>💰 Finanças</h2><button class="btn btn-g btn-sm" onclick="go('financas')">Ver tudo →</button></div>
+      <div class="sh"><h2>Finanças</h2><button class="btn btn-g btn-sm" onclick="go('financas')">Ver tudo →</button></div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
         <div>
           <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Saldo atual</div>
@@ -1777,7 +1797,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
     <!-- METAS ANUAIS -->
     <div class="card">
-      <div class="sh"><h2>🎯 Metas anuais</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
+      <div class="sh"><h2>Metas anuais</h2><button class="btn btn-g btn-sm" onclick="go('evolucao')">Ver tudo →</button></div>
       <div id="h-tracking"></div>
     </div>
   </div>
@@ -1788,7 +1808,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <!-- MODAL ATALHO GASTO -->
   <div class="overlay" id="modal-qa-despesa">
     <div class="modal" style="width:380px">
-      <h2>💸 Lançar gasto rápido</h2>
+      <h2>Lançar gasto rápido</h2>
       <div class="row">
         <div class="fg"><label>Valor (R$)</label><input id="qa-desp-val" type="number" placeholder="0,00" step="0.01" min="0"></div>
         <div class="fg" style="flex:2"><label>Descrição</label><input id="qa-desp-desc" type="text" placeholder="Ex: Almoço, Uber..." oninput="autoCatDespesa(this.value)"></div>
@@ -1806,7 +1826,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <!-- MODAL TEMAS -->
   <div class="overlay" id="modal-temas">
     <div class="modal" style="width:360px">
-      <h2>🎨 Tema de cor</h2>
+      <h2>Tema de cor</h2>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
         <button onclick="aplicarTema('')"     style="padding:14px;border-radius:var(--rs);border:2px solid #c9a84c;background:#c9a84c22;cursor:pointer;font-size:13px;font-weight:700;color:#c9a84c">Dourado</button>
         <button onclick="aplicarTema('blue')"   style="padding:14px;border-radius:var(--rs);border:2px solid #5c8de0;background:#5c8de022;cursor:pointer;font-size:13px;font-weight:700;color:#5c8de0">Azul</button>
@@ -1855,7 +1875,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
   <!-- GOOGLE CALENDAR SYNC -->
   <div class="card" id="gcal-config-card">
-    <div class="sh"><h2>📆 Google Calendar</h2></div>
+    <div class="sh"><h2>Google Calendar</h2></div>
     <div id="gcal-status-area"><!-- preenchido por JS --></div>
     <div id="gcal-form" style="display:none">
       <div class="fg"><label>OAuth Client ID</label><input id="gcal-id-inp" type="text" placeholder="xxxxx.apps.googleusercontent.com"></div>
@@ -1916,14 +1936,14 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="g2 gap">
     <!-- MURAL DO TREINADOR -->
     <div class="card">
-      <h2>🗣️ Mural do Treinador</h2>
+      <h2>Mural do Treinador</h2>
       <p style="font-size:11px;color:var(--text3);margin-bottom:10px">O Jefrey deixa aqui os treinos da semana. Só leitura.</p>
       <div id="mural-treinador"></div>
     </div>
 
     <!-- PESO -->
     <div class="card">
-      <h2>⚖️ Peso</h2>
+      <h2>Peso</h2>
       <div class="fg"><label>Peso de hoje (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
       <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
     </div>
@@ -1931,7 +1951,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
   <!-- TREINO DA SEMANA -->
   <div class="card">
-    <h2>🏋️ Treino da Semana</h2>
+    <h2>Treino da Semana</h2>
     <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Montado pelo Treinador Jefrey. Só leitura.</p>
     <div id="treino-semana-list"></div>
   </div>
@@ -1957,7 +1977,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ RECEITAS ════════════════ -->
 <section class="page" id="page-receitas">
-  <h1>🍳 Receitas</h1><p class="psub">Receitas que quer experimentar</p>
+  <h1>Receitas</h1><p class="psub">Receitas que quer experimentar</p>
 
   <div class="card gap">
     <h3>Adicionar receita</h3>
@@ -1982,7 +2002,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ FINANÇAS ════════════════ -->
 <section class="page" id="page-financas">
-  <h1>💰 Finanças</h1><p class="psub">Planejamento mensal e controle de despesas</p>
+  <h1>Finanças</h1><p class="psub">Planejamento mensal e controle de despesas</p>
 
   <!-- SALDO E RESUMO -->
   <div class="g3 gap">
@@ -2006,7 +2026,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="g2 gap">
     <!-- CALCULADORA MENSAL -->
     <div class="card">
-      <h2>📊 Calculadora mensal</h2>
+      <h2>Calculadora mensal</h2>
       <div class="fg"><label>Renda mensal (R$)</label><input type="number" id="fin-renda" placeholder="5000.00" step="0.01" onchange="saveFinConfig()"></div>
       <div class="div"></div>
       <div class="sh" style="margin-bottom:10px"><h3 style="margin:0">Gastos fixos</h3><button class="btn btn-g btn-sm" onclick="addGastoFixo()">+ Adicionar</button></div>
@@ -2024,7 +2044,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
     <!-- SALDO ATUAL -->
     <div class="card">
-      <h2>💳 Saldo atual</h2>
+      <h2>Saldo atual</h2>
       <div class="fin-saldo zero" id="fin-saldo-big">R$ 0,00</div>
       <div style="font-size:11px;color:var(--text3);margin-top:6px">Saldo disponível agora</div>
       <div class="div"></div>
@@ -2049,7 +2069,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
   <!-- LANÇAR DESPESA / ENTRADA -->
   <div class="card gap">
-    <h2>📝 Lançar movimentação</h2>
+    <h2>Lançar movimentação</h2>
     <div class="row">
       <div class="fg" style="flex:2"><label>Descrição</label><input id="dep-desc" type="text" placeholder="Ex: Almoço, Uber, Supermercado..." oninput="autoCatDespesa(this.value)"></div>
       <div class="fg"><label>Tipo</label>
@@ -2075,7 +2095,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <!-- EXTRATO -->
   <div class="card">
     <div class="sh">
-      <h2>📋 Extrato</h2>
+      <h2>Extrato</h2>
       <div style="display:flex;gap:6px;align-items:center">
         <select id="dep-filter-mes" onchange="renderDespesas()" style="width:auto;font-size:11px;padding:5px 10px"></select>
         <select id="dep-filter-cat" onchange="renderDespesas()" style="width:auto;font-size:11px;padding:5px 10px">
@@ -2094,7 +2114,7 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- MODAL RELATÓRIO NOTÍCIAS -->
 <div class="overlay" id="modal-noticias">
   <div class="modal" style="width:580px">
-    <h2>📰 Relatório de notícias</h2>
+    <h2>Relatório de notícias</h2>
     <input type="hidden" id="ntc-id">
     <div class="row">
       <div class="fg"><label>Semana de</label><input id="ntc-data" type="date"></div>
@@ -2126,7 +2146,7 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- MODAL RELATÓRIO CARTEIRA -->
 <div class="overlay" id="modal-relatorio">
   <div class="modal" style="width:520px">
-    <h2>📁 Salvar relatório da carteira</h2>
+    <h2>Salvar relatório da carteira</h2>
     <input type="hidden" id="mr-id">
     <div class="row">
       <div class="fg"><label>Título</label><input id="mr-titulo" type="text" placeholder="Ex: Fevereiro 2025, Q1 2025..."></div>
@@ -2223,12 +2243,12 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ BACKUP ════════════════ -->
 <section class="page" id="page-backup">
-  <h1>☁️ Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
+  <h1>Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
 
   <!-- SUPABASE SYNC -->
   <div class="card gap" id="sb-config-card">
     <div class="sh">
-      <h2>🔄 Sync em tempo real</h2>
+      <h2>Sync em tempo real</h2>
       <div id="sync-status-big"></div>
     </div>
 
@@ -2294,13 +2314,13 @@ create policy "acesso total"
 
   <!-- RESUMO -->
   <div class="card gap">
-    <h2>📊 Resumo dos dados salvos</h2>
+    <h2>Resumo dos dados salvos</h2>
     <div id="bk-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
   </div>
 
   <!-- EXPORT -->
   <div class="card gap">
-    <h2>📤 Exportar</h2>
+    <h2>Exportar</h2>
     <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Gera um arquivo <strong style="color:var(--text)">.json</strong> com todos os seus dados. Salve e transfira para outro dispositivo.</p>
     <button class="btn btn-p" onclick="exportarDados()" style="width:100%;justify-content:center;font-size:15px;padding:14px;gap:10px">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -2310,7 +2330,7 @@ create policy "acesso total"
 
   <!-- IMPORT -->
   <div class="card gap">
-    <h2>📥 Importar</h2>
+    <h2>Importar</h2>
     <div style="background:var(--rdim);border:1px solid var(--red);border-radius:var(--rs);padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--red);line-height:1.5">
       ⚠️ Importar vai <strong>substituir</strong> todos os dados atuais. Exporte primeiro se quiser guardar o que tem.
     </div>
@@ -2324,7 +2344,7 @@ create policy "acesso total"
 
   <!-- COPIAR / COLAR TEXTO (mobile-friendly) -->
   <div class="card">
-    <h2>📋 Transferir via texto</h2>
+    <h2>Transferir via texto</h2>
     <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Alternativa quando não dá para transferir arquivo. Copie o texto num dispositivo e cole no outro.</p>
     <div class="stabs" style="margin-bottom:14px">
       <button class="stab on" onclick="bkTextTab(this,'bk-copy-pane')">Copiar texto</button>
@@ -5288,7 +5308,7 @@ function gerarPDFProxSemana() {
     .ft{text-align:center;color:#ccc;font-size:10px;margin-top:22px}
     @media print{body{padding:12px;background:#fff}@page{margin:12mm}}
   </style></head><body>
-  <div class="hd"><h1>📋 Esta Semana</h1><p>${tituloRange} · EH Tracker</p></div>
+  <div class="hd"><h1>Esta Semana</h1><p>${tituloRange} · EH Tracker</p></div>
   ${diasHtml}
   <div class="ft">Gerado em ${new Date().toLocaleString('pt-BR')} · EH Tracker Pessoal</div>
   </body></html>`;
@@ -5453,7 +5473,7 @@ function gerarRelatorio() {
     <div class="sc"><div class="l">Peso</div><div class="v" style="color:#c9a84c">${ultimoPeso||'—'}</div><div class="s">kg último reg.</div></div>
     <div class="sc"><div class="l">Humor top</div><div class="v">${topMood?topMood[0]:'—'}</div><div class="s">${topMood?topMood[1]+' registros':'sem dados'}</div></div>
   </div>
-  <div class="sec"><h2>💰 Finanças</h2>
+  <div class="sec"><h2>Finanças</h2>
     <div class="row"><span class="k">Renda mensal</span><span class="v">${fmtBRL(renda)}</span></div>
     <div class="row"><span class="k">Gastos fixos</span><span class="v">${fmtBRL(fixos)}</span></div>
     <div class="row"><span class="k">Orçamento livre</span><span class="v">${fmtBRL(renda-fixos)}</span></div>
@@ -5461,14 +5481,14 @@ function gerarRelatorio() {
     <div class="row"><span class="k">Entradas extras</span><span class="v" style="color:#4caf82">${fmtBRL(entrMes)}</span></div>
     <div class="row"><span class="k">Disponível restante</span><span class="v">${fmtBRL(renda-fixos-despMes+entrMes)}</span></div>
   </div>
-  <div class="sec"><h2>🏋️ Treinos</h2>${exercs.length?exercs.map(e=>`<div class="row"><span class="k">${e.date} · ${e.nome}</span><span class="v">${[e.sr,e.kg?e.kg+'kg':'',e.dur?e.dur+'min':'',e.kcal?'🔥'+e.kcal:''].filter(Boolean).join(' · ')}</span></div>`).join(''):'<p style="color:#bbb;font-size:12px">Nenhum treino registrado</p>'}</div>
-  <div class="sec"><h2>✨ Insights</h2>${ins.map(i=>`<div class="ins">${i}</div>`).join('')}</div>
+  <div class="sec"><h2>Treinos</h2>${exercs.length?exercs.map(e=>`<div class="row"><span class="k">${e.date} · ${e.nome}</span><span class="v">${[e.sr,e.kg?e.kg+'kg':'',e.dur?e.dur+'min':'',e.kcal?'🔥'+e.kcal:''].filter(Boolean).join(' · ')}</span></div>`).join(''):'<p style="color:#bbb;font-size:12px">Nenhum treino registrado</p>'}</div>
+  <div class="sec"><h2>Insights</h2>${ins.map(i=>`<div class="ins">${i}</div>`).join('')}</div>
   ${(()=>{
     const anexos = load('relatorios_anexos',[]);
     if (!anexos.length) return '';
     const imgs = anexos.filter(a => !a.isPdf && a.data);
     const pdfs = anexos.filter(a => a.isPdf);
-    let secao = '<div class="sec"><h2>📎 Anexos</h2>';
+    let secao = '<div class="sec"><h2>Anexos</h2>';
     if (pdfs.length) {
       secao += '<h3 style="font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#999;margin:0 0 6px">Documentos PDF referenciados</h3>';
       secao += pdfs.map(p=>`<div class="row"><span class="k">📄 ${p.nome}</span><span class="v" style="color:#999;font-size:11px">PDF externo</span></div>`).join('');
@@ -7666,7 +7686,7 @@ function _lpTema(html) {
 <!-- MODAL EDIT META TRACKING -->
 <div class="overlay" id="modal-mt-edit">
   <div class="modal" style="width:420px">
-    <h2>✏️ Editar meta de tracking</h2>
+    <h2>Editar meta de tracking</h2>
     <input type="hidden" id="mte-id">
     <div class="fg"><label>Descrição</label><input id="mte-nome" type="text"></div>
     <div class="row">
