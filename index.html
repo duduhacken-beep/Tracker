@@ -638,6 +638,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .rc-passos li::marker{color:var(--accent);font-weight:600}
 .rc-dica{margin-top:20px;background:var(--adim);border-radius:var(--rs);padding:12px 14px;font-size:13.5px;line-height:1.55}
 .rc-acoes{flex-wrap:wrap}
+.lv-capa img,.lv-det-capa img{object-fit:contain!important;padding:12px;box-sizing:border-box}
+.lv-det-capa{background:var(--bg3);display:flex;justify-content:center}
+.lv-det-capa img{max-height:300px;width:auto!important;aspect-ratio:auto!important}
+.meta-prog{color:var(--text2)}
+a.btn{text-decoration:none}
 @media(max-width:640px){
   .rc-grid{grid-template-columns:1fr;gap:12px}
   .rc-foto{aspect-ratio:16/9}
@@ -1374,7 +1379,7 @@ body.dens-compact .gap{margin-bottom:14px}
     border-radius:3px 3px 0 0;
   }
   .nb{
-    flex:1 0 46px;height:64px;min-width:46px;width:auto;
+    flex:1 0 40px;height:64px;min-width:40px;width:auto;
     border-radius:0;margin:0;
     gap:4px;
     -webkit-tap-highlight-color:transparent;
@@ -1682,6 +1687,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Evolução</span></button>
   <button class="nb" onclick="go('receitas')" id="n-receitas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
+  <button class="nb" onclick="go('leitura')" id="n-leitura">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg><span>Leitura</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
@@ -2031,6 +2038,22 @@ body.dens-compact .gap{margin-bottom:14px}
   <div class="card"><h2>Minhas metas de <span id="ano-atual"></span></h2><div id="lista-ma"></div></div>
 </section>
 
+
+<!-- ════════════════ LEITURA ════════════════ -->
+<section class="page" id="page-leitura">
+  <h1>Leitura</h1><p class="psub">Cinco livros grátis que o Mosley escolheu pra você. Todo domingo ele troca os que você já leu.</p>
+
+  <div class="rc-grid gap" id="lista-leitura"></div>
+
+  <details class="card rc-hist">
+    <summary><h2>Já lidos <span id="lv-lidos-n"></span></h2></summary>
+    <div id="lista-leitura-lidos"></div>
+  </details>
+
+  <div class="overlay" id="modal-livro" onclick="if (event.target === this) fecharLivro()">
+    <div class="modal rc-modal" role="dialog" aria-modal="true" aria-labelledby="lv-det-nome"><div id="lv-detalhe"></div></div>
+  </div>
+</section>
 
 <!-- ════════════════ RECEITAS ════════════════ -->
 <section class="page" id="page-receitas">
@@ -2606,7 +2629,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -2643,6 +2666,7 @@ function reRenderAll() {
   safeCall(renderMapaHome, 'renderMapaHome');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderReceitas, 'renderReceitas');
+  safeCall(renderLeitura, 'renderLeitura');
   safeCall(renderFinancas, 'renderFinancas');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
@@ -2758,6 +2782,7 @@ function go(p) {
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
+  if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -3695,7 +3720,7 @@ function metaRow(m, cor, comExcluir) {
       <div class="cb${m.done ? ' on' : ''}" onclick="toggleMetaAnual(${m.id})" role="checkbox" aria-checked="${!!m.done}" aria-label="Marcar meta">${m.done ? '✓' : ''}</div>
       <div class="meta-txt">
         <div class="meta-nome">${m.nome}</div>
-        <div class="meta-info"><span class="tag ${cor || 'ta'}">${m.cat}</span>${prazo ? `<span>até ${prazo}</span>` : ''}</div>
+        <div class="meta-info"><span class="tag ${cor || 'ta'}">${m.cat}</span>${prazo ? `<span>até ${prazo}</span>` : ''}${(m.contadores || []).map(c => `<span class="meta-prog">${c.feitas}/${c.alvo} ${_escH(c.nome)}</span>`).join('')}${m.responsavel ? `<span>${_escH(m.responsavel)}</span>` : ''}</div>
       </div>
       ${comExcluir ? `<button class="ib del" onclick="delMetaAnual(${m.id})" aria-label="Excluir meta">×</button>` : ''}
     </div>`;
@@ -3957,6 +3982,83 @@ function rcFoto(ev) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+// ──────────────────────────────────
+// LEITURA
+// ──────────────────────────────────
+// Livros escritos pelo Mosley (Routines, todo domingo): chave `leitura` = os 5 ativos,
+// `leitura_lidos` = histórico. O app só marca lido/desmarca.
+let _lvAberto = null;
+
+function _lvCapaHtml(l) {
+  const src = _rcUrl(l.capa);
+  return src ? `<img src="${_escH(src)}" alt="" loading="lazy">` : `<span class="rc-sem-foto">${_escH((l.titulo || '?')[0])}</span>`;
+}
+const _lvMeta = l => [l.autor, l.ano, l.paginas ? l.paginas + ' págs.' : '', l.idioma].filter(Boolean).map(x => _escH(String(x))).join(' · ');
+
+function renderLeitura() {
+  const cont = $('lista-leitura');
+  if (!cont) return;
+  const ativos = load('leitura', []);
+  cont.innerHTML = ativos.length ? ativos.map(l => `
+    <button class="rc-card${l.lido ? ' feita' : ''}" onclick="abrirLivro(${_eid(l.id)})">
+      <div class="rc-foto lv-capa">${_lvCapaHtml(l)}${l.lido ? '<span class="rc-selo">Lido</span>' : ''}</div>
+      <div class="rc-corpo">
+        <span class="tag ta">${_escH(l.categoria || 'Livro')}</span>
+        <h3 class="rc-nome">${_escH(l.titulo)}</h3>
+        <div class="rc-meta">${_lvMeta(l)}</div>
+      </div>
+    </button>`).join('')
+    : '<div class="card empty" style="grid-column:1/-1"><div class="ei">📚</div>O Mosley deixa 5 livros aqui todo domingo.</div>';
+
+  const lidos = load('leitura_lidos', []);
+  $('lv-lidos-n').textContent = lidos.length ? `(${lidos.length})` : '';
+  $('lista-leitura-lidos').innerHTML = lidos.length ? lidos.slice().reverse().map(l => `
+    <div class="rc-hist-row">
+      <div class="rc-hist-foto">${_lvCapaHtml(l)}</div>
+      <div><div class="rc-hist-nome">${_escH(l.titulo)}</div><div class="rc-meta">${_escH(l.autor || '')}${l.lidoEm ? ' · lido em ' + _rcData(l.lidoEm) : ''}</div></div>
+    </div>`).join('')
+    : '<p class="rc-meta" style="margin:0">Quando você marcar um livro como lido, ele vem pra cá no domingo seguinte.</p>';
+
+  if (_lvAberto != null && $('modal-livro').classList.contains('on')) abrirLivro(_lvAberto);
+}
+
+function abrirLivro(id) {
+  const l = load('leitura', []).find(x => x.id === id);
+  if (!l) return fecharLivro();
+  _lvAberto = id;
+  const capa = _rcUrl(l.capa);
+  const link = /^https:\/\//.test(l.link || '') ? l.link : '';
+  $('lv-detalhe').innerHTML = `
+    <button class="ib rc-fechar" onclick="fecharLivro()" aria-label="Fechar">×</button>
+    ${capa ? `<div class="rc-det-foto lv-det-capa"><img src="${_escH(capa)}" alt="Capa de ${_escH(l.titulo)}"></div>` : ''}
+    <div class="rc-det-corpo">
+      <span class="tag ta">${_escH(l.categoria || 'Livro')}</span>
+      <h2 id="lv-det-nome">${_escH(l.titulo)}</h2>
+      <div class="rc-meta">${_lvMeta(l)}</div>
+      ${l.descricao ? `<p class="rc-desc" style="margin-top:12px">${_escH(l.descricao)}</p>` : ''}
+      ${l.porque ? `<div class="rc-dica"><strong>Por que o Mosley indicou:</strong> ${_escH(l.porque)}</div>` : ''}
+      ${l.fonte ? `<p class="rc-meta" style="margin-top:14px">Grátis em ${_escH(l.fonte)}${l.formato ? ' (' + _escH(l.formato) + ')' : ''}</p>` : ''}
+      <div class="mfooter rc-acoes">
+        ${link ? `<a class="btn btn-g" href="${_escH(link)}" target="_blank" rel="noopener">Ler grátis</a>` : ''}
+        <button class="btn ${l.lido ? 'btn-g' : 'btn-p'}" onclick="toggleLivroLido(${_eid(l.id)})">${l.lido ? 'Desmarcar' : 'Marcar como lido'}</button>
+      </div>
+    </div>`;
+  $('modal-livro').classList.add('on');
+}
+
+function fecharLivro() { _lvAberto = null; $('modal-livro').classList.remove('on'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _lvAberto != null) fecharLivro(); });
+
+function toggleLivroLido(id) {
+  const list = load('leitura', []);
+  const l = list.find(x => x.id === id);
+  if (!l) return;
+  l.lido = !l.lido;
+  l.lidoEm = l.lido ? today() : null;
+  save('leitura', list);
+  renderLeitura();
 }
 
 // ──────────────────────────────────
@@ -4270,7 +4372,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 function bkStats() {
   const cont = $('bk-stats');
@@ -6243,6 +6345,7 @@ const ALL_PAGES = [
   { id:'corpo',    label:'Corpo',     icon:'💪' },
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
+  { id:'leitura',  label:'Leitura',   icon:'📚' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'investimentos', label:'Investimentos', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
@@ -6250,9 +6353,9 @@ const ALL_PAGES = [
 
 function getNavFavs() {
   const favs = load('nav_favs', null);
-  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','backup'];
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','backup'];
   // Abas que entraram depois (04/10/2026) aparecem uma vez para quem já tinha favoritos salvos
-  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto']].forEach(([aba, flag]) => {
+  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto']].forEach(([aba, flag]) => {
     if (load(flag, false)) return;
     if (!favs.includes(aba)) { favs.push(aba); save('nav_favs', favs); }
     save(flag, true);
@@ -7672,6 +7775,7 @@ function _lpTema(html) {
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
   safeCall(renderReceitas, 'renderReceitas');
+  safeCall(renderLeitura, 'renderLeitura');
   safeCall(renderFinancas, 'renderFinancas');
   // Automações no início
   safeCall(carregarTema, 'carregarTema');
