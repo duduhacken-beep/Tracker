@@ -18,12 +18,14 @@
   const PARTICULAS = { mexer: { cor: 0xd7dbe2, vy: -34, alvo: [6, 16], dy: 26 }, contar: { cor: 0xf5c542, vy: -24 }, ler: { cor: 0xefe2c2, vy: -20 },
     escrever: { cor: 0x1b1d24, vy: -10 }, treinar: { cor: 0xf4f4f4, vy: -14 }, anunciar: { cor: 0xf5c542, vy: -38 }, estudar: { cor: 0x8fc4e8, vy: -24 } };
   let jogo = null, ops = {};
+  // posição na tela de um tile, já com a altura do piso (Quarto em cima, Porão embaixo)
+  const tela = (c, r) => { const p = Iso.paraTela(c, r); p.y -= MapaMundo.altura(Math.round(c), Math.round(r)); return p; };
 
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=6', 'mundo/cenario.json?v=6');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=6', 'mundo/personagens.json?v=6');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=7', 'mundo/cenario.json?v=7');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=7', 'mundo/personagens.json?v=7');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -31,12 +33,12 @@
       this.desenharParedes();
       this.desenharMoveis();
       this.desenharPlacas();
-      const todos = MapaMundo.SALAS.flatMap(s => [Iso.paraTela(s.x, s.y), Iso.paraTela(s.x + s.w, s.y + s.h), Iso.paraTela(s.x, s.y + s.h), Iso.paraTela(s.x + s.w, s.y)]);
+      const todos = MapaMundo.SALAS.flatMap(s => [tela(s.x, s.y), tela(s.x + s.w, s.y + s.h), tela(s.x, s.y + s.h), tela(s.x + s.w, s.y)]);
       const xs = todos.map(p => p.x), ys = todos.map(p => p.y);
       this.lim = { x: Math.min(...xs) - 200, y: Math.min(...ys) - 200, w: Math.max(...xs) - Math.min(...xs) + 400, h: Math.max(...ys) - Math.min(...ys) + 400 };
       this.cameras.main.setBounds(this.lim.x, this.lim.y, this.lim.w, this.lim.h);
       this.cameras.main.setZoom(2);
-      const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
+      const p = tela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
       this.configurarCamera();
       this.criarRei();
       this.gerarIcones();
@@ -50,12 +52,12 @@
       const mk = (k, fs) => this.anims.create({ key: k, frames: fs.map(f => ({ key: 'personagens', frame: f })), frameRate: 6, repeat: -1 });
       mk('rei_frente', ['eu_rei_f1', 'eu_rei_f2']); mk('rei_costas', ['eu_rei_c1', 'eu_rei_c2']);
       this.reiTile = MapaMundo.PARTIDA.slice();
-      const { x, y } = Iso.paraTela(...this.reiTile);
+      const { x, y } = tela(...this.reiTile);
       this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y);
       this.rei.sombra = this.sombra(x, y, 22);
       this.input.on('pointerup', (p, sobre) => {
         if (this.arrastou || sobre.length) return;
-        const w = this.cameras.main.getWorldPoint(p.x, p.y), t = Iso.paraTile(w.x, w.y);
+        const w = this.cameras.main.getWorldPoint(p.x, p.y), t = this.telaParaTile(w.x, w.y);
         this.andarAte(t.c, t.r);
       });
       this.atualizarParedes();
@@ -73,9 +75,19 @@
       for (let r = s.y; r < s.y + s.h; r++) b.push({ lado: 'oeste', c: s.x, r }, { lado: 'leste', c: s.x + s.w - 1, r });
       return b;
     }
-    pecaNaBorda(frame, seg, alt) {   // peça de altura `alt` em pé numa borda (mesma geometria das paredes: 'dir' em norte/sul, 'esq' em oeste/leste)
-      const { x, y } = Iso.paraTela(seg.c, seg.r);
-      const [x0, yAlto, prof] = seg.lado === 'norte' ? [x, y - 16, y - 16] : seg.lado === 'oeste' ? [x - 32, y - 16, y - 16] : seg.lado === 'sul' ? [x - 32, y, y + 16] : [x, y, y + 16];
+    telaParaTile(x, y) {   // inverso do tela(): tenta cada altura e fica com o tile que tem aquela altura (preferindo o mais alto)
+      const alts = new Set([0, ...MapaMundo.SALAS.map(s => s.alt || 0), ...MapaMundo.PASSAGENS.flatMap(p => p.alts || [])]);
+      let melhor = null;
+      for (const a of alts) {
+        const t = Iso.paraTile(x, y + a);
+        if ((MapaMundo.salaDe(t.c, t.r) || MapaMundo.passagemDe(t.c, t.r)) && MapaMundo.altura(t.c, t.r) === a && (!melhor || a > melhor.a)) melhor = { c: t.c, r: t.r, a };
+      }
+      return melhor || Iso.paraTile(x, y);
+    }
+    foraDe(seg) { return seg.lado === 'norte' ? [seg.c, seg.r - 1] : seg.lado === 'oeste' ? [seg.c - 1, seg.r] : seg.lado === 'sul' ? [seg.c, seg.r + 1] : [seg.c + 1, seg.r]; }
+    pecaNaBorda(frame, seg, alt, altura = MapaMundo.altura(seg.c, seg.r)) {   // peça de altura `alt` em pé numa borda (mesma geometria das paredes: 'dir' em norte/sul, 'esq' em oeste/leste)
+      const { x, y } = Iso.paraTela(seg.c, seg.r); const yy = y - altura;
+      const [x0, yAlto, prof] = seg.lado === 'norte' ? [x, yy - 16, yy - 16] : seg.lado === 'oeste' ? [x - 32, yy - 16, yy - 16] : seg.lado === 'sul' ? [x - 32, yy, yy + 16] : [x, yy, yy + 16];
       return this.add.image(x0, yAlto - (alt - 16), 'cenario', frame).setOrigin(0, 0).setDepth(prof);
     }
     sombra(x, y, larg) {   // sombra de contato: elipse escura logo acima do piso (abaixo de tudo que fica em pé)
@@ -100,23 +112,23 @@
       gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 128, 128); luz.refresh();
     }
     criarAmbiente() {   // Fase 5B: enfeites por nível, troféus, velas, lareira = sequência, noite com luzes, Natal e virada
-      const sp = (frame, c, r, ax, ay) => { const { x, y } = Iso.paraTela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame); s.sombra = this.sombra(x, y + 2, 20);
+      const sp = (frame, c, r, ax, ay) => { const { x, y } = tela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame); s.sombra = this.sombra(x, y + 2, 20);
         return s.setOrigin(ax / s.width, ay / s.height).setDepth(base); };
       const E = id => MapaMundo.ENFEITES.find(e => e.id === id).tiles;
-      const meio = Iso.paraTela(19, 19);
+      const meio = tela(19, 19);
       this.enf = {
         bandeiras: E('bandeiras').map(([c, r]) => sp('estandarte_andarilho', c, r, 4, 54)),
         vasos: E('vasos').map(([c, r]) => sp('vaso', c, r, 8, 22)),
         trono: [sp('trono', ...E('trono')[0], 16, 46)],
         estatua: [sp('estatua_andarilho', ...E('estatua')[0], 16, 62)],
-        tapeteReal: MapaMundo.TAPETE_REAL.map(([c, r]) => { const { x, y } = Iso.paraTela(c, r); return this.add.image(x, y, 'cenario', 'tapete_vermelho').setDepth(-99999); }),
+        tapeteReal: MapaMundo.TAPETE_REAL.map(([c, r]) => { const { x, y } = tela(c, r); return this.add.image(x, y, 'cenario', 'tapete_vermelho').setDepth(-99999); }),
         lustre: [this.add.image(meio.x, meio.y - 120, 'cenario', 'lustre').setDepth(99990),   // pendurado alto sobre o Salão…
           this.add.rectangle(meio.x, meio.y - 196, 1, 140, 0x2a1e12).setDepth(99990)],          // …pela corrente
         arvore: [sp('arvore_natal_0', ...E('arvore')[0], 16, 53)],
       };
-      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y } = Iso.paraTela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(y + Iso.TH / 2 + 1); });
+      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y } = tela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(y + Iso.TH / 2 + 1); });
       // troféus: uma medalha por conquista na parede norte do Salão (pulando as portas e o quadro de avisos)
-      const pts = [13, 14, 18, 19, 20, 23, 24].flatMap(c => [.2, .5, .8].map(f => { const { x, y } = Iso.paraTela(c, 13); return [x + 32 * f, y - 16 + 16 * f - 44, y - 16]; }));
+      const pts = [13, 14, 18, 19, 20, 23, 24].flatMap(c => [.2, .5, .8].map(f => { const { x, y } = tela(c, 13); return [x + 32 * f, y - 16 + 16 * f - 44, y - 16]; }));
       this.trofeus = pts.slice(0, 20).map(([x, y, prof]) => this.add.image(Math.round(x), Math.round(y), 'gancho').setDepth(prof + .5).setInteractive({ useHandCursor: true }));
       this.trofeus.forEach(s => s.on('pointerup', () => { if (!this.arrastou) this.falar(this.trofeus[9], ops.texto && ops.texto('trofeus'), 4); }));
       for (const m of this.moveis) {                                   // lareira e estantes contam seus números
@@ -164,7 +176,7 @@
       const l = [];
       if (this.lareira) l.push([this.lareira.x + 18, this.lareira.y - 26, this.fogo.luz * 2]);
       for (const v of this.velas) l.push([v.x, v.y - 6, 70]);
-      const cald = Iso.paraTela(6, 16); l.push([cald.x, cald.y - 10, 60]);
+      const cald = tela(6, 16); l.push([cald.x, cald.y - 10, 60]);
       const lustre = this.enf.lustre[0], arvore = this.enf.arvore[0];
       if (lustre.visible) l.push([lustre.x, lustre.y + 60, 220]);
       if (arvore.visible) l.push([arvore.x, arvore.y - 30, 70]);
@@ -186,7 +198,7 @@
       this.calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
       this.donos = {}; this.agentes = [];
       for (const d of [...MapaMundo.DONOS, ...MapaMundo.MORADORES]) {
-        const { x, y } = Iso.paraTela(d.c, d.r);
+        const { x, y } = tela(d.c, d.r);
         if (d.objeto) {
           const s = this.add.sprite(x, y + Iso.TH / 2, 'cenario', ops.quadro(d.id)).setDepth(y + Iso.TH / 2);
           s.setOrigin(ANCORA[d.id][0] / s.width, ANCORA[d.id][1] / s.height).setInteractive({ useHandCursor: true });
@@ -239,7 +251,7 @@
     }
     teleportar(ag, tile) {
       this.tweens.killTweensOf(ag.s); ag.andando = false;
-      const { x, y } = Iso.paraTela(...tile); ag.s.setPosition(x, y).setDepth(y); ag.tile = tile.slice();
+      const { x, y } = tela(...tile); ag.s.setPosition(x, y).setDepth(y); ag.tile = tile.slice();
     }
     irAgente(ag, alvo, rapido, chegar) {
       const passos = Iso.caminho(MapaMundo.andavelAgente, ag.tile, alvo);
@@ -253,7 +265,7 @@
           ag.s.setFrame(ag.spr + (ag.costas && !noPosto ? '_c' : '_f')); if (noPosto) ag.s.setFlipX(false);
           if (chegar) chegar(); return;
         }
-        const de = Iso.paraTela(...ag.tile), para = Iso.paraTela(...p);
+        const de = tela(...ag.tile), para = tela(...p);
         ag.costas = para.y < de.y;
         ag.s.setFlipX(para.x < de.x).play(ag.spr + (ag.costas ? '_costas' : '_frente'), true);
         this.tweens.add({ targets: ag.s, x: para.x, y: para.y, duration: rapido ? 130 : 260, onUpdate: () => ag.s.setDepth(ag.s.y),
@@ -298,7 +310,7 @@
       return [[1, 0], [0, 1], [-1, 0], [0, -1]].map(([dc, dr]) => [this.reiTile[0] + dc, this.reiTile[1] + dr]).find(t => MapaMundo.andavel(...t)) || this.reiTile.slice();
     }
     criarGato() {
-      const { x, y } = Iso.paraTela(16, 16);
+      const { x, y } = tela(16, 16);
       this.gato = { tile: [16, 16], t: 3, s: this.add.sprite(x, y, 'cenario', 'gato_pe').setOrigin(.5, 1).setDepth(y).setInteractive({ useHandCursor: true }) };
       this.gato.s.sombra = this.sombra(x, y, 12);
       this.gato.s.on('pointerup', () => { if (!this.arrastou) this.falar(this.gato.s, 'Miau.', 2.5); });
@@ -316,7 +328,7 @@
       const prox = () => {
         const p = passos.shift();
         if (!p) { g.andando = false; g.t = 6 + Math.random() * 10; if (this.vida.noite || Math.random() < .5) g.s.setFrame('gato_dorme'); return; }
-        const de = Iso.paraTela(...g.tile), para = Iso.paraTela(...p);
+        const de = tela(...g.tile), para = tela(...p);
         g.s.setFlipX(para.x < de.x);
         this.tweens.add({ targets: g.s, x: para.x, y: para.y, duration: 300, onUpdate: () => g.s.setDepth(g.s.y), onComplete: () => { g.tile = p; prox(); } });
       };
@@ -340,7 +352,7 @@
       const p = PARTICULAS[(this.vida.agentes[ag.id] || {}).acao];
       if (!p) return;
       let x = ag.s.x + (ag.s.flipX ? -7 : 7), y = ag.s.y - 30;
-      if (p.alvo) { const t = Iso.paraTela(...p.alvo); x = t.x; y = t.y - p.dy; }
+      if (p.alvo) { const t = tela(...p.alvo); x = t.x; y = t.y - p.dy; }
       const r = this.add.rectangle(x + Math.random() * 6 - 3, y, 1.5, 1.5, p.cor).setDepth(ag.s.depth + 1);
       this.tweens.add({ targets: r, y: y + p.vy, x: r.x + (Math.random() - .5) * 7, alpha: 0, duration: 1200, onComplete: () => r.destroy() });
     }
@@ -378,7 +390,7 @@
       const proximo = () => {
         const alvo = passos.shift();
         if (!alvo) { const costas = this.rei.anims.currentAnim?.key === 'rei_costas'; this.rei.anims.stop(); this.rei.setFrame(costas ? 'eu_rei_c' : 'eu_rei_f'); return; }
-        const de = Iso.paraTela(...this.reiTile), para = Iso.paraTela(...alvo);
+        const de = tela(...this.reiTile), para = tela(...alvo);
         const costas = para.y < de.y;
         this.rei.setFlipX(para.x < de.x).play(costas ? 'rei_costas' : 'rei_frente', true);
         this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => { this.rei.setDepth(this.rei.y); this.atualizarParedes(); },
@@ -388,11 +400,11 @@
     }
     zoomPara(n) { this.cameras.main.setZoom(Math.max(1, Math.min(4, Math.round(n)))); }
     irPara(id) {
-      const [c, r] = MapaMundo.centro(id), { x, y } = Iso.paraTela(c, r);
+      const [c, r] = MapaMundo.centro(id), { x, y } = tela(c, r);
       this.cameras.main.pan(x, y, 600, 'Sine.easeInOut', true, (cam, prog) => { if (prog === 1) this.aoPararCamera(); });
     }
     aoPararCamera() {
-      const m = this.cameras.main.midPoint, t = Iso.paraTile(m.x, m.y), s = MapaMundo.salaDe(t.c, t.r), id = s && s.id;
+      const m = this.cameras.main.midPoint, t = this.telaParaTile(m.x, m.y), s = MapaMundo.salaDe(t.c, t.r), id = s && s.id;
       if (id === this.salaVista) return;
       this.salaVista = id;
       const d = id && MapaMundo.DONOS.find(x => x.sala === id);
@@ -440,34 +452,35 @@
       for (const s of MapaMundo.SALAS) for (let c = s.x; c < s.x + s.w; c++) for (let r = s.y; r < s.y + s.h; r++) tiles.add(c + ',' + r);
       for (const p of MapaMundo.PASSAGENS) for (const [c, r] of p.tiles) tiles.add(c + ',' + r);
       for (const k of tiles) {                                            // piso pintado contínuo, variante sorteada pela posição
-        const [c, r] = k.split(',').map(Number), { x, y } = Iso.paraTela(c, r);
-        this.add.image(x, y, 'cenario', this.piso(MapaMundo.chaoDe(c, r), c, r)).setDepth(-100000);
+        const [c, r] = k.split(',').map(Number), { x, y } = tela(c, r);
+        const chao = this.add.image(x, y, 'cenario', this.piso(MapaMundo.chaoDe(c, r), c, r)).setDepth(-100000);
+        if (MapaMundo.altura(c, r) < 0) chao.setTint(0xb4b4c4);           // porão afundado: mais escuro
         const s = MapaMundo.salaDe(c, r);                                 // flores no gramado do Pátio
         if (s && s.chao === 'grama' && MapaMundo.chaoDe(c, r) === 'grama' && this.sorteio(c, r, 7) < 2) this.add.image(x, y, 'cenario', 'flores_' + this.sorteio(c, r, 3)).setDepth(-99998);
       }
       for (const t of MapaMundo.TAPETES) {                                // tapetes por sala (decalque no chão)
-        const { x, y } = Iso.paraTela(t.c, t.r), img = this.add.image(x, y - Iso.TH / 2, 'cenario', t.item).setDepth(-99998.5);
+        const { x, y } = tela(t.c, t.r), img = this.add.image(x, y - Iso.TH / 2, 'cenario', t.item).setDepth(-99998.5);
         img.setOrigin(t.m * 32 / img.width, 0);
       }
       for (const s of MapaMundo.SALAS.filter(s => !s.parede))            // cerca de madeira em volta do Pátio (com vão na entrada)
         for (const seg of this.bordas(s)) {
-          const fora = seg.lado === 'norte' ? [seg.c, seg.r - 1] : seg.lado === 'oeste' ? [seg.c - 1, seg.r] : seg.lado === 'sul' ? [seg.c, seg.r + 1] : [seg.c + 1, seg.r];
+          const fora = this.foraDe(seg);
           if (MapaMundo.passagemDe(...fora)) continue;
           this.pecaNaBorda(seg.lado === 'norte' || seg.lado === 'sul' ? 'cerca_dir' : 'cerca_esq', seg, 40);
         }
       for (const p of MapaMundo.PASSAGENS.filter(p => p.escada)) {
-        const [c, r] = p.tiles[0], { x, y } = Iso.paraTela(c, r);
+        const [c, r] = p.tiles[0], { x, y } = tela(c, r);
         this.add.image(x, y + Iso.TH / 2, 'cenario', 'escada').setOrigin(ANCORA.escada[0] / 64, ANCORA.escada[1] / 64).setDepth(y - 1);
       }
     }
     desenharMoveis() {
       for (const m of MapaMundo.MOVEIS) {                                   // sombra de contato no centro do que o móvel ocupa
         const oc = m.ocupa || [[0, 0]], cc = m.c + oc.reduce((s, o) => s + o[0], 0) / oc.length, rr = m.r + oc.reduce((s, o) => s + o[1], 0) / oc.length;
-        const { x, y } = Iso.paraTela(cc, rr), fr = this.textures.getFrame('cenario', m.item === 'jaula' ? 'jaula_chao' : m.item);
+        const { x, y } = tela(cc, rr), fr = this.textures.getFrame('cenario', m.item === 'jaula' ? 'jaula_chao' : m.item);
         this.sombra(x, y + 2, Math.min(fr.width * .8, 30 + 26 * (oc.length - 1)));
       }
       this.moveis = MapaMundo.MOVEIS.flatMap(m => {
-        const { x, y } = Iso.paraTela(m.c, m.r), base = y + Iso.TH / 2;
+        const { x, y } = tela(m.c, m.r), base = y + Iso.TH / 2;
         const img = (item, prof) => { const fr = this.textures.getFrame('cenario', item), [ax, ay] = ANCORA[item] || [fr.width / 2, fr.height - 1];
           return this.add.image(x, base, 'cenario', item).setOrigin(ax / fr.width, ay / fr.height).setDepth(prof); };
         return m.item === 'jaula' ? [img('jaula_chao', base - 48), img('jaula_grades', base)] : [img(m.item, base)];   // Kobe fica entre o chão e as grades
@@ -475,26 +488,29 @@
     }
     desenharPlacas() {
       this.placas = MapaMundo.SALAS.map(s => {
-        const { x, y } = Iso.paraTela(s.x + s.w / 2 - .5, s.y + .2);
+        const { x, y } = tela(s.x + s.w / 2 - .5, s.y + .2);
         return this.add.text(x, y - 70, s.nome, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#f3e3bb',
           backgroundColor: '#4a2c16', padding: { x: 5, y: 2 }, stroke: '#140f18', strokeThickness: 3, resolution: 4 }).setOrigin(.5, 1).setDepth(100000);
       });
     }
-    desenharParedes() {
+    desenharParedes() {   // paredes do fundo (com acabamento e estilo da sala), mureta de meia altura na frente, fundação sob a sala elevada
       this.paredes = [];
-      const ehPassagem = (c, r) => !!MapaMundo.passagemDe(c, r);
       for (const s of MapaMundo.SALAS.filter(s => s.parede)) {
-        const esq = s.parede === 'pedra' ? 'parede_esq_pedra' : 'parede_esq', dir = s.parede === 'pedra' ? 'parede_dir_pedra' : 'parede_dir';
-        for (let r = s.y; r < s.y + s.h; r++) {                       // parede do lado esquerdo (oeste)
-          if (ehPassagem(s.x - 1, r)) continue;
-          const { x, y } = Iso.paraTela(s.x, r);
-          this.paredes.push(this.add.image(x - 32, y - 80, 'cenario', r % 4 === 2 && s.parede === 'madeira' ? 'parede_esq_janela' : esq).setOrigin(0, 0).setDepth(y - 16));
+        const suf = s.alta ? '_alta' : '', H = s.alta ? 112 : 80, pedra = s.parede.startsWith('pedra');
+        for (const seg of this.bordas(s)) {
+          const fora = this.foraDe(seg), passagem = !!MapaMundo.passagemDe(...fora), vizinha = MapaMundo.salaDe(...fora);
+          if (seg.lado === 'oeste') {
+            if (passagem) continue;
+            this.paredes.push(this.pecaNaBorda(`parede_esq_${s.parede}${seg.r % 4 === 2 && !pedra ? '_janela' : ''}${suf}`, seg, H));
+          } else if (seg.lado === 'norte') {
+            this.paredes.push(this.pecaNaBorda(`parede_dir_${s.parede}${passagem ? '_porta' : ''}${suf}`, seg, H));
+          } else {                                                      // frente: vão nas passagens, nada onde a sala vizinha já tem parede, porta principal do Salão
+            if (passagem || vizinha || (s.id === 'salao' && seg.lado === 'sul' && (seg.c === 18 || seg.c === 19))) continue;
+            this.paredes.push(this.pecaNaBorda(`mureta_${seg.lado === 'sul' ? 'dir' : 'esq'}_${s.parede}`, seg, 36));
+          }
         }
-        for (let c = s.x; c < s.x + s.w; c++) {                       // parede do fundo (norte)
-          const { x, y } = Iso.paraTela(c, s.y);
-          const porta = ehPassagem(c, s.y - 1);
-          this.paredes.push(this.add.image(x, y - 80, 'cenario', porta ? 'parede_dir_porta' : dir).setOrigin(0, 0).setDepth(y - 16));
-        }
+        if (s.alt > 0) for (const seg of this.bordas(s).filter(g => g.lado === 'sul' || g.lado === 'leste'))   // a sala de cima fica sobre uma base de pedra
+          this.pecaNaBorda(seg.lado === 'sul' ? 'fundacao_dir' : 'fundacao_esq', seg, s.alt + 16, 0).setDepth(-99500);
       }
     }
   }

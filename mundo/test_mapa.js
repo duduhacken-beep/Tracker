@@ -89,4 +89,10 @@ for (const t of M.TAPETES) {
   const sala = (M.salaDe(t.c, t.r) || {}).id;
   for (let dc = 0; dc < t.n; dc++) for (let dr = 0; dr < t.m; dr++) assert.strictEqual((M.salaDe(t.c + dc, t.r + dr) || {}).id, sala, `${t.item} saindo da sala`);
 }
+// Fase 5C bloco 3: alturas — Quarto em cima, Porão embaixo, degraus em ordem
+assert.strictEqual(M.altura(7, 7), 40); assert.strictEqual(M.altura(30, 8), -32); assert.strictEqual(M.altura(19, 19), 0);
+assert.ok(M.altura(12, 7) < M.altura(11, 7) && M.altura(11, 7) < 40, 'escada sobe da Biblioteca pro Quarto');
+assert.ok(M.altura(25, 7) > M.altura(26, 7) && M.altura(26, 7) > -32, 'escada desce do Escritório pro Porão');
+const paredes = new Set(['madeira', 'madeira_escura', 'azulejo', 'pedra', 'pedra_musgo']);
+for (const s of M.SALAS) assert.ok(s.parede === null || paredes.has(s.parede), `parede desconhecida em ${s.id}`);
 console.log('ok mapa');
