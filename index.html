@@ -4788,7 +4788,7 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=1', 'mundo/mapa.js?v=1', 'mundo/mundo.js?v=1'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=2', 'mundo/mapa.js?v=2', 'mundo/mundo.js?v=2'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
@@ -4799,7 +4799,7 @@ async function abrirMundo() {
     _mundoCarregando = _mundoCarregando || MUNDO_SCRIPTS.reduce((p, src) => p.then(() => _carregarScript(src)), Promise.resolve());
     await _mundoCarregando;
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo });
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4818,6 +4818,7 @@ const MUNDO_JANELAS = {
   cozinha: { titulo: 'Cozinha', dono: 'Maria', abas: [['receitas', 'Receitas']] },
 };
 let _mjAberta = null;
+function mundoResumo() { return null; }   // balão de resumo entra na Task 4
 function mundoAbrirJanela(sala) {
   const cfg = MUNDO_JANELAS[sala];
   if (!cfg) return;

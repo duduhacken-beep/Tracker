@@ -2,7 +2,7 @@
 (function () {
   const ANCORA = { balcao: [24, 55], mesa_longa: [32, 50], banco: [11, 27], estante: [16, 79], armario_arquivo: [16, 71],
     lareira: [22, 90], escrivaninha: [16, 38], bau: [13, 26], cofre: [15, 38], cama: [22, 46], escada: [18, 62], jaula: [32, 70] };
-  let jogo = null;
+  let jogo = null, ops = {};
 
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
@@ -23,6 +23,7 @@
       const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
       this.configurarCamera();
       this.criarRei();
+      this.criarDonos();
     }
     criarRei() {
       const mk = (k, fs) => this.anims.create({ key: k, frames: fs.map(f => ({ key: 'personagens', frame: f })), frameRate: 6, repeat: -1 });
@@ -30,14 +31,30 @@
       this.reiTile = MapaMundo.PARTIDA.slice();
       const { x, y } = Iso.paraTela(...this.reiTile);
       this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y);
-      this.input.on('pointerup', p => {
-        if (this.arrastou) return;
+      this.input.on('pointerup', (p, sobre) => {
+        if (this.arrastou || sobre.length) return;
         const w = this.cameras.main.getWorldPoint(p.x, p.y), t = Iso.paraTile(w.x, w.y);
         this.andarAte(t.c, t.r);
       });
     }
-    andarAte(c, r) {
-      const passos = Iso.caminho(MapaMundo.andavel, this.reiTile, [c, r]);
+    criarDonos() {
+      const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.donos = {};
+      for (const d of MapaMundo.DONOS) {
+        const { x, y } = Iso.paraTela(d.c, d.r);
+        const s = this.add.sprite(x, y, 'personagens', d.id + '_f').setOrigin(.5, 46 / 48).setDepth(y)
+          .setInteractive({ useHandCursor: true });
+        s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
+        if (!calmo) this.tweens.add({ targets: s, y: y - 1, duration: 900, yoyo: true, repeat: -1, ease: 'Stepped' });   // respira 1px (escala distorceria o pixel)
+        this.donos[d.id] = s;
+      }
+    }
+    abrirDono(d) {
+      this.andarPor(Iso.caminhoAteVizinho(MapaMundo.andavel, this.reiTile, [d.c, d.r]));
+      if (ops.abrirSala) ops.abrirSala(d.sala);
+    }
+    andarAte(c, r) { this.andarPor(Iso.caminho(MapaMundo.andavel, this.reiTile, [c, r])); }
+    andarPor(passos) {
       if (!passos.length) return;
       this.tweens.killTweensOf(this.rei);
       const proximo = () => {
@@ -121,6 +138,7 @@
   window.MundoTracker = {
     iniciar(el, opcoes = {}) {
       if (jogo) return jogo;
+      ops = opcoes;
       jogo = new Phaser.Game({ type: Phaser.AUTO, parent: el, pixelArt: true, backgroundColor: '#120d08',
         scale: { mode: Phaser.Scale.RESIZE, width: el.clientWidth || 800, height: el.clientHeight || 600 },
         fps: { forceSetTimeOut: !!opcoes.teste }, scene: [CenaMundo] });
