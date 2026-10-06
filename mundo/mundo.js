@@ -21,6 +21,29 @@
       this.cameras.main.setBounds(Math.min(...xs) - 200, Math.min(...ys) - 200, Math.max(...xs) - Math.min(...xs) + 400, Math.max(...ys) - Math.min(...ys) + 400);
       this.cameras.main.setZoom(2);
       const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
+      this.configurarCamera();
+    }
+    zoomPara(n) { this.cameras.main.setZoom(Math.max(1, Math.min(4, Math.round(n)))); }
+    irPara(id) { const [c, r] = MapaMundo.centro(id), { x, y } = Iso.paraTela(c, r); this.cameras.main.pan(x, y, 600, 'Sine.easeInOut'); }
+    configurarCamera() {
+      const cam = this.cameras.main;
+      this.input.addPointer(1);
+      let ini = null, base = null;
+      this.input.on('pointerdown', p => { ini = { x: p.x, y: p.y, sx: cam.scrollX, sy: cam.scrollY }; this.arrastou = false; });
+      this.input.on('pointermove', p => {
+        const a = this.input.pointer1, b = this.input.pointer2;
+        if (a.isDown && b.isDown) {                                   // pinça: degraus inteiros
+          const d = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
+          if (!base) base = d;
+          if (d / base > 1.3) { this.zoomPara(cam.zoom + 1); base = d; } else if (d / base < .77) { this.zoomPara(cam.zoom - 1); base = d; }
+          this.arrastou = true; ini = null; return;               // sem ini: o dedo que sobrar não dá pulo
+        }
+        if (!p.isDown || !ini) return;
+        if (Math.hypot(p.x - ini.x, p.y - ini.y) > 6) this.arrastou = true;
+        if (this.arrastou) { cam.scrollX = ini.sx - (p.x - ini.x) / cam.zoom; cam.scrollY = ini.sy - (p.y - ini.y) / cam.zoom; }
+      });
+      this.input.on('pointerup', () => { if (!this.input.pointer1.isDown && !this.input.pointer2.isDown) base = null; });
+      this.input.on('wheel', (p, objs, dx, dy) => this.zoomPara(cam.zoom + (dy < 0 ? 1 : -1)));
     }
     desenharChao() {
       const tiles = new Set();
