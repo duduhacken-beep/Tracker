@@ -820,6 +820,22 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mundo-mapa button:hover{background:rgba(226,178,76,.14)}
 .mundo-aviso{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#efe2c2;text-align:center;padding:24px;font-family:'Alegreya Sans',sans-serif}
 @media(max-width:640px){.mundo-moldura{inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0}}
+.mundo-moldura.reveal{opacity:1;transform:none;will-change:auto;transition:none}   /* sem transform/will-change: prenderia os modais fixos das telas */
+.mundo-janela{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,7,4,.6)}
+.mundo-janela[hidden]{display:none}
+.mj-painel{width:min(1100px,100%);height:100%;display:flex;flex-direction:column;background:var(--bg);border:3px solid #6e5427;border-radius:6px;box-shadow:0 0 0 2px #1e1a15,0 20px 60px rgba(0,0,0,.6);overflow:hidden}
+.mj-topo{display:flex;align-items:center;gap:12px;padding:10px 14px 10px 18px;background:#2d2820;border-bottom:2px solid #6e5427}
+.mj-topo h2{margin:0;font:700 18px 'Cinzel',Georgia,serif;color:#f3e3bb}
+.mj-dono{flex:1;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80}
+.mj-abas{display:flex;gap:4px}
+.mj-abas button,.mj-fechar{all:unset;cursor:pointer;font:600 14px 'Alegreya Sans',sans-serif;color:#bfaa80;padding:6px 12px;border-radius:3px}
+.mj-abas button[aria-selected="true"]{background:rgba(226,178,76,.18);color:#f0c96a}
+.mj-fechar{font-size:22px;line-height:1;color:#f3e3bb;padding:4px 10px}
+.mj-abas button:focus-visible,.mj-fechar:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
+.mj-corpo{flex:1;overflow:auto;padding:28px 32px 40px}
+.mundo-mapa .mm-linha{display:flex;align-items:center;gap:4px}
+.mundo-mapa .mm-abrir{color:#f0c96a;font-weight:700}
+@media(max-width:640px){.mundo-janela{padding:0}.mj-painel{border-width:0;border-radius:0}.mj-topo{flex-wrap:wrap}.mj-corpo{padding:18px 14px 30px}}
 
 /* ══ TAVERNA (05/10/2026) — mesma paleta da Masmorra ══ */
 #page-taverna{
@@ -2306,6 +2322,17 @@ body.dens-compact .gap{margin-bottom:14px}
       <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
       <button class="btn btn-p" onclick="go('home')">Usar o modo clássico</button>
     </div>
+    <div class="mundo-janela" id="mundo-janela" hidden onclick="if (event.target === this) mundoFecharJanela()">
+      <div class="mj-painel" role="dialog" aria-modal="true" aria-labelledby="mundo-janela-titulo">
+        <div class="mj-topo">
+          <h2 id="mundo-janela-titulo"></h2>
+          <span class="mj-dono" id="mundo-janela-dono"></span>
+          <div class="mj-abas" id="mundo-janela-abas" role="tablist"></div>
+          <button class="mj-fechar" id="mundo-janela-fechar" onclick="mundoFecharJanela()" aria-label="Fechar">×</button>
+        </div>
+        <div class="mj-corpo" id="mundo-janela-corpo"></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -3047,6 +3074,7 @@ window.addEventListener('resize', () => {
 });
 
 function go(p) {
+  if (_mjAberta) mundoFecharJanela();
   document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
   $('page-' + p).classList.add('on');
@@ -3058,13 +3086,18 @@ function go(p) {
 
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
+  if (p === 'mundo') { safeCall(abrirMundo, 'abrirMundo'); } else if (window.MundoTracker) window.MundoTracker.pausar();
+  renderAba(p);
+}
+
+// render de cada aba — usado pelo go() e pela janela do Mundo
+function renderAba(p) {
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'taverna')  { safeCall(renderTaverna, 'renderTaverna'); }
-  if (p === 'mundo') { safeCall(abrirMundo, 'abrirMundo'); } else if (window.MundoTracker) window.MundoTracker.pausar();
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -4773,9 +4806,57 @@ async function abrirMundo() {
 }
 function mundoMapaRapido() {
   const el = $('mundo-mapa'), abrir = el.hidden;
-  if (abrir && window.MapaMundo) el.innerHTML = MapaMundo.SALAS.map(s => `<button onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido()">${s.nome}</button>`).join('');
+  if (abrir && window.MapaMundo) el.innerHTML = MapaMundo.SALAS.map(s => `<div class="mm-linha">
+    <button onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido()">${s.nome}</button>
+    ${MUNDO_JANELAS[s.id] ? `<button class="mm-abrir" aria-label="Abrir ${s.nome}" onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido();mundoAbrirJanela('${s.id}')">Abrir</button>` : ''}
+  </div>`).join('');
   el.hidden = !abrir; $('mundo-btn-mapa').setAttribute('aria-expanded', String(abrir));
 }
+// Janela de RPG: empresta a seção da aba de hoje (mesmas funções nas duas caras do app) e devolve ao fechar
+const MUNDO_JANELAS = {
+  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
+  cozinha: { titulo: 'Cozinha', dono: 'Maria', abas: [['receitas', 'Receitas']] },
+};
+let _mjAberta = null;
+function mundoAbrirJanela(sala) {
+  const cfg = MUNDO_JANELAS[sala];
+  if (!cfg) return;
+  if (_mjAberta) mundoFecharJanela();
+  _mjAberta = { sala, foco: document.activeElement };
+  $('mundo-janela-titulo').textContent = cfg.titulo;
+  $('mundo-janela-dono').textContent = cfg.dono;
+  $('mundo-janela-abas').innerHTML = cfg.abas.length > 1 ? cfg.abas.map(([id, nome]) =>
+    `<button role="tab" id="mj-aba-${id}" aria-selected="false" onclick="mundoJanelaAba('${id}')">${nome}</button>`).join('') : '';
+  $('mundo-janela').hidden = false;
+  mundoJanelaAba(cfg.abas[0][0]);
+  $('mundo-janela-fechar').focus();
+}
+function _mjDevolver(j) { const s = $('page-' + j.aba); s.classList.remove('on'); j.marcador.replaceWith(s); }
+function mundoJanelaAba(id) {
+  const j = _mjAberta;
+  if (!j) return;
+  if (j.aba) _mjDevolver(j);
+  const sec = $('page-' + id);
+  j.marcador = document.createComment('mundo:' + id);
+  sec.before(j.marcador);
+  $('mundo-janela-corpo').appendChild(sec);
+  sec.classList.add('on');
+  j.aba = id;
+  document.querySelectorAll('#mundo-janela-abas [role=tab]').forEach(b => b.setAttribute('aria-selected', String(b.id === 'mj-aba-' + id)));
+  $('mundo-janela-corpo').scrollTop = 0;
+  setupScrollReveal(id);
+  renderAba(id);
+}
+function mundoFecharJanela() {
+  const j = _mjAberta;
+  if (!j) return;
+  if (j.aba) _mjDevolver(j);
+  $('mundo-janela').hidden = true;
+  _mjAberta = null;
+  j.foco?.focus?.();
+}
+// captura: roda antes do Esc dos modais das telas, então ainda vê o modal aberto e deixa ele fechar sozinho
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && _mjAberta && !document.querySelector('.overlay.on')) mundoFecharJanela(); }, true);
 
 // ──────────────────────────────────
 // TAVERNA — os agentes (automações do Routines) num salão em pixel art
