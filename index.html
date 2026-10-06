@@ -4846,6 +4846,29 @@ function mundoResumo(sala) {
     if (!ativas.length) return 'Amanhã às 7h deixo 5 receitas aqui.';
     return n ? `${n} receita${n > 1 ? 's' : ''} esperando por você.` : 'Tudo feito! Amanhã às 7h trago receitas novas.';
   }
+  if (sala === 'biblioteca') {
+    const ativos = load('leitura', []), n = ativos.filter(l => !l.lido).length;
+    if (!ativos.length) return 'Domingo trago 5 livros pra você.';
+    return n ? `${n} livro${n > 1 ? 's' : ''} esperando na estante.` : 'Tudo lido! Domingo trago livros novos.';
+  }
+  if (sala === 'escritorio') {
+    const hoje = today(), n = load('eventos', []).filter(e => e.dt && e.dt.startsWith(hoje) && !e.done).length;
+    return n ? `${n} compromisso${n > 1 ? 's' : ''} hoje, Majestade.` : 'Agenda livre hoje.';
+  }
+  if (sala === 'patio') {
+    const semana = load('treino_semana', {}), tid = semana[String(new Date().getDay())];
+    const tpl = load('treino_templates', []).find(t => t.id === tid);
+    if (tpl) return `Hoje: ${tpl.nome}.`;
+    return Object.keys(semana).length ? 'Hoje é descanso.' : 'Domingo monto seu treino da semana.';
+  }
+  if (sala === 'quarto') {
+    const st = _cvStats();
+    return `Nível ${st.nivel}, ${st.titulo}. Classe: ${st.classe}.`;
+  }
+  if (sala === 'porao') {
+    const n = _bkContagens().reduce((s, [, c]) => s + (typeof c === 'number' ? c : 0), 0);
+    return n ? `Guardo ${n} registros seus no arquivo.` : 'O arquivo ainda está vazio.';
+  }
   return null;
 }
 function mundoAbrirJanela(sala) {
@@ -5796,19 +5819,21 @@ function renderDespesas() {
 // ──────────────────────────────────
 const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
+const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
+// contagem por chave — usada pelo card do Backup e pelo balão do Escrivão no Mundo
+function _bkContagens() {
+  return Object.entries(BK_RESUMO).map(([k, lbl]) => {
+    const v = load(k, []);
+    return [lbl, Array.isArray(v) ? v.length : (typeof v === 'object' ? Object.keys(v).length : '—')];
+  });
+}
 function bkStats() {
   const cont = $('bk-stats');
   if (!cont) return;
-  const labels = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
-  const items = Object.entries(labels).map(([k, lbl]) => {
-    const v = load(k, []);
-    const count = Array.isArray(v) ? v.length : (typeof v === 'object' ? Object.keys(v).length : '—');
-    return `<div style="background:var(--bg3);border-radius:var(--rs);padding:10px 8px;text-align:center">
+  cont.innerHTML = _bkContagens().map(([lbl, count]) => `<div style="background:var(--bg3);border-radius:var(--rs);padding:10px 8px;text-align:center">
       <div style="font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)">${count}</div>
       <div style="font-size:10px;color:var(--text3);margin-top:2px">${lbl}</div>
-    </div>`;
-  });
-  cont.innerHTML = items.join('');
+    </div>`).join('');
 }
 
 function exportarDados() {
