@@ -812,12 +812,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mundo-moldura{position:fixed;inset:0 0 0 var(--sb,0);z-index:1;background:#120d08}
 .mundo-jogo{position:absolute;inset:0}
 .mundo-jogo canvas{image-rendering:pixelated}
-.mundo-btn{position:absolute;top:14px;right:14px;z-index:5;font:600 14px 'Alegreya Sans',sans-serif;color:#f3e3bb;background:#2d2820;border:2px solid #6e5427;border-radius:4px;padding:8px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.5)}
-.mundo-btn:focus-visible,.mundo-mapa button:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
-.mundo-mapa{position:absolute;top:58px;right:14px;z-index:5;display:flex;flex-direction:column;gap:4px;background:#1e1a15;border:2px solid #6e5427;border-radius:4px;padding:8px;max-height:70vh;overflow:auto}
-.mundo-mapa[hidden],.mundo-aviso[hidden]{display:none}
-.mundo-mapa button{all:unset;cursor:pointer;font:500 14px 'Alegreya Sans',sans-serif;color:#efe2c2;padding:6px 10px;border-radius:3px}
-.mundo-mapa button:hover{background:rgba(226,178,76,.14)}
+.mundo-livro-btn{position:absolute;top:12px;right:14px;z-index:5;width:52px;height:52px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));transition:transform .15s}
+.mundo-livro-btn svg{width:100%;height:100%;display:block}
+.mundo-livro-btn:hover{transform:translateY(-2px) rotate(-4deg)}
+.mundo-livro-btn:focus-visible{outline:2px solid #f0c96a;outline-offset:3px}
+.mundo-aviso[hidden]{display:none}
 .mundo-aviso{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#efe2c2;text-align:center;padding:24px;font-family:'Alegreya Sans',sans-serif}
 @media(max-width:640px){.mundo-moldura{inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0}}
 .mundo-moldura.reveal{opacity:1;transform:none;will-change:auto;transition:none}   /* sem transform/will-change: prenderia os modais fixos das telas */
@@ -836,8 +835,26 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mj-status{padding:6px 18px;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80;background:#241f19;border-bottom:1px solid #4a3a1e}
 .mj-status:empty{display:none}
 #mundo-janela-corpo #tv-cena,#mundo-janela-corpo #tv-btn-mundo{display:none}   /* dentro do Mundo a Taverna mostra só o painel e a crônica */
-.mundo-mapa .mm-linha{display:flex;align-items:center;gap:4px}
-.mundo-mapa .mm-abrir{color:#f0c96a;font-weight:700}
+/* Livro do Reino: a janela com pele de livro + capa que vira ao abrir/fechar */
+.mj-capa{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;transform-origin:left center;backface-visibility:hidden;
+  background:#7a2620;border:3px solid #e2b24c;box-shadow:inset 0 0 0 6px #5a1a14,inset 0 0 0 8px #e2b24c;border-radius:4px}
+.mj-capa[hidden]{display:none}
+.mj-capa span{font:700 26px 'Cinzel',Georgia,serif;color:#f5d46a;text-shadow:0 2px 0 #2a0e0c;letter-spacing:.06em}
+.mj-capa.abrindo{animation:capaAbre .65s ease-in forwards}
+.mj-capa.fechando{animation:capaAbre .45s ease-out reverse forwards}
+@keyframes capaAbre{from{transform:perspective(3000px) rotateY(0)}to{transform:perspective(3000px) rotateY(-180deg)}}
+.mj-painel{position:relative}
+#mundo-janela.livro .mj-painel{overflow:visible;border:10px solid #5a1a14;border-radius:8px;box-shadow:0 0 0 2px #e2b24c,0 0 0 4px #2a0e0c,0 20px 60px rgba(0,0,0,.6)}
+#mundo-janela.livro .mj-topo{background:#3a1512;border-bottom:2px solid #e2b24c}
+#mundo-janela.livro .mj-abas button{background:#7a2620;color:#f3e3bb;border-radius:0 0 4px 4px;padding:6px 12px 9px}
+#mundo-janela.livro .mj-abas button[aria-selected="true"]{background:#e2b24c;color:#2a0e0c}
+#mundo-janela.livro .mj-corpo{animation:paginas .45s .3s both}
+@keyframes paginas{from{opacity:0}to{opacity:1}}
+#page-mapa .mm-linha{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--border)}
+#page-mapa .mm-linha:last-child{border-bottom:0}
+#page-mapa .mm-linha>div{flex:1;display:flex;flex-direction:column;gap:2px}
+#page-mapa .mm-linha span{font-size:12px;color:var(--text3)}
+@media(prefers-reduced-motion:reduce){.mj-capa{display:none!important}#mundo-janela.livro .mj-corpo{animation:none}}
 @media(max-width:640px){.mundo-janela{padding:0}.mj-painel{border-width:0;border-radius:0}.mj-topo{flex-wrap:wrap}.mj-corpo{padding:18px 14px 30px}}
 
 /* ══ TAVERNA (05/10/2026) — mesma paleta da Masmorra ══ */
@@ -2316,17 +2333,23 @@ body.dens-compact .gap{margin-bottom:14px}
 
 
 <!-- ════════════════ MUNDO ════════════════ -->
+<!-- MAPA DO REINO: só aparece dentro do Livro do Reino (não tem aba própria) -->
+<section class="page" id="page-mapa">
+  <h1>Mapa do Reino</h1><p class="psub">Escolha uma sala: "Ir" leva a câmera até ela; "Abrir" abre a função do dono.</p>
+  <div class="card" id="mundo-mapa-lista"></div>
+</section>
+
 <section class="page" id="page-mundo">
   <div class="mundo-moldura">
     <div id="mundo-jogo" class="mundo-jogo"></div>
-    <button class="mundo-btn" id="mundo-btn-mapa" onclick="mundoMapaRapido()" aria-expanded="false">Mapa</button>
-    <div class="mundo-mapa" id="mundo-mapa" hidden></div>
+    <button class="mundo-livro-btn" id="mundo-btn-livro" onclick="mundoAbrirJanela('livro')" aria-label="Abrir o Livro do Reino" title="Livro do Reino"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="14" height="16" fill="#2a0e0c"/><rect x="3" y="2" width="11" height="13" fill="#d9c79a"/><rect x="2" y="1" width="11" height="13" fill="#8a2a22"/><rect x="2" y="1" width="2" height="13" fill="#5a1a14"/><rect x="4" y="1" width="9" height="1" fill="#a8392e"/><rect x="11" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="3" width="1" height="1" fill="#e2b24c"/><rect x="11" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="11" width="1" height="1" fill="#e2b24c"/><rect x="2" y="4" width="1" height="1" fill="#e2b24c"/><rect x="3" y="4" width="1" height="1" fill="#e2b24c"/><rect x="2" y="10" width="1" height="1" fill="#e2b24c"/><rect x="3" y="10" width="1" height="1" fill="#e2b24c"/><rect x="8" y="5" width="1" height="1" fill="#e2b24c"/><rect x="7" y="6" width="1" height="1" fill="#e2b24c"/><rect x="9" y="6" width="1" height="1" fill="#e2b24c"/><rect x="6" y="7" width="1" height="1" fill="#e2b24c"/><rect x="10" y="7" width="1" height="1" fill="#e2b24c"/><rect x="7" y="8" width="1" height="1" fill="#e2b24c"/><rect x="9" y="8" width="1" height="1" fill="#e2b24c"/><rect x="8" y="9" width="1" height="1" fill="#e2b24c"/><rect x="8" y="7" width="1" height="1" fill="#f5d46a"/></svg></button>
     <div class="mundo-aviso" id="mundo-aviso" hidden>
       <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
       <button class="btn btn-p" onclick="go('home')">Usar o modo clássico</button>
     </div>
     <div class="mundo-janela" id="mundo-janela" hidden onclick="if (event.target === this) mundoFecharJanela()">
       <div class="mj-painel" role="dialog" aria-modal="true" aria-labelledby="mundo-janela-titulo">
+        <div class="mj-capa" id="mundo-janela-capa" hidden aria-hidden="true"><span>Livro do Reino</span></div>
         <div class="mj-topo">
           <h2 id="mundo-janela-titulo"></h2>
           <span class="mj-dono" id="mundo-janela-dono"></span>
@@ -3078,7 +3101,7 @@ window.addEventListener('resize', () => {
 });
 
 function go(p) {
-  if (_mjAberta) mundoFecharJanela();
+  if (_mjAberta) mundoFecharJanela(true);
   document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
   $('page-' + p).classList.add('on');
@@ -3096,6 +3119,7 @@ function go(p) {
 
 // render de cada aba — usado pelo go() e pela janela do Mundo
 function renderAba(p) {
+  if (p === 'mapa')     { safeCall(mundoRenderMapa, 'mundoRenderMapa'); }
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
@@ -4811,14 +4835,18 @@ async function abrirMundo() {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
 }
-function mundoMapaRapido() {
-  const el = $('mundo-mapa'), abrir = el.hidden;
-  if (abrir && window.MapaMundo) el.innerHTML = MapaMundo.SALAS.map(s => `<div class="mm-linha">
-    <button onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido()">${s.nome}</button>
-    ${MUNDO_JANELAS[s.id] ? `<button class="mm-abrir" aria-label="Abrir ${s.nome}" onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido();mundoAbrirJanela('${s.id}')">Abrir</button>` : ''}
-  </div>`).join('');
-  el.hidden = !abrir; $('mundo-btn-mapa').setAttribute('aria-expanded', String(abrir));
+// Mapa do Reino (página do Livro): uma linha por sala com quem mora lá, "Ir" (câmera) e "Abrir" (janela do dono)
+function mundoRenderMapa() {
+  if (!window.MapaMundo) return;
+  $('mundo-mapa-lista').innerHTML = MapaMundo.SALAS.map(s => {
+    const quem = [...MapaMundo.DONOS, ...MapaMundo.MORADORES].filter(d => d.sala === s.id && !d.objeto).map(d => d.nome);
+    if (s.id === 'quarto') quem.unshift('o Rei');
+    return `<div class="mm-linha"><div><b>${s.nome}</b><span>${quem.join(', ') || 'ninguém por enquanto'}</span></div>
+      <button class="btn btn-sm" onclick="mundoIrSala('${s.id}')" aria-label="Ir até ${s.nome}">Ir</button>
+      ${MUNDO_JANELAS[s.id] ? `<button class="btn btn-p btn-sm" onclick="mundoAbrirJanela('${s.id}');window.MundoTracker.irPara('${s.id}')" aria-label="Abrir ${s.nome}">Abrir</button>` : ''}</div>`;
+  }).join('');
 }
+function mundoIrSala(id) { mundoFecharJanela(); window.MundoTracker.irPara(id); }
 // Janela de RPG: empresta a seção da aba de hoje (mesmas funções nas duas caras do app) e devolve ao fechar
 const MUNDO_JANELAS = {
   tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', agente: 'tesoureiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
@@ -4826,7 +4854,8 @@ const MUNDO_JANELAS = {
   biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', agente: 'mosley', abas: [['leitura', 'Leitura']] },
   escritorio: { titulo: 'Escritório', dono: 'Mônica', agente: 'monica', abas: [['agenda', 'Agenda']] },
   patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', agente: 'jefrey', abas: [['corpo', 'Corpo']] },
-  salao:      { titulo: 'Salão da Taverna', dono: 'Quadro de avisos', abas: [['home', 'Início']] },   // a crônica dos agentes fica no Livro do Reino
+  salao:      { titulo: 'Salão da Taverna', dono: 'Quadro de avisos', abas: [['home', 'Início']] },
+  livro:      { titulo: 'Livro do Reino', dono: 'mapa, metas e crônica', livro: true, abas: [['mapa', 'Mapa'], ['evolucao', 'Metas e evolução'], ['taverna', 'Crônica dos agentes']] },   // a crônica dos agentes fica no Livro do Reino
   quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', abas: [['evolucao', 'Evolução']] },
   porao:      { titulo: 'Arquivo', dono: 'Escrivão', abas: [['backup', 'Backup']] },
 };
@@ -4909,8 +4938,9 @@ function mundoStatusAgente(id) {
 function mundoAbrirJanela(sala) {
   const cfg = MUNDO_JANELAS[sala];
   if (!cfg) return;
-  if (_mjAberta) mundoFecharJanela();
+  if (_mjAberta) mundoFecharJanela(true);
   _mjAberta = { sala, foco: document.activeElement };
+  $('mundo-janela').classList.toggle('livro', !!cfg.livro);
   $('mundo-janela-titulo').textContent = cfg.titulo;
   $('mundo-janela-dono').textContent = cfg.dono;
   $('mundo-janela-status').textContent = cfg.agente ? mundoStatusAgente(cfg.agente) : '';
@@ -4919,6 +4949,18 @@ function mundoAbrirJanela(sala) {
   $('mundo-janela').hidden = false;
   mundoJanelaAba(cfg.abas[0][0]);
   $('mundo-janela-fechar').focus();
+  if (cfg.livro) _mjCapa(true);
+}
+// capa do livro: vira pra abrir; ao fechar volta e só então a janela some ("reduzir movimento": sem animação)
+function _mjCapa(abrir, depois) {
+  const capa = $('mundo-janela-capa');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { capa.hidden = true; if (depois) depois(); return; }
+  capa.hidden = false; capa.classList.remove('abrindo', 'fechando'); void capa.offsetWidth;
+  capa.classList.add(abrir ? 'abrindo' : 'fechando');
+  let feito = false;
+  const fim = () => { if (feito) return; feito = true; if (abrir) capa.hidden = true; if (depois) depois(); };
+  capa.addEventListener('animationend', fim, { once: true });
+  setTimeout(fim, 900);   // segurança: com a aba escondida o animationend pode não vir e o livro travaria
 }
 function _mjDevolver(j) { const s = $('page-' + j.aba); s.classList.remove('on'); j.marcador.replaceWith(s); }
 function mundoJanelaAba(id) {
@@ -4936,10 +4978,13 @@ function mundoJanelaAba(id) {
   setupScrollReveal(id);
   renderAba(id);
 }
-function mundoFecharJanela() {
+function mundoFecharJanela(imediato) {
   const j = _mjAberta;
   if (!j) return;
+  if (!imediato && MUNDO_JANELAS[j.sala].livro) { if (!j.fechando) { j.fechando = true; _mjCapa(false, () => mundoFecharJanela(true)); } return; }
   if (j.aba) _mjDevolver(j);
+  $('mundo-janela-capa').hidden = true;
+  $('mundo-janela').classList.remove('livro');
   $('mundo-janela').hidden = true;
   _mjAberta = null;
   j.foco?.focus?.();
