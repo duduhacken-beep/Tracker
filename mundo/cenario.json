@@ -1059,13 +1059,233 @@
     "w": 32,
     "h": 48
    }
+  },
+  "vaso": {
+   "frame": {
+    "x": 264,
+    "y": 180,
+    "w": 16,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 24
+   }
+  },
+  "trono": {
+   "frame": {
+    "x": 282,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "arvore_natal_0": {
+   "frame": {
+    "x": 316,
+    "y": 180,
+    "w": 32,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 56
+   }
+  },
+  "arvore_natal_1": {
+   "frame": {
+    "x": 350,
+    "y": 180,
+    "w": 32,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 56
+   }
+  },
+  "estatua_guerreiro": {
+   "frame": {
+    "x": 384,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_acrobata": {
+   "frame": {
+    "x": 418,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_monge": {
+   "frame": {
+    "x": 452,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_sabio": {
+   "frame": {
+    "x": 486,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_nobre": {
+   "frame": {
+    "x": 520,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_chef": {
+   "frame": {
+    "x": 554,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "estatua_andarilho": {
+   "frame": {
+    "x": 588,
+    "y": 180,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
   }
  },
  "meta": {
   "image": "cenario.png",
   "size": {
    "w": 1008,
-   "h": 236
+   "h": 244
   },
   "scale": "1"
  }
