@@ -8,6 +8,11 @@
     caneca: ['.WWWW.', '.EEEEe', '.EEEEe', '.EEEE.'], nota: ['..kk', '..k.', '..k.', 'kkk.', 'kk..'], coracao: ['RR.RR', 'RRRRR', '.RRR.', '..R..'],
     fala: ['k.k.k'], erro: ['R', 'R', 'R', '.', 'R'], ok: ['....G', '...G.', 'G.G..', '.G...'], livro: ['RRRRR', 'RWWWR', 'RRRRR'], zz: ['BBB', '..B', '.B.', 'BBB'],
   };
+  // medalhas da parede de troféus (mesma máscara e cores da Evolução) e cores do fogo da lareira
+  const MEDALHA = ['.bb..bb.', '..bbbb..', '..cccc..', '.cyyyyc.', 'cyywyyyc', 'cyyyyyyc', '.cyyyyc.', '..cccc..'];
+  const MEDALHA_COR = { bronze: { b: 0xd94848, c: 0x7a4a1e, y: 0xcd7f32, w: 0xf0c08a }, prata: { b: 0x3b6fd8, c: 0x6b7280, y: 0xc0c6d0, w: 0xf3f4f6 },
+    ouro: { b: 0x22a06b, c: 0xa16207, y: 0xf5c542, w: 0xfff3b0 } };
+  const FOGO_COR = { laranja: [0xf97316, 0xfbbf24, 0xfff7c2], azul: [0x3b82f6, 0x93c5fd, 0xe0f2fe] };
   const PALETA = { W: 0xfff7c2, E: 0xc99a1f, e: 0x8a6a1f, k: 0x140f18, R: 0xd94848, G: 0x2f8a4a, B: 0x3b4a9a };
   // partículas da atividade de cada agente (cor, subida); "alvo" = tile de onde saem (vapor do caldeirão)
   const PARTICULAS = { mexer: { cor: 0xd7dbe2, vy: -34, alvo: [6, 16], dy: 26 }, contar: { cor: 0xf5c542, vy: -24 }, ler: { cor: 0xefe2c2, vy: -20 },
@@ -17,8 +22,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=4', 'mundo/cenario.json?v=4');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=4', 'mundo/personagens.json?v=4');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=5', 'mundo/cenario.json?v=5');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=5', 'mundo/personagens.json?v=5');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -28,7 +33,8 @@
       this.desenharPlacas();
       const todos = MapaMundo.SALAS.flatMap(s => [Iso.paraTela(s.x, s.y), Iso.paraTela(s.x + s.w, s.y + s.h), Iso.paraTela(s.x, s.y + s.h), Iso.paraTela(s.x + s.w, s.y)]);
       const xs = todos.map(p => p.x), ys = todos.map(p => p.y);
-      this.cameras.main.setBounds(Math.min(...xs) - 200, Math.min(...ys) - 200, Math.max(...xs) - Math.min(...xs) + 400, Math.max(...ys) - Math.min(...ys) + 400);
+      this.lim = { x: Math.min(...xs) - 200, y: Math.min(...ys) - 200, w: Math.max(...xs) - Math.min(...xs) + 400, h: Math.max(...ys) - Math.min(...ys) + 400 };
+      this.cameras.main.setBounds(this.lim.x, this.lim.y, this.lim.w, this.lim.h);
       this.cameras.main.setZoom(2);
       const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
       this.configurarCamera();
@@ -37,6 +43,7 @@
       this.criarDonos();
       this.criarGato(); this.proxConversa = 15; this.proxCena = 40;
       this.reagir();
+      this.criarAmbiente();
       this.salaVista = 'salao';
     }
     criarRei() {
@@ -64,6 +71,98 @@
         g.fillStyle(0xefe2c2).fillRect(1, 1, w, h);
         m.forEach((l, y) => [...l].forEach((ch, x) => { if (ch !== '.') g.fillStyle(PALETA[ch]).fillRect(3 + x, 3 + y, 1, 1); }));
         g.generateTexture('icone_' + nome, w + 2, h + 4); g.destroy();
+      }
+      for (const [tier, cor] of Object.entries(MEDALHA_COR)) {
+        const g = this.make.graphics({ add: false });
+        MEDALHA.forEach((l, y) => [...l].forEach((ch, x) => { if (ch !== '.') g.fillStyle(cor[ch]).fillRect(x, y, 1, 1); }));
+        g.generateTexture('medalha_' + tier, 8, 8); g.destroy();
+      }
+      const g = this.make.graphics({ add: false });                 // gancho vazio: conquista ainda não desbloqueada
+      g.fillStyle(0x24170c).fillRect(3, 0, 2, 2); g.fillStyle(0x000000, .25).fillRect(2, 3, 4, 4); g.generateTexture('gancho', 8, 8); g.destroy();
+      const luz = this.textures.createCanvas('luz', 128, 128), ctx = luz.getContext(), gr = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 128, 128); luz.refresh();
+    }
+    criarAmbiente() {   // Fase 5B: enfeites por nível, troféus, velas, lareira = sequência, noite com luzes, Natal e virada
+      const sp = (frame, c, r, ax, ay) => { const { x, y } = Iso.paraTela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame);
+        return s.setOrigin(ax / s.width, ay / s.height).setDepth(base); };
+      const E = id => MapaMundo.ENFEITES.find(e => e.id === id).tiles;
+      const meio = Iso.paraTela(19, 19);
+      this.enf = {
+        bandeiras: E('bandeiras').map(([c, r]) => sp('estandarte_andarilho', c, r, 4, 54)),
+        vasos: E('vasos').map(([c, r]) => sp('vaso', c, r, 8, 22)),
+        trono: [sp('trono', ...E('trono')[0], 16, 46)],
+        estatua: [sp('estatua_andarilho', ...E('estatua')[0], 16, 62)],
+        tapeteReal: MapaMundo.TAPETE_REAL.map(([c, r]) => { const { x, y } = Iso.paraTela(c, r); return this.add.image(x, y, 'cenario', 'tapete_vermelho').setDepth(-99999); }),
+        lustre: [this.add.image(meio.x, meio.y - 120, 'cenario', 'lustre').setDepth(99990),   // pendurado alto sobre o Salão…
+          this.add.rectangle(meio.x, meio.y - 196, 1, 140, 0x2a1e12).setDepth(99990)],          // …pela corrente
+        arvore: [sp('arvore_natal_0', ...E('arvore')[0], 16, 53)],
+      };
+      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y } = Iso.paraTela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(y + Iso.TH / 2 + 1); });
+      // troféus: uma medalha por conquista na parede norte do Salão (pulando as portas e o quadro de avisos)
+      const pts = [13, 14, 18, 19, 20, 23, 24].flatMap(c => [.2, .5, .8].map(f => { const { x, y } = Iso.paraTela(c, 13); return [x + 32 * f, y - 16 + 16 * f - 44, y - 16]; }));
+      this.trofeus = pts.slice(0, 20).map(([x, y, prof]) => this.add.image(Math.round(x), Math.round(y), 'gancho').setDepth(prof + .5).setInteractive({ useHandCursor: true }));
+      this.trofeus.forEach(s => s.on('pointerup', () => { if (!this.arrastou) this.falar(this.trofeus[9], ops.texto && ops.texto('trofeus'), 4); }));
+      for (const m of this.moveis) {                                   // lareira e estantes contam seus números
+        const id = m.frame.name === 'lareira' ? 'lareira' : m.frame.name === 'estante' ? 'estante' : null;
+        if (id) m.setInteractive({ useHandCursor: true }).on('pointerup', () => { if (!this.arrastou) this.falar(m, ops.texto && ops.texto(id), 5); });
+      }
+      this.lareira = this.moveis.find(m => m.frame.name === 'lareira');
+      this.luzImg = this.make.image({ key: 'luz', add: false });
+      this.escuro = this.add.renderTexture(this.lim.x, this.lim.y, this.lim.w, this.lim.h).setOrigin(0).setDepth(99995);   // noite: abaixo de placas, ícones e falas
+      this.proxNoite = 0; this.proxFogos = 0;
+      this.atualizarAmbiente();
+      this.time.addEvent({ delay: 60000, loop: true, callback: () => this.atualizarAmbiente() });
+    }
+    atualizarAmbiente() {
+      const p = this.prog = ops.progresso ? ops.progresso() : { antes: true, seq: 0, nivel: 1, classe: 'andarilho', conquistas: [] };
+      const lib = new Set(VidaMundo.enfeites(p.nivel)), ep = this.epoca = VidaMundo.epoca(new Date());
+      for (const [id, lista] of Object.entries(this.enf)) lista.forEach(s => s.setVisible(id === 'arvore' ? ep.natal : lib.has(id)));
+      this.enf.bandeiras.forEach(s => s.setFrame('estandarte_' + p.classe));
+      this.enf.estatua[0].setFrame('estatua_' + p.classe);
+      this.trofeus.forEach((s, i) => { const c = p.conquistas[i]; s.setTexture(c && c.ok ? 'medalha_' + c.tier : 'gancho'); });
+      this.fogo = VidaMundo.fogo(p.antes, p.seq);
+      this.ceu = VidaMundo.ceu(new Date().getHours());
+    }
+    passoAmbiente(time, dt) {
+      const f = this.fogo, L = this.lareira;
+      if (L && !this.calmo) {                                          // fogo da lareira = sua sequência
+        const bx = L.x + 18, by = L.y - 26;
+        if (f.tipo === 'brasa') { if (Math.random() < .15) this.faisca(bx + Math.random() * 16 - 8, by + 2, Math.random() < .5 ? 0xa8322a : 0xe86a3a, 0, 700, L.depth + 1, 1.5); }
+        else {
+          const cores = FOGO_COR[f.cor];
+          if (Math.random() < .55 * f.escala) this.faisca(bx + (Math.random() * 12 - 6) * f.escala / 2, by, cores[Math.floor(Math.random() * 3)], -10 * f.escala, 450 + Math.random() * 250, L.depth + 1, f.escala);
+          if (f.faiscas && Math.random() < .05) this.faisca(bx + Math.random() * 10 - 5, by - 6, cores[1], -30, 900, L.depth + 1, 1);
+        }
+      }
+      if (this.epoca.natal) this.enf.arvore[0].setFrame('arvore_natal_' + (Math.floor(time / 800) % 2));
+      if (this.epoca.virada && !this.calmo && (this.proxFogos -= dt) <= 0) { this.proxFogos = .6 + Math.random() * .8; this.fogosArtificio(); }
+      if ((this.proxNoite -= dt) > 0) return;                          // noite: escurece e abre as luzes (10x por segundo)
+      this.proxNoite = .1;
+      if (this.ceu === 'dia') { this.escuro.setVisible(false); return; }
+      this.escuro.setVisible(true).clear().fill(this.ceu === 'noite' ? 0x08081e : 0x281420, this.ceu === 'noite' ? .62 : .25);
+      const tremor = 1 + Math.sin(time / 160) * .04;
+      for (const [x, y, r] of this.luzes()) this.escuro.erase(this.luzImg.setPosition(x - this.lim.x, y - this.lim.y).setScale(r * 2 * tremor / 128));
+    }
+    luzes() {
+      const l = [];
+      if (this.lareira) l.push([this.lareira.x + 18, this.lareira.y - 26, this.fogo.luz * 2]);
+      for (const v of this.velas) l.push([v.x, v.y - 6, 70]);
+      const cald = Iso.paraTela(6, 16); l.push([cald.x, cald.y - 10, 60]);
+      const lustre = this.enf.lustre[0], arvore = this.enf.arvore[0];
+      if (lustre.visible) l.push([lustre.x, lustre.y + 60, 220]);
+      if (arvore.visible) l.push([arvore.x, arvore.y - 30, 70]);
+      return l;
+    }
+    faisca(x, y, cor, sobe, dur, prof, tam) {
+      const r = this.add.rectangle(x, y, tam, tam, cor).setDepth(prof);
+      this.tweens.add({ targets: r, y: y + sobe, alpha: 0, duration: dur, onComplete: () => r.destroy() });
+    }
+    fogosArtificio() {   // virada do ano: estouros no céu acima do castelo
+      const x = this.lim.x + 200 + Math.random() * (this.lim.w - 400), y = this.lim.y + 120 + Math.random() * 120;
+      const cor = [0xf5c542, 0xd94848, 0x8fd3ff, 0x4f9a63][Math.floor(Math.random() * 4)];
+      for (let a = 0; a < 12; a++) {
+        const r = this.add.rectangle(x, y, 3, 3, cor).setDepth(99996);
+        this.tweens.add({ targets: r, x: x + Math.cos(a * Math.PI / 6) * 40, y: y + Math.sin(a * Math.PI / 6) * 40 + 10, alpha: 0, duration: 1000, ease: 'Quad.easeOut', onComplete: () => r.destroy() });
       }
     }
     criarDonos() {   // donos-objeto (estandarte, quadro) e os personagens vivos (donos + moradores)
@@ -236,6 +335,7 @@
       const dt = Math.min(.1, delta / 1000);
       for (const ag of this.agentes) { this.passoAgente(ag, dt); this.desenharAgente(ag, time); }
       this.passoGato(dt);
+      this.passoAmbiente(time, dt);
       if (this.gato.s.balao) this.gato.s.balao.setPosition(this.gato.s.x, this.gato.s.getTopCenter().y - 4);
       if (this.calmo) return;
       if ((this.proxConversa -= dt) <= 0) {                     // alguém acordado fala sozinho de vez em quando
@@ -376,7 +476,7 @@
     retomar() {
       if (!jogo) return;
       jogo.loop.wake();
-      const c = this.cena(); if (c && c.vida) { c.lerVida(); c.reagir(); }   // voltou pro Mundo: reage ao que você fez nesse meio-tempo
+      const c = this.cena(); if (c && c.vida) { c.lerVida(); c.reagir(); c.atualizarAmbiente(); }   // voltou pro Mundo: reage ao que você fez nesse meio-tempo
     },
     cena() { return jogo && jogo.scene.getScene('mundo'); },
     irPara(id) { const c = this.cena(); if (c && c.irPara) c.irPara(id); },
