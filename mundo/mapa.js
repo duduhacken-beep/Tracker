@@ -90,6 +90,16 @@
     { item: 'tapete_persa', c: 15, r: 7, n: 3, m: 2 }, { item: 'tapete_persa_azul', c: 21, r: 7, n: 2, m: 2 },
     { item: 'tapete_mapa', c: 13, r: 28, n: 3, m: 2 }, { item: 'pele', c: 6, r: 8, n: 2, m: 1 }, { item: 'tapete_brasao', c: 20, r: 18, n: 3, m: 3 },
   ];
+  // Fase 5C bloco 4: muralha em volta de tudo (dentro: pátio de calçada), portão na frente, caminho de pedra até a porta principal do Salão
+  const MURALHA = { x: 3, y: 3, w: 33, h: 32 };
+  const PORTAO = [18, 19];
+  const noCaminho = (c, r) => (c === 18 || c === 19) && r >= 25 && r < MURALHA.y + MURALHA.h;
+  // tochas nas paredes do fundo (lado = parede onde ficam); acesas à noite
+  const TOCHAS = [
+    { c: 13, r: 16, lado: 'oeste' }, { c: 13, r: 21, lado: 'oeste' }, { c: 16, r: 4, lado: 'norte' }, { c: 22, r: 4, lado: 'norte' },
+    { c: 8, r: 15, lado: 'norte' }, { c: 29, r: 15, lado: 'norte' }, { c: 17, r: 26, lado: 'norte' }, { c: 7, r: 4, lado: 'norte' },
+    { c: 32, r: 4, lado: 'norte' }, { c: 27, r: 10, lado: 'oeste' },
+  ];
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
@@ -110,6 +120,6 @@
   const chaoDe = (c, r) => { if (c >= TERRA.x && c < TERRA.x + TERRA.w && r >= TERRA.y && r < TERRA.y + TERRA.h) return 'terra';
     const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, TAPETES, PARTIDA, altura, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, TAPETES, MURALHA, PORTAO, TOCHAS, noCaminho, PARTIDA, altura, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

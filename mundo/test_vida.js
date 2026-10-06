@@ -41,4 +41,9 @@ assert.deepStrictEqual(V.epoca(new Date(2026, 11, 31, 21)), { natal: true, virad
 assert.deepStrictEqual(V.epoca(new Date(2027, 0, 1, 2)), { natal: false, virada: true });
 assert.deepStrictEqual(V.epoca(new Date(2027, 0, 1, 4)), { natal: false, virada: false });
 assert.deepStrictEqual(V.epoca(new Date(2026, 9, 6, 20)), { natal: false, virada: false });
+// Fase 5C bloco 4: reformas do castelo por nível
+assert.deepStrictEqual(V.reformas(1), { muralha: 'palicada', torres: false, estandartes: false, jardim: false });
+assert.deepStrictEqual(V.reformas(4), { muralha: 'pedra', torres: false, estandartes: false, jardim: false });
+assert.deepStrictEqual(V.reformas(9), { muralha: 'pedra', torres: true, estandartes: true, jardim: false });
+assert.deepStrictEqual(V.reformas(13), { muralha: 'pedra', torres: true, estandartes: true, jardim: true });
 console.log('ok vida');

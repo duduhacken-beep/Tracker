@@ -3099,13 +3099,633 @@
     "w": 32,
     "h": 56
    }
+  },
+  "muralha_dir_pedra": {
+   "frame": {
+    "x": 170,
+    "y": 590,
+    "w": 32,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 96
+   }
+  },
+  "muralha_esq_pedra": {
+   "frame": {
+    "x": 204,
+    "y": 590,
+    "w": 32,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 96
+   }
+  },
+  "muralha_dir_pedra_baixa": {
+   "frame": {
+    "x": 238,
+    "y": 590,
+    "w": 32,
+    "h": 44
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 44
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 44
+   }
+  },
+  "muralha_esq_pedra_baixa": {
+   "frame": {
+    "x": 272,
+    "y": 590,
+    "w": 32,
+    "h": 44
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 44
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 44
+   }
+  },
+  "muralha_dir_palicada": {
+   "frame": {
+    "x": 306,
+    "y": 590,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "muralha_esq_palicada": {
+   "frame": {
+    "x": 340,
+    "y": 590,
+    "w": 32,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 64
+   }
+  },
+  "muralha_dir_palicada_baixa": {
+   "frame": {
+    "x": 374,
+    "y": 590,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   }
+  },
+  "muralha_esq_palicada_baixa": {
+   "frame": {
+    "x": 408,
+    "y": 590,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   }
+  },
+  "torre": {
+   "frame": {
+    "x": 442,
+    "y": 590,
+    "w": 64,
+    "h": 176
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 176
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 176
+   }
+  },
+  "poste_canto": {
+   "frame": {
+    "x": 508,
+    "y": 590,
+    "w": 16,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 16,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 16,
+    "h": 72
+   }
+  },
+  "portao": {
+   "frame": {
+    "x": 526,
+    "y": 590,
+    "w": 64,
+    "h": 120
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 120
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 120
+   }
+  },
+  "piso_ponte_0": {
+   "frame": {
+    "x": 592,
+    "y": 590,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "porta_dir": {
+   "frame": {
+    "x": 658,
+    "y": 590,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "porta_esq": {
+   "frame": {
+    "x": 692,
+    "y": 590,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "porta_dir_alta": {
+   "frame": {
+    "x": 726,
+    "y": 590,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "porta_esq_alta": {
+   "frame": {
+    "x": 760,
+    "y": 590,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "tocha_0": {
+   "frame": {
+    "x": 794,
+    "y": 590,
+    "w": 12,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 24
+   }
+  },
+  "tocha_1": {
+   "frame": {
+    "x": 808,
+    "y": 590,
+    "w": 12,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 24
+   }
+  },
+  "tocha_2": {
+   "frame": {
+    "x": 822,
+    "y": 590,
+    "w": 12,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 24
+   }
+  },
+  "arbusto": {
+   "frame": {
+    "x": 836,
+    "y": 590,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   }
+  },
+  "pedra_grande": {
+   "frame": {
+    "x": 870,
+    "y": 590,
+    "w": 24,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 16
+   }
+  },
+  "parede_esq_madeira_porta": {
+   "frame": {
+    "x": 896,
+    "y": 590,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_madeira_porta_alta": {
+   "frame": {
+    "x": 930,
+    "y": 590,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "parede_esq_madeira_escura_porta": {
+   "frame": {
+    "x": 964,
+    "y": 590,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_madeira_escura_porta_alta": {
+   "frame": {
+    "x": 0,
+    "y": 768,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "parede_esq_azulejo_porta": {
+   "frame": {
+    "x": 34,
+    "y": 768,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_azulejo_porta_alta": {
+   "frame": {
+    "x": 68,
+    "y": 768,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "parede_esq_pedra_porta": {
+   "frame": {
+    "x": 102,
+    "y": 768,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_pedra_porta_alta": {
+   "frame": {
+    "x": 136,
+    "y": 768,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
+  },
+  "parede_esq_pedra_musgo_porta": {
+   "frame": {
+    "x": 170,
+    "y": 768,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_pedra_musgo_porta_alta": {
+   "frame": {
+    "x": 204,
+    "y": 768,
+    "w": 32,
+    "h": 112
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 112
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 112
+   }
   }
  },
  "meta": {
   "image": "cenario.png",
   "size": {
    "w": 1022,
-   "h": 702
+   "h": 880
   },
   "scale": "1"
  }

@@ -95,4 +95,14 @@ assert.ok(M.altura(12, 7) < M.altura(11, 7) && M.altura(11, 7) < 40, 'escada sob
 assert.ok(M.altura(25, 7) > M.altura(26, 7) && M.altura(26, 7) > -32, 'escada desce do Escritório pro Porão');
 const paredes = new Set(['madeira', 'madeira_escura', 'azulejo', 'pedra', 'pedra_musgo']);
 for (const s of M.SALAS) assert.ok(s.parede === null || paredes.has(s.parede), `parede desconhecida em ${s.id}`);
+// Fase 5C bloco 4: tudo dentro da muralha, caminho no pátio livre, tochas em paredes de verdade
+const Mu = M.MURALHA, dentroMuralha = (c, r) => c >= Mu.x && c < Mu.x + Mu.w && r >= Mu.y && r < Mu.y + Mu.h;
+for (const s of M.SALAS) assert.ok(dentroMuralha(s.x - 1, s.y - 1) && dentroMuralha(s.x + s.w, s.y + s.h), `${s.id} encostando na muralha`);
+for (let r = 25; r < Mu.y + Mu.h; r++) for (const c of [18, 19]) assert.ok(M.noCaminho(c, r) && !M.salaDe(c, r) && !M.passagemDe(c, r), `caminho em ${c},${r}`);
+for (const t of M.TOCHAS) {
+  const s = M.salaDe(t.c, t.r); assert.ok(s && s.parede, `tocha ${t.c},${t.r} fora de sala com parede`);
+  assert.ok(t.lado === 'norte' ? t.r === s.y : t.c === s.x, `tocha ${t.c},${t.r} não está na borda ${t.lado}`);
+  const fora = t.lado === 'norte' ? [t.c, t.r - 1] : [t.c - 1, t.r];
+  assert.ok(!M.passagemDe(...fora), `tocha ${t.c},${t.r} em cima de uma porta`);
+}
 console.log('ok mapa');

@@ -19,23 +19,27 @@
     escrever: { cor: 0x1b1d24, vy: -10 }, treinar: { cor: 0xf4f4f4, vy: -14 }, anunciar: { cor: 0xf5c542, vy: -38 }, estudar: { cor: 0x8fc4e8, vy: -24 } };
   let jogo = null, ops = {};
   // posição na tela de um tile, já com a altura do piso (Quarto em cima, Porão embaixo)
-  const tela = (c, r) => { const p = Iso.paraTela(c, r); p.y -= MapaMundo.altura(Math.round(c), Math.round(r)); return p; };
+  // `chao` = y no nível do chão: a profundidade (quem cobre quem) usa ele, senão a sala de cima ficaria atrás da muralha
+  const tela = (c, r) => { const p = Iso.paraTela(c, r); p.chao = p.y; p.y -= MapaMundo.altura(Math.round(c), Math.round(r)); return p; };
+  const alturaDe = ([c, r]) => MapaMundo.altura(Math.round(c), Math.round(r));
 
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=7', 'mundo/cenario.json?v=7');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=7', 'mundo/personagens.json?v=7');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=8', 'mundo/cenario.json?v=8');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=8', 'mundo/personagens.json?v=8');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
       this.desenharChao();
+      this.desenharExterior();
       this.desenharParedes();
       this.desenharMoveis();
       this.desenharPlacas();
-      const todos = MapaMundo.SALAS.flatMap(s => [tela(s.x, s.y), tela(s.x + s.w, s.y + s.h), tela(s.x, s.y + s.h), tela(s.x + s.w, s.y)]);
+      const Mu = MapaMundo.MURALHA, B = 6;                                    // terreno em volta da muralha
+      const todos = [Iso.paraTela(Mu.x - B, Mu.y - B), Iso.paraTela(Mu.x + Mu.w + B, Mu.y + Mu.h + B), Iso.paraTela(Mu.x - B, Mu.y + Mu.h + B), Iso.paraTela(Mu.x + Mu.w + B, Mu.y - B)];
       const xs = todos.map(p => p.x), ys = todos.map(p => p.y);
-      this.lim = { x: Math.min(...xs) - 200, y: Math.min(...ys) - 200, w: Math.max(...xs) - Math.min(...xs) + 400, h: Math.max(...ys) - Math.min(...ys) + 400 };
+      this.lim = { x: Math.min(...xs), y: Math.min(...ys) - 200, w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) + 200 };
       this.cameras.main.setBounds(this.lim.x, this.lim.y, this.lim.w, this.lim.h);
       this.cameras.main.setZoom(2);
       const p = tela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
@@ -53,7 +57,7 @@
       mk('rei_frente', ['eu_rei_f1', 'eu_rei_f2']); mk('rei_costas', ['eu_rei_c1', 'eu_rei_c2']);
       this.reiTile = MapaMundo.PARTIDA.slice();
       const { x, y } = tela(...this.reiTile);
-      this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y);
+      this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y + alturaDe(this.reiTile));
       this.rei.sombra = this.sombra(x, y, 22);
       this.input.on('pointerup', (p, sobre) => {
         if (this.arrastou || sobre.length) return;
@@ -66,6 +70,40 @@
       const rb = this.rei.getBounds();
       for (const p of this.paredes) p.setAlpha(p.depth > this.rei.depth && Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);
       for (const p of this.placas) p.setAlpha(Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);   // placa fica sempre por cima
+    }
+    desenharExterior() {   // pátio de calçada dentro da muralha, caminho até o portão, fosso, grama e árvores do lado de fora; muralha que evolui
+      const Mu = MapaMundo.MURALHA, B = 6, dentro = (c, r) => c >= Mu.x && c < Mu.x + Mu.w && r >= Mu.y && r < Mu.y + Mu.h;
+      this.agua = []; this.reforma = { palicada: [], pedra: [], torres: [], estandartes: [], jardim: [] };
+      const deco = (frame, c, r, ay) => { const { x, y } = Iso.paraTela(c, r), s = this.add.image(x, y + 8, 'cenario', frame).setOrigin(.5, ay).setDepth(y + 8); this.sombra(x, y + 6, s.width * .7); return s; };
+      for (let c = Mu.x - B; c < Mu.x + Mu.w + B; c++) for (let r = Mu.y - B; r < Mu.y + Mu.h + B; r++) {
+        if (MapaMundo.salaDe(c, r) || MapaMundo.passagemDe(c, r)) continue;
+        const { x, y } = Iso.paraTela(c, r), fosso = !dentro(c, r) && c >= Mu.x - 1 && c <= Mu.x + Mu.w && r >= Mu.y - 1 && r <= Mu.y + Mu.h;
+        const ponte = fosso && r === Mu.y + Mu.h && MapaMundo.PORTAO.includes(c);
+        const frame = dentro(c, r) ? this.piso(MapaMundo.noCaminho(c, r) ? 'caminho' : 'calcada', c, r) : ponte ? 'piso_ponte_0' : fosso ? 'agua_0' : this.piso('grama', c, r);
+        const img = this.add.image(x, y, 'cenario', frame).setDepth(-100000);
+        if (fosso && !ponte) this.agua.push(img);
+        if (!dentro(c, r) && !fosso) {                                    // lado de fora: árvores, arbustos e pedras sorteados
+          const k = this.sorteio(c, r, 23);
+          if (k === 0) deco('arvore', c, r, 1); else if (k < 3) deco(k === 1 ? 'arbusto' : 'pedra_grande', c, r, 1);
+        } else if (dentro(c, r) && !MapaMundo.noCaminho(c, r) && this.sorteio(c, r, 6) === 0) {   // jardim (nível 12): flores no pátio de calçada
+          this.reforma.jardim.push(this.add.image(x, y, 'cenario', 'flores_' + this.sorteio(c, r, 3)).setDepth(-99998));
+        }
+      }
+      for (const seg of this.bordas(Mu)) {                              // muralha: fundo alta, frente baixa; vão no portão
+        if (seg.lado === 'sul' && MapaMundo.PORTAO.includes(seg.c)) continue;
+        const frente = seg.lado === 'sul' || seg.lado === 'leste', tipo = seg.lado === 'norte' || seg.lado === 'sul' ? 'dir' : 'esq';
+        this.reforma.palicada.push(this.pecaNaBorda(`muralha_${tipo}_palicada${frente ? '_baixa' : ''}`, seg, frente ? 36 : 64, 0));
+        this.reforma.pedra.push(this.pecaNaBorda(`muralha_${tipo}_pedra${frente ? '_baixa' : ''}`, seg, frente ? 44 : 96, 0));
+      }
+      { const { x, y } = Iso.paraTela(MapaMundo.PORTAO[0], Mu.y + Mu.h - 1);   // portão com grade levadiça (2 bordas de largura)
+        this.add.image(x - 32, y - 87, 'cenario', 'portao').setOrigin(0, 0).setDepth(y + 32); }
+      const cantos = [[Mu.x, Mu.y, 0, -16], [Mu.x + Mu.w - 1, Mu.y, 32, 0], [Mu.x, Mu.y + Mu.h - 1, -32, 0], [Mu.x + Mu.w - 1, Mu.y + Mu.h - 1, 0, 16]];
+      for (const [c, r, dx, dy] of cantos) {                            // cantos: poste (paliçada) ou torre com estandarte
+        const p = Iso.paraTela(c, r), x = p.x + dx, y = p.y + dy;
+        this.reforma.palicada.push(this.add.image(x, y + 2, 'cenario', 'poste_canto').setOrigin(.5, 1).setDepth(y + 1));
+        this.reforma.torres.push(this.add.image(x, y + 6, 'cenario', 'torre').setOrigin(.5, 1).setDepth(y + 1));
+        this.reforma.estandartes.push(this.add.image(x + 2, y + 6 - 170, 'cenario', 'estandarte_andarilho').setOrigin(4 / 24, 54 / 56).setDepth(y + 2));
+      }
     }
     sorteio(c, r, n) { return (((c * 73856093) ^ (r * 19349663)) >>> 0) % n; }
     piso(estilo, c, r) { return 'piso_' + estilo + '_' + this.sorteio(c, r, estilo === 'caminho' ? 2 : 4); }
@@ -86,9 +124,9 @@
     }
     foraDe(seg) { return seg.lado === 'norte' ? [seg.c, seg.r - 1] : seg.lado === 'oeste' ? [seg.c - 1, seg.r] : seg.lado === 'sul' ? [seg.c, seg.r + 1] : [seg.c + 1, seg.r]; }
     pecaNaBorda(frame, seg, alt, altura = MapaMundo.altura(seg.c, seg.r)) {   // peça de altura `alt` em pé numa borda (mesma geometria das paredes: 'dir' em norte/sul, 'esq' em oeste/leste)
-      const { x, y } = Iso.paraTela(seg.c, seg.r); const yy = y - altura;
+      const { x, y } = Iso.paraTela(seg.c, seg.r); const yy = y - altura, dz = altura;   // profundidade pelo chão (dz devolve a altura)
       const [x0, yAlto, prof] = seg.lado === 'norte' ? [x, yy - 16, yy - 16] : seg.lado === 'oeste' ? [x - 32, yy - 16, yy - 16] : seg.lado === 'sul' ? [x - 32, yy, yy + 16] : [x, yy, yy + 16];
-      return this.add.image(x0, yAlto - (alt - 16), 'cenario', frame).setOrigin(0, 0).setDepth(prof);
+      return this.add.image(x0, yAlto - (alt - 16), 'cenario', frame).setOrigin(0, 0).setDepth(prof + dz);
     }
     sombra(x, y, larg) {   // sombra de contato: elipse escura logo acima do piso (abaixo de tudo que fica em pé)
       return this.add.ellipse(x, y, larg, larg * .42, 0x000000, .28).setDepth(-99000);
@@ -112,8 +150,8 @@
       gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 128, 128); luz.refresh();
     }
     criarAmbiente() {   // Fase 5B: enfeites por nível, troféus, velas, lareira = sequência, noite com luzes, Natal e virada
-      const sp = (frame, c, r, ax, ay) => { const { x, y } = tela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame); s.sombra = this.sombra(x, y + 2, 20);
-        return s.setOrigin(ax / s.width, ay / s.height).setDepth(base); };
+      const sp = (frame, c, r, ax, ay) => { const { x, y, chao } = tela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame); s.sombra = this.sombra(x, y + 2, 20);
+        return s.setOrigin(ax / s.width, ay / s.height).setDepth(chao + Iso.TH / 2); };
       const E = id => MapaMundo.ENFEITES.find(e => e.id === id).tiles;
       const meio = tela(19, 19);
       this.enf = {
@@ -126,7 +164,7 @@
           this.add.rectangle(meio.x, meio.y - 196, 1, 140, 0x2a1e12).setDepth(99990)],          // …pela corrente
         arvore: [sp('arvore_natal_0', ...E('arvore')[0], 16, 53)],
       };
-      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y } = tela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(y + Iso.TH / 2 + 1); });
+      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y, chao } = tela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(chao + Iso.TH / 2 + 1); });
       // troféus: uma medalha por conquista na parede norte do Salão (pulando as portas e o quadro de avisos)
       const pts = [13, 14, 18, 19, 20, 23, 24].flatMap(c => [.2, .5, .8].map(f => { const { x, y } = tela(c, 13); return [x + 32 * f, y - 16 + 16 * f - 44, y - 16]; }));
       this.trofeus = pts.slice(0, 20).map(([x, y, prof]) => this.add.image(Math.round(x), Math.round(y), 'gancho').setDepth(prof + .5).setInteractive({ useHandCursor: true }));
@@ -136,9 +174,13 @@
         if (id) m.setInteractive({ useHandCursor: true }).on('pointerup', () => { if (!this.arrastou) this.falar(m, ops.texto && ops.texto(id), 5); });
       }
       this.lareira = this.moveis.find(m => m.frame.name === 'lareira');
+      this.tochas = MapaMundo.TOCHAS.map(t => {                         // tocha presa na parede, no meio da borda
+        const { x, y, chao } = tela(t.c, t.r), [px, py] = t.lado === 'norte' ? [x + 16, y - 8] : [x - 16, y - 8];
+        return this.add.image(px, py - 40, 'cenario', 'tocha_0').setOrigin(.5, 1).setDepth(chao - 16 + 1);
+      });
       this.luzImg = this.make.image({ key: 'luz', add: false });
       this.escuro = this.add.renderTexture(this.lim.x, this.lim.y, this.lim.w, this.lim.h).setOrigin(0).setDepth(99995);   // noite: abaixo de placas, ícones e falas
-      this.proxNoite = 0; this.proxFogos = 0;
+      this.proxNoite = 0; this.proxFogos = 0; this.proxPortas = 0;
       this.atualizarAmbiente();
       this.time.addEvent({ delay: 60000, loop: true, callback: () => this.atualizarAmbiente() });
     }
@@ -150,6 +192,10 @@
       this.enf.estatua[0].setFrame('estatua_' + p.classe);
       this.trofeus.forEach((s, i) => { const c = p.conquistas[i]; s.setTexture(c && c.ok ? 'medalha_' + c.tier : 'gancho'); });
       this.fogo = VidaMundo.fogo(p.antes, p.seq);
+      const rf = VidaMundo.reformas(p.nivel), R = this.reforma;   // o castelo evolui com o nível
+      R.palicada.forEach(o => o.setVisible(rf.muralha === 'palicada')); R.pedra.forEach(o => o.setVisible(rf.muralha === 'pedra'));
+      R.torres.forEach(o => o.setVisible(rf.torres)); R.estandartes.forEach(o => o.setVisible(rf.estandartes).setFrame('estandarte_' + p.classe));
+      R.jardim.forEach(o => o.setVisible(rf.jardim));
       this.ceu = VidaMundo.ceu(new Date().getHours());
     }
     passoAmbiente(time, dt) {
@@ -164,6 +210,16 @@
         }
       }
       if (this.epoca.natal) this.enf.arvore[0].setFrame('arvore_natal_' + (Math.floor(time / 800) % 2));
+      if (!this.calmo) {
+        const qa = Math.floor(time / 700) % 2, qt = Math.floor(time / 140) % 3;   // água do fosso e chama das tochas
+        if (qa !== this.quadroAgua) { this.quadroAgua = qa; this.agua.forEach(a => a.setFrame('agua_' + qa)); }
+        if (qt !== this.quadroTocha) { this.quadroTocha = qt; this.tochas.forEach((t, i) => t.setFrame('tocha_' + ((qt + i) % 3))); }
+      }
+      if ((this.proxPortas -= dt) <= 0) {                               // portas abrem com alguém por perto
+        this.proxPortas = .2;
+        const quem = [this.reiTile, ...this.agentes.filter(a => !a.d.preso).map(a => a.tile)];
+        for (const p of this.portas) p.folha.setVisible(!quem.some(([qc, qr]) => p.tiles.some(([c, r]) => Math.abs(qc - c) <= 1 && Math.abs(qr - r) <= 1)));
+      }
       if (this.epoca.virada && !this.calmo && (this.proxFogos -= dt) <= 0) { this.proxFogos = .6 + Math.random() * .8; this.fogosArtificio(); }
       if ((this.proxNoite -= dt) > 0) return;                          // noite: escurece e abre as luzes (10x por segundo)
       this.proxNoite = .1;
@@ -180,6 +236,7 @@
       const lustre = this.enf.lustre[0], arvore = this.enf.arvore[0];
       if (lustre.visible) l.push([lustre.x, lustre.y + 60, 220]);
       if (arvore.visible) l.push([arvore.x, arvore.y - 30, 70]);
+      for (const t of this.tochas) l.push([t.x, t.y - 18, 80]);
       return l;
     }
     faisca(x, y, cor, sobe, dur, prof, tam) {
@@ -200,7 +257,7 @@
       for (const d of [...MapaMundo.DONOS, ...MapaMundo.MORADORES]) {
         const { x, y } = tela(d.c, d.r);
         if (d.objeto) {
-          const s = this.add.sprite(x, y + Iso.TH / 2, 'cenario', ops.quadro(d.id)).setDepth(y + Iso.TH / 2);
+          const s = this.add.sprite(x, y + Iso.TH / 2, 'cenario', ops.quadro(d.id)).setDepth(y + alturaDe([d.c, d.r]) + Iso.TH / 2);
           s.setOrigin(ANCORA[d.id][0] / s.width, ANCORA[d.id][1] / s.height).setInteractive({ useHandCursor: true });
           s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
           this.sombra(x, y + 4, 18); this.donos[d.id] = s; continue;
@@ -208,7 +265,7 @@
         const spr = d.id;
         for (const [k, fs] of [['_frente', ['_f1', '_f2']], ['_costas', ['_c1', '_c2']]])
           if (!this.anims.exists(spr + k)) this.anims.create({ key: spr + k, frames: fs.map(f => ({ key: 'personagens', frame: spr + f })), frameRate: 6, repeat: -1 });
-        const s = this.add.sprite(x, y, 'personagens', spr + '_f').setOrigin(.5, 46 / 48).setDepth(y).setInteractive({ useHandCursor: true });
+        const s = this.add.sprite(x, y, 'personagens', spr + '_f').setOrigin(.5, 46 / 48).setDepth(y + alturaDe([d.c, d.r])).setInteractive({ useHandCursor: true });
         const ag = { d, s, spr, id: d.agente || d.id, posto: [d.c, d.r], tile: [d.c, d.r], t: 0, poi: null, missao: null, emote: null, emoteT: 0 };
         ag.icone = this.add.image(x, y, 'icone_fala').setOrigin(.5, 1).setDepth(100001).setVisible(false);
         s.on('pointerup', () => { if (!this.arrastou) this.clicarAgente(ag); });
@@ -251,7 +308,7 @@
     }
     teleportar(ag, tile) {
       this.tweens.killTweensOf(ag.s); ag.andando = false;
-      const { x, y } = tela(...tile); ag.s.setPosition(x, y).setDepth(y); ag.tile = tile.slice();
+      const { x, y, chao } = tela(...tile); ag.s.setPosition(x, y).setDepth(chao); ag.tile = tile.slice();
     }
     irAgente(ag, alvo, rapido, chegar) {
       const passos = Iso.caminho(MapaMundo.andavelAgente, ag.tile, alvo);
@@ -268,7 +325,8 @@
         const de = tela(...ag.tile), para = tela(...p);
         ag.costas = para.y < de.y;
         ag.s.setFlipX(para.x < de.x).play(ag.spr + (ag.costas ? '_costas' : '_frente'), true);
-        this.tweens.add({ targets: ag.s, x: para.x, y: para.y, duration: rapido ? 130 : 260, onUpdate: () => ag.s.setDepth(ag.s.y),
+        const dz = alturaDe(p);
+        this.tweens.add({ targets: ag.s, x: para.x, y: para.y, duration: rapido ? 130 : 260, onUpdate: () => ag.s.setDepth(ag.s.y + dz),
           onComplete: () => { ag.tile = p; proximo(); } });
       };
       proximo();
@@ -393,7 +451,8 @@
         const de = tela(...this.reiTile), para = tela(...alvo);
         const costas = para.y < de.y;
         this.rei.setFlipX(para.x < de.x).play(costas ? 'rei_costas' : 'rei_frente', true);
-        this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => { this.rei.setDepth(this.rei.y); this.atualizarParedes(); },
+        const dz = alturaDe(alvo);
+        this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => { this.rei.setDepth(this.rei.y + dz); this.atualizarParedes(); },
           onComplete: () => { this.reiTile = alvo; proximo(); } });
       };
       proximo();
@@ -470,7 +529,7 @@
         }
       for (const p of MapaMundo.PASSAGENS.filter(p => p.escada)) {
         const [c, r] = p.tiles[0], { x, y } = tela(c, r);
-        this.add.image(x, y + Iso.TH / 2, 'cenario', 'escada').setOrigin(ANCORA.escada[0] / 64, ANCORA.escada[1] / 64).setDepth(y - 1);
+        this.add.image(x, y + Iso.TH / 2, 'cenario', 'escada').setOrigin(ANCORA.escada[0] / 64, ANCORA.escada[1] / 64).setDepth(y + alturaDe([c, r]) - 1);
       }
     }
     desenharMoveis() {
@@ -480,10 +539,10 @@
         this.sombra(x, y + 2, Math.min(fr.width * .8, 30 + 26 * (oc.length - 1)));
       }
       this.moveis = MapaMundo.MOVEIS.flatMap(m => {
-        const { x, y } = tela(m.c, m.r), base = y + Iso.TH / 2;
-        const img = (item, prof) => { const fr = this.textures.getFrame('cenario', item), [ax, ay] = ANCORA[item] || [fr.width / 2, fr.height - 1];
-          return this.add.image(x, base, 'cenario', item).setOrigin(ax / fr.width, ay / fr.height).setDepth(prof); };
-        return m.item === 'jaula' ? [img('jaula_chao', base - 48), img('jaula_grades', base)] : [img(m.item, base)];   // Kobe fica entre o chão e as grades
+        const { x, y, chao } = tela(m.c, m.r), base = y + Iso.TH / 2, prof = chao + Iso.TH / 2;   // desenha na altura do piso, ordena pelo chão
+        const img = (item, d) => { const fr = this.textures.getFrame('cenario', item), [ax, ay] = ANCORA[item] || [fr.width / 2, fr.height - 1];
+          return this.add.image(x, base, 'cenario', item).setOrigin(ax / fr.width, ay / fr.height).setDepth(d); };
+        return m.item === 'jaula' ? [img('jaula_chao', prof - 48), img('jaula_grades', prof)] : [img(m.item, prof)];   // Kobe fica entre o chão e as grades
       });
     }
     desenharPlacas() {
@@ -494,16 +553,19 @@
       });
     }
     desenharParedes() {   // paredes do fundo (com acabamento e estilo da sala), mureta de meia altura na frente, fundação sob a sala elevada
-      this.paredes = [];
+      this.paredes = []; this.portas = [];
       for (const s of MapaMundo.SALAS.filter(s => s.parede)) {
         const suf = s.alta ? '_alta' : '', H = s.alta ? 112 : 80, pedra = s.parede.startsWith('pedra');
         for (const seg of this.bordas(s)) {
           const fora = this.foraDe(seg), passagem = !!MapaMundo.passagemDe(...fora), vizinha = MapaMundo.salaDe(...fora);
-          if (seg.lado === 'oeste') {
-            if (passagem) continue;
-            this.paredes.push(this.pecaNaBorda(`parede_esq_${s.parede}${seg.r % 4 === 2 && !pedra ? '_janela' : ''}${suf}`, seg, H));
-          } else if (seg.lado === 'norte') {
-            this.paredes.push(this.pecaNaBorda(`parede_dir_${s.parede}${passagem ? '_porta' : ''}${suf}`, seg, H));
+          if (seg.lado === 'oeste' || seg.lado === 'norte') {
+            const tipo = seg.lado === 'oeste' ? 'esq' : 'dir', janela = tipo === 'esq' && seg.r % 4 === 2 && !pedra && !passagem;
+            const parede = this.pecaNaBorda(`parede_${tipo}_${s.parede}${passagem ? '_porta' : janela ? '_janela' : ''}${suf}`, seg, H);
+            this.paredes.push(parede);
+            if (passagem) {                                             // porta de madeira que abre quando alguém chega perto
+              const folha = this.pecaNaBorda(`porta_${tipo}${suf}`, seg, H).setDepth(parede.depth + .5);
+              this.paredes.push(folha); this.portas.push({ folha, tiles: MapaMundo.passagemDe(...fora).tiles });
+            }
           } else {                                                      // frente: vão nas passagens, nada onde a sala vizinha já tem parede, porta principal do Salão
             if (passagem || vizinha || (s.id === 'salao' && seg.lado === 'sul' && (seg.c === 18 || seg.c === 19))) continue;
             this.paredes.push(this.pecaNaBorda(`mureta_${seg.lado === 'sul' ? 'dir' : 'esq'}_${s.parede}`, seg, 36));

@@ -45,6 +45,9 @@
   const epoca = d => ({ natal: d.getMonth() === 11,
     virada: (d.getMonth() === 11 && d.getDate() === 31 && d.getHours() >= 20) || (d.getMonth() === 0 && d.getDate() === 1 && d.getHours() < 3) });
 
-  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca };
+  // reformas do castelo pelo nível do Modo Caverna: paliçada de madeira → muralha de pedra (4) → torres (6) → estandartes nas torres (9) → jardim (12)
+  const reformas = nivel => ({ muralha: nivel >= 4 ? 'pedra' : 'palicada', torres: nivel >= 6, estandartes: nivel >= 9, jardim: nivel >= 12 });
+
+  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca, reformas };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.VidaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);
