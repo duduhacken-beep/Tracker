@@ -7,8 +7,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png', 'mundo/cenario.json');
-      this.load.atlas('personagens', 'mundo/personagens.png', 'mundo/personagens.json');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=3', 'mundo/cenario.json?v=3');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=3', 'mundo/personagens.json?v=3');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -49,10 +49,12 @@
       this.donos = {};
       for (const d of MapaMundo.DONOS) {
         const { x, y } = Iso.paraTela(d.c, d.r);
-        const s = this.add.sprite(x, y, 'personagens', d.id + '_f').setOrigin(.5, 46 / 48).setDepth(y)
-          .setInteractive({ useHandCursor: true });
+        const s = d.objeto                                         // dono-objeto (estandarte): sai do atlas do cenário, pé do mastro no chão
+          ? this.add.sprite(x, y + Iso.TH / 2, 'cenario', (ops.quadro && ops.quadro(d.id)) || 'estandarte_andarilho').setOrigin(4 / 24, 54 / 56).setDepth(y + Iso.TH / 2)
+          : this.add.sprite(x, y, 'personagens', d.id + '_f').setOrigin(.5, 46 / 48).setDepth(y);
+        s.setInteractive({ useHandCursor: true });
         s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
-        if (!calmo) this.tweens.add({ targets: s, y: y - 1, duration: 900, yoyo: true, repeat: -1, ease: 'Stepped' });   // respira 1px (escala distorceria o pixel)
+        if (!calmo && !d.objeto) this.tweens.add({ targets: s, y: y - 1, duration: 900, yoyo: true, repeat: -1, ease: 'Stepped' });   // respira 1px (escala distorceria o pixel)
         this.donos[d.id] = s;
       }
     }
@@ -91,8 +93,10 @@
     mostrarBalao(d) {
       const texto = ops.resumo && ops.resumo(d.sala), s = this.donos[d.id];
       if (!texto) return;
+      if (d.objeto && ops.quadro) s.setFrame(ops.quadro(d.id));    // a classe pode ter mudado
       if (s.balao) s.balao.destroy();
-      const b = s.balao = this.add.text(s.x, s.y - 50, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12',
+      const topo = s.getTopCenter();
+      const b = s.balao = this.add.text(topo.x, topo.y - 4, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12',
         backgroundColor: '#f3e3bb', padding: { x: 6, y: 4 }, wordWrap: { width: 140 }, align: 'center', resolution: 4 }).setOrigin(.5, 1).setDepth(100001);
       this.time.delayedCall(6000, () => { b.destroy(); if (s.balao === b) s.balao = null; });
     }
