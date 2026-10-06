@@ -833,6 +833,9 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mj-fechar{font-size:22px;line-height:1;color:#f3e3bb;padding:4px 10px}
 .mj-abas button:focus-visible,.mj-fechar:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
 .mj-corpo{flex:1;overflow:auto;padding:28px 32px 40px}
+.mj-status{padding:6px 18px;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80;background:#241f19;border-bottom:1px solid #4a3a1e}
+.mj-status:empty{display:none}
+#mundo-janela-corpo #tv-cena,#mundo-janela-corpo #tv-btn-mundo{display:none}   /* dentro do Mundo a Taverna mostra só o painel e a crônica */
 .mundo-mapa .mm-linha{display:flex;align-items:center;gap:4px}
 .mundo-mapa .mm-abrir{color:#f0c96a;font-weight:700}
 @media(max-width:640px){.mundo-janela{padding:0}.mj-painel{border-width:0;border-radius:0}.mj-topo{flex-wrap:wrap}.mj-corpo{padding:18px 14px 30px}}
@@ -2330,6 +2333,7 @@ body.dens-compact .gap{margin-bottom:14px}
           <div class="mj-abas" id="mundo-janela-abas" role="tablist"></div>
           <button class="mj-fechar" id="mundo-janela-fechar" onclick="mundoFecharJanela()" aria-label="Fechar">×</button>
         </div>
+        <div class="mj-status" id="mundo-janela-status"></div>
         <div class="mj-corpo" id="mundo-janela-corpo"></div>
       </div>
     </div>
@@ -2339,7 +2343,7 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- ════════════════ TAVERNA ════════════════ -->
 <section class="page" id="page-taverna">
   <h1>Taverna</h1><p class="psub">Seus agentes vivem aqui. Toque num personagem pra ver o que ele fez.</p>
-  <button class="btn btn-p" onclick="go('mundo')" style="margin:-18px 0 22px">Entrar no Mundo</button>
+  <button class="btn btn-p" id="tv-btn-mundo" onclick="go('mundo')" style="margin:-18px 0 22px">Entrar no Mundo</button>
   <div class="tv-cena gap" id="tv-cena"><div class="tv-mapa"><canvas id="tv-canvas" width="320" height="240" role="img" aria-label="Taverna vista de cima com os agentes andando"></canvas><div class="tv-falas" id="tv-falas" aria-live="polite"></div></div></div>
   <div class="card gap" id="tv-quadro" hidden></div>
   <div class="card gap" id="tv-cronica"></div>
@@ -3084,7 +3088,7 @@ function go(p) {
   setupScrollReveal(p);
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
-  if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); safeCall(startParticleLoop, 'startParticleLoop'); }
+  if (p === 'home')     { safeCall(startParticleLoop, 'startParticleLoop'); }
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
   if (p === 'mundo') { safeCall(abrirMundo, 'abrirMundo'); } else if (window.MundoTracker) window.MundoTracker.pausar();
   renderAba(p);
@@ -3092,6 +3096,7 @@ function go(p) {
 
 // render de cada aba — usado pelo go() e pela janela do Mundo
 function renderAba(p) {
+  if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
@@ -4816,11 +4821,12 @@ function mundoMapaRapido() {
 }
 // Janela de RPG: empresta a seção da aba de hoje (mesmas funções nas duas caras do app) e devolve ao fechar
 const MUNDO_JANELAS = {
-  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
-  cozinha: { titulo: 'Cozinha', dono: 'Maria', abas: [['receitas', 'Receitas']] },
-  biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', abas: [['leitura', 'Leitura']] },
-  escritorio: { titulo: 'Escritório', dono: 'Mônica', abas: [['agenda', 'Agenda']] },
-  patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', abas: [['corpo', 'Corpo']] },
+  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', agente: 'tesoureiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
+  cozinha: { titulo: 'Cozinha', dono: 'Maria', agente: 'maria', abas: [['receitas', 'Receitas']] },
+  biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', agente: 'mosley', abas: [['leitura', 'Leitura']] },
+  escritorio: { titulo: 'Escritório', dono: 'Mônica', agente: 'monica', abas: [['agenda', 'Agenda']] },
+  patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', agente: 'jefrey', abas: [['corpo', 'Corpo']] },
+  salao:      { titulo: 'Salão da Taverna', dono: 'Quadro de avisos', abas: [['home', 'Início']] },   // a crônica dos agentes fica no Livro do Reino
   quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', abas: [['evolucao', 'Evolução']] },
   porao:      { titulo: 'Arquivo', dono: 'Escrivão', abas: [['backup', 'Backup']] },
 };
@@ -4886,7 +4892,19 @@ function mundoResumo(sala) {
     const n = _bkContagens().reduce((s, [, c]) => s + (typeof c === 'number' ? c : 0), 0);
     return n ? `Guardo ${n} registros seus no arquivo.` : 'O arquivo ainda está vazio.';
   }
+  if (sala === 'salao') {
+    const n = _tvAgenda().length;
+    return n ? `${n} compromisso${n > 1 ? 's' : ''} no quadro pros próximos 7 dias.` : 'Quadro limpo: nada nos próximos 7 dias.';
+  }
   return null;
+}
+// situação do agente dono na janela: estado, última execução (com resumo) e próxima — mesmas regras do painel da Taverna
+function mundoStatusAgente(id) {
+  const a = TV_AGENTES.find(x => x.id === id), st = load('agentes_status', {})[id], est = _tvEstado(a, st), prox = _tvProxima(a);
+  const partes = [_tvRecente(st) && est !== 'erro' && est !== 'trabalhando' ? 'Terminou há pouco' : TV_EST_TXT[est]];
+  if (st && (st.fim || st.inicio)) partes.push(`Última: ${_tvFmt(new Date(st.fim || st.inicio))}${st.resumo ? ' — ' + st.resumo : ''}`);
+  if (prox) partes.push(`Próxima: ${_tvFmt(prox)}`);
+  return partes.join(' · ');
 }
 function mundoAbrirJanela(sala) {
   const cfg = MUNDO_JANELAS[sala];
@@ -4895,6 +4913,7 @@ function mundoAbrirJanela(sala) {
   _mjAberta = { sala, foco: document.activeElement };
   $('mundo-janela-titulo').textContent = cfg.titulo;
   $('mundo-janela-dono').textContent = cfg.dono;
+  $('mundo-janela-status').textContent = cfg.agente ? mundoStatusAgente(cfg.agente) : '';
   $('mundo-janela-abas').innerHTML = cfg.abas.length > 1 ? cfg.abas.map(([id, nome]) =>
     `<button role="tab" id="mj-aba-${id}" aria-selected="false" onclick="mundoJanelaAba('${id}')">${nome}</button>`).join('') : '';
   $('mundo-janela').hidden = false;
@@ -4980,6 +4999,7 @@ function _tvEstado(a, st) {
   return _tvNoite() ? 'dormindo' : 'descansando';
 }
 const _tvRecente = st => st?.estado === 'ok' && st.fim && Date.now() - Date.parse(st.fim) < 12 * 36e5;
+const _tvAtiva = () => $('page-taverna')?.classList.contains('on') && !$('mundo-janela-corpo')?.contains($('page-taverna'));
 const _tvLS = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
 
 // ── Mapa (tiles de 16px, 20x15; linhas 0-2 são a parede do fundo) ──
@@ -5439,7 +5459,7 @@ function _tvPasso(dt) {
   _tvDesenharBolhas(dt);
 }
 function _tvLoop(agora) {
-  if (!$('page-taverna')?.classList.contains('on') || document.hidden) { _tvRaf = 0; return; }
+  if (!_tvAtiva() || document.hidden) { _tvRaf = 0; return; }
   const dt = Math.min(.1, (agora - (_tvUlt || agora)) / 1000); _tvUlt = agora;
   _tvPasso(dt);
   _tvDesenhar();
@@ -5491,7 +5511,7 @@ function renderTaverna() {
   if (!_tvAgs) { _tvIniciarAgentes(); $('tv-canvas').addEventListener('click', _tvClique); }
   const eu = _tvAgs.find(a => a.def.usuario); if (eu) eu.def = Object.assign(eu.def, _tvEu());
   _tvReagir();
-  if (!_tvRaf && $('page-taverna').classList.contains('on')) { _tvUlt = 0; _tvRaf = requestAnimationFrame(_tvLoop); }
+  if (!_tvRaf && _tvAtiva()) { _tvUlt = 0; _tvRaf = requestAnimationFrame(_tvLoop); }
   _tvRenderQuadro();
   const cron = _tvCronica();
   $('tv-cronica').innerHTML = `<h2>Crônica da taverna</h2>${cron.length ? `<div class="tv-lista">${cron.map(([d, txt]) => `<div class="tv-cron"><span>${_tvFmtData(d)}</span>${_escH(txt)}</div>`).join('')}</div>` : '<p class="tv-papel">Nada registrado ainda. As histórias começam quando os agentes trabalharem e você completar suas metas.</p>'}`;
