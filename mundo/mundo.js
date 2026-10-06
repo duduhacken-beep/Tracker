@@ -14,6 +14,8 @@
       this.cameras.main.setBackgroundColor('#120d08');
       this.desenharChao();
       this.desenharParedes();
+      this.desenharMoveis();
+      this.desenharPlacas();
       const todos = MapaMundo.SALAS.flatMap(s => [Iso.paraTela(s.x, s.y), Iso.paraTela(s.x + s.w, s.y + s.h), Iso.paraTela(s.x, s.y + s.h), Iso.paraTela(s.x + s.w, s.y)]);
       const xs = todos.map(p => p.x), ys = todos.map(p => p.y);
       this.cameras.main.setBounds(Math.min(...xs) - 200, Math.min(...ys) - 200, Math.max(...xs) - Math.min(...xs) + 400, Math.max(...ys) - Math.min(...ys) + 400);
@@ -32,6 +34,20 @@
         const [c, r] = p.tiles[0], { x, y } = Iso.paraTela(c, r);
         this.add.image(x, y + Iso.TH / 2, 'cenario', 'escada').setOrigin(ANCORA.escada[0] / 64, ANCORA.escada[1] / 64).setDepth(y - 1);
       }
+    }
+    desenharMoveis() {
+      this.moveis = MapaMundo.MOVEIS.map(m => {
+        const { x, y } = Iso.paraTela(m.c, m.r), base = y + Iso.TH / 2;
+        const fr = this.textures.getFrame('cenario', m.item), [ax, ay] = ANCORA[m.item] || [fr.width / 2, fr.height - 1];
+        return this.add.image(x, base, 'cenario', m.item).setOrigin(ax / fr.width, ay / fr.height).setDepth(base);
+      });
+    }
+    desenharPlacas() {
+      this.placas = MapaMundo.SALAS.map(s => {
+        const { x, y } = Iso.paraTela(s.x + s.w / 2 - .5, s.y + .2);
+        return this.add.text(x, y - 70, s.nome, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#f3e3bb',
+          backgroundColor: '#4a2c16', padding: { x: 5, y: 2 }, stroke: '#140f18', strokeThickness: 3, resolution: 4 }).setOrigin(.5, 1).setDepth(100000);
+      });
     }
     desenharParedes() {
       const ehPassagem = (c, r) => !!MapaMundo.passagemDe(c, r);
