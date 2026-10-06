@@ -35,6 +35,7 @@
       this.criarRei();
       this.gerarIcones();
       this.criarDonos();
+      this.criarGato(); this.proxConversa = 15; this.proxCena = 40;
       this.salaVista = 'salao';
     }
     criarRei() {
@@ -128,8 +129,57 @@
         if (ag.tile[0] !== ag.posto[0] || ag.tile[1] !== ag.posto[1]) {
           if (this.calmo) this.teleportar(ag, ag.posto); else { const r = ag.rapido; ag.rapido = false; this.irAgente(ag, ag.posto, r); }
         }
-        ag.poi = null;
+        ag.poi = null; return;
       }
+      if (ag.missao) { const m = ag.missao; ag.missao = null; ag.poi = null; ag.t = 6; return this.irAgente(ag, m.alvo, false, m.chegar); }   // cena ou reação
+      if ((ag.t -= dt) > 0) return;
+      const ocupados = new Set(this.agentes.filter(o => o !== ag && o.poi).map(o => o.poi.c + ',' + o.poi.r));
+      const dst = VidaMundo.proximoDestino({ posto: ag.posto, noHorario: (this.vida.agentes[ag.id] || {}).noHorario }, MapaMundo.POIS, ocupados, Math.random);
+      ag.poi = dst.poi; ag.t = 6 + Math.random() * 8;
+      this.irAgente(ag, dst.tile, false, () => this.chegouPoi(ag));
+    }
+    emote(ag, nome, seg) { ag.emote = nome; ag.emoteT = seg; }
+    chegouPoi(ag) {
+      const a = ag.poi && ag.poi.a;
+      if (a === 'beber') this.emote(ag, 'caneca', 3);
+      else if (a === 'aquecer') this.emote(ag, 'coracao', 2.5);
+      else if ((a === 'comer' || a === 'sentar') && this.agentes.some(o => o !== ag && Math.abs(o.tile[0] - ag.tile[0]) + Math.abs(o.tile[1] - ag.tile[1]) <= 2)) this.emote(ag, 'fala', 4);
+    }
+    tentarCena() {
+      const porId = id => this.agentes.find(a => a.id === id);
+      const livre = id => { const a = porId(id); return a && !a.missao && !a.d.fixo && VidaMundo.desejo(this.estadoDe(a)) === 'vagar'; };
+      const c = VidaMundo.escolherCena(MapaMundo.CENAS, livre, Math.random);
+      if (!c) return;
+      const A = porId(c.a), B = porId(c.b);
+      A.missao = { alvo: c.ta, chegar: () => { this.falar(A.s, c.fa, 4); this.emote(A, c.emote, 4); } };
+      B.missao = { alvo: c.tb, chegar: () => this.time.delayedCall(1200, () => { this.falar(B.s, c.fb, 4); this.emote(B, c.emote, 4); }) };
+    }
+    vizinhoDoRei() {
+      return [[1, 0], [0, 1], [-1, 0], [0, -1]].map(([dc, dr]) => [this.reiTile[0] + dc, this.reiTile[1] + dr]).find(t => MapaMundo.andavel(...t)) || this.reiTile.slice();
+    }
+    criarGato() {
+      const { x, y } = Iso.paraTela(16, 16);
+      this.gato = { tile: [16, 16], t: 3, s: this.add.sprite(x, y, 'cenario', 'gato_pe').setOrigin(.5, 1).setDepth(y).setInteractive({ useHandCursor: true }) };
+      this.gato.s.on('pointerup', () => { if (!this.arrastou) this.falar(this.gato.s, 'Miau.', 2.5); });
+    }
+    passoGato(dt) {
+      const g = this.gato;
+      if (this.calmo || g.andando || (g.t -= dt) > 0) return;
+      const salao = MapaMundo.SALAS.find(s => s.id === 'salao');
+      const alvo = this.vida.noite || Math.random() < .3 ? [16, 15]                       // dorme perto da lareira
+        : Math.random() < .3 ? this.vizinhoDoRei()                                      // vai atrás do Rei
+        : [salao.x + Math.floor(Math.random() * salao.w), salao.y + Math.floor(Math.random() * salao.h)];
+      const passos = Iso.caminho(MapaMundo.andavel, g.tile, alvo);
+      if (!passos.length) { g.t = 2; return; }
+      g.andando = true; g.s.setFrame('gato_pe');
+      const prox = () => {
+        const p = passos.shift();
+        if (!p) { g.andando = false; g.t = 6 + Math.random() * 10; if (this.vida.noite || Math.random() < .5) g.s.setFrame('gato_dorme'); return; }
+        const de = Iso.paraTela(...g.tile), para = Iso.paraTela(...p);
+        g.s.setFlipX(para.x < de.x);
+        this.tweens.add({ targets: g.s, x: para.x, y: para.y, duration: 300, onUpdate: () => g.s.setDepth(g.s.y), onComplete: () => { g.tile = p; prox(); } });
+      };
+      prox();
     }
     desenharAgente(ag, time) {
       const s = ag.s, est = this.estadoDe(ag), dorme = est === 'dormindo' || est === 'desligado' || (ag.d.preso && this.vida.noite);
@@ -161,6 +211,16 @@
       if (!this.vida) return;
       const dt = Math.min(.1, delta / 1000);
       for (const ag of this.agentes) { this.passoAgente(ag, dt); this.desenharAgente(ag, time); }
+      this.passoGato(dt);
+      if (this.gato.s.balao) this.gato.s.balao.setPosition(this.gato.s.x, this.gato.s.getTopCenter().y - 4);
+      if (this.calmo) return;
+      if ((this.proxConversa -= dt) <= 0) {                     // alguém acordado fala sozinho de vez em quando
+        this.proxConversa = 12 + Math.random() * 10;
+        const quem = this.agentes.filter(a => !a.s.balao && !['dormindo', 'desligado'].includes(this.estadoDe(a)) && !(a.d.preso && this.vida.noite));
+        const ag = quem[Math.floor(Math.random() * quem.length)];
+        if (ag && ops.frase) this.falar(ag.s, ops.frase(ag.id), 4.5);
+      }
+      if ((this.proxCena -= dt) <= 0) { this.proxCena = 35 + Math.random() * 35; if (!this.vida.noite) this.tentarCena(); }
     }
     abrirDono(d) {
       this.mostrarBalao(d);
