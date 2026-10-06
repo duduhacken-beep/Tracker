@@ -44,17 +44,23 @@
     { item: 'armario_arquivo', c: 28, r: 5 }, { item: 'armario_arquivo', c: 30, r: 5 },
     { item: 'jaula', c: 33, r: 10, ocupa: [[0, 0], [-1, 0], [0, -1], [-1, -1]] },
   ];
+  // donos das salas com função (Fase 3) — ficam parados no posto; clicar abre a janela da sala
+  const DONOS = [
+    { id: 'banqueiro', nome: 'Banqueiro', sala: 'tesouro', c: 30, r: 18 },
+    { id: 'maria', nome: 'Maria', sala: 'cozinha', c: 7, r: 17 },
+  ];
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
   const passagemDe = (c, r) => PASSAGENS.find(p => p.tiles.some(([pc, pr]) => pc === c && pr === r)) || null;
   const bloqueado = new Set(MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
+  for (const d of DONOS) bloqueado.add(d.c + ',' + d.r);
   const andavel = (c, r) => !bloqueado.has(c + ',' + r) && !!(salaDe(c, r) || passagemDe(c, r));
   const centro = id => { const s = SALAS.find(x => x.id === id); let c = s.x + (s.w >> 1), r = s.y + (s.h >> 1);
     if (!andavel(c, r)) for (const [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1]]) if (andavel(c + dc, r + dr)) { c += dc; r += dr; break; }
     return [c, r]; };
   const chaoDe = (c, r) => { const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, PARTIDA, salaDe, passagemDe, andavel, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, PARTIDA, salaDe, passagemDe, andavel, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -25,6 +25,17 @@
     for (let at = para; at && !(at[0] === de[0] && at[1] === de[1]); at = veio.get(k(at[0], at[1]))) out.unshift(at);
     return out;
   }
-  const api = { TW, TH, paraTela, paraTile, caminho };
+  // caminho mais curto até um tile vizinho (4 direções) de `alvo` — pra parar ao lado de quem não dá pra pisar em cima
+  function caminhoAteVizinho(andavel, de, alvo) {
+    let melhor = null;
+    for (const [dc, dr] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const v = [alvo[0] + dc, alvo[1] + dr];
+      if (v[0] === de[0] && v[1] === de[1]) return [];
+      const p = caminho(andavel, de, v);
+      if (p.length && (!melhor || p.length < melhor.length)) melhor = p;
+    }
+    return melhor || [];
+  }
+  const api = { TW, TH, paraTela, paraTile, caminho, caminhoAteVizinho };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.Iso = api;
 })(typeof window !== 'undefined' ? window : globalThis);

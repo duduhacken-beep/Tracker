@@ -39,4 +39,13 @@ for (const p of M.PASSAGENS) {
   assert.ok(vizinhoDe(p.tiles, p.para), `passagem ${p.de}->${p.para} não encosta em ${p.para}`);
 }
 assert.ok(M.chaoDe(...M.PARTIDA));
+
+// donos: na sala certa, fora de móvel/passagem, bloqueando o próprio tile, alcançáveis por um vizinho
+const moveis = new Set(M.MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
+for (const d of M.DONOS) {
+  assert.strictEqual((M.salaDe(d.c, d.r) || {}).id, d.sala, `${d.id} fora da ${d.sala}`);
+  assert.ok(!moveis.has(d.c + ',' + d.r) && !passagem.has(d.c + ',' + d.r), `${d.id} em cima de móvel/passagem`);
+  assert.ok(!M.andavel(d.c, d.r), `${d.id} deveria bloquear o tile`);
+  assert.ok(Iso.caminhoAteVizinho(M.andavel, M.PARTIDA, [d.c, d.r]).length > 0, `${d.id} inalcançável`);
+}
 console.log('ok mapa');

@@ -24,4 +24,11 @@ for (let i = 1; i < p.length; i++) assert.strictEqual(Math.abs(p[i][0] - p[i - 1
 assert.strictEqual(p.length, 10, 'caminho mais curto contornando a parede (desce 3, anda 4, sobe 3)');
 assert.deepStrictEqual(Iso.caminho(andavel, [0, 0], [0, 0]), []);
 assert.deepStrictEqual(Iso.caminho(andavel, [0, 0], [2, 1]), [], 'destino bloqueado');
+// caminho até o vizinho: para ao lado de quem está no tile bloqueado
+const ocupado = (c, r) => andavel(c, r) && !(c === 4 && r === 4);
+const v = Iso.caminhoAteVizinho(ocupado, [4, 0], [4, 4]);
+assert.deepStrictEqual(v[v.length - 1], [4, 3], 'para no vizinho mais perto');
+assert.strictEqual(v.length, 3);
+assert.deepStrictEqual(Iso.caminhoAteVizinho(ocupado, [4, 3], [4, 4]), [], 'já está do lado');
+assert.deepStrictEqual(Iso.caminhoAteVizinho(() => false, [0, 0], [4, 4]), [], 'inalcançável');
 console.log('ok iso');
