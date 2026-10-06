@@ -4818,7 +4818,22 @@ const MUNDO_JANELAS = {
   cozinha: { titulo: 'Cozinha', dono: 'Maria', abas: [['receitas', 'Receitas']] },
 };
 let _mjAberta = null;
-function mundoResumo() { return null; }   // balão de resumo entra na Task 4
+// Frase do dono pro balão — só dados reais do app (nunca inventar número)
+function mundoResumo(sala) {
+  if (sala === 'tesouro') {
+    const mes = today().substring(0, 7), cfg = load('fin_cfg', {});
+    const gasto = load('despesas', []).filter(d => d.tipo === 'despesa' && d.data.startsWith(mes)).reduce((s, d) => s + d.val, 0);
+    const livre = (cfg.renda || 0) - (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
+    if (!gasto) return 'Nenhum gasto lançado este mês, Majestade.';
+    return cfg.renda ? `Este mês: ${fmtBRL(gasto)} gastos de ${fmtBRL(livre)} livres.` : `Este mês: ${fmtBRL(gasto)} em gastos.`;
+  }
+  if (sala === 'cozinha') {
+    const ativas = load('receitas', []), n = ativas.filter(r => !r.feita).length;
+    if (!ativas.length) return 'Amanhã às 7h deixo 5 receitas aqui.';
+    return n ? `${n} receita${n > 1 ? 's' : ''} esperando por você.` : 'Tudo feito! Amanhã às 7h trago receitas novas.';
+  }
+  return null;
+}
 function mundoAbrirJanela(sala) {
   const cfg = MUNDO_JANELAS[sala];
   if (!cfg) return;

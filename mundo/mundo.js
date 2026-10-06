@@ -24,6 +24,7 @@
       this.configurarCamera();
       this.criarRei();
       this.criarDonos();
+      this.salaVista = 'salao';
     }
     criarRei() {
       const mk = (k, fs) => this.anims.create({ key: k, frames: fs.map(f => ({ key: 'personagens', frame: f })), frameRate: 6, repeat: -1 });
@@ -50,6 +51,7 @@
       }
     }
     abrirDono(d) {
+      this.mostrarBalao(d);
       this.andarPor(Iso.caminhoAteVizinho(MapaMundo.andavel, this.reiTile, [d.c, d.r]));
       if (ops.abrirSala) ops.abrirSala(d.sala);
     }
@@ -69,7 +71,25 @@
       proximo();
     }
     zoomPara(n) { this.cameras.main.setZoom(Math.max(1, Math.min(4, Math.round(n)))); }
-    irPara(id) { const [c, r] = MapaMundo.centro(id), { x, y } = Iso.paraTela(c, r); this.cameras.main.pan(x, y, 600, 'Sine.easeInOut'); }
+    irPara(id) {
+      const [c, r] = MapaMundo.centro(id), { x, y } = Iso.paraTela(c, r);
+      this.cameras.main.pan(x, y, 600, 'Sine.easeInOut', true, (cam, prog) => { if (prog === 1) this.aoPararCamera(); });
+    }
+    aoPararCamera() {
+      const m = this.cameras.main.midPoint, t = Iso.paraTile(m.x, m.y), s = MapaMundo.salaDe(t.c, t.r), id = s && s.id;
+      if (id === this.salaVista) return;
+      this.salaVista = id;
+      const d = id && MapaMundo.DONOS.find(x => x.sala === id);
+      if (d) this.mostrarBalao(d);
+    }
+    mostrarBalao(d) {
+      const texto = ops.resumo && ops.resumo(d.sala), s = this.donos[d.id];
+      if (!texto) return;
+      if (s.balao) s.balao.destroy();
+      const b = s.balao = this.add.text(s.x, s.y - 50, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12',
+        backgroundColor: '#f3e3bb', padding: { x: 6, y: 4 }, wordWrap: { width: 140 }, align: 'center', resolution: 4 }).setOrigin(.5, 1).setDepth(100001);
+      this.time.delayedCall(6000, () => { b.destroy(); if (s.balao === b) s.balao = null; });
+    }
     configurarCamera() {
       const cam = this.cameras.main;
       this.input.addPointer(1);
@@ -87,7 +107,10 @@
         if (Math.hypot(p.x - ini.x, p.y - ini.y) > 6) this.arrastou = true;
         if (this.arrastou) { cam.scrollX = ini.sx - (p.x - ini.x) / cam.zoom; cam.scrollY = ini.sy - (p.y - ini.y) / cam.zoom; }
       });
-      this.input.on('pointerup', () => { if (!this.input.pointer1.isDown && !this.input.pointer2.isDown) base = null; });
+      this.input.on('pointerup', () => {
+        if (!this.input.pointer1.isDown && !this.input.pointer2.isDown) base = null;
+        if (this.arrastou) this.aoPararCamera();
+      });
       this.input.on('wheel', (p, objs, dx, dy) => this.zoomPara(cam.zoom + (dy < 0 ? 1 : -1)));
     }
     desenharChao() {
