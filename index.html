@@ -807,6 +807,20 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 #page-evolucao[data-rpg="16bit"] .cv-balao::before,#modal-cv[data-rpg="16bit"] .cv-balao::before{background:#0d1660;border-color:#f4f4f4}
 #modal-cv[data-rpg="16bit"] .btn-p,#page-evolucao[data-rpg="16bit"] .btn-p{background:#ffd84a;color:#070a3a;border:2px solid #fff;border-radius:2px;box-shadow:3px 3px 0 #000}
 
+/* ══ MUNDO (Fase 2) — tela cheia ao lado da barra lateral; no celular para acima da barra de baixo ══ */
+#page-mundo.on{animation:none}   /* o transform da animação prenderia o position:fixed à página (altura 0) */
+.mundo-moldura{position:fixed;inset:0 0 0 var(--sb,0);z-index:1;background:#120d08}
+.mundo-jogo{position:absolute;inset:0}
+.mundo-jogo canvas{image-rendering:pixelated}
+.mundo-btn{position:absolute;top:14px;right:14px;z-index:5;font:600 14px 'Alegreya Sans',sans-serif;color:#f3e3bb;background:#2d2820;border:2px solid #6e5427;border-radius:4px;padding:8px 14px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.mundo-btn:focus-visible,.mundo-mapa button:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
+.mundo-mapa{position:absolute;top:58px;right:14px;z-index:5;display:flex;flex-direction:column;gap:4px;background:#1e1a15;border:2px solid #6e5427;border-radius:4px;padding:8px;max-height:70vh;overflow:auto}
+.mundo-mapa[hidden],.mundo-aviso[hidden]{display:none}
+.mundo-mapa button{all:unset;cursor:pointer;font:500 14px 'Alegreya Sans',sans-serif;color:#efe2c2;padding:6px 10px;border-radius:3px}
+.mundo-mapa button:hover{background:rgba(226,178,76,.14)}
+.mundo-aviso{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#efe2c2;text-align:center;padding:24px;font-family:'Alegreya Sans',sans-serif}
+@media(max-width:640px){.mundo-moldura{inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0}}
+
 /* ══ TAVERNA (05/10/2026) — mesma paleta da Masmorra ══ */
 #page-taverna{
   --bg:#15120e;--bg2:#1f1b16;--bg3:#0f0d0a;--card:#26221b;--card-glass:#26221b;
@@ -1916,6 +1930,8 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg><span>Leitura</span></button>
   <button class="nb" onclick="go('taverna')" id="n-taverna">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h11v11a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M16 11h2a2 2 0 012 2v2a2 2 0 01-2 2h-2"/><path d="M6 8c0-3 2-4 4-4 1-1 4-1 5 1 1.5 0 2 1.5 1 3"/></svg><span>Taverna</span></button>
+  <button class="nb" onclick="go('mundo')" id="n-mundo" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V10l7-6 7 6v11"/><path d="M9 21v-6h6v6M3 10h18"/></svg><span>Mundo</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
@@ -2280,9 +2296,23 @@ body.dens-compact .gap{margin-bottom:14px}
 </section>
 
 
+<!-- ════════════════ MUNDO ════════════════ -->
+<section class="page" id="page-mundo">
+  <div class="mundo-moldura">
+    <div id="mundo-jogo" class="mundo-jogo"></div>
+    <button class="mundo-btn" id="mundo-btn-mapa" onclick="mundoMapaRapido()" aria-expanded="false">Mapa</button>
+    <div class="mundo-mapa" id="mundo-mapa" hidden></div>
+    <div class="mundo-aviso" id="mundo-aviso" hidden>
+      <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
+      <button class="btn btn-p" onclick="go('home')">Usar o modo clássico</button>
+    </div>
+  </div>
+</section>
+
 <!-- ════════════════ TAVERNA ════════════════ -->
 <section class="page" id="page-taverna">
   <h1>Taverna</h1><p class="psub">Seus agentes vivem aqui. Toque num personagem pra ver o que ele fez.</p>
+  <button class="btn btn-p" onclick="go('mundo')" style="margin:-18px 0 22px">Entrar no Mundo</button>
   <div class="tv-cena gap" id="tv-cena"><div class="tv-mapa"><canvas id="tv-canvas" width="320" height="240" role="img" aria-label="Taverna vista de cima com os agentes andando"></canvas><div class="tv-falas" id="tv-falas" aria-live="polite"></div></div></div>
   <div class="card gap" id="tv-quadro" hidden></div>
   <div class="card gap" id="tv-cronica"></div>
@@ -3034,6 +3064,7 @@ function go(p) {
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'taverna')  { safeCall(renderTaverna, 'renderTaverna'); }
+  if (p === 'mundo') { safeCall(abrirMundo, 'abrirMundo'); } else if (window.MundoTracker) window.MundoTracker.pausar();
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -4719,6 +4750,31 @@ function toggleLivroLido(id) {
   l.lidoEm = l.lido ? today() : null;
   save('leitura', list);
   renderLeitura();
+}
+
+// ──────────────────────────────────
+// MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
+// ──────────────────────────────────
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=1', 'mundo/mapa.js?v=1', 'mundo/mundo.js?v=1'];
+let _mundoCarregando = null;
+function _carregarScript(src) {
+  return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
+}
+async function abrirMundo() {
+  if (window.MundoTracker?.cena()) { window.MundoTracker.retomar(); return; }
+  try {
+    _mundoCarregando = _mundoCarregando || MUNDO_SCRIPTS.reduce((p, src) => p.then(() => _carregarScript(src)), Promise.resolve());
+    await _mundoCarregando;
+    $('mundo-aviso').hidden = true;
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste });
+  } catch (e) {
+    console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
+  }
+}
+function mundoMapaRapido() {
+  const el = $('mundo-mapa'), abrir = el.hidden;
+  if (abrir && window.MapaMundo) el.innerHTML = MapaMundo.SALAS.map(s => `<button onclick="window.MundoTracker.irPara('${s.id}');mundoMapaRapido()">${s.nome}</button>`).join('');
+  el.hidden = !abrir; $('mundo-btn-mapa').setAttribute('aria-expanded', String(abrir));
 }
 
 // ──────────────────────────────────
@@ -7602,6 +7658,7 @@ const ALL_PAGES = [
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'leitura',  label:'Leitura',   icon:'📚' },
   { id:'taverna',  label:'Taverna',   icon:'🍺' },
+  { id:'mundo',    label:'Mundo',     icon:'🏰' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'investimentos', label:'Investimentos', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
