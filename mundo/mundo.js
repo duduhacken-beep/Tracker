@@ -27,8 +27,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=11', 'mundo/cenario.json?v=11');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=11', 'mundo/personagens.json?v=11');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=12', 'mundo/cenario.json?v=12');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=12', 'mundo/personagens.json?v=12');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -590,7 +590,18 @@
       };
       proximo();
     }
-    zoomPara(n) { this.cameras.main.setZoom(Math.max(1, Math.min(4, Math.round(n)))); }
+    zoomPara(n) {   // zoom suave que termina sempre num degrau inteiro (pixel nítido)
+      const cam = this.cameras.main, alvo = Math.max(1, Math.min(4, Math.round(n)));
+      this.zoomAlvo = alvo;
+      if (this.calmo || this.game.config.fps.forceSetTimeOut) return cam.setZoom(alvo);
+      this.tweens.add({ targets: cam, zoom: alvo, duration: 160, ease: 'Sine.easeOut', onComplete: () => cam.setZoom(this.zoomAlvo) });
+    }
+    seguir(sim) {   // câmera acompanha o Rei (arrastar desliga)
+      this.seguindo = !!sim;
+      if (sim) this.cameras.main.startFollow(this.rei, true, .12, .12); else this.cameras.main.stopFollow();
+      if (ops.aoSeguir) ops.aoSeguir(this.seguindo);
+    }
+    centrarNoRei() { this.cameras.main.pan(this.rei.x, this.rei.y - 20, 400, 'Sine.easeInOut', true); }
     irPara(id) {
       const [c, r] = MapaMundo.centro(id), { x, y } = tela(c, r);
       this.cameras.main.pan(x, y, 600, 'Sine.easeInOut', true, (cam, prog) => { if (prog === 1) this.aoPararCamera(); });
@@ -602,12 +613,23 @@
       const d = id && MapaMundo.DONOS.find(x => x.sala === id);
       if (d) this.mostrarBalao(d);
     }
-    falar(s, texto, seg = 6) {
+    falar(s, texto, seg = 6) {   // balão de diálogo de RPG (pergaminho, borda, rabinho) com o texto aparecendo letra a letra
       if (!texto) return;
       if (s.balao) s.balao.destroy();
       const topo = s.getTopCenter();
-      const b = s.balao = this.add.text(topo.x, topo.y - 4, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12',
-        backgroundColor: '#f3e3bb', padding: { x: 6, y: 4 }, wordWrap: { width: 140 }, align: 'center', resolution: 4 }).setOrigin(.5, 1).setDepth(100002);
+      const txt = this.add.text(0, 0, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12', wordWrap: { width: 140 }, align: 'center', resolution: 4 });
+      const w = Math.ceil(txt.width) + 14, h = Math.ceil(txt.height) + 10, g = this.add.graphics();
+      g.fillStyle(0x3b2716).fillRoundedRect(-w / 2 - 1, -h - 7, w + 2, h + 2, 4);            // borda
+      g.fillStyle(0xf3e3bb).fillRoundedRect(-w / 2, -h - 6, w, h, 3);                          // pergaminho
+      g.fillStyle(0xe2cf9f).fillRect(-w / 2 + 3, -8, w - 6, 1);                               // sombra embaixo
+      g.fillStyle(0x3b2716).fillTriangle(-5, -7, 5, -7, 0, 0).fillStyle(0xf3e3bb).fillTriangle(-3, -8, 3, -8, 0, -2);   // rabinho
+      txt.setOrigin(.5, 1).setPosition(0, -11);
+      const b = s.balao = this.add.container(topo.x, topo.y - 4, [g, txt]).setDepth(100002);
+      if (!this.calmo) {                                                    // letra a letra
+        txt.setText(''); let i = 0;
+        const ev = this.time.addEvent({ delay: 26, repeat: texto.length - 1, callback: () => txt.setText(texto.slice(0, ++i)) });
+        b.once('destroy', () => ev.remove());
+      }
       this.time.delayedCall(seg * 1000, () => { b.destroy(); if (s.balao === b) s.balao = null; });
     }
     mostrarBalao(d) {
@@ -620,7 +642,10 @@
       const cam = this.cameras.main;
       this.input.addPointer(1);
       let ini = null, base = null;
-      this.input.on('pointerdown', p => { ini = { x: p.x, y: p.y, sx: cam.scrollX, sy: cam.scrollY }; this.arrastou = false; });
+      this.input.on('pointerdown', p => {
+        ini = { x: p.x, y: p.y, sx: cam.scrollX, sy: cam.scrollY }; this.arrastou = false;
+        const agora = Date.now(); if (agora - (this.ultimoToque || 0) < 300) this.centrarNoRei(); this.ultimoToque = agora;   // duplo clique: volta pro Rei
+      });
       this.input.on('pointermove', p => {
         const a = this.input.pointer1, b = this.input.pointer2;
         if (a.isDown && b.isDown) {                                   // pinça: degraus inteiros
@@ -631,7 +656,7 @@
         }
         if (!p.isDown || !ini) return;
         if (Math.hypot(p.x - ini.x, p.y - ini.y) > 6) this.arrastou = true;
-        if (this.arrastou) { cam.scrollX = ini.sx - (p.x - ini.x) / cam.zoom; cam.scrollY = ini.sy - (p.y - ini.y) / cam.zoom; }
+        if (this.arrastou) { if (this.seguindo) this.seguir(false); cam.scrollX = ini.sx - (p.x - ini.x) / cam.zoom; cam.scrollY = ini.sy - (p.y - ini.y) / cam.zoom; }
       });
       this.input.on('pointerup', () => {
         if (!this.input.pointer1.isDown && !this.input.pointer2.isDown) base = null;
@@ -681,11 +706,21 @@
         return m.item === 'jaula' ? [img('jaula_chao', prof - 48), img('jaula_grades', prof)] : [img(m.item, prof)];   // Kobe fica entre o chão e as grades
       });
     }
-    desenharPlacas() {
+    desenharPlacas() {   // placa de madeira pendurada por correntes na parede do fundo (o Pátio, sem parede, ganha um poste na entrada)
       this.placas = MapaMundo.SALAS.map(s => {
-        const { x, y } = tela(s.x + s.w / 2 - .5, s.y + .2);
-        return this.add.text(x, y - 70, s.nome, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#f3e3bb',
-          backgroundColor: '#4a2c16', padding: { x: 5, y: 2 }, stroke: '#140f18', strokeThickness: 3, resolution: 4 }).setOrigin(.5, 1).setDepth(100000);
+        const poste = !s.parede, { x, y } = poste ? tela(s.x + 1.5, s.y + .2) : tela(s.x + s.w / 2 - .5, s.y + .2);
+        const txt = this.add.text(0, 0, s.nome, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '11px', fontStyle: 'bold', color: '#f3e3bb',
+          stroke: '#140f18', strokeThickness: 3, resolution: 4 }).setOrigin(.5, 1);
+        const w = Math.ceil(txt.width) + 14, h = 17, g = this.add.graphics();
+        g.fillStyle(0x3b2716).fillRect(-w / 2 - 1, -h - 1, w + 2, h + 2);              // borda escura
+        g.fillStyle(0x6b4426).fillRect(-w / 2, -h, w, h);                              // tábua
+        g.fillStyle(0x8a5a32).fillRect(-w / 2, -h, w, 2);                              // luz no alto
+        g.fillStyle(0x4a2c16).fillRect(-w / 2, -6, w, 1);                              // veio
+        g.fillStyle(0xc99a1f).fillRect(-w / 2 + 2, -h + 3, 2, 2).fillRect(w / 2 - 4, -h + 3, 2, 2);   // pregos
+        if (poste) g.fillStyle(0x6b4426).fillRect(-2, 0, 4, 44).fillStyle(0x3b2716).fillRect(-2, 0, 1, 44);
+        else g.fillStyle(0x7d8590).fillRect(-w / 2 + 3, -h - 12, 1, 12).fillRect(w / 2 - 4, -h - 12, 1, 12);   // correntes
+        txt.setPosition(0, -3);
+        return this.add.container(x, poste ? y - 44 : y - 72, [g, txt]).setDepth(100000);
       });
     }
     desenharParedes() {   // paredes do fundo (com acabamento e estilo da sala), mureta de meia altura na frente, fundação sob a sala elevada
@@ -731,6 +766,13 @@
     },
     cena() { return jogo && jogo.scene.getScene('mundo'); },
     retrato(frame, atlas = 'personagens') { return jogo && jogo.textures.getBase64(atlas, frame); },
+    seguir(sim) { const c = this.cena(); if (c && c.seguir) c.seguir(sim); },
+    estado() {   // pro minimapa: limites do mundo, Rei, agentes e o que a câmera está vendo
+      const c = this.cena(); if (!c || !c.rei) return null;
+      const v = c.cameras.main.worldView;
+      return { lim: c.lim, rei: [c.rei.x, c.rei.y], agentes: c.agentes.map(a => [a.s.x, a.s.y]), vista: [v.x, v.y, v.width, v.height] };
+    },
+    centrarEm(x, y) { const c = this.cena(); if (c) { if (c.seguindo) c.seguir(false); c.cameras.main.pan(x, y, 400, 'Sine.easeInOut', true); } },
     irPara(id) { const c = this.cena(); if (c && c.irPara) c.irPara(id); },
     andarAte(col, lin) { const c = this.cena(); if (c && c.andarAte) c.andarAte(col, lin); },
   };

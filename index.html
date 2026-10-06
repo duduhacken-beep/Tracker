@@ -835,6 +835,43 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mj-status{padding:6px 18px;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80;background:#241f19;border-bottom:1px solid #4a3a1e}
 .mj-status:empty{display:none}
 #mundo-janela-corpo #tv-cena,#mundo-janela-corpo #tv-btn-mundo{display:none}   /* dentro do Mundo a Taverna mostra só o painel e a crônica */
+/* Painel de RPG, minimapa e cabeçalho das janelas por sala (Fase 5C bloco 8) */
+.mundo-hud{position:absolute;top:12px;left:14px;z-index:6;display:flex;align-items:center;gap:10px;background:#1e1a15;border:2px solid #6e5427;border-radius:6px;padding:6px 10px 6px 6px;box-shadow:0 0 0 2px #120d08,0 6px 18px rgba(0,0,0,.5);color:#efe2c2;font:500 13px 'Alegreya Sans',sans-serif}
+.mh-retrato{all:unset;cursor:pointer;width:34px;height:48px;background:#2d2820;border:2px solid #6e5427;border-radius:4px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+.mh-retrato img{width:32px;height:48px;image-rendering:pixelated}
+.mh-retrato:focus-visible,.mh-seguir:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
+.mh-info{display:flex;flex-direction:column;gap:3px;min-width:120px}
+.mh-info b{font:700 13px 'Cinzel',Georgia,serif;color:#f3e3bb}
+.mh-info span{font-size:12px;color:#bfaa80}
+.mh-xp{height:6px;background:#2d2820;border:1px solid #6e5427;border-radius:3px;overflow:hidden}
+.mh-xp i{display:block;height:100%;background:linear-gradient(90deg,#c99a1f,#f5c542)}
+.mh-relogio{display:flex;align-items:center;gap:5px;font:700 13px 'Alegreya Sans',sans-serif;color:#f3e3bb;padding-left:8px;border-left:1px solid #3a2f22}
+.mh-relogio svg{width:18px;height:18px}
+.mh-seguir{all:unset;cursor:pointer;font:600 12px 'Alegreya Sans',sans-serif;color:#bfaa80;border:1px solid #6e5427;border-radius:3px;padding:4px 8px}
+.mh-seguir.on{background:rgba(226,178,76,.18);color:#f0c96a}
+.mundo-minimapa{position:absolute;top:80px;left:14px;z-index:6;background:#120d08;border:2px solid #6e5427;border-radius:4px;box-shadow:0 0 0 2px #120d08;cursor:pointer;image-rendering:pixelated}
+@media(max-width:640px){.mundo-minimapa{display:none}.mh-seguir{display:none}.mundo-hud{gap:6px;padding:4px 8px 4px 4px}.mh-info{min-width:0}.mh-relogio{padding-left:6px}}
+.mj-retrato{width:32px;height:48px;image-rendering:pixelated;background:#1e1a15;border:2px solid #6e5427;border-radius:4px;margin:-2px 0}
+.mj-retrato[hidden]{display:none}
+.mj-fala{padding:8px 18px;font:500 14px 'Alegreya Sans',sans-serif;color:#2a1e12;background:#f3e3bb;border-bottom:2px solid #6e5427}
+.mj-fala:empty{display:none}
+.mj-fala::before{content:'“'}.mj-fala::after{content:'”'}
+#mundo-janela.sala-tesouro .mj-topo{background:linear-gradient(180deg,#4a3a14,#2d2410);border-bottom-color:#c99a1f}
+#mundo-janela.sala-cozinha .mj-topo{background:repeating-linear-gradient(45deg,#2a4a8a 0 8px,#e8e4dc 8px 16px);border-bottom-color:#2a4a8a}
+#mundo-janela.sala-cozinha .mj-topo h2,#mundo-janela.sala-cozinha .mj-dono{background:#2d2820;padding:2px 8px;border-radius:3px}
+#mundo-janela.sala-cozinha .mj-dono{max-width:max-content}
+#mundo-janela.sala-cozinha .mj-fechar,#mundo-janela.sala-cozinha .mj-abas button{background:#2d2820}
+.mj-fechar{margin-left:auto}
+#mundo-janela.sala-biblioteca .mj-topo{background:linear-gradient(180deg,#3a2414,#22140a)}
+#mundo-janela.sala-escritorio .mj-topo{background:linear-gradient(180deg,#4a3a28,#2d2418)}
+#mundo-janela.sala-patio .mj-topo{background:linear-gradient(180deg,#2f5a3a,#1e3a24);border-bottom-color:#4f9a63}
+#mundo-janela.sala-quarto .mj-topo{background:linear-gradient(180deg,#5a1a14,#3a100c);border-bottom-color:#e2b24c}
+#mundo-janela.sala-porao .mj-topo{background:linear-gradient(180deg,#3a3e44,#22262a);border-bottom-color:#4f6a4a}
+#mundo-janela.sala-salao .mj-topo{background:linear-gradient(180deg,#4a2c16,#2d1a0c)}
+#page-mapa .mm-svg{display:block;width:100%;max-width:720px;margin:0 auto 14px;background:#e8dcbc;border:3px solid #6e5427;border-radius:6px}
+#page-mapa .mm-svg polygon{cursor:pointer;stroke:#3b2716;stroke-width:2}
+#page-mapa .mm-svg polygon:hover{filter:brightness(1.15)}
+#page-mapa .mm-svg text{font:700 13px 'Alegreya Sans',sans-serif;fill:#2a1e12;pointer-events:none;paint-order:stroke;stroke:#f3e3bb;stroke-width:3px}
 /* Ficha do Rei (clicar no Rei) */
 .mundo-ficha{position:absolute;left:14px;bottom:14px;z-index:15;width:min(300px,calc(100% - 28px));background:#1e1a15;border:3px solid #6e5427;border-radius:6px;box-shadow:0 0 0 2px #120d08,0 10px 30px rgba(0,0,0,.6);color:#efe2c2;font:500 14px 'Alegreya Sans',sans-serif;padding:14px 16px}
 .mundo-ficha[hidden]{display:none}
@@ -2354,6 +2391,13 @@ body.dens-compact .gap{margin-bottom:14px}
 <section class="page" id="page-mundo">
   <div class="mundo-moldura">
     <div id="mundo-jogo" class="mundo-jogo"></div>
+    <div class="mundo-hud" id="mundo-hud">
+      <button class="mh-retrato" onclick="mundoFicha()" aria-label="Ficha do Rei"><img id="mh-img" alt=""></button>
+      <div class="mh-info"><b id="mh-titulo">Nível 1 · Recruta</b><div class="mh-xp" aria-hidden="true"><i id="mh-xp"></i></div><span id="mh-dia"></span></div>
+      <div class="mh-relogio" id="mh-relogio"></div>
+      <button class="mh-seguir" id="mh-seguir" onclick="mundoSeguir()" aria-pressed="false">Seguir o Rei</button>
+    </div>
+    <canvas class="mundo-minimapa" id="mundo-minimapa" width="168" height="104" role="img" aria-label="Minimapa do castelo: toque pra levar a câmera até lá"></canvas>
     <button class="mundo-livro-btn" id="mundo-btn-livro" onclick="mundoAbrirJanela('livro')" aria-label="Abrir o Livro do Reino" title="Livro do Reino"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="14" height="16" fill="#2a0e0c"/><rect x="3" y="2" width="11" height="13" fill="#d9c79a"/><rect x="2" y="1" width="11" height="13" fill="#8a2a22"/><rect x="2" y="1" width="2" height="13" fill="#5a1a14"/><rect x="4" y="1" width="9" height="1" fill="#a8392e"/><rect x="11" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="3" width="1" height="1" fill="#e2b24c"/><rect x="11" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="11" width="1" height="1" fill="#e2b24c"/><rect x="2" y="4" width="1" height="1" fill="#e2b24c"/><rect x="3" y="4" width="1" height="1" fill="#e2b24c"/><rect x="2" y="10" width="1" height="1" fill="#e2b24c"/><rect x="3" y="10" width="1" height="1" fill="#e2b24c"/><rect x="8" y="5" width="1" height="1" fill="#e2b24c"/><rect x="7" y="6" width="1" height="1" fill="#e2b24c"/><rect x="9" y="6" width="1" height="1" fill="#e2b24c"/><rect x="6" y="7" width="1" height="1" fill="#e2b24c"/><rect x="10" y="7" width="1" height="1" fill="#e2b24c"/><rect x="7" y="8" width="1" height="1" fill="#e2b24c"/><rect x="9" y="8" width="1" height="1" fill="#e2b24c"/><rect x="8" y="9" width="1" height="1" fill="#e2b24c"/><rect x="8" y="7" width="1" height="1" fill="#f5d46a"/></svg></button>
     <div class="mundo-aviso" id="mundo-aviso" hidden>
       <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
@@ -2367,11 +2411,13 @@ body.dens-compact .gap{margin-bottom:14px}
       <div class="mj-painel" role="dialog" aria-modal="true" aria-labelledby="mundo-janela-titulo">
         <div class="mj-capa" id="mundo-janela-capa" hidden aria-hidden="true"><span>Livro do Reino</span></div>
         <div class="mj-topo">
+          <img class="mj-retrato" id="mundo-janela-retrato" alt="" hidden>
           <h2 id="mundo-janela-titulo"></h2>
           <span class="mj-dono" id="mundo-janela-dono"></span>
           <div class="mj-abas" id="mundo-janela-abas" role="tablist"></div>
           <button class="mj-fechar" id="mundo-janela-fechar" onclick="mundoFecharJanela()" aria-label="Fechar">×</button>
         </div>
+        <div class="mj-fala" id="mundo-janela-fala"></div>
         <div class="mj-status" id="mundo-janela-status"></div>
         <div class="mj-corpo" id="mundo-janela-corpo"></div>
       </div>
@@ -4833,20 +4879,22 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=11', 'mundo/mapa.js?v=11', 'mundo/vida.js?v=11', 'mundo/mundo.js?v=11'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=12', 'mundo/mapa.js?v=12', 'mundo/vida.js?v=12', 'mundo/mundo.js?v=12'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
 }
 async function abrirMundo() {
-  if (window.MundoTracker?.cena()) { window.MundoTracker.retomar(); return; }
+  if (window.MundoTracker?.cena()) { window.MundoTracker.retomar(); safeCall(mundoHud, 'mundoHud'); return; }
   try {
     _mundoCarregando = _mundoCarregando || MUNDO_SCRIPTS.reduce((p, src) => p.then(() => _carregarScript(src)), Promise.resolve());
     await _mundoCarregando;
     // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
     await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro, ficha: () => mundoFicha() });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro, ficha: () => mundoFicha(),
+      aoSeguir: s => { $('mh-seguir').classList.toggle('on', s); $('mh-seguir').setAttribute('aria-pressed', String(s)); } });
+    setTimeout(mundoHud, 2500);
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4854,7 +4902,16 @@ async function abrirMundo() {
 // Mapa do Reino (página do Livro): uma linha por sala com quem mora lá, "Ir" (câmera) e "Abrir" (janela do dono)
 function mundoRenderMapa() {
   if (!window.MapaMundo) return;
-  $('mundo-mapa-lista').innerHTML = MapaMundo.SALAS.map(s => {
+  const Mu = MapaMundo.MURALHA, L = (() => { const ps = [[Mu.x, Mu.y], [Mu.x + Mu.w, Mu.y], [Mu.x, Mu.y + Mu.h], [Mu.x + Mu.w, Mu.y + Mu.h]].map(([c, r]) => Iso.paraTela(c - .5, r - .5));
+    const xs = ps.map(p => p.x), ys = ps.map(p => p.y); return { x: Math.min(...xs) - 20, y: Math.min(...ys) - 60, w: Math.max(...xs) - Math.min(...xs) + 40, h: Math.max(...ys) - Math.min(...ys) + 80 }; })();
+  const esc = 720 / L.w, pts = s => _mmPoligono(s, esc, L).map(p => p.map(Math.round).join(',')).join(' ');
+  const svg = `<svg class="mm-svg" viewBox="0 0 720 ${Math.round(L.h * esc)}" role="img" aria-label="Mapa ilustrado do castelo">
+    <polygon points="${pts(Mu)}" fill="#b7ad97" style="cursor:default"></polygon>
+    ${MapaMundo.SALAS.map(s => { const c = Iso.paraTela(s.x + s.w / 2 - .5, s.y + s.h / 2 - .5);
+      return `<polygon points="${pts(s)}" fill="${MM_COR[s.chao] || '#8a5a32'}" onclick="mundoIrSala('${s.id}')"><title>${s.nome}</title></polygon>
+        <text x="${Math.round((c.x - L.x) * esc)}" y="${Math.round((c.y - (s.alt || 0) - L.y) * esc)}" text-anchor="middle">${s.nome.split(':')[0]}</text>`; }).join('')}
+  </svg>`;
+  $('mundo-mapa-lista').innerHTML = svg + MapaMundo.SALAS.map(s => {
     const quem = [...MapaMundo.DONOS, ...MapaMundo.MORADORES].filter(d => d.sala === s.id && !d.objeto).map(d => d.nome);
     if (s.id === 'quarto') quem.unshift('o Rei');
     return `<div class="mm-linha"><div><b>${s.nome}</b><span>${quem.join(', ') || 'ninguém por enquanto'}</span></div>
@@ -4865,15 +4922,15 @@ function mundoRenderMapa() {
 function mundoIrSala(id) { mundoFecharJanela(); window.MundoTracker.irPara(id); }
 // Janela de RPG: empresta a seção da aba de hoje (mesmas funções nas duas caras do app) e devolve ao fechar
 const MUNDO_JANELAS = {
-  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', agente: 'tesoureiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
-  cozinha: { titulo: 'Cozinha', dono: 'Maria', agente: 'maria', abas: [['receitas', 'Receitas']] },
-  biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', agente: 'mosley', abas: [['leitura', 'Leitura']] },
-  escritorio: { titulo: 'Escritório', dono: 'Mônica', agente: 'monica', abas: [['agenda', 'Agenda']] },
-  patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', agente: 'jefrey', abas: [['corpo', 'Corpo']] },
+  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', retrato: 'banqueiro_f', agente: 'tesoureiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
+  cozinha: { titulo: 'Cozinha', dono: 'Maria', retrato: 'maria_f', agente: 'maria', abas: [['receitas', 'Receitas']] },
+  biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', retrato: 'mosley_f', agente: 'mosley', abas: [['leitura', 'Leitura']] },
+  escritorio: { titulo: 'Escritório', dono: 'Mônica', retrato: 'monica_f', agente: 'monica', abas: [['agenda', 'Agenda']] },
+  patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', retrato: 'jefrey_f', agente: 'jefrey', abas: [['corpo', 'Corpo']] },
   salao:      { titulo: 'Salão da Taverna', dono: 'Quadro de avisos', abas: [['home', 'Início']] },
   livro:      { titulo: 'Livro do Reino', dono: 'mapa, metas e crônica', livro: true, abas: [['mapa', 'Mapa'], ['evolucao', 'Metas e evolução'], ['taverna', 'Crônica dos agentes']] },   // a crônica dos agentes fica no Livro do Reino
-  quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', abas: [['evolucao', 'Evolução']] },
-  porao:      { titulo: 'Arquivo', dono: 'Escrivão', abas: [['backup', 'Backup']] },
+  quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', retrato: 'eu_rei_f', abas: [['evolucao', 'Evolução']] },
+  porao:      { titulo: 'Arquivo', dono: 'Escrivão', retrato: 'escrivao_f', abas: [['backup', 'Backup']] },
 };
 // Vida do Mundo: estados e falas dos agentes com as mesmas regras da Taverna
 function mundoVida() {
@@ -4920,6 +4977,48 @@ function mundoFicha(abrir = $('mundo-ficha').hidden) {
     <div class="mf-linha"><span>Conquistas</span><b>${st ? st.conquistas.filter(c => c.ok).length : 0} de ${st ? st.conquistas.length : 20}</b></div>`;
   el.hidden = false;
 }
+// Painel de RPG: retrato do Rei, nível/título/XP, relógio (sol/lua) e o dia do Modo Caverna
+function mundoHud() {
+  if (!$('page-mundo').classList.contains('on')) return;
+  let st = null; try { st = _cvStats(); } catch (e) {}
+  const img = window.MundoTracker && MundoTracker.retrato('eu_rei_f'); if (img && !$('mh-img').src) $('mh-img').src = img;
+  $('mh-titulo').textContent = `Nível ${st ? st.nivel : 1} · ${st ? st.titulo : 'Recruta'}`;
+  $('mh-xp').style.width = Math.round(100 * (st ? st.xp % CV_XP_NIVEL : 0) / CV_XP_NIVEL) + '%';
+  $('mh-dia').textContent = !st || st.hoje < CV_INI ? 'Modo Caverna começa em 21/10' : `Dia ${st.decorridos} de ${st.datas.length}`;
+  const d = new Date(), h = d.getHours();
+  $('mh-relogio').innerHTML = (h >= 6 && h < 18 ? '<svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#f5c542"/><rect x="3" y="8" width="3" height="1" fill="#f5c542"/><rect x="0" y="3" width="1" height="3" fill="#f5c542"/><rect x="8" y="3" width="1" height="3" fill="#f5c542"/><rect x="2" y="2" width="5" height="5" fill="#f5c542"/><rect x="3" y="3" width="2" height="2" fill="#fff3b0"/></svg>' : '<svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="4" height="7" fill="#cdd3ff"/><rect x="2" y="2" width="1" height="5" fill="#cdd3ff"/><rect x="5" y="2" width="2" height="4" fill="#1e1a15"/><rect x="7" y="2" width="1" height="5" fill="#cdd3ff"/></svg>') + `<span>${String(h).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span>`;
+}
+setInterval(() => safeCall(mundoHud, 'mundoHud'), 30000);
+function mundoSeguir() { const on = $('mh-seguir').getAttribute('aria-pressed') !== 'true'; window.MundoTracker && MundoTracker.seguir(on); }
+// Minimapa: salas, Rei (dourado), agentes e o pedaço que a câmera mostra; tocar leva a câmera até lá
+const MM_COR = { madeira: '#8a5a32', madeira_escura: '#5a361c', pedra: '#7d8590', grama: '#3d7a52', terra: '#8a6a3e' };
+function _mmPoligono(s, esc, lim) {
+  return [[s.x, s.y], [s.x + s.w, s.y], [s.x + s.w, s.y + s.h], [s.x, s.y + s.h]].map(([c, r]) => {
+    const p = Iso.paraTela(c - .5, r - .5); return [(p.x - lim.x) * esc, (p.y - (s.alt || 0) - lim.y) * esc];
+  });
+}
+function _mmLim() {   // enquadra a muralha (com uma borda de grama) no minimapa
+  const Mu = MapaMundo.MURALHA, ps = [[Mu.x - 1, Mu.y - 1], [Mu.x + Mu.w + 1, Mu.y - 1], [Mu.x - 1, Mu.y + Mu.h + 1], [Mu.x + Mu.w + 1, Mu.y + Mu.h + 1]].map(([c, r]) => Iso.paraTela(c - .5, r - .5));
+  const xs = ps.map(p => p.x), ys = ps.map(p => p.y);
+  return { x: Math.min(...xs), y: Math.min(...ys) - 40, w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) + 40 };
+}
+function mundoMinimapa() {
+  const cv = $('mundo-minimapa'), e = window.MundoTracker && MundoTracker.estado();
+  if (!cv || !e || !$('page-mundo').classList.contains('on') || document.hidden || cv.offsetParent === null) return;
+  const L = _mmLim(), g = cv.getContext('2d'), esc = Math.min(cv.width / L.w, cv.height / L.h);
+  g.clearRect(0, 0, cv.width, cv.height); g.fillStyle = '#2f5a3a'; g.fillRect(0, 0, cv.width, cv.height);
+  const Mu = MapaMundo.MURALHA; g.fillStyle = '#5d6475'; g.beginPath(); _mmPoligono(Mu, esc, L).forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.fill();
+  for (const s of MapaMundo.SALAS) { g.fillStyle = MM_COR[s.chao] || '#8a5a32'; g.beginPath(); _mmPoligono(s, esc, L).forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.fill(); }
+  g.fillStyle = '#efe2c2'; for (const [x, y] of e.agentes) g.fillRect((x - L.x) * esc - 1, (y - L.y) * esc - 1, 2, 2);
+  g.fillStyle = '#f5c542'; g.fillRect((e.rei[0] - L.x) * esc - 2, (e.rei[1] - L.y) * esc - 2, 4, 4);
+  const [vx, vy, vw, vh] = e.vista; g.strokeStyle = '#f3e3bb'; g.lineWidth = 1; g.strokeRect((vx - L.x) * esc + .5, (vy - L.y) * esc + .5, vw * esc, vh * esc);
+}
+setInterval(() => safeCall(mundoMinimapa, 'mundoMinimapa'), 250);
+document.addEventListener('click', ev => {
+  const cv = $('mundo-minimapa'); if (ev.target !== cv) return;
+  const L = _mmLim(), r = cv.getBoundingClientRect(), esc = Math.min(cv.width / L.w, cv.height / L.h);
+  MundoTracker.centrarEm((ev.clientX - r.left) * cv.width / r.width / esc + L.x, (ev.clientY - r.top) * cv.height / r.height / esc + L.y);
+});
 function mundoAbrirLivro(aba) { mundoAbrirJanela('livro'); if (aba) mundoJanelaAba(aba); }
 function mundoTextoAmbiente(id) {
   let st = null; try { st = _cvStats(); } catch (e) {}
@@ -5004,6 +5103,10 @@ function mundoAbrirJanela(sala) {
   if (_mjAberta) mundoFecharJanela(true);
   _mjAberta = { sala, foco: document.activeElement };
   $('mundo-janela').classList.toggle('livro', !!cfg.livro);
+  $('mundo-janela').className = $('mundo-janela').className.replace(/\bsala-\S+/g, '').trim() + (cfg.livro ? '' : ' sala-' + sala);
+  const img = cfg.retrato && window.MundoTracker && MundoTracker.retrato(cfg.retrato);   // o dono em pixel art falando o resumo do dia
+  $('mundo-janela-retrato').hidden = !img; if (img) $('mundo-janela-retrato').src = img;
+  $('mundo-janela-fala').textContent = cfg.livro ? '' : (mundoResumo(sala) || '');
   $('mundo-janela-titulo').textContent = cfg.titulo;
   $('mundo-janela-dono').textContent = cfg.dono;
   $('mundo-janela-status').textContent = cfg.agente ? mundoStatusAgente(cfg.agente) : '';
