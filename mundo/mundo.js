@@ -1,7 +1,7 @@
 // app/mundo/mundo.js — cena Phaser do Mundo (castelo-taverna isométrico com os agentes vivos)
 (function () {
   const ANCORA = { balcao: [24, 55], mesa_longa: [32, 50], banco: [11, 27], estante: [16, 79], armario_arquivo: [16, 71],
-    lareira: [22, 90], escrivaninha: [16, 38], bau: [13, 26], cofre: [15, 38], cama: [22, 46], escada: [18, 62], jaula: [32, 70],
+    lareira: [22, 90], escrivaninha: [16, 38], arvore: [32, 94], poco: [24, 62], bau: [13, 26], cofre: [15, 38], cama: [22, 46], escada: [18, 62], jaula: [32, 70],
     jaula_chao: [32, 70], jaula_grades: [32, 70], estandarte: [4, 54], quadro: [16, 46] };
   // ícones de pixel acima da cabeça (os mesmos da Taverna + "zz" de dormir)
   const ICONES = {
@@ -22,8 +22,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=5', 'mundo/cenario.json?v=5');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=5', 'mundo/personagens.json?v=5');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=6', 'mundo/cenario.json?v=6');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=6', 'mundo/personagens.json?v=6');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -64,6 +64,19 @@
       const rb = this.rei.getBounds();
       for (const p of this.paredes) p.setAlpha(p.depth > this.rei.depth && Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);
       for (const p of this.placas) p.setAlpha(Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);   // placa fica sempre por cima
+    }
+    sorteio(c, r, n) { return (((c * 73856093) ^ (r * 19349663)) >>> 0) % n; }
+    piso(estilo, c, r) { return 'piso_' + estilo + '_' + this.sorteio(c, r, estilo === 'caminho' ? 2 : 4); }
+    bordas(s) {   // segmentos das 4 bordas de uma sala — norte/oeste = fundo; sul/leste = frente
+      const b = [];
+      for (let c = s.x; c < s.x + s.w; c++) b.push({ lado: 'norte', c, r: s.y }, { lado: 'sul', c, r: s.y + s.h - 1 });
+      for (let r = s.y; r < s.y + s.h; r++) b.push({ lado: 'oeste', c: s.x, r }, { lado: 'leste', c: s.x + s.w - 1, r });
+      return b;
+    }
+    pecaNaBorda(frame, seg, alt) {   // peça de altura `alt` em pé numa borda (mesma geometria das paredes: 'dir' em norte/sul, 'esq' em oeste/leste)
+      const { x, y } = Iso.paraTela(seg.c, seg.r);
+      const [x0, yAlto, prof] = seg.lado === 'norte' ? [x, y - 16, y - 16] : seg.lado === 'oeste' ? [x - 32, y - 16, y - 16] : seg.lado === 'sul' ? [x - 32, y, y + 16] : [x, y, y + 16];
+      return this.add.image(x0, yAlto - (alt - 16), 'cenario', frame).setOrigin(0, 0).setDepth(prof);
     }
     sombra(x, y, larg) {   // sombra de contato: elipse escura logo acima do piso (abaixo de tudo que fica em pé)
       return this.add.ellipse(x, y, larg, larg * .42, 0x000000, .28).setDepth(-99000);
@@ -426,10 +439,22 @@
       const tiles = new Set();
       for (const s of MapaMundo.SALAS) for (let c = s.x; c < s.x + s.w; c++) for (let r = s.y; r < s.y + s.h; r++) tiles.add(c + ',' + r);
       for (const p of MapaMundo.PASSAGENS) for (const [c, r] of p.tiles) tiles.add(c + ',' + r);
-      for (const k of tiles) {
+      for (const k of tiles) {                                            // piso pintado contínuo, variante sorteada pela posição
         const [c, r] = k.split(',').map(Number), { x, y } = Iso.paraTela(c, r);
-        this.add.image(x, y, 'cenario', MapaMundo.chaoDe(c, r)).setDepth(-100000);
+        this.add.image(x, y, 'cenario', this.piso(MapaMundo.chaoDe(c, r), c, r)).setDepth(-100000);
+        const s = MapaMundo.salaDe(c, r);                                 // flores no gramado do Pátio
+        if (s && s.chao === 'grama' && MapaMundo.chaoDe(c, r) === 'grama' && this.sorteio(c, r, 7) < 2) this.add.image(x, y, 'cenario', 'flores_' + this.sorteio(c, r, 3)).setDepth(-99998);
       }
+      for (const t of MapaMundo.TAPETES) {                                // tapetes por sala (decalque no chão)
+        const { x, y } = Iso.paraTela(t.c, t.r), img = this.add.image(x, y - Iso.TH / 2, 'cenario', t.item).setDepth(-99998.5);
+        img.setOrigin(t.m * 32 / img.width, 0);
+      }
+      for (const s of MapaMundo.SALAS.filter(s => !s.parede))            // cerca de madeira em volta do Pátio (com vão na entrada)
+        for (const seg of this.bordas(s)) {
+          const fora = seg.lado === 'norte' ? [seg.c, seg.r - 1] : seg.lado === 'oeste' ? [seg.c - 1, seg.r] : seg.lado === 'sul' ? [seg.c, seg.r + 1] : [seg.c + 1, seg.r];
+          if (MapaMundo.passagemDe(...fora)) continue;
+          this.pecaNaBorda(seg.lado === 'norte' || seg.lado === 'sul' ? 'cerca_dir' : 'cerca_esq', seg, 40);
+        }
       for (const p of MapaMundo.PASSAGENS.filter(p => p.escada)) {
         const [c, r] = p.tiles[0], { x, y } = Iso.paraTela(c, r);
         this.add.image(x, y + Iso.TH / 2, 'cenario', 'escada').setOrigin(ANCORA.escada[0] / 64, ANCORA.escada[1] / 64).setDepth(y - 1);

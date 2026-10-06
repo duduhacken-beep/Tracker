@@ -80,4 +80,13 @@ for (const e of M.ENFEITES) for (const t of e.tiles) {
 for (const t of M.TAPETE_REAL) assert.ok(ehSalao(t) && M.andavel(...t), `tapete em ${t} bloqueado`);
 const mesas = new Set(M.MOVEIS.filter(m => ['mesa_redonda', 'escrivaninha'].includes(m.item)).map(m => m.c + ',' + m.r));
 for (const v of M.VELAS) assert.ok(mesas.has(v.join()), `vela sem mesa em ${v}`);
+
+// Fase 5C: pisos com estilo conhecido, terra dentro do Pátio, tapetes dentro de uma sala
+const estilos = new Set(['madeira', 'madeira_escura', 'pedra', 'grama', 'terra']);
+for (const s of M.SALAS) assert.ok(estilos.has(s.chao), `piso desconhecido em ${s.id}: ${s.chao}`);
+assert.strictEqual(M.chaoDe(23, 28), 'terra'); assert.strictEqual(M.chaoDe(21, 27), 'grama');
+for (const t of M.TAPETES) {
+  const sala = (M.salaDe(t.c, t.r) || {}).id;
+  for (let dc = 0; dc < t.n; dc++) for (let dr = 0; dr < t.m; dr++) assert.strictEqual((M.salaDe(t.c + dc, t.r + dr) || {}).id, sala, `${t.item} saindo da sala`);
+}
 console.log('ok mapa');

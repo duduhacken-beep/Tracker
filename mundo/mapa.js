@@ -1,15 +1,15 @@
 // app/mundo/mapa.js — planta do castelo-taverna (só dados + consultas). Coordenadas em tiles (c = coluna, r = linha).
 (function (raiz) {
   const SALAS = [
-    { id: 'salao', nome: 'Salão da Taverna', x: 13, y: 13, w: 12, h: 12, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'cozinha', nome: 'Cozinha', x: 5, y: 15, w: 7, h: 8, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'tesouro', nome: 'Casa do Tesouro', x: 26, y: 15, w: 7, h: 8, chao: 'chao_pedra', parede: 'pedra' },
-    { id: 'biblioteca', nome: 'Biblioteca', x: 13, y: 4, w: 6, h: 8, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'escritorio', nome: 'Escritório', x: 19, y: 4, w: 6, h: 8, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'embaixada', nome: 'Embaixada', x: 12, y: 26, w: 6, h: 6, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'patio', nome: 'Pátio de Treino', x: 20, y: 26, w: 8, h: 8, chao: 'chao_grama', parede: null },
-    { id: 'quarto', nome: 'Seu Quarto', x: 4, y: 4, w: 7, h: 7, chao: 'chao_madeira', parede: 'madeira' },
-    { id: 'porao', nome: 'Porão: Arquivo e Masmorra', x: 27, y: 4, w: 8, h: 8, chao: 'chao_pedra', parede: 'pedra' },
+    { id: 'salao', nome: 'Salão da Taverna', x: 13, y: 13, w: 12, h: 12, chao: 'madeira', parede: 'madeira' },
+    { id: 'cozinha', nome: 'Cozinha', x: 5, y: 15, w: 7, h: 8, chao: 'pedra', parede: 'madeira' },
+    { id: 'tesouro', nome: 'Casa do Tesouro', x: 26, y: 15, w: 7, h: 8, chao: 'pedra', parede: 'pedra' },
+    { id: 'biblioteca', nome: 'Biblioteca', x: 13, y: 4, w: 6, h: 8, chao: 'madeira_escura', parede: 'madeira' },
+    { id: 'escritorio', nome: 'Escritório', x: 19, y: 4, w: 6, h: 8, chao: 'madeira_escura', parede: 'madeira' },
+    { id: 'embaixada', nome: 'Embaixada', x: 12, y: 26, w: 6, h: 6, chao: 'madeira', parede: 'madeira' },
+    { id: 'patio', nome: 'Pátio de Treino', x: 20, y: 26, w: 8, h: 8, chao: 'grama', parede: null },
+    { id: 'quarto', nome: 'Seu Quarto', x: 4, y: 4, w: 7, h: 7, chao: 'madeira', parede: 'madeira' },
+    { id: 'porao', nome: 'Porão: Arquivo e Masmorra', x: 27, y: 4, w: 8, h: 8, chao: 'pedra', parede: 'pedra' },
   ];
   const PASSAGENS = [
     { de: 'salao', para: 'cozinha', tiles: [[12, 18], [12, 19]] },
@@ -38,6 +38,7 @@
     { item: 'mesa_redonda', c: 14, r: 28 }, { item: 'estante', c: 16, r: 26 },
     // Pátio
     { item: 'boneco_treino', c: 23, r: 28 }, { item: 'suporte_armas', c: 26, r: 27 }, { item: 'barril', c: 21, r: 32 },
+    { item: 'arvore', c: 27, r: 33 }, { item: 'poco', c: 20, r: 30 }, { item: 'alvo', c: 26, r: 30 },
     // Seu Quarto
     { item: 'cama', c: 6, r: 6 }, { item: 'espelho', c: 9, r: 5 }, { item: 'bau', c: 5, r: 9 },
     // Porão
@@ -83,6 +84,12 @@
   const TAPETE_REAL = [[19, 17], [19, 18], [19, 19], [19, 20], [19, 21], [19, 22], [19, 23]];   // chão: não bloqueia
   // velas acesas sobre as mesas (luz à noite): [c, r] do móvel
   const VELAS = [[15, 18], [20, 23], [16, 8], [9, 19], [14, 28], [21, 6], [31, 19]];
+  // Fase 5C: terra batida no centro de treino do Pátio e tapetes por sala ([c, r] = tile do canto de cima; n x m tiles)
+  const TERRA = { x: 22, y: 27, w: 4, h: 4 };
+  const TAPETES = [
+    { item: 'tapete_persa', c: 15, r: 7, n: 3, m: 2 }, { item: 'tapete_persa_azul', c: 21, r: 7, n: 2, m: 2 },
+    { item: 'tapete_mapa', c: 13, r: 28, n: 3, m: 2 }, { item: 'pele', c: 6, r: 8, n: 2, m: 1 }, { item: 'tapete_brasao', c: 20, r: 18, n: 3, m: 3 },
+  ];
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
@@ -97,8 +104,9 @@
   const centro = id => { const s = SALAS.find(x => x.id === id); let c = s.x + (s.w >> 1), r = s.y + (s.h >> 1);
     if (!andavel(c, r)) for (const [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1]]) if (andavel(c + dc, r + dr)) { c += dc; r += dr; break; }
     return [c, r]; };
-  const chaoDe = (c, r) => { const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
+  const chaoDe = (c, r) => { if (c >= TERRA.x && c < TERRA.x + TERRA.w && r >= TERRA.y && r < TERRA.y + TERRA.h) return 'terra';
+    const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, PARTIDA, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, TAPETES, PARTIDA, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);
