@@ -46,26 +46,50 @@
   ];
   // donos das salas com função (Fase 3) — ficam parados no posto; clicar abre a janela da sala
   const DONOS = [
-    { id: 'banqueiro', nome: 'Banqueiro', sala: 'tesouro', c: 30, r: 18 },
+    { id: 'banqueiro', nome: 'Banqueiro', sala: 'tesouro', c: 30, r: 18, agente: 'tesoureiro' },   // agente = id no agentes_status
     { id: 'maria', nome: 'Maria', sala: 'cozinha', c: 7, r: 17 },
     { id: 'mosley', nome: 'Mosley', sala: 'biblioteca', c: 15, r: 6 },
     { id: 'monica', nome: 'Mônica', sala: 'escritorio', c: 21, r: 5 },
     { id: 'jefrey', nome: 'Jefrey', sala: 'patio', c: 22, r: 28 },
-    { id: 'escrivao', nome: 'Escrivão', sala: 'porao', c: 29, r: 8 },
+    { id: 'escrivao', nome: 'Escrivão', sala: 'porao', c: 29, r: 8, fixo: true },   // guardião do arquivo: não passeia
     { id: 'estandarte', nome: 'Estandarte', sala: 'quarto', c: 8, r: 4, objeto: true },   // no quarto o dono é o próprio Rei: o estandarte da classe abre a Evolução
+    { id: 'quadro', nome: 'Quadro de avisos', sala: 'salao', c: 17, r: 13, objeto: true },   // Salão: abre Início + agentes e crônica
+  ];
+  // moradores sem sala com função (Fase 5): têm posto, vivem e falam, mas não abrem janela
+  const MORADORES = [
+    { id: 'friday', nome: 'Friday', sala: 'embaixada', c: 13, r: 29 },
+    { id: 'arauto', nome: 'Arauto', sala: 'salao', c: 14, r: 20 },
+    { id: 'kobe', nome: 'Kobe', sala: 'porao', c: 32.5, r: 9.5, preso: true },   // no meio da jaula (tiles da jaula já bloqueados)
+  ];
+  // pontos onde os agentes livres passeiam no Salão (como na Taverna)
+  const POIS = [
+    { c: 21, r: 15, a: 'beber' }, { c: 21, r: 16, a: 'beber' }, { c: 15, r: 15, a: 'aquecer' },
+    { c: 17, r: 20, a: 'comer' }, { c: 17, r: 21, a: 'comer' }, { c: 19, r: 20, a: 'comer' }, { c: 19, r: 21, a: 'comer' },
+    { c: 16, r: 18, a: 'sentar' }, { c: 15, r: 19, a: 'sentar' }, { c: 21, r: 23, a: 'sentar' },
+    { c: 19, r: 17, a: 'passear' }, { c: 22, r: 20, a: 'passear' }, { c: 20, r: 15, a: 'passear' },
+  ];
+  // cenas entre dois agentes livres (falas da Taverna)
+  const CENAS = [
+    { a: 'jefrey', b: 'maria', ta: [21, 15], tb: [21, 16], fa: 'Saúde!', fb: 'Saúde! Bebe devagar, hein.', emote: 'caneca' },
+    { a: 'monica', b: 'tesoureiro', ta: [16, 18], tb: [15, 19], fa: 'O relatório que você pediu.', fb: 'Hmm... as contas fecham.', emote: 'livro' },
+    { a: 'mosley', b: 'friday', ta: [19, 17], tb: [20, 17], fa: 'E então o estoico disse...', fb: 'Interesting! Tell me more.', emote: 'livro' },
+    { a: 'arauto', b: 'jefrey', ta: [15, 21], tb: [16, 21], fa: 'Notícia: o campeão treinou hoje!', fb: 'Claro que treinou.', emote: 'nota' },
   ];
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
   const passagemDe = (c, r) => PASSAGENS.find(p => p.tiles.some(([pc, pr]) => pc === c && pr === r)) || null;
   const bloqueado = new Set(MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
-  for (const d of DONOS) bloqueado.add(d.c + ',' + d.r);
+  for (const d of [...DONOS, ...MORADORES]) bloqueado.add(d.c + ',' + d.r);
   const andavel = (c, r) => !bloqueado.has(c + ',' + r) && !!(salaDe(c, r) || passagemDe(c, r));
+  // agentes podem pisar no próprio posto (que é bloqueado pro Rei)
+  const postos = new Set([...DONOS, ...MORADORES].filter(d => !d.objeto && !d.preso).map(d => d.c + ',' + d.r));
+  const andavelAgente = (c, r) => andavel(c, r) || postos.has(c + ',' + r);
   const centro = id => { const s = SALAS.find(x => x.id === id); let c = s.x + (s.w >> 1), r = s.y + (s.h >> 1);
     if (!andavel(c, r)) for (const [dc, dr] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1]]) if (andavel(c + dc, r + dr)) { c += dc; r += dr; break; }
     return [c, r]; };
   const chaoDe = (c, r) => { const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, PARTIDA, salaDe, passagemDe, andavel, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, PARTIDA, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

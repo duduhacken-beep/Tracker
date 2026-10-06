@@ -42,12 +42,29 @@ assert.ok(M.chaoDe(...M.PARTIDA));
 
 // donos: na sala certa, fora de móvel/passagem, bloqueando o próprio tile, alcançáveis por um vizinho
 const moveis = new Set(M.MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
-assert.deepStrictEqual(M.DONOS.map(d => d.sala).sort(), ['biblioteca', 'cozinha', 'escritorio', 'patio', 'porao', 'quarto', 'tesouro'], 'uma sala com função = um dono');
+assert.deepStrictEqual(M.DONOS.map(d => d.sala).sort(), ['biblioteca', 'cozinha', 'escritorio', 'patio', 'porao', 'quarto', 'salao', 'tesouro'], 'uma sala com função = um dono');
 for (const d of M.DONOS) {
   assert.ok(M.andavel(...M.centro(d.sala)), `${d.id} tapando o centro da ${d.sala}`);
   assert.strictEqual((M.salaDe(d.c, d.r) || {}).id, d.sala, `${d.id} fora da ${d.sala}`);
   assert.ok(!moveis.has(d.c + ',' + d.r) && !passagem.has(d.c + ',' + d.r), `${d.id} em cima de móvel/passagem`);
   assert.ok(!M.andavel(d.c, d.r), `${d.id} deveria bloquear o tile`);
   assert.ok(Iso.caminhoAteVizinho(M.andavel, M.PARTIDA, [d.c, d.r]).length > 0, `${d.id} inalcançável`);
+}
+
+// Fase 5: moradores, pontos de passeio e cenas
+const ehSalao = ([c, r]) => (M.salaDe(c, r) || {}).id === 'salao';
+for (const m of M.MORADORES) {
+  assert.strictEqual((M.salaDe(Math.floor(m.c), Math.floor(m.r)) || {}).id, m.sala, `${m.id} fora da ${m.sala}`);
+  if (!m.preso) assert.ok(Iso.caminho(M.andavelAgente, M.PARTIDA, [m.c, m.r]).length > 0, `${m.id} não chega no posto`);
+}
+for (const d of M.DONOS.filter(d => !d.objeto)) assert.ok(Iso.caminho(M.andavelAgente, M.PARTIDA, [d.c, d.r]).length > 0, `${d.id} não chega no posto`);
+for (const p of M.POIS) {
+  assert.ok(ehSalao([p.c, p.r]) && M.andavel(p.c, p.r), `ponto ${p.c},${p.r} bloqueado ou fora do Salão`);
+  assert.ok(Iso.caminho(M.andavelAgente, M.PARTIDA, [p.c, p.r]).length > 0 || (p.c === M.PARTIDA[0] && p.r === M.PARTIDA[1]), `ponto ${p.c},${p.r} inalcançável`);
+}
+const agentesIds = new Set(['tesoureiro', 'maria', 'mosley', 'monica', 'jefrey', 'friday', 'arauto']);
+for (const c of M.CENAS) {
+  assert.ok(agentesIds.has(c.a) && agentesIds.has(c.b), `cena com agente desconhecido ${c.a}/${c.b}`);
+  for (const t of [c.ta, c.tb]) assert.ok(ehSalao(t) && M.andavel(...t), `cena ${c.a}/${c.b}: ${t} bloqueado`);
 }
 console.log('ok mapa');
