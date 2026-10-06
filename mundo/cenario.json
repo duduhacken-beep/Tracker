@@ -620,9 +620,49 @@
     "h": 72
    }
   },
-  "escada": {
+  "jaula_chao": {
    "frame": {
     "x": 520,
+    "y": 82,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   }
+  },
+  "jaula_grades": {
+   "frame": {
+    "x": 586,
+    "y": 82,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   }
+  },
+  "escada": {
+   "frame": {
+    "x": 652,
     "y": 82,
     "w": 64,
     "h": 64
@@ -642,7 +682,7 @@
   },
   "placa": {
    "frame": {
-    "x": 586,
+    "x": 718,
     "y": 82,
     "w": 48,
     "h": 24
@@ -662,7 +702,7 @@
   },
   "vela": {
    "frame": {
-    "x": 636,
+    "x": 768,
     "y": 82,
     "w": 8,
     "h": 16
@@ -682,7 +722,7 @@
   },
   "lustre": {
    "frame": {
-    "x": 646,
+    "x": 778,
     "y": 82,
     "w": 48,
     "h": 32
@@ -702,7 +742,7 @@
   },
   "gato_pe": {
    "frame": {
-    "x": 696,
+    "x": 828,
     "y": 82,
     "w": 12,
     "h": 10
@@ -722,7 +762,7 @@
   },
   "gato_dorme": {
    "frame": {
-    "x": 710,
+    "x": 842,
     "y": 82,
     "w": 10,
     "h": 6
@@ -742,7 +782,7 @@
   },
   "estandarte_guerreiro": {
    "frame": {
-    "x": 722,
+    "x": 854,
     "y": 82,
     "w": 24,
     "h": 56
@@ -762,7 +802,7 @@
   },
   "estandarte_acrobata": {
    "frame": {
-    "x": 748,
+    "x": 880,
     "y": 82,
     "w": 24,
     "h": 56
@@ -782,7 +822,7 @@
   },
   "estandarte_monge": {
    "frame": {
-    "x": 774,
+    "x": 906,
     "y": 82,
     "w": 24,
     "h": 56
@@ -802,7 +842,7 @@
   },
   "estandarte_sabio": {
    "frame": {
-    "x": 800,
+    "x": 932,
     "y": 82,
     "w": 24,
     "h": 56
@@ -822,7 +862,7 @@
   },
   "estandarte_nobre": {
    "frame": {
-    "x": 826,
+    "x": 958,
     "y": 82,
     "w": 24,
     "h": 56
@@ -842,7 +882,7 @@
   },
   "estandarte_chef": {
    "frame": {
-    "x": 852,
+    "x": 984,
     "y": 82,
     "w": 24,
     "h": 56
@@ -862,8 +902,8 @@
   },
   "estandarte_andarilho": {
    "frame": {
-    "x": 878,
-    "y": 82,
+    "x": 0,
+    "y": 180,
     "w": 24,
     "h": 56
    },
@@ -879,13 +919,153 @@
     "w": 24,
     "h": 56
    }
+  },
+  "quadro_avisos_0": {
+   "frame": {
+    "x": 26,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_1": {
+   "frame": {
+    "x": 60,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_2": {
+   "frame": {
+    "x": 94,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_3": {
+   "frame": {
+    "x": 128,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_4": {
+   "frame": {
+    "x": 162,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_5": {
+   "frame": {
+    "x": 196,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
+  },
+  "quadro_avisos_6": {
+   "frame": {
+    "x": 230,
+    "y": 180,
+    "w": 32,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 48
+   }
   }
  },
  "meta": {
   "image": "cenario.png",
   "size": {
-   "w": 968,
-   "h": 178
+   "w": 1008,
+   "h": 236
   },
   "scale": "1"
  }
