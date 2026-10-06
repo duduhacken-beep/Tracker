@@ -5379,6 +5379,126 @@
     "w": 8,
     "h": 16
    }
+  },
+  "gato2_pe": {
+   "frame": {
+    "x": 356,
+    "y": 1062,
+    "w": 19,
+    "h": 9
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 19,
+    "h": 9
+   },
+   "sourceSize": {
+    "w": 19,
+    "h": 9
+   }
+  },
+  "gato2_dorme": {
+   "frame": {
+    "x": 377,
+    "y": 1062,
+    "w": 19,
+    "h": 9
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 19,
+    "h": 9
+   },
+   "sourceSize": {
+    "w": 19,
+    "h": 9
+   }
+  },
+  "gato2_lambe": {
+   "frame": {
+    "x": 398,
+    "y": 1062,
+    "w": 19,
+    "h": 9
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 19,
+    "h": 9
+   },
+   "sourceSize": {
+    "w": 19,
+    "h": 9
+   }
+  },
+  "gato2_espreguica": {
+   "frame": {
+    "x": 419,
+    "y": 1062,
+    "w": 19,
+    "h": 9
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 19,
+    "h": 9
+   },
+   "sourceSize": {
+    "w": 19,
+    "h": 9
+   }
+  },
+  "saco_dormir": {
+   "frame": {
+    "x": 440,
+    "y": 1062,
+    "w": 48,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 24
+   }
+  },
+  "caneca": {
+   "frame": {
+    "x": 490,
+    "y": 1062,
+    "w": 7,
+    "h": 7
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 7,
+    "h": 7
+   },
+   "sourceSize": {
+    "w": 7,
+    "h": 7
+   }
   }
  },
  "meta": {

@@ -27,8 +27,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=10', 'mundo/cenario.json?v=10');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=10', 'mundo/personagens.json?v=10');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=11', 'mundo/cenario.json?v=11');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=11', 'mundo/personagens.json?v=11');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -56,11 +56,13 @@
     }
     criarRei() {
       const mk = (k, fs) => this.anims.create({ key: k, frames: fs.map(f => ({ key: 'personagens', frame: f })), frameRate: 6, repeat: -1 });
-      mk('rei_frente', ['eu_rei_f1', 'eu_rei_f2']); mk('rei_costas', ['eu_rei_c1', 'eu_rei_c2']);
+      mk('rei_frente', ['eu_rei_v1', 'eu_rei_v2']); mk('rei_costas', ['eu_rei_w1', 'eu_rei_w2']);   // capa balançando ao andar
       this.reiTile = MapaMundo.PARTIDA.slice();
       const { x, y } = tela(...this.reiTile);
       this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y + alturaDe(this.reiTile));
       this.rei.sombra = this.sombra(x, y, 22);
+      this.rei.setInteractive({ useHandCursor: true }).on('pointerup', () => { if (!this.arrastou && ops.ficha) ops.ficha(); });
+      this.placaNome(this.rei, 'Você — o Rei');
       this.input.on('pointerup', (p, sobre) => {
         if (this.arrastou || sobre.length) return;
         const w = this.cameras.main.getWorldPoint(p.x, p.y), t = this.telaParaTile(w.x, w.y);
@@ -182,6 +184,11 @@
       const { x, y } = Iso.paraTela(seg.c, seg.r); const yy = y - altura, dz = altura;   // profundidade pelo chão (dz devolve a altura)
       const [x0, yAlto, prof] = seg.lado === 'norte' ? [x, yy - 16, yy - 16] : seg.lado === 'oeste' ? [x - 32, yy - 16, yy - 16] : seg.lado === 'sul' ? [x - 32, yy, yy + 16] : [x, yy, yy + 16];
       return this.add.image(x0, yAlto - (alt - 16), 'cenario', frame).setOrigin(0, 0).setDepth(prof + dz);
+    }
+    placaNome(s, nome) {   // nome em cima de quem está sob o mouse
+      s.nome = this.add.text(s.x, s.y - 50, nome, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '9px', fontStyle: 'bold', color: '#f3e3bb',
+        backgroundColor: '#2a1e12', padding: { x: 4, y: 1 }, resolution: 4 }).setOrigin(.5, 1).setDepth(100003).setVisible(false);
+      s.on('pointerover', () => s.nome.setVisible(true)).on('pointerout', () => s.nome.setVisible(false));
     }
     sombra(x, y, larg) {   // sombra de contato: elipse escura logo acima do piso (abaixo de tudo que fica em pé)
       return this.add.ellipse(x, y, larg, larg * .42, 0x000000, .28).setDepth(-99000);
@@ -371,6 +378,10 @@
         if (d.preso && !this.calmo) ag.ronda = this.tweens.add({ targets: s, x: x + 12, duration: 1600, yoyo: true, repeat: -1,
           onYoyo: () => s.setFlipX(true), onRepeat: () => s.setFlipX(false) });   // Kobe anda de um lado pro outro na jaula
         s.sombra = this.sombra(x, y, 22); this.donos[d.id] = s; this.agentes.push(ag);
+        ag.cama = this.add.image(x - 4, y + 2, 'cenario', 'saco_dormir').setDepth(s.depth - .5).setVisible(false);   // dorme deitado aqui
+        ag.caneca = this.add.image(x, y, 'cenario', 'caneca').setVisible(false);
+        ag.olhar = 3 + Math.random() * 6; ag.piscar = 2 + Math.random() * 4;
+        this.placaNome(s, d.nome);
       }
       this.vida = null; this.lerVida();
       this.time.addEvent({ delay: 30000, loop: true, callback: () => this.lerVida() });
@@ -418,7 +429,7 @@
         if (!p) {
           ag.andando = false; ag.s.anims.stop();
           const noPosto = ag.tile[0] === ag.posto[0] && ag.tile[1] === ag.posto[1];
-          ag.s.setFrame(ag.spr + (ag.costas && !noPosto ? '_c' : '_f')); if (noPosto) ag.s.setFlipX(false);
+          ag.costas = false; ag.s.setFrame(ag.spr + '_f'); if (noPosto) ag.s.setFlipX(false);   // ao parar, vira de frente (as poses dependem disso)
           if (chegar) chegar(); return;
         }
         const de = tela(...ag.tile), para = tela(...p);
@@ -468,8 +479,8 @@
     }
     criarGato() {
       const { x, y } = tela(16, 16);
-      this.gato = { tile: [16, 16], t: 3, s: this.add.sprite(x, y, 'cenario', 'gato_pe').setOrigin(.5, 1).setDepth(y).setInteractive({ useHandCursor: true }) };
-      this.gato.s.sombra = this.sombra(x, y, 12);
+      this.gato = { tile: [16, 16], t: 3, s: this.add.sprite(x, y, 'cenario', 'gato2_pe').setOrigin(.5, 1).setDepth(y).setInteractive({ useHandCursor: true }) };
+      this.gato.s.sombra = this.sombra(x, y, 18);
       this.gato.s.on('pointerup', () => { if (!this.arrastou) this.falar(this.gato.s, 'Miau.', 2.5); });
     }
     passoGato(dt) {
@@ -477,14 +488,20 @@
       if (this.calmo || g.andando || (g.t -= dt) > 0) return;
       const salao = MapaMundo.SALAS.find(s => s.id === 'salao');
       const alvo = this.vida.noite || Math.random() < .3 ? [16, 15]                       // dorme perto da lareira
-        : Math.random() < .3 ? this.vizinhoDoRei()                                      // vai atrás do Rei
+        : Math.random() < .45 ? this.vizinhoDoRei()                                     // vai atrás do Rei
         : [salao.x + Math.floor(Math.random() * salao.w), salao.y + Math.floor(Math.random() * salao.h)];
       const passos = Iso.caminho(MapaMundo.andavel, g.tile, alvo);
       if (!passos.length) { g.t = 2; return; }
-      g.andando = true; g.s.setFrame('gato_pe');
+      g.andando = true; g.s.setFrame('gato2_pe');
       const prox = () => {
         const p = passos.shift();
-        if (!p) { g.andando = false; g.t = 6 + Math.random() * 10; if (this.vida.noite || Math.random() < .5) g.s.setFrame('gato_dorme'); return; }
+        if (!p) {                                                        // parado: dorme, lambe a pata ou se espreguiça
+          g.andando = false; g.t = 6 + Math.random() * 10; const k = Math.random();
+          if (this.vida.noite || k < .4) g.s.setFrame('gato2_dorme');
+          else if (k < .7) { g.s.setFrame('gato2_lambe'); this.time.delayedCall(2500, () => { if (!g.andando) g.s.setFrame('gato2_pe'); }); }
+          else { g.s.setFrame('gato2_espreguica'); this.time.delayedCall(1500, () => { if (!g.andando) g.s.setFrame('gato2_pe'); }); }
+          return;
+        }
         const de = tela(...g.tile), para = tela(...p);
         g.s.setFlipX(para.x < de.x);
         this.tweens.add({ targets: g.s, x: para.x, y: para.y, duration: 300, onUpdate: () => g.s.setDepth(g.s.y), onComplete: () => { g.tile = p; prox(); } });
@@ -496,7 +513,23 @@
       if (ag.ronda) { if (dorme && !ag.ronda.isPaused()) ag.ronda.pause(); else if (!dorme && ag.ronda.isPaused()) ag.ronda.resume(); }
       const parado = !ag.andando, trab = est === 'trabalhando' && parado;
       const bob = parado && !dorme ? Math.floor(time / (trab ? 200 : 900)) % 2 : 0;          // respira 1px mexendo a origem (não briga com os tweens)
-      s.setOrigin(.5, (46 + bob) / 48).setAlpha(dorme ? .85 : 1);
+      const deitado = dorme && parado && !ag.d.preso && !this.calmo;
+      s.setOrigin(.5, deitado ? .8 : (46 + bob) / 48).setAlpha(dorme ? .9 : 1).setAngle(deitado ? -90 : 0);   // dorme deitado no saco
+      ag.cama.setVisible(deitado).setPosition(s.x - 4, s.y + 2);
+      if (parado && !ag.d.preso) {                                       // pose: trabalhando, sentado, piscando, olhando pros lados
+        const a = ag.poi && ag.poi.a, dt = this.game.loop.delta / 1000;
+        let q = ag.spr + '_f';
+        if (trab) q = ag.spr + (Math.floor(time / 260) % 2 ? '_t' : '_f');
+        else if (!dorme && (a === 'sentar' || a === 'comer')) q = ag.spr + '_s';
+        else if (!dorme) {
+          if ((ag.piscar -= dt) <= 0) { ag.piscar = 2.5 + Math.random() * 4; ag.piscando = .14; }
+          if (ag.piscando > 0) { ag.piscando -= dt; q = ag.spr + '_p'; }
+          if (!this.calmo && (ag.olhar -= dt) <= 0) { ag.olhar = 4 + Math.random() * 7; s.setFlipX(!s.flipX); }
+        }
+        if (!ag.costas && s.frame.name !== q) s.setFrame(q);
+        ag.caneca.setVisible(!dorme && a === 'beber').setPosition(s.x + (s.flipX ? -7 : 7), s.y - 20).setDepth(s.depth + .2);
+      } else ag.caneca.setVisible(false);
+      if (s.nome) s.nome.setPosition(s.x, s.getTopCenter().y - (ag.icone.visible ? 14 : 3));
       const st = this.vida.agentes[ag.id] || {};
       const icone = s.balao ? null : dorme ? 'zz' : est === 'erro' ? 'erro' : trab ? 'fala' : ag.emote || (st.recente && est === 'descansando' ? 'ok' : null);
       ag.icone.setVisible(!!icone);
@@ -524,6 +557,7 @@
       this.passoGato(dt);
       this.passoAmbiente(time, dt);
       for (const s of [this.rei, this.gato.s, ...this.agentes.map(a => a.s)]) s.sombra.setPosition(s.x, s.y).setVisible(s.visible);
+      this.rei.nome.setPosition(this.rei.x, this.rei.getTopCenter().y - 3);
       if (this.gato.s.balao) this.gato.s.balao.setPosition(this.gato.s.x, this.gato.s.getTopCenter().y - 4);
       if (this.calmo) return;
       if ((this.proxConversa -= dt) <= 0) {                     // alguém acordado fala sozinho de vez em quando
@@ -696,6 +730,7 @@
       const c = this.cena(); if (c && c.vida) { c.lerVida(); c.reagir(); c.atualizarAmbiente(); }   // voltou pro Mundo: reage ao que você fez nesse meio-tempo
     },
     cena() { return jogo && jogo.scene.getScene('mundo'); },
+    retrato(frame, atlas = 'personagens') { return jogo && jogo.textures.getBase64(atlas, frame); },
     irPara(id) { const c = this.cena(); if (c && c.irPara) c.irPara(id); },
     andarAte(col, lin) { const c = this.cena(); if (c && c.andarAte) c.andarAte(col, lin); },
   };

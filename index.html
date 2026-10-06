@@ -835,6 +835,18 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .mj-status{padding:6px 18px;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80;background:#241f19;border-bottom:1px solid #4a3a1e}
 .mj-status:empty{display:none}
 #mundo-janela-corpo #tv-cena,#mundo-janela-corpo #tv-btn-mundo{display:none}   /* dentro do Mundo a Taverna mostra só o painel e a crônica */
+/* Ficha do Rei (clicar no Rei) */
+.mundo-ficha{position:absolute;left:14px;bottom:14px;z-index:15;width:min(300px,calc(100% - 28px));background:#1e1a15;border:3px solid #6e5427;border-radius:6px;box-shadow:0 0 0 2px #120d08,0 10px 30px rgba(0,0,0,.6);color:#efe2c2;font:500 14px 'Alegreya Sans',sans-serif;padding:14px 16px}
+.mundo-ficha[hidden]{display:none}
+.mundo-ficha .mj-fechar{position:absolute;top:4px;right:4px}
+.mf-topo{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.mf-topo img{width:64px;height:96px;image-rendering:pixelated;background:#2d2820;border:2px solid #6e5427;border-radius:4px}
+.mf-topo h3{margin:0;font:700 18px 'Cinzel',Georgia,serif;color:#f3e3bb}
+.mf-topo span{color:#bfaa80;font-size:13px}
+.mf-barra{height:8px;background:#2d2820;border:1px solid #6e5427;border-radius:4px;overflow:hidden;margin:4px 0 10px}
+.mf-barra i{display:block;height:100%;background:linear-gradient(90deg,#c99a1f,#f5c542)}
+.mf-linha{display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid #3a2f22}
+.mf-linha b{color:#f0c96a}
 /* Livro do Reino: a janela com pele de livro + capa que vira ao abrir/fechar */
 .mj-capa{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;transform-origin:left center;backface-visibility:hidden;
   background:#7a2620;border:3px solid #e2b24c;box-shadow:inset 0 0 0 6px #5a1a14,inset 0 0 0 8px #e2b24c;border-radius:4px}
@@ -2346,6 +2358,10 @@ body.dens-compact .gap{margin-bottom:14px}
     <div class="mundo-aviso" id="mundo-aviso" hidden>
       <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
       <button class="btn btn-p" onclick="go('home')">Usar o modo clássico</button>
+    </div>
+    <div class="mundo-ficha" id="mundo-ficha" hidden role="dialog" aria-labelledby="mundo-ficha-titulo">
+      <button class="mj-fechar" onclick="mundoFicha(false)" aria-label="Fechar">×</button>
+      <div id="mundo-ficha-corpo"></div>
     </div>
     <div class="mundo-janela" id="mundo-janela" hidden onclick="if (event.target === this) mundoFecharJanela()">
       <div class="mj-painel" role="dialog" aria-modal="true" aria-labelledby="mundo-janela-titulo">
@@ -4817,7 +4833,7 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=10', 'mundo/mapa.js?v=10', 'mundo/vida.js?v=10', 'mundo/mundo.js?v=10'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=11', 'mundo/mapa.js?v=11', 'mundo/vida.js?v=11', 'mundo/mundo.js?v=11'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
@@ -4830,7 +4846,7 @@ async function abrirMundo() {
     // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
     await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro, ficha: () => mundoFicha() });
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4887,6 +4903,22 @@ function mundoDados() {
     metas: CV_METAS.filter(m => m.un).map(m => ({ nome: m.nome, feitas: st ? st.n[m.chave] || 0 : 0, alvo: st ? st.alvo[m.chave] || m.alvo : m.alvo })),
     dia: hoje.getDate(), mes: hoje.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase(),
   };
+}
+// Ficha do Rei: nível, título, XP, classe, sequência, conquistas e o dia do Modo Caverna (números do _cvStats)
+function mundoFicha(abrir = $('mundo-ficha').hidden) {
+  const el = $('mundo-ficha');
+  if (!abrir) { el.hidden = true; return; }
+  let st = null; try { st = _cvStats(); } catch (e) {}
+  const nivel = st ? st.nivel : 1, xp = st ? st.xp % CV_XP_NIVEL : 0, img = window.MundoTracker && MundoTracker.retrato('eu_rei_f');
+  const dia = !st || st.hoje < CV_INI ? 'Começa em 21/10' : `Dia ${st.decorridos} de ${st.datas.length}`;
+  $('mundo-ficha-corpo').innerHTML = `<div class="mf-topo">${img ? `<img src="${img}" alt="">` : ''}<div><h3 id="mundo-ficha-titulo">O Rei</h3>
+      <span>Nível ${nivel} · ${_escH(st ? st.titulo : 'Recruta')}</span><br><span>Classe: ${_escH(st ? st.classe : 'Andarilho')}</span></div></div>
+    <div style="font-size:12px;color:#bfaa80">XP ${xp} / ${CV_XP_NIVEL}</div><div class="mf-barra"><i style="width:${Math.round(100 * xp / CV_XP_NIVEL)}%"></i></div>
+    <div class="mf-linha"><span>Modo Caverna</span><b>${dia}</b></div>
+    <div class="mf-linha"><span>Sequência</span><b>${st ? st.seq.atual : 0} dias (recorde ${st ? st.seq.max : 0})</b></div>
+    <div class="mf-linha"><span>Escudos</span><b>${st ? st.seq.escudos : 0}/3</b></div>
+    <div class="mf-linha"><span>Conquistas</span><b>${st ? st.conquistas.filter(c => c.ok).length : 0} de ${st ? st.conquistas.length : 20}</b></div>`;
+  el.hidden = false;
 }
 function mundoAbrirLivro(aba) { mundoAbrirJanela('livro'); if (aba) mundoJanelaAba(aba); }
 function mundoTextoAmbiente(id) {
