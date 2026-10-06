@@ -27,8 +27,8 @@
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=9', 'mundo/cenario.json?v=9');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=9', 'mundo/personagens.json?v=9');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=10', 'mundo/cenario.json?v=10');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=10', 'mundo/personagens.json?v=10');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -219,7 +219,7 @@
           this.add.rectangle(meio.x, meio.y - 196, 1, 140, 0x2a1e12).setDepth(99990)],          // …pela corrente
         arvore: [sp('arvore_natal_0', ...E('arvore')[0], 16, 53)],
       };
-      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y, chao } = tela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela').setOrigin(.5, 1).setDepth(chao + Iso.TH / 2 + 1); });
+      this.velas = MapaMundo.VELAS.map(([c, r]) => { const { x, y, chao } = tela(c, r); return this.add.image(x, y - 14, 'cenario', 'vela_0').setOrigin(.5, 1).setDepth(chao + Iso.TH / 2 + 1); });
       // troféus: uma medalha por conquista na parede norte do Salão (pulando as portas e o quadro de avisos)
       const pts = [13, 14, 18, 19, 20, 23, 24].flatMap(c => [.2, .5, .8].map(f => { const { x, y } = tela(c, 13); return [x + 32 * f, y - 16 + 16 * f - 44, y - 16]; }));
       this.trofeus = pts.slice(0, 20).map(([x, y, prof]) => this.add.image(Math.round(x), Math.round(y), 'gancho').setDepth(prof + .5).setInteractive({ useHandCursor: true }));
@@ -235,7 +235,10 @@
       });
       this.luzImg = this.make.image({ key: 'luz', add: false });
       this.escuro = this.add.renderTexture(this.lim.x, this.lim.y, this.lim.w, this.lim.h).setOrigin(0).setDepth(99995);   // noite: abaixo de placas, ícones e falas
-      this.proxNoite = 0; this.proxFogos = 0; this.proxPortas = 0; this.proxGota = 2;
+      this.proxNoite = 0; this.proxFogos = 0; this.proxPortas = 0; this.proxGota = 2; this.proxFumaca = 0;
+      this.feixes = this.add.graphics().setDepth(-99996); this.feixesAtivos = [];
+      const forno = this.moveis.find(m => m.frame.name === 'forno');
+      this.chamines = [[this.lareira.x + 18, this.lareira.y - 70, this.lareira.depth + 1], ...(forno ? [[forno.x + 12, forno.y - 60, forno.depth + 1]] : [])];
       this.atualizarAmbiente();
       this.time.addEvent({ delay: 60000, loop: true, callback: () => this.atualizarAmbiente() });
     }
@@ -283,10 +286,21 @@
         for (const p of this.portas) p.folha.setVisible(!quem.some(([qc, qr]) => p.tiles.some(([c, r]) => Math.abs(qc - c) <= 1 && Math.abs(qr - r) <= 1)));
       }
       if (this.epoca.virada && !this.calmo && (this.proxFogos -= dt) <= 0) { this.proxFogos = .6 + Math.random() * .8; this.fogosArtificio(); }
-      if ((this.proxNoite -= dt) > 0) return;                          // noite: escurece e abre as luzes (10x por segundo)
+      if (!this.calmo) {                                                 // chama das velas, fumaça da lareira e do forno, vapor do caldeirão, poeira na luz
+        const qv = Math.floor(time / 160) % 3;
+        if (qv !== this.quadroVela) { this.quadroVela = qv; this.velas.forEach((v, i) => v.setFrame('vela_' + ((qv + i) % 3))); }
+        if ((this.proxFumaca -= dt) <= 0) { this.proxFumaca = .5; for (const [x, y, prof] of this.chamines) this.fumaca(x, y, prof); }
+        if (Math.random() < .08) { const c = tela(6, 16); this.faisca(c.x + Math.random() * 10 - 5, c.y - 24, 0xe8ecf2, -18, 1200, c.chao + 20, 1.5); }
+        if (this.feixesAtivos.length && Math.random() < .25) this.poeira();
+      }
+      if ((this.proxNoite -= dt) > 0) return;                          // céu: cor contínua pela hora; escuro com buracos de luz (10x por segundo)
       this.proxNoite = .1;
-      if (this.ceu === 'dia') { this.escuro.setVisible(false); return; }
-      this.escuro.setVisible(true).clear().fill(this.ceu === 'noite' ? 0x08081e : 0x281420, this.ceu === 'noite' ? .62 : .25);
+      const agora = new Date(), hora = this.horaForcada != null ? this.horaForcada : agora.getHours() + agora.getMinutes() / 60;
+      const ceu = this.corCeu = VidaMundo.corDoCeu(hora);
+      this.desenharFeixes(ceu, hora);
+      if (ceu.alfa < .02) { this.escuro.setVisible(false); return; }
+      this.escuro.setVisible(true).clear().fill(ceu.cor, ceu.alfa);
+      if (ceu.alfa < .2) return;                                         // só acende as luzes quando escurece de verdade
       const tremor = 1 + Math.sin(time / 160) * .04;
       for (const [x, y, r] of this.luzes()) this.escuro.erase(this.luzImg.setPosition(x - this.lim.x, y - this.lim.y).setScale(r * 2 * tremor / 128));
     }
@@ -300,6 +314,29 @@
       if (arvore.visible) l.push([arvore.x, arvore.y - 30, 70]);
       for (const t of this.tochas) l.push([t.x, t.y - 18, 80]);
       return l;
+    }
+    desenharFeixes(ceu, hora) {   // de dia, feixes de luz entram pelas janelas; o ângulo muda com a hora
+      const g = this.feixes; g.clear(); this.feixesAtivos = [];
+      const forca = hora < 6.5 || hora > 18 ? 0 : Math.max(0, 1 - ceu.alfa * 4);
+      if (!forca) return;
+      const L = 1.4 + Math.abs(hora - 12) / 3.5, lado = (hora - 12) / 6 * .6;   // manhã/tarde: feixe mais comprido e enviesado
+      const dx = L * 32 - lado * 32, dy = L * 16 + lado * 16;
+      for (const seg of this.janelas) {
+        const { x, y } = tela(seg.c, seg.r), A = [x - 32 + 8, y - 4], B = [x - 8, y - 12];   // pedaço da borda onde fica a janela
+        const pts = [A, B, [B[0] + dx, B[1] + dy], [A[0] + dx, A[1] + dy]];
+        g.fillStyle(0xfff0c0, .16 * forca).fillPoints(pts.map(([px, py]) => ({ x: px, y: py })), true);
+        this.feixesAtivos.push(pts);
+      }
+    }
+    poeira() {   // grão de poeira flutuando dentro de um feixe
+      const [A, B, C] = this.feixesAtivos[Math.floor(Math.random() * this.feixesAtivos.length)], u = Math.random(), v = Math.random();
+      const x = A[0] + (B[0] - A[0]) * u + (C[0] - B[0]) * v, y = A[1] + (B[1] - A[1]) * u + (C[1] - B[1]) * v;
+      const p = this.add.rectangle(x, y, 1, 1, 0xfff2c0, .8).setDepth(y + 30);
+      this.tweens.add({ targets: p, y: y - 8, x: x + (Math.random() - .5) * 6, alpha: 0, duration: 1800, onComplete: () => p.destroy() });
+    }
+    fumaca(x, y, prof) {   // baforada de fumaça subindo e abrindo
+      const f = this.add.circle(x + Math.random() * 4 - 2, y, 2.5, 0x9a948c, .35).setDepth(prof);
+      this.tweens.add({ targets: f, y: y - 34, x: f.x + (Math.random() - .5) * 10, scale: 2.4, alpha: 0, duration: 2200, onComplete: () => f.destroy() });
     }
     faisca(x, y, cor, sobe, dur, prof, tam) {
       const r = this.add.rectangle(x, y, tam, tam, cor).setDepth(prof);
@@ -618,7 +655,7 @@
       });
     }
     desenharParedes() {   // paredes do fundo (com acabamento e estilo da sala), mureta de meia altura na frente, fundação sob a sala elevada
-      this.paredes = []; this.portas = [];
+      this.paredes = []; this.portas = []; this.janelas = [];
       for (const s of MapaMundo.SALAS.filter(s => s.parede)) {
         const suf = s.alta ? '_alta' : '', H = s.alta ? 112 : 80, pedra = s.parede.startsWith('pedra');
         for (const seg of this.bordas(s)) {
@@ -626,6 +663,7 @@
           if (seg.lado === 'oeste' || seg.lado === 'norte') {
             const tipo = seg.lado === 'oeste' ? 'esq' : 'dir', janela = tipo === 'esq' && seg.r % 4 === 2 && !pedra && !passagem;
             const parede = this.pecaNaBorda(`parede_${tipo}_${s.parede}${passagem ? '_porta' : janela ? '_janela' : ''}${suf}`, seg, H);
+            if (janela) this.janelas.push(seg);
             this.paredes.push(parede);
             if (passagem) {                                             // porta de madeira que abre quando alguém chega perto
               const folha = this.pecaNaBorda(`porta_${tipo}${suf}`, seg, H).setDepth(parede.depth + .5);

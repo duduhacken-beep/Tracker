@@ -5319,6 +5319,66 @@
     "w": 48,
     "h": 64
    }
+  },
+  "vela_0": {
+   "frame": {
+    "x": 326,
+    "y": 1062,
+    "w": 8,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 16
+   }
+  },
+  "vela_1": {
+   "frame": {
+    "x": 336,
+    "y": 1062,
+    "w": 8,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 16
+   }
+  },
+  "vela_2": {
+   "frame": {
+    "x": 346,
+    "y": 1062,
+    "w": 8,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 16
+   }
   }
  },
  "meta": {

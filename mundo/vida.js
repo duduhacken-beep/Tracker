@@ -53,6 +53,16 @@
   const pilhasMoedas = (sobra, livre) => sobra == null || !(livre > 0) ? 0 : Math.max(0, Math.min(5, Math.ceil(5 * sobra / livre)));   // quanto do "livre" do mês ainda sobra
   const surrado = treinos => treinos >= 30 ? 3 : treinos >= 10 ? 2 : treinos >= 1 ? 1 : 0;   // boneco de treino vai ficando gasto
 
-  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca, reformas, estantes, pilhasMoedas, surrado };
+  // cor por cima do castelo ao longo do dia (sem degraus): madrugada azul, amanhecer rosado, dia limpo, pôr do sol laranja, noite
+  const CEU = [[0, 0x08081e, .62], [5, 0x0a0a2a, .58], [6, 0x5a2a4a, .34], [7.5, 0xffb070, .1], [9, 0x000000, 0], [16, 0x000000, 0],
+    [17.5, 0xff8a30, .14], [18.5, 0x8a3a40, .3], [19.5, 0x2a1440, .48], [21, 0x08081e, .62], [24, 0x08081e, .62]];
+  function corDoCeu(hora) {
+    const i = CEU.findIndex(([h], k) => k < CEU.length - 1 && hora >= h && hora < CEU[k + 1][0]), [h0, c0, a0] = CEU[i], [h1, c1, a1] = CEU[i + 1];
+    const f = (hora - h0) / (h1 - h0), mix = (a, b, s) => Math.round(((a >> s) & 255) + (((b >> s) & 255) - ((a >> s) & 255)) * f);
+    const cor = c0 === 0 ? c1 : c1 === 0 ? c0 : (mix(c0, c1, 16) << 16) | (mix(c0, c1, 8) << 8) | mix(c0, c1, 0);   // de/para "sem cor" mantém o tom
+    return { cor, alfa: Math.round((a0 + (a1 - a0) * f) * 1000) / 1000 };
+  }
+
+  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca, reformas, estantes, pilhasMoedas, surrado, corDoCeu };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.VidaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

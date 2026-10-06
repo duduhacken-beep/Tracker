@@ -53,4 +53,11 @@ assert.deepStrictEqual(V.estantes(200, 2), [24, 24]);
 assert.strictEqual(V.pilhasMoedas(null, 3000), 0, 'sem renda cadastrada: sem pilha');
 assert.strictEqual(V.pilhasMoedas(3000, 3000), 5); assert.strictEqual(V.pilhasMoedas(1, 3000), 1); assert.strictEqual(V.pilhasMoedas(0, 3000), 0);
 assert.deepStrictEqual([0, 1, 9, 10, 29, 30].map(V.surrado), [0, 1, 1, 2, 2, 3]);
+// Fase 5C bloco 6: céu contínuo
+assert.deepStrictEqual(V.corDoCeu(12), { cor: 0, alfa: 0 }, 'meio-dia limpo');
+assert.strictEqual(V.corDoCeu(23).alfa, .62); assert.ok(V.corDoCeu(2).alfa > .58 && V.corDoCeu(2).alfa < .62, 'madrugada escura');
+const tarde = [16, 16.5, 17, 17.5, 18, 18.5, 19, 19.5, 20, 21].map(h => V.corDoCeu(h).alfa);
+assert.ok(tarde.every((a, i) => i === 0 || a >= tarde[i - 1]), 'escurece aos poucos à tarde: ' + tarde);
+const manha = [5, 6, 7, 8, 9].map(h => V.corDoCeu(h).alfa);
+assert.ok(manha.every((a, i) => i === 0 || a <= manha[i - 1]), 'clareia aos poucos de manhã: ' + manha);
 console.log('ok vida');

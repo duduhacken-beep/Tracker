@@ -4817,7 +4817,7 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=9', 'mundo/mapa.js?v=9', 'mundo/vida.js?v=9', 'mundo/mundo.js?v=9'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=10', 'mundo/mapa.js?v=10', 'mundo/vida.js?v=10', 'mundo/mundo.js?v=10'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
