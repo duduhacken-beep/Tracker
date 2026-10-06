@@ -1,0 +1,752 @@
+{
+ "frames": {
+  "chao_madeira": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "chao_pedra": {
+   "frame": {
+    "x": 66,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "chao_grama": {
+   "frame": {
+    "x": 132,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "tapete_verde": {
+   "frame": {
+    "x": 198,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "tapete_vermelho": {
+   "frame": {
+    "x": 264,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   }
+  },
+  "parede_esq": {
+   "frame": {
+    "x": 330,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_dir": {
+   "frame": {
+    "x": 364,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_janela": {
+   "frame": {
+    "x": 398,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_dir_porta": {
+   "frame": {
+    "x": 432,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_esq_pedra": {
+   "frame": {
+    "x": 466,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "parede_dir_pedra": {
+   "frame": {
+    "x": 500,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 80
+   }
+  },
+  "mesa_redonda": {
+   "frame": {
+    "x": 534,
+    "y": 0,
+    "w": 48,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 40
+   }
+  },
+  "mesa_longa": {
+   "frame": {
+    "x": 584,
+    "y": 0,
+    "w": 96,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 56
+   }
+  },
+  "banco": {
+   "frame": {
+    "x": 682,
+    "y": 0,
+    "w": 64,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 28
+   }
+  },
+  "banqueta": {
+   "frame": {
+    "x": 748,
+    "y": 0,
+    "w": 20,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 20,
+    "h": 24
+   }
+  },
+  "cadeira": {
+   "frame": {
+    "x": 770,
+    "y": 0,
+    "w": 24,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 36
+   }
+  },
+  "balcao": {
+   "frame": {
+    "x": 796,
+    "y": 0,
+    "w": 96,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 56
+   }
+  },
+  "barril": {
+   "frame": {
+    "x": 894,
+    "y": 0,
+    "w": 24,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 32
+   }
+  },
+  "estante": {
+   "frame": {
+    "x": 920,
+    "y": 0,
+    "w": 48,
+    "h": 80
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 80
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 80
+   }
+  },
+  "lareira": {
+   "frame": {
+    "x": 0,
+    "y": 82,
+    "w": 64,
+    "h": 96
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 96
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 96
+   }
+  },
+  "caldeirao": {
+   "frame": {
+    "x": 66,
+    "y": 82,
+    "w": 32,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 32
+   }
+  },
+  "escrivaninha": {
+   "frame": {
+    "x": 100,
+    "y": 82,
+    "w": 48,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 40
+   }
+  },
+  "bau": {
+   "frame": {
+    "x": 150,
+    "y": 82,
+    "w": 32,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 28
+   }
+  },
+  "cofre": {
+   "frame": {
+    "x": 184,
+    "y": 82,
+    "w": 32,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 40
+   }
+  },
+  "balanca": {
+   "frame": {
+    "x": 218,
+    "y": 82,
+    "w": 32,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 40
+   }
+  },
+  "boneco_treino": {
+   "frame": {
+    "x": 252,
+    "y": 82,
+    "w": 24,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 48
+   }
+  },
+  "suporte_armas": {
+   "frame": {
+    "x": 278,
+    "y": 82,
+    "w": 32,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 56
+   }
+  },
+  "cama": {
+   "frame": {
+    "x": 312,
+    "y": 82,
+    "w": 64,
+    "h": 48
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 48
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 48
+   }
+  },
+  "espelho": {
+   "frame": {
+    "x": 378,
+    "y": 82,
+    "w": 24,
+    "h": 56
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 56
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 56
+   }
+  },
+  "armario_arquivo": {
+   "frame": {
+    "x": 404,
+    "y": 82,
+    "w": 48,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 72
+   }
+  },
+  "jaula": {
+   "frame": {
+    "x": 454,
+    "y": 82,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   }
+  },
+  "escada": {
+   "frame": {
+    "x": 520,
+    "y": 82,
+    "w": 64,
+    "h": 64
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 64
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 64
+   }
+  },
+  "placa": {
+   "frame": {
+    "x": 586,
+    "y": 82,
+    "w": 48,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 24
+   }
+  },
+  "vela": {
+   "frame": {
+    "x": 636,
+    "y": 82,
+    "w": 8,
+    "h": 16
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 8,
+    "h": 16
+   },
+   "sourceSize": {
+    "w": 8,
+    "h": 16
+   }
+  },
+  "lustre": {
+   "frame": {
+    "x": 646,
+    "y": 82,
+    "w": 48,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 48,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 48,
+    "h": 32
+   }
+  },
+  "gato_pe": {
+   "frame": {
+    "x": 696,
+    "y": 82,
+    "w": 12,
+    "h": 10
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 10
+   },
+   "sourceSize": {
+    "w": 12,
+    "h": 10
+   }
+  },
+  "gato_dorme": {
+   "frame": {
+    "x": 710,
+    "y": 82,
+    "w": 10,
+    "h": 6
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 10,
+    "h": 6
+   },
+   "sourceSize": {
+    "w": 10,
+    "h": 6
+   }
+  }
+ },
+ "meta": {
+  "image": "cenario.png",
+  "size": {
+   "w": 968,
+   "h": 178
+  },
+  "scale": "1"
+ }
+}
