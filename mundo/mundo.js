@@ -37,6 +37,12 @@
         const w = this.cameras.main.getWorldPoint(p.x, p.y), t = Iso.paraTile(w.x, w.y);
         this.andarAte(t.c, t.r);
       });
+      this.atualizarParedes();
+    }
+    atualizarParedes() {
+      const rb = this.rei.getBounds();
+      for (const p of this.paredes) p.setAlpha(p.depth > this.rei.depth && Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);
+      for (const p of this.placas) p.setAlpha(Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);   // placa fica sempre por cima
     }
     criarDonos() {
       const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -65,7 +71,7 @@
         const de = Iso.paraTela(...this.reiTile), para = Iso.paraTela(...alvo);
         const costas = para.y < de.y;
         this.rei.setFlipX(para.x < de.x).play(costas ? 'rei_costas' : 'rei_frente', true);
-        this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => this.rei.setDepth(this.rei.y),
+        this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => { this.rei.setDepth(this.rei.y); this.atualizarParedes(); },
           onComplete: () => { this.reiTile = alvo; proximo(); } });
       };
       proximo();
@@ -141,18 +147,19 @@
       });
     }
     desenharParedes() {
+      this.paredes = [];
       const ehPassagem = (c, r) => !!MapaMundo.passagemDe(c, r);
       for (const s of MapaMundo.SALAS.filter(s => s.parede)) {
         const esq = s.parede === 'pedra' ? 'parede_esq_pedra' : 'parede_esq', dir = s.parede === 'pedra' ? 'parede_dir_pedra' : 'parede_dir';
         for (let r = s.y; r < s.y + s.h; r++) {                       // parede do lado esquerdo (oeste)
           if (ehPassagem(s.x - 1, r)) continue;
           const { x, y } = Iso.paraTela(s.x, r);
-          this.add.image(x - 32, y - 80, 'cenario', r % 4 === 2 && s.parede === 'madeira' ? 'parede_esq_janela' : esq).setOrigin(0, 0).setDepth(y - 16);
+          this.paredes.push(this.add.image(x - 32, y - 80, 'cenario', r % 4 === 2 && s.parede === 'madeira' ? 'parede_esq_janela' : esq).setOrigin(0, 0).setDepth(y - 16));
         }
         for (let c = s.x; c < s.x + s.w; c++) {                       // parede do fundo (norte)
           const { x, y } = Iso.paraTela(c, s.y);
           const porta = ehPassagem(c, s.y - 1);
-          this.add.image(x, y - 80, 'cenario', porta ? 'parede_dir_porta' : dir).setOrigin(0, 0).setDepth(y - 16);
+          this.paredes.push(this.add.image(x, y - 80, 'cenario', porta ? 'parede_dir_porta' : dir).setOrigin(0, 0).setDepth(y - 16));
         }
       }
     }
