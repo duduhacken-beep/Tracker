@@ -22,6 +22,34 @@
       this.cameras.main.setZoom(2);
       const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
       this.configurarCamera();
+      this.criarRei();
+    }
+    criarRei() {
+      const mk = (k, fs) => this.anims.create({ key: k, frames: fs.map(f => ({ key: 'personagens', frame: f })), frameRate: 6, repeat: -1 });
+      mk('rei_frente', ['eu_rei_f1', 'eu_rei_f2']); mk('rei_costas', ['eu_rei_c1', 'eu_rei_c2']);
+      this.reiTile = MapaMundo.PARTIDA.slice();
+      const { x, y } = Iso.paraTela(...this.reiTile);
+      this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y);
+      this.input.on('pointerup', p => {
+        if (this.arrastou) return;
+        const w = this.cameras.main.getWorldPoint(p.x, p.y), t = Iso.paraTile(w.x, w.y);
+        this.andarAte(t.c, t.r);
+      });
+    }
+    andarAte(c, r) {
+      const passos = Iso.caminho(MapaMundo.andavel, this.reiTile, [c, r]);
+      if (!passos.length) return;
+      this.tweens.killTweensOf(this.rei);
+      const proximo = () => {
+        const alvo = passos.shift();
+        if (!alvo) { const costas = this.rei.anims.currentAnim?.key === 'rei_costas'; this.rei.anims.stop(); this.rei.setFrame(costas ? 'eu_rei_c' : 'eu_rei_f'); return; }
+        const de = Iso.paraTela(...this.reiTile), para = Iso.paraTela(...alvo);
+        const costas = para.y < de.y;
+        this.rei.setFlipX(para.x < de.x).play(costas ? 'rei_costas' : 'rei_frente', true);
+        this.tweens.add({ targets: this.rei, x: para.x, y: para.y, duration: 220, onUpdate: () => this.rei.setDepth(this.rei.y),
+          onComplete: () => { this.reiTile = alvo; proximo(); } });
+      };
+      proximo();
     }
     zoomPara(n) { this.cameras.main.setZoom(Math.max(1, Math.min(4, Math.round(n)))); }
     irPara(id) { const [c, r] = MapaMundo.centro(id), { x, y } = Iso.paraTela(c, r); this.cameras.main.pan(x, y, 600, 'Sine.easeInOut'); }
