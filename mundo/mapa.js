@@ -47,7 +47,7 @@
   // donos das salas com função (Fase 3) — ficam parados no posto; clicar abre a janela da sala
   const DONOS = [
     { id: 'banqueiro', nome: 'Banqueiro', sala: 'tesouro', c: 30, r: 18, agente: 'tesoureiro' },   // agente = id no agentes_status
-    { id: 'maria', nome: 'Maria', sala: 'cozinha', c: 7, r: 17 },
+    { id: 'maria', nome: 'Maria', sala: 'cozinha', c: 7, r: 16 },   // ao lado do caldeirão (na frente dele o escondia)
     { id: 'mosley', nome: 'Mosley', sala: 'biblioteca', c: 15, r: 6 },
     { id: 'monica', nome: 'Mônica', sala: 'escritorio', c: 21, r: 5 },
     { id: 'jefrey', nome: 'Jefrey', sala: 'patio', c: 22, r: 28 },

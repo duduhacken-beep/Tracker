@@ -1,14 +1,24 @@
-// app/mundo/mundo.js — cena Phaser do Mundo (Fase 2: mundo vazio navegável)
+// app/mundo/mundo.js — cena Phaser do Mundo (castelo-taverna isométrico com os agentes vivos)
 (function () {
   const ANCORA = { balcao: [24, 55], mesa_longa: [32, 50], banco: [11, 27], estante: [16, 79], armario_arquivo: [16, 71],
-    lareira: [22, 90], escrivaninha: [16, 38], bau: [13, 26], cofre: [15, 38], cama: [22, 46], escada: [18, 62], jaula: [32, 70] };
+    lareira: [22, 90], escrivaninha: [16, 38], bau: [13, 26], cofre: [15, 38], cama: [22, 46], escada: [18, 62], jaula: [32, 70],
+    jaula_chao: [32, 70], jaula_grades: [32, 70], estandarte: [4, 54], quadro: [16, 46] };
+  // ícones de pixel acima da cabeça (os mesmos da Taverna + "zz" de dormir)
+  const ICONES = {
+    caneca: ['.WWWW.', '.EEEEe', '.EEEEe', '.EEEE.'], nota: ['..kk', '..k.', '..k.', 'kkk.', 'kk..'], coracao: ['RR.RR', 'RRRRR', '.RRR.', '..R..'],
+    fala: ['k.k.k'], erro: ['R', 'R', 'R', '.', 'R'], ok: ['....G', '...G.', 'G.G..', '.G...'], livro: ['RRRRR', 'RWWWR', 'RRRRR'], zz: ['BBB', '..B', '.B.', 'BBB'],
+  };
+  const PALETA = { W: 0xfff7c2, E: 0xc99a1f, e: 0x8a6a1f, k: 0x140f18, R: 0xd94848, G: 0x2f8a4a, B: 0x3b4a9a };
+  // partículas da atividade de cada agente (cor, subida); "alvo" = tile de onde saem (vapor do caldeirão)
+  const PARTICULAS = { mexer: { cor: 0xd7dbe2, vy: -34, alvo: [6, 16], dy: 26 }, contar: { cor: 0xf5c542, vy: -24 }, ler: { cor: 0xefe2c2, vy: -20 },
+    escrever: { cor: 0x1b1d24, vy: -10 }, treinar: { cor: 0xf4f4f4, vy: -14 }, anunciar: { cor: 0xf5c542, vy: -38 }, estudar: { cor: 0x8fc4e8, vy: -24 } };
   let jogo = null, ops = {};
 
   class CenaMundo extends Phaser.Scene {
     constructor() { super('mundo'); }
     preload() {
-      this.load.atlas('cenario', 'mundo/cenario.png?v=3', 'mundo/cenario.json?v=3');   // ?v: o navegador guardava o atlas antigo
-      this.load.atlas('personagens', 'mundo/personagens.png?v=3', 'mundo/personagens.json?v=3');
+      this.load.atlas('cenario', 'mundo/cenario.png?v=4', 'mundo/cenario.json?v=4');   // ?v: o navegador guardava o atlas antigo
+      this.load.atlas('personagens', 'mundo/personagens.png?v=4', 'mundo/personagens.json?v=4');
     }
     create() {
       this.cameras.main.setBackgroundColor('#120d08');
@@ -23,6 +33,7 @@
       const p = Iso.paraTela(...MapaMundo.PARTIDA); this.cameras.main.centerOn(p.x, p.y);
       this.configurarCamera();
       this.criarRei();
+      this.gerarIcones();
       this.criarDonos();
       this.salaVista = 'salao';
     }
@@ -44,23 +55,117 @@
       for (const p of this.paredes) p.setAlpha(p.depth > this.rei.depth && Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);
       for (const p of this.placas) p.setAlpha(Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);   // placa fica sempre por cima
     }
-    criarDonos() {
-      const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      this.donos = {};
-      for (const d of MapaMundo.DONOS) {
-        const { x, y } = Iso.paraTela(d.c, d.r);
-        const s = d.objeto                                         // dono-objeto (estandarte): sai do atlas do cenário, pé do mastro no chão
-          ? this.add.sprite(x, y + Iso.TH / 2, 'cenario', (ops.quadro && ops.quadro(d.id)) || 'estandarte_andarilho').setOrigin(4 / 24, 54 / 56).setDepth(y + Iso.TH / 2)
-          : this.add.sprite(x, y, 'personagens', d.id + '_f').setOrigin(.5, 46 / 48).setDepth(y);
-        s.setInteractive({ useHandCursor: true });
-        s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
-        if (!calmo && !d.objeto) this.tweens.add({ targets: s, y: y - 1, duration: 900, yoyo: true, repeat: -1, ease: 'Stepped' });   // respira 1px (escala distorceria o pixel)
-        this.donos[d.id] = s;
+    gerarIcones() {
+      for (const [nome, m] of Object.entries(ICONES)) {
+        const w = m[0].length + 4, h = m.length + 4, g = this.make.graphics({ add: false });
+        g.fillStyle(0x140f18).fillRect(0, 0, w + 2, h + 2).fillRect(Math.floor(w / 2), h + 2, 2, 2);   // borda + rabinho
+        g.fillStyle(0xefe2c2).fillRect(1, 1, w, h);
+        m.forEach((l, y) => [...l].forEach((ch, x) => { if (ch !== '.') g.fillStyle(PALETA[ch]).fillRect(3 + x, 3 + y, 1, 1); }));
+        g.generateTexture('icone_' + nome, w + 2, h + 4); g.destroy();
       }
+    }
+    criarDonos() {   // donos-objeto (estandarte, quadro) e os personagens vivos (donos + moradores)
+      this.calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      this.donos = {}; this.agentes = [];
+      for (const d of [...MapaMundo.DONOS, ...MapaMundo.MORADORES]) {
+        const { x, y } = Iso.paraTela(d.c, d.r);
+        if (d.objeto) {
+          const s = this.add.sprite(x, y + Iso.TH / 2, 'cenario', ops.quadro(d.id)).setDepth(y + Iso.TH / 2);
+          s.setOrigin(ANCORA[d.id][0] / s.width, ANCORA[d.id][1] / s.height).setInteractive({ useHandCursor: true });
+          s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
+          this.donos[d.id] = s; continue;
+        }
+        const spr = d.id;
+        for (const [k, fs] of [['_frente', ['_f1', '_f2']], ['_costas', ['_c1', '_c2']]])
+          if (!this.anims.exists(spr + k)) this.anims.create({ key: spr + k, frames: fs.map(f => ({ key: 'personagens', frame: spr + f })), frameRate: 6, repeat: -1 });
+        const s = this.add.sprite(x, y, 'personagens', spr + '_f').setOrigin(.5, 46 / 48).setDepth(y).setInteractive({ useHandCursor: true });
+        const ag = { d, s, spr, id: d.agente || d.id, posto: [d.c, d.r], tile: [d.c, d.r], t: 0, poi: null, missao: null, emote: null, emoteT: 0 };
+        ag.icone = this.add.image(x, y, 'icone_fala').setOrigin(.5, 1).setDepth(100001).setVisible(false);
+        s.on('pointerup', () => { if (!this.arrastou) this.clicarAgente(ag); });
+        if (d.preso && !this.calmo) ag.ronda = this.tweens.add({ targets: s, x: x + 12, duration: 1600, yoyo: true, repeat: -1,
+          onYoyo: () => s.setFlipX(true), onRepeat: () => s.setFlipX(false) });   // Kobe anda de um lado pro outro na jaula
+        this.donos[d.id] = s; this.agentes.push(ag);
+      }
+      this.vida = null; this.lerVida();
+      this.time.addEvent({ delay: 30000, loop: true, callback: () => this.lerVida() });
+    }
+    lerVida() {
+      this.vida = ops.vida ? ops.vida() : { agentes: {}, noite: false };
+    }
+    estadoDe(ag) {
+      if (ag.d.fixo) return this.vida.noite ? 'dormindo' : 'guardando';   // Escrivão: guardião do arquivo
+      return (this.vida.agentes[ag.id] || {}).estado || 'descansando';
+    }
+    teleportar(ag, tile) {
+      this.tweens.killTweensOf(ag.s); ag.andando = false;
+      const { x, y } = Iso.paraTela(...tile); ag.s.setPosition(x, y).setDepth(y); ag.tile = tile.slice();
+    }
+    irAgente(ag, alvo, rapido, chegar) {
+      const passos = Iso.caminho(MapaMundo.andavelAgente, ag.tile, alvo);
+      if (!passos.length) { if (chegar) chegar(); return; }
+      ag.andando = true;
+      const proximo = () => {
+        const p = passos.shift();
+        if (!p) {
+          ag.andando = false; ag.s.anims.stop();
+          const noPosto = ag.tile[0] === ag.posto[0] && ag.tile[1] === ag.posto[1];
+          ag.s.setFrame(ag.spr + (ag.costas && !noPosto ? '_c' : '_f')); if (noPosto) ag.s.setFlipX(false);
+          if (chegar) chegar(); return;
+        }
+        const de = Iso.paraTela(...ag.tile), para = Iso.paraTela(...p);
+        ag.costas = para.y < de.y;
+        ag.s.setFlipX(para.x < de.x).play(ag.spr + (ag.costas ? '_costas' : '_frente'), true);
+        this.tweens.add({ targets: ag.s, x: para.x, y: para.y, duration: rapido ? 130 : 260, onUpdate: () => ag.s.setDepth(ag.s.y),
+          onComplete: () => { ag.tile = p; proximo(); } });
+      };
+      proximo();
+    }
+    passoAgente(ag, dt) {
+      if (ag.emoteT > 0 && (ag.emoteT -= dt) <= 0) ag.emote = null;
+      if (ag.d.preso || ag.andando) return;
+      const quer = VidaMundo.desejo(this.estadoDe(ag));
+      if (quer !== 'vagar' || this.calmo || ag.d.fixo) {          // trabalha, erra ou dorme no posto
+        if (ag.tile[0] !== ag.posto[0] || ag.tile[1] !== ag.posto[1]) {
+          if (this.calmo) this.teleportar(ag, ag.posto); else { const r = ag.rapido; ag.rapido = false; this.irAgente(ag, ag.posto, r); }
+        }
+        ag.poi = null;
+      }
+    }
+    desenharAgente(ag, time) {
+      const s = ag.s, est = this.estadoDe(ag), dorme = est === 'dormindo' || est === 'desligado' || (ag.d.preso && this.vida.noite);
+      if (ag.ronda) { if (dorme && !ag.ronda.isPaused()) ag.ronda.pause(); else if (!dorme && ag.ronda.isPaused()) ag.ronda.resume(); }
+      const parado = !ag.andando, trab = est === 'trabalhando' && parado;
+      const bob = parado && !dorme ? Math.floor(time / (trab ? 200 : 900)) % 2 : 0;          // respira 1px mexendo a origem (não briga com os tweens)
+      s.setOrigin(.5, (46 + bob) / 48).setAlpha(dorme ? .85 : 1);
+      const st = this.vida.agentes[ag.id] || {};
+      const icone = s.balao ? null : dorme ? 'zz' : est === 'erro' ? 'erro' : trab ? 'fala' : ag.emote || (st.recente && est === 'descansando' ? 'ok' : null);
+      ag.icone.setVisible(!!icone);
+      if (icone) ag.icone.setTexture('icone_' + icone).setPosition(Math.round(s.x), Math.round(s.getTopCenter().y - 1));
+      if (s.balao) s.balao.setPosition(s.x, s.getTopCenter().y - 4);
+      const noPosto = ag.tile[0] === ag.posto[0] && ag.tile[1] === ag.posto[1];
+      if (!this.calmo && parado && !dorme && (trab || noPosto) && Math.random() < (trab ? .1 : .03)) this.particula(ag);
+    }
+    particula(ag) {
+      const p = PARTICULAS[(this.vida.agentes[ag.id] || {}).acao];
+      if (!p) return;
+      let x = ag.s.x + (ag.s.flipX ? -7 : 7), y = ag.s.y - 30;
+      if (p.alvo) { const t = Iso.paraTela(...p.alvo); x = t.x; y = t.y - p.dy; }
+      const r = this.add.rectangle(x + Math.random() * 6 - 3, y, 1.5, 1.5, p.cor).setDepth(ag.s.depth + 1);
+      this.tweens.add({ targets: r, y: y + p.vy, x: r.x + (Math.random() - .5) * 7, alpha: 0, duration: 1200, onComplete: () => r.destroy() });
+    }
+    clicarAgente(ag) {
+      if (MapaMundo.DONOS.includes(ag.d)) return this.abrirDono(ag.d);
+      this.falar(ag.s, ops.frase && ops.frase(ag.id), 5);
+    }
+    update(time, delta) {
+      if (!this.vida) return;
+      const dt = Math.min(.1, delta / 1000);
+      for (const ag of this.agentes) { this.passoAgente(ag, dt); this.desenharAgente(ag, time); }
     }
     abrirDono(d) {
       this.mostrarBalao(d);
-      this.andarPor(Iso.caminhoAteVizinho(MapaMundo.andavel, this.reiTile, [d.c, d.r]));
+      const ag = this.agentes.find(a => a.d === d);
+      this.andarPor(Iso.caminhoAteVizinho(MapaMundo.andavel, this.reiTile, ag ? ag.tile : [d.c, d.r]));
       if (ops.abrirSala) ops.abrirSala(d.sala);
     }
     andarAte(c, r) { this.andarPor(Iso.caminho(MapaMundo.andavel, this.reiTile, [c, r])); }
@@ -90,15 +195,19 @@
       const d = id && MapaMundo.DONOS.find(x => x.sala === id);
       if (d) this.mostrarBalao(d);
     }
-    mostrarBalao(d) {
-      const texto = ops.resumo && ops.resumo(d.sala), s = this.donos[d.id];
+    falar(s, texto, seg = 6) {
       if (!texto) return;
-      if (d.objeto && ops.quadro) s.setFrame(ops.quadro(d.id));    // a classe pode ter mudado
       if (s.balao) s.balao.destroy();
       const topo = s.getTopCenter();
       const b = s.balao = this.add.text(topo.x, topo.y - 4, texto, { fontFamily: '"Alegreya Sans", sans-serif', fontSize: '10px', color: '#2a1e12',
-        backgroundColor: '#f3e3bb', padding: { x: 6, y: 4 }, wordWrap: { width: 140 }, align: 'center', resolution: 4 }).setOrigin(.5, 1).setDepth(100001);
-      this.time.delayedCall(6000, () => { b.destroy(); if (s.balao === b) s.balao = null; });
+        backgroundColor: '#f3e3bb', padding: { x: 6, y: 4 }, wordWrap: { width: 140 }, align: 'center', resolution: 4 }).setOrigin(.5, 1).setDepth(100002);
+      this.time.delayedCall(seg * 1000, () => { b.destroy(); if (s.balao === b) s.balao = null; });
+    }
+    mostrarBalao(d) {
+      const texto = ops.resumo && ops.resumo(d.sala), s = this.donos[d.id];
+      if (!texto) return;
+      if (d.objeto && ops.quadro) s.setFrame(ops.quadro(d.id));    // classe e papéis do quadro podem ter mudado
+      this.falar(s, texto, 6);
     }
     configurarCamera() {
       const cam = this.cameras.main;
@@ -137,10 +246,11 @@
       }
     }
     desenharMoveis() {
-      this.moveis = MapaMundo.MOVEIS.map(m => {
+      this.moveis = MapaMundo.MOVEIS.flatMap(m => {
         const { x, y } = Iso.paraTela(m.c, m.r), base = y + Iso.TH / 2;
-        const fr = this.textures.getFrame('cenario', m.item), [ax, ay] = ANCORA[m.item] || [fr.width / 2, fr.height - 1];
-        return this.add.image(x, base, 'cenario', m.item).setOrigin(ax / fr.width, ay / fr.height).setDepth(base);
+        const img = (item, prof) => { const fr = this.textures.getFrame('cenario', item), [ax, ay] = ANCORA[item] || [fr.width / 2, fr.height - 1];
+          return this.add.image(x, base, 'cenario', item).setOrigin(ax / fr.width, ay / fr.height).setDepth(prof); };
+        return m.item === 'jaula' ? [img('jaula_chao', base - 48), img('jaula_grades', base)] : [img(m.item, base)];   // Kobe fica entre o chão e as grades
       });
     }
     desenharPlacas() {

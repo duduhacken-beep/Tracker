@@ -4788,7 +4788,7 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=3', 'mundo/mapa.js?v=3', 'mundo/mundo.js?v=3'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=4', 'mundo/mapa.js?v=4', 'mundo/vida.js?v=4', 'mundo/mundo.js?v=4'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
@@ -4801,7 +4801,7 @@ async function abrirMundo() {
     // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
     await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase });
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4824,8 +4824,20 @@ const MUNDO_JANELAS = {
   quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', abas: [['evolucao', 'Evolução']] },
   porao:      { titulo: 'Arquivo', dono: 'Escrivão', abas: [['backup', 'Backup']] },
 };
-// quadro do atlas pros donos-objeto: o estandarte do quarto na cor da classe atual
+// Vida do Mundo: estados e falas dos agentes com as mesmas regras da Taverna
+function mundoVida() {
+  const st = load('agentes_status', {}), agentes = {};
+  TV_AGENTES.forEach(a => { agentes[a.id] = { estado: _tvEstado(a, st[a.id]), recente: _tvRecente(st[a.id]), noHorario: _tvNoHorario({ def: a }), acao: a.acao }; });
+  return { agentes, noite: _tvNoite() };
+}
+function mundoFrase(id) {
+  if (id === 'arauto') { const s = load('agentes_status', {}).arauto; if (s?.resumo && (s.fim || '').startsWith(today())) return 'Notícia de hoje: ' + s.resumo; }
+  const def = TV_AGENTES.find(a => a.id === id);
+  return def ? _tvFrase({ def }) : null;
+}
+// quadro do atlas pros donos-objeto: o estandarte do quarto na cor da classe atual e os papéis do quadro de avisos
 function mundoQuadro(id) {
+  if (id === 'quadro') return 'quadro_avisos_' + Math.min(6, _tvAgenda().length);
   if (id !== 'estandarte') return null;
   let classe = 'Andarilho';
   try { classe = _cvStats().classe; } catch (e) {}
