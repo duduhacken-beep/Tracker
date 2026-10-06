@@ -48,6 +48,11 @@
   // reformas do castelo pelo nível do Modo Caverna: paliçada de madeira → muralha de pedra (4) → torres (6) → estandartes nas torres (9) → jardim (12)
   const reformas = nivel => ({ muralha: nivel >= 4 ? 'pedra' : 'palicada', torres: nivel >= 6, estandartes: nivel >= 9, jardim: nivel >= 12 });
 
-  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca, reformas };
+  // objetos que refletem dados reais
+  const estantes = (livros, n, cap = 24) => Array.from({ length: n }, (_, i) => Math.max(0, Math.min(cap, livros - i * cap)));   // livros por estante, enchendo em ordem
+  const pilhasMoedas = (sobra, livre) => sobra == null || !(livre > 0) ? 0 : Math.max(0, Math.min(5, Math.ceil(5 * sobra / livre)));   // quanto do "livre" do mês ainda sobra
+  const surrado = treinos => treinos >= 30 ? 3 : treinos >= 10 ? 2 : treinos >= 1 ? 1 : 0;   // boneco de treino vai ficando gasto
+
+  const api = { desejo, proximoDestino, reacoes, escolherCena, chegouTrabalho, ceu, fogo, enfeites, epoca, reformas, estantes, pilhasMoedas, surrado };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.VidaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

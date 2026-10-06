@@ -105,4 +105,11 @@ for (const t of M.TOCHAS) {
   const fora = t.lado === 'norte' ? [t.c, t.r - 1] : [t.c - 1, t.r];
   assert.ok(!M.passagemDe(...fora), `tocha ${t.c},${t.r} em cima de uma porta`);
 }
+// Fase 5C bloco 5: objetos soltos dentro de salas, objetos de parede em bordas de verdade
+for (const d of M.DECOR) assert.ok(M.salaDe(d.c, d.r), `${d.item} fora de sala`);
+for (const d of M.PAREDE_DECOR) {
+  const s = M.salaDe(d.c, d.r); assert.ok(s && s.parede, `${d.item} sem parede`);
+  assert.ok(d.lado === 'norte' ? d.r === s.y : d.c === s.x, `${d.item} fora da borda ${d.lado}`);
+}
+assert.strictEqual(M.MOVEIS.filter(m => m.dados === 'estante').length, 4);
 console.log('ok mapa');

@@ -26,23 +26,28 @@
     { item: 'lareira', c: 14, r: 14 }, { item: 'balcao', c: 22, r: 16, ocupa: [[0, 0], [0, -1]] },
     { item: 'mesa_longa', c: 18, r: 21, ocupa: [[0, 0], [0, -1]] }, { item: 'mesa_redonda', c: 15, r: 18 },
     { item: 'mesa_redonda', c: 20, r: 23 }, { item: 'barril', c: 24, r: 14 }, { item: 'barril', c: 24, r: 23 },
+    { item: 'prateleira_canecas', c: 23, r: 15 }, { item: 'barris_pilha', c: 23, r: 17 }, { item: 'mesa_jogo', c: 16, r: 23 }, { item: 'mural_missoes', c: 23, r: 22 },
     // Cozinha
     { item: 'caldeirao', c: 6, r: 16 }, { item: 'mesa_redonda', c: 9, r: 19 }, { item: 'barril', c: 6, r: 21 }, { item: 'bau', c: 10, r: 16 },
+    { item: 'bancada', c: 8, r: 15, ocupa: [[0, 0], [1, 0]] }, { item: 'forno', c: 5, r: 18 }, { item: 'prateleira_temperos', c: 11, r: 15 }, { item: 'balde', c: 10, r: 21 },
     // Casa do Tesouro
     { item: 'cofre', c: 27, r: 16 }, { item: 'balanca', c: 30, r: 16 }, { item: 'bau', c: 28, r: 21 }, { item: 'escrivaninha', c: 31, r: 19 },
+    { item: 'bau_aberto', c: 32, r: 16 }, { item: 'moedas_0', c: 29, r: 21, dados: 'moedas' },
     // Biblioteca
-    { item: 'estante', c: 14, r: 4 }, { item: 'estante', c: 17, r: 4 }, { item: 'mesa_redonda', c: 16, r: 8 },
+    { item: 'estante_livros_0', c: 14, r: 4, dados: 'estante', ordem: 0 }, { item: 'estante_livros_0', c: 17, r: 4, dados: 'estante', ordem: 1 }, { item: 'mesa_redonda', c: 16, r: 8 },
+    { item: 'estante_livros_0', c: 13, r: 5, dados: 'estante', ordem: 2, flip: true }, { item: 'estante_livros_0', c: 13, r: 9, dados: 'estante', ordem: 3, flip: true },
+    { item: 'escada_biblioteca', c: 16, r: 4 }, { item: 'globo', c: 18, r: 10 }, { item: 'poltrona', c: 17, r: 9 },
     // Escritório
-    { item: 'escrivaninha', c: 21, r: 6 }, { item: 'bau', c: 24, r: 5 },
+    { item: 'escrivaninha', c: 21, r: 6 }, { item: 'bau', c: 24, r: 5 }, { item: 'prateleira_pergaminhos', c: 24, r: 9 },
     // Embaixada
-    { item: 'mesa_redonda', c: 14, r: 28 }, { item: 'estante', c: 16, r: 26 },
+    { item: 'mesa_redonda', c: 14, r: 28 }, { item: 'estante', c: 16, r: 26 }, { item: 'bandeiras_paises', c: 17, r: 30 }, { item: 'mesa_cha', c: 16, r: 29 }, { item: 'globo', c: 12, r: 31 },
     // Pátio
-    { item: 'boneco_treino', c: 23, r: 28 }, { item: 'suporte_armas', c: 26, r: 27 }, { item: 'barril', c: 21, r: 32 },
-    { item: 'arvore', c: 27, r: 33 }, { item: 'poco', c: 20, r: 30 }, { item: 'alvo', c: 26, r: 30 },
+    { item: 'boneco_treino_0', c: 23, r: 28, dados: 'boneco' }, { item: 'suporte_armas', c: 26, r: 27 }, { item: 'barril', c: 21, r: 32 },
+    { item: 'arvore', c: 27, r: 33 }, { item: 'poco', c: 20, r: 30 }, { item: 'alvo', c: 26, r: 30 }, { item: 'pesos', c: 24, r: 32 }, { item: 'barra', c: 20, r: 28 },
     // Seu Quarto
-    { item: 'cama', c: 6, r: 6 }, { item: 'espelho', c: 9, r: 5 }, { item: 'bau', c: 5, r: 9 },
+    { item: 'cama_dossel', c: 6, r: 6 }, { item: 'espelho', c: 9, r: 5 }, { item: 'bau', c: 5, r: 9 }, { item: 'manequim_armadura', c: 10, r: 9 },
     // Porão
-    { item: 'armario_arquivo', c: 28, r: 5 }, { item: 'armario_arquivo', c: 30, r: 5 },
+    { item: 'armario_arquivo', c: 28, r: 5 }, { item: 'armario_arquivo', c: 30, r: 5 }, { item: 'caixas', c: 31, r: 7 }, { item: 'caixas', c: 27, r: 10 },
     { item: 'jaula', c: 33, r: 10, ocupa: [[0, 0], [-1, 0], [0, -1], [-1, -1]] },
   ];
   // donos das salas com função (Fase 3) — ficam parados no posto; clicar abre a janela da sala
@@ -100,6 +105,22 @@
     { c: 8, r: 15, lado: 'norte' }, { c: 29, r: 15, lado: 'norte' }, { c: 17, r: 26, lado: 'norte' }, { c: 7, r: 4, lado: 'norte' },
     { c: 32, r: 4, lado: 'norte' }, { c: 27, r: 10, lado: 'oeste' },
   ];
+  // Fase 5C bloco 5: objetos soltos (não bloqueiam; dy = em cima de um móvel) e objetos presos na parede (alt = altura acima do chão)
+  const DECOR = [
+    { item: 'banco', c: 17, r: 21, ax: 11, ay: 27 }, { item: 'banco', c: 19, r: 21, ax: 11, ay: 27 },
+    { item: 'banqueta', c: 21, r: 15 }, { item: 'banqueta', c: 21, r: 16 }, { item: 'banqueta', c: 15, r: 23 }, { item: 'banqueta', c: 17, r: 23 },
+    { item: 'cadeira', c: 16, r: 18 }, { item: 'cadeira', c: 15, r: 19, flip: true }, { item: 'cadeira', c: 21, r: 23 },
+    { item: 'pilha_livros', c: 14, r: 10 }, { item: 'corda', c: 25, r: 32 }, { item: 'prato_kobe', c: 33, r: 10 },
+    { item: 'ampulheta', c: 21, r: 6, dx: -8, dy: -24 }, { item: 'pena_tinteiro', c: 21, r: 6, dx: 6, dy: -24 }, { item: 'livro_razao', c: 31, r: 19, dy: -24 },
+    { item: 'palco', c: 15, r: 21, ax: 64, ay: 70, chao: true },
+  ];
+  const PAREDE_DECOR = [
+    { item: 'cabeca_cervo', c: 13, r: 23, lado: 'oeste', alt: 46 }, { item: 'presunto', c: 5, r: 20, lado: 'oeste', alt: 50 },
+    { item: 'mapa_mundi', c: 12, r: 28, lado: 'oeste', alt: 48 }, { item: 'teia', c: 28, r: 4, lado: 'norte', alt: 84 }, { item: 'correntes', c: 33, r: 4, lado: 'norte', alt: 54 },
+    { item: 'tapecaria_andarilho', c: 5, r: 4, lado: 'norte', alt: 72, dados: 'tapecaria' },
+    { item: 'pergaminho_dir', c: 20, r: 4, lado: 'norte', alt: 54, dados: 'calendario' }, { item: 'pergaminho_dir', c: 28, r: 15, lado: 'norte', alt: 54, dados: 'grafico' },
+  ];
+  const PRATOS = { c: 8, r: 15 };   // os pratos das receitas ficam em cima da bancada
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
@@ -120,6 +141,6 @@
   const chaoDe = (c, r) => { if (c >= TERRA.x && c < TERRA.x + TERRA.w && r >= TERRA.y && r < TERRA.y + TERRA.h) return 'terra';
     const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, TAPETES, MURALHA, PORTAO, TOCHAS, noCaminho, PARTIDA, altura, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, TAPETES, DECOR, PAREDE_DECOR, PRATOS, MURALHA, PORTAO, TOCHAS, noCaminho, PARTIDA, altura, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

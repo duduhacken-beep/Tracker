@@ -46,4 +46,11 @@ assert.deepStrictEqual(V.reformas(1), { muralha: 'palicada', torres: false, esta
 assert.deepStrictEqual(V.reformas(4), { muralha: 'pedra', torres: false, estandartes: false, jardim: false });
 assert.deepStrictEqual(V.reformas(9), { muralha: 'pedra', torres: true, estandartes: true, jardim: false });
 assert.deepStrictEqual(V.reformas(13), { muralha: 'pedra', torres: true, estandartes: true, jardim: true });
+// Fase 5C bloco 5: objetos ligados a dados
+assert.deepStrictEqual(V.estantes(6, 4), [6, 0, 0, 0]);
+assert.deepStrictEqual(V.estantes(30, 4), [24, 6, 0, 0]);
+assert.deepStrictEqual(V.estantes(200, 2), [24, 24]);
+assert.strictEqual(V.pilhasMoedas(null, 3000), 0, 'sem renda cadastrada: sem pilha');
+assert.strictEqual(V.pilhasMoedas(3000, 3000), 5); assert.strictEqual(V.pilhasMoedas(1, 3000), 1); assert.strictEqual(V.pilhasMoedas(0, 3000), 0);
+assert.deepStrictEqual([0, 1, 9, 10, 29, 30].map(V.surrado), [0, 1, 1, 2, 2, 3]);
 console.log('ok vida');

@@ -4817,7 +4817,7 @@ function toggleLivroLido(id) {
 // ──────────────────────────────────
 // MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
 // ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=8', 'mundo/mapa.js?v=8', 'mundo/vida.js?v=8', 'mundo/mundo.js?v=8'];
+const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=9', 'mundo/mapa.js?v=9', 'mundo/vida.js?v=9', 'mundo/mundo.js?v=9'];
 let _mundoCarregando = null;
 function _carregarScript(src) {
   return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
@@ -4830,7 +4830,7 @@ async function abrirMundo() {
     // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
     await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro });
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4872,6 +4872,23 @@ function mundoProgresso() {
     classe: (st ? st.classe : 'Andarilho').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(),
     conquistas: st ? st.conquistas.map(c => ({ ok: c.ok, tier: c.tier })) : [] };
 }
+// dados reais que viram objetos no castelo (pratos, estantes, moedas, boneco, calendário, gráfico, missões)
+function mundoDados() {
+  const hoje = new Date(), cfg = load('fin_cfg', {}), desp = load('despesas', []);
+  const gastoMes = m => desp.filter(d => d.tipo === 'despesa' && d.data.startsWith(m)).reduce((s, d) => s + d.val, 0);
+  const mesStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const gastos = [5, 4, 3, 2, 1, 0].map(i => gastoMes(mesStr(new Date(hoje.getFullYear(), hoje.getMonth() - i, 1))));
+  const livre = (cfg.renda || 0) - (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
+  let st = null; try { st = _cvStats(); } catch (e) {}
+  const c = _tvContagens();
+  return {
+    pratos: load('receitas', []).slice(0, 5).map(r => !!r.feita), livros: 6 + c.livro, treinos: c.treino,
+    livre, sobra: cfg.renda ? Math.max(0, livre - gastoMes(mesStr(hoje))) : null, gastos,
+    metas: CV_METAS.filter(m => m.un).map(m => ({ nome: m.nome, feitas: st ? st.n[m.chave] || 0 : 0, alvo: st ? st.alvo[m.chave] || m.alvo : m.alvo })),
+    dia: hoje.getDate(), mes: hoje.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase(),
+  };
+}
+function mundoAbrirLivro(aba) { mundoAbrirJanela('livro'); if (aba) mundoJanelaAba(aba); }
 function mundoTextoAmbiente(id) {
   let st = null; try { st = _cvStats(); } catch (e) {}
   if (id === 'lareira') return !st || st.hoje < CV_INI ? 'O fogo da sua sequência acende em 21/10.' : `Sequência: ${st.seq.atual} dia${st.seq.atual === 1 ? '' : 's'} (recorde ${st.seq.max}). Escudos: ${st.seq.escudos}/3.`;
