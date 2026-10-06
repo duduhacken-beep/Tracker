@@ -52,6 +52,7 @@
       this.reiTile = MapaMundo.PARTIDA.slice();
       const { x, y } = Iso.paraTela(...this.reiTile);
       this.rei = this.add.sprite(x, y, 'personagens', 'eu_rei_f').setOrigin(.5, 46 / 48).setDepth(y);
+      this.rei.sombra = this.sombra(x, y, 22);
       this.input.on('pointerup', (p, sobre) => {
         if (this.arrastou || sobre.length) return;
         const w = this.cameras.main.getWorldPoint(p.x, p.y), t = Iso.paraTile(w.x, w.y);
@@ -63,6 +64,9 @@
       const rb = this.rei.getBounds();
       for (const p of this.paredes) p.setAlpha(p.depth > this.rei.depth && Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);
       for (const p of this.placas) p.setAlpha(Phaser.Geom.Intersects.RectangleToRectangle(p.getBounds(), rb) ? .35 : 1);   // placa fica sempre por cima
+    }
+    sombra(x, y, larg) {   // sombra de contato: elipse escura logo acima do piso (abaixo de tudo que fica em pé)
+      return this.add.ellipse(x, y, larg, larg * .42, 0x000000, .28).setDepth(-99000);
     }
     gerarIcones() {
       for (const [nome, m] of Object.entries(ICONES)) {
@@ -83,7 +87,7 @@
       gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(0, 0, 128, 128); luz.refresh();
     }
     criarAmbiente() {   // Fase 5B: enfeites por nível, troféus, velas, lareira = sequência, noite com luzes, Natal e virada
-      const sp = (frame, c, r, ax, ay) => { const { x, y } = Iso.paraTela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame);
+      const sp = (frame, c, r, ax, ay) => { const { x, y } = Iso.paraTela(c, r), base = y + Iso.TH / 2, s = this.add.sprite(x, base, 'cenario', frame); s.sombra = this.sombra(x, y + 2, 20);
         return s.setOrigin(ax / s.width, ay / s.height).setDepth(base); };
       const E = id => MapaMundo.ENFEITES.find(e => e.id === id).tiles;
       const meio = Iso.paraTela(19, 19);
@@ -116,7 +120,7 @@
     atualizarAmbiente() {
       const p = this.prog = ops.progresso ? ops.progresso() : { antes: true, seq: 0, nivel: 1, classe: 'andarilho', conquistas: [] };
       const lib = new Set(VidaMundo.enfeites(p.nivel)), ep = this.epoca = VidaMundo.epoca(new Date());
-      for (const [id, lista] of Object.entries(this.enf)) lista.forEach(s => s.setVisible(id === 'arvore' ? ep.natal : lib.has(id)));
+      for (const [id, lista] of Object.entries(this.enf)) lista.forEach(s => { s.setVisible(id === 'arvore' ? ep.natal : lib.has(id)); if (s.sombra) s.sombra.setVisible(s.visible); });
       this.enf.bandeiras.forEach(s => s.setFrame('estandarte_' + p.classe));
       this.enf.estatua[0].setFrame('estatua_' + p.classe);
       this.trofeus.forEach((s, i) => { const c = p.conquistas[i]; s.setTexture(c && c.ok ? 'medalha_' + c.tier : 'gancho'); });
@@ -174,7 +178,7 @@
           const s = this.add.sprite(x, y + Iso.TH / 2, 'cenario', ops.quadro(d.id)).setDepth(y + Iso.TH / 2);
           s.setOrigin(ANCORA[d.id][0] / s.width, ANCORA[d.id][1] / s.height).setInteractive({ useHandCursor: true });
           s.on('pointerup', () => { if (!this.arrastou) this.abrirDono(d); });
-          this.donos[d.id] = s; continue;
+          this.sombra(x, y + 4, 18); this.donos[d.id] = s; continue;
         }
         const spr = d.id;
         for (const [k, fs] of [['_frente', ['_f1', '_f2']], ['_costas', ['_c1', '_c2']]])
@@ -185,7 +189,7 @@
         s.on('pointerup', () => { if (!this.arrastou) this.clicarAgente(ag); });
         if (d.preso && !this.calmo) ag.ronda = this.tweens.add({ targets: s, x: x + 12, duration: 1600, yoyo: true, repeat: -1,
           onYoyo: () => s.setFlipX(true), onRepeat: () => s.setFlipX(false) });   // Kobe anda de um lado pro outro na jaula
-        this.donos[d.id] = s; this.agentes.push(ag);
+        s.sombra = this.sombra(x, y, 22); this.donos[d.id] = s; this.agentes.push(ag);
       }
       this.vida = null; this.lerVida();
       this.time.addEvent({ delay: 30000, loop: true, callback: () => this.lerVida() });
@@ -283,6 +287,7 @@
     criarGato() {
       const { x, y } = Iso.paraTela(16, 16);
       this.gato = { tile: [16, 16], t: 3, s: this.add.sprite(x, y, 'cenario', 'gato_pe').setOrigin(.5, 1).setDepth(y).setInteractive({ useHandCursor: true }) };
+      this.gato.s.sombra = this.sombra(x, y, 12);
       this.gato.s.on('pointerup', () => { if (!this.arrastou) this.falar(this.gato.s, 'Miau.', 2.5); });
     }
     passoGato(dt) {
@@ -336,6 +341,7 @@
       for (const ag of this.agentes) { this.passoAgente(ag, dt); this.desenharAgente(ag, time); }
       this.passoGato(dt);
       this.passoAmbiente(time, dt);
+      for (const s of [this.rei, this.gato.s, ...this.agentes.map(a => a.s)]) s.sombra.setPosition(s.x, s.y).setVisible(s.visible);
       if (this.gato.s.balao) this.gato.s.balao.setPosition(this.gato.s.x, this.gato.s.getTopCenter().y - 4);
       if (this.calmo) return;
       if ((this.proxConversa -= dt) <= 0) {                     // alguém acordado fala sozinho de vez em quando
@@ -430,6 +436,11 @@
       }
     }
     desenharMoveis() {
+      for (const m of MapaMundo.MOVEIS) {                                   // sombra de contato no centro do que o móvel ocupa
+        const oc = m.ocupa || [[0, 0]], cc = m.c + oc.reduce((s, o) => s + o[0], 0) / oc.length, rr = m.r + oc.reduce((s, o) => s + o[1], 0) / oc.length;
+        const { x, y } = Iso.paraTela(cc, rr), fr = this.textures.getFrame('cenario', m.item === 'jaula' ? 'jaula_chao' : m.item);
+        this.sombra(x, y + 2, Math.min(fr.width * .8, 30 + 26 * (oc.length - 1)));
+      }
       this.moveis = MapaMundo.MOVEIS.flatMap(m => {
         const { x, y } = Iso.paraTela(m.c, m.r), base = y + Iso.TH / 2;
         const img = (item, prof) => { const fr = this.textures.getFrame('cenario', item), [ax, ay] = ANCORA[item] || [fr.width / 2, fr.height - 1];
