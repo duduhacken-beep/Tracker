@@ -26,4 +26,19 @@ assert.strictEqual(V.escolherCena(cenas, () => false, seq(0)), null);
 assert.strictEqual(V.chegouTrabalho(undefined, 'trabalhando'), false, 'primeira leitura não conta');
 assert.strictEqual(V.chegouTrabalho('descansando', 'trabalhando'), true);
 assert.strictEqual(V.chegouTrabalho('trabalhando', 'trabalhando'), false);
+
+// ambiente (Fase 5B)
+assert.deepStrictEqual([5, 6, 16, 17, 18, 19, 23].map(V.ceu), ['noite', 'dia', 'dia', 'tarde', 'tarde', 'noite', 'noite']);
+assert.deepStrictEqual(V.fogo(true, 0), { tipo: 'fogo', escala: 1.5, cor: 'laranja', faiscas: false, luz: 70 }, 'antes de 21/10: calmo');
+assert.strictEqual(V.fogo(false, 0).tipo, 'brasa');
+assert.deepStrictEqual([1, 3, 7, 21].map(s => [V.fogo(false, s).escala, V.fogo(false, s).cor, V.fogo(false, s).faiscas, V.fogo(false, s).luz]),
+  [[1.5, 'laranja', false, 60], [2, 'laranja', false, 80], [2, 'laranja', true, 95], [2, 'azul', true, 110]]);
+assert.deepStrictEqual(V.enfeites(1), []);
+assert.deepStrictEqual(V.enfeites(5), ['bandeiras', 'lustre', 'vasos']);
+assert.deepStrictEqual(V.enfeites(13), ['bandeiras', 'lustre', 'vasos', 'trono', 'tapeteReal', 'estatua']);
+assert.deepStrictEqual(V.epoca(new Date(2026, 11, 10, 12)), { natal: true, virada: false });
+assert.deepStrictEqual(V.epoca(new Date(2026, 11, 31, 21)), { natal: true, virada: true });
+assert.deepStrictEqual(V.epoca(new Date(2027, 0, 1, 2)), { natal: false, virada: true });
+assert.deepStrictEqual(V.epoca(new Date(2027, 0, 1, 4)), { natal: false, virada: false });
+assert.deepStrictEqual(V.epoca(new Date(2026, 9, 6, 20)), { natal: false, virada: false });
 console.log('ok vida');
