@@ -4798,6 +4798,8 @@ async function abrirMundo() {
   try {
     _mundoCarregando = _mundoCarregando || MUNDO_SCRIPTS.reduce((p, src) => p.then(() => _carregarScript(src)), Promise.resolve());
     await _mundoCarregando;
+    // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
+    await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
     window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo });
   } catch (e) {
