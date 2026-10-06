@@ -36,6 +36,7 @@
       this.gerarIcones();
       this.criarDonos();
       this.criarGato(); this.proxConversa = 15; this.proxCena = 40;
+      this.reagir();
       this.salaVista = 'salao';
     }
     criarRei() {
@@ -91,7 +92,30 @@
       this.time.addEvent({ delay: 30000, loop: true, callback: () => this.lerVida() });
     }
     lerVida() {
+      const antes = this.vida;
       this.vida = ops.vida ? ops.vida() : { agentes: {}, noite: false };
+      if (!antes || this.calmo) return;
+      for (const ag of this.agentes) {                           // a rotina começou agora: entra correndo pela porta
+        if (ag.d.preso || ag.d.fixo) continue;
+        if (VidaMundo.chegouTrabalho((antes.agentes[ag.id] || {}).estado, (this.vida.agentes[ag.id] || {}).estado)) {
+          this.teleportar(ag, MapaMundo.PARTIDA); ag.rapido = true; ag.missao = null;
+          this.falar(ag.s, 'Chegou trabalho! Com licença!', 3);
+        }
+      }
+    }
+    reagir() {
+      if (!ops.reacoes || this.calmo) return;
+      const { quem, agora } = ops.reacoes(), porId = id => this.agentes.find(a => a.id === id);
+      for (const id of quem) {
+        const ag = porId(id);
+        if (!ag) continue;
+        if (id === 'jefrey') ag.missao = { alvo: this.vizinhoDoRei(), chegar: () => { this.falar(ag.s, 'Treino feito! É disso que eu tô falando!', 5); this.emote(ag, 'coracao', 4);
+          this.tweens.add({ targets: ag.s, y: ag.s.y - 6, duration: 160, yoyo: true, repeat: 3 }); } };
+        if (id === 'maria') ag.missao = { alvo: [19, 21], chegar: () => this.falar(ag.s, `Prontinho${agora.receitaNome ? ': ' + agora.receitaNome : ''}! Bom apetite.`, 5) };
+        if (id === 'mosley') ag.missao = { alvo: this.vizinhoDoRei(), chegar: () => {
+          this.falar(ag.s, `${agora.livroNome ? '"' + agora.livroNome + '"' : 'Esse livro'} vai pra estante.`, 4); this.emote(ag, 'livro', 6);
+          ag.missao = { alvo: ag.posto, chegar: () => this.falar(ag.s, 'Guardado. A estante cresce.', 4) }; } };
+      }
     }
     estadoDe(ag) {
       if (ag.d.fixo) return this.vida.noite ? 'dormindo' : 'guardando';   // Escrivão: guardião do arquivo
@@ -349,7 +373,11 @@
       return jogo;
     },
     pausar() { if (jogo) jogo.loop.sleep(); },
-    retomar() { if (jogo) jogo.loop.wake(); },
+    retomar() {
+      if (!jogo) return;
+      jogo.loop.wake();
+      const c = this.cena(); if (c && c.vida) { c.lerVida(); c.reagir(); }   // voltou pro Mundo: reage ao que você fez nesse meio-tempo
+    },
     cena() { return jogo && jogo.scene.getScene('mundo'); },
     irPara(id) { const c = this.cena(); if (c && c.irPara) c.irPara(id); },
     andarAte(col, lin) { const c = this.cena(); if (c && c.andarAte) c.andarAte(col, lin); },

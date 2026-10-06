@@ -4801,7 +4801,7 @@ async function abrirMundo() {
     // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
     await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
     $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase });
+    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes });
   } catch (e) {
     console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
   }
@@ -4829,6 +4829,11 @@ function mundoVida() {
   const st = load('agentes_status', {}), agentes = {};
   TV_AGENTES.forEach(a => { agentes[a.id] = { estado: _tvEstado(a, st[a.id]), recente: _tvRecente(st[a.id]), noHorario: _tvNoHorario({ def: a }), acao: a.acao }; });
   return { agentes, noite: _tvNoite() };
+}
+function mundoReacoes() {   // o que você fez desde a última visita ao Mundo (contagem guardada neste aparelho)
+  const agora = _tvContagens(), antes = _tvLS.get('mundo_contagens');
+  _tvLS.set('mundo_contagens', agora);
+  return { quem: VidaMundo.reacoes(antes, agora), agora };
 }
 function mundoFrase(id) {
   if (id === 'arauto') { const s = load('agentes_status', {}).arauto; if (s?.resumo && (s.fim || '').startsWith(today())) return 'Notícia de hoje: ' + s.resumo; }
