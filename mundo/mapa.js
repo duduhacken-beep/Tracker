@@ -75,12 +75,21 @@
     { a: 'mosley', b: 'friday', ta: [19, 17], tb: [20, 17], fa: 'E então o estoico disse...', fb: 'Interesting! Tell me more.', emote: 'livro' },
     { a: 'arauto', b: 'jefrey', ta: [15, 21], tb: [16, 21], fa: 'Notícia: o campeão treinou hoje!', fb: 'Claro que treinou.', emote: 'nota' },
   ];
+  // enfeites do Salão liberados por nível (Fase 5B) + árvore de dezembro: tiles reservados desde já (não mudam o caminho quando aparecem)
+  const ENFEITES = [
+    { id: 'bandeiras', tiles: [[13, 15], [13, 22]] }, { id: 'vasos', tiles: [[24, 16], [24, 21]] },
+    { id: 'trono', tiles: [[18, 22]] }, { id: 'estatua', tiles: [[19, 14]] }, { id: 'arvore', tiles: [[23, 14]] },
+  ];
+  const TAPETE_REAL = [[19, 17], [19, 18], [19, 19], [19, 20], [19, 21], [19, 22], [19, 23]];   // chão: não bloqueia
+  // velas acesas sobre as mesas (luz à noite): [c, r] do móvel
+  const VELAS = [[15, 18], [20, 23], [16, 8], [9, 19], [14, 28], [21, 6], [31, 19]];
   const PARTIDA = [19, 24];
 
   const salaDe = (c, r) => SALAS.find(s => c >= s.x && c < s.x + s.w && r >= s.y && r < s.y + s.h) || null;
   const passagemDe = (c, r) => PASSAGENS.find(p => p.tiles.some(([pc, pr]) => pc === c && pr === r)) || null;
   const bloqueado = new Set(MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
   for (const d of [...DONOS, ...MORADORES]) bloqueado.add(d.c + ',' + d.r);
+  for (const e of ENFEITES) for (const [c, r] of e.tiles) bloqueado.add(c + ',' + r);
   const andavel = (c, r) => !bloqueado.has(c + ',' + r) && !!(salaDe(c, r) || passagemDe(c, r));
   // agentes podem pisar no próprio posto (que é bloqueado pro Rei)
   const postos = new Set([...DONOS, ...MORADORES].filter(d => !d.objeto && !d.preso).map(d => d.c + ',' + d.r));
@@ -90,6 +99,6 @@
     return [c, r]; };
   const chaoDe = (c, r) => { const s = salaDe(c, r); if (s) return s.chao; const p = passagemDe(c, r); return p ? SALAS.find(x => x.id === p.de).chao : null; };
 
-  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, PARTIDA, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
+  const api = { SALAS, PASSAGENS, MOVEIS, DONOS, MORADORES, POIS, CENAS, ENFEITES, TAPETE_REAL, VELAS, PARTIDA, salaDe, passagemDe, andavel, andavelAgente, centro, chaoDe };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else raiz.MapaMundo = api;
 })(typeof window !== 'undefined' ? window : globalThis);

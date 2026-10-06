@@ -67,4 +67,17 @@ for (const c of M.CENAS) {
   assert.ok(agentesIds.has(c.a) && agentesIds.has(c.b), `cena com agente desconhecido ${c.a}/${c.b}`);
   for (const t of [c.ta, c.tb]) assert.ok(ehSalao(t) && M.andavel(...t), `cena ${c.a}/${c.b}: ${t} bloqueado`);
 }
+
+// Fase 5B: enfeites reservados no Salão sem fechar caminho; velas em cima de mesas
+const ocupadosAntes = new Set([...M.MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))),
+  ...M.DONOS.map(d => d.c + ',' + d.r), ...M.MORADORES.map(d => d.c + ',' + d.r), ...M.POIS.map(p => p.c + ',' + p.r),
+  ...M.CENAS.flatMap(c => [c.ta.join(), c.tb.join()]), M.PARTIDA.join()]);
+for (const e of M.ENFEITES) for (const t of e.tiles) {
+  assert.ok(ehSalao(t), `${e.id} fora do Salão`);
+  assert.ok(!ocupadosAntes.has(t.join()) && !passagem.has(t.join()), `${e.id} em cima de algo em ${t}`);
+  assert.ok(!M.andavel(...t), `${e.id} deveria reservar ${t}`);
+}
+for (const t of M.TAPETE_REAL) assert.ok(ehSalao(t) && M.andavel(...t), `tapete em ${t} bloqueado`);
+const mesas = new Set(M.MOVEIS.filter(m => ['mesa_redonda', 'escrivaninha'].includes(m.item)).map(m => m.c + ',' + m.r));
+for (const v of M.VELAS) assert.ok(mesas.has(v.join()), `vela sem mesa em ${v}`);
 console.log('ok mapa');
