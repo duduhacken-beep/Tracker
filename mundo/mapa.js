@@ -48,6 +48,11 @@
   const DONOS = [
     { id: 'banqueiro', nome: 'Banqueiro', sala: 'tesouro', c: 30, r: 18 },
     { id: 'maria', nome: 'Maria', sala: 'cozinha', c: 7, r: 17 },
+    { id: 'mosley', nome: 'Mosley', sala: 'biblioteca', c: 15, r: 6 },
+    { id: 'monica', nome: 'Mônica', sala: 'escritorio', c: 21, r: 5 },
+    { id: 'jefrey', nome: 'Jefrey', sala: 'patio', c: 22, r: 28 },
+    { id: 'escrivao', nome: 'Escrivão', sala: 'porao', c: 29, r: 8 },
+    { id: 'estandarte', nome: 'Estandarte', sala: 'quarto', c: 8, r: 4, objeto: true },   // no quarto o dono é o próprio Rei: o estandarte da classe abre a Evolução
   ];
   const PARTIDA = [19, 24];
 

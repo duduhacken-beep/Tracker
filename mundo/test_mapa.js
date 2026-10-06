@@ -42,7 +42,9 @@ assert.ok(M.chaoDe(...M.PARTIDA));
 
 // donos: na sala certa, fora de móvel/passagem, bloqueando o próprio tile, alcançáveis por um vizinho
 const moveis = new Set(M.MOVEIS.flatMap(m => (m.ocupa || [[0, 0]]).map(([dc, dr]) => (m.c + dc) + ',' + (m.r + dr))));
+assert.deepStrictEqual(M.DONOS.map(d => d.sala).sort(), ['biblioteca', 'cozinha', 'escritorio', 'patio', 'porao', 'quarto', 'tesouro'], 'uma sala com função = um dono');
 for (const d of M.DONOS) {
+  assert.ok(M.andavel(...M.centro(d.sala)), `${d.id} tapando o centro da ${d.sala}`);
   assert.strictEqual((M.salaDe(d.c, d.r) || {}).id, d.sala, `${d.id} fora da ${d.sala}`);
   assert.ok(!moveis.has(d.c + ',' + d.r) && !passagem.has(d.c + ',' + d.r), `${d.id} em cima de móvel/passagem`);
   assert.ok(!M.andavel(d.c, d.r), `${d.id} deveria bloquear o tile`);
