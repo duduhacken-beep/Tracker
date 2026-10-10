@@ -40,7 +40,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;500;700&family=IM+Fell+English:ital@0;1&family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────────
    EH TRACKER — Redesign v2
@@ -642,324 +642,131 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .lv-det-capa{background:var(--bg3);display:flex;justify-content:center}
 .lv-det-capa img{max-height:300px;width:auto!important;aspect-ratio:auto!important}
 .meta-prog{color:var(--text2)}
-.cv-hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
-.cv-ovr{display:flex;align-items:flex-end;gap:14px;text-align:center}
-.cv-eu{animation:npc-idle 2.4s steps(2,end) infinite}
-.cv-ovr b{display:block;font-family:var(--f-serif);font-weight:400;font-size:68px;line-height:.95;color:var(--accent)}
-.cv-ovr span{font-size:12.5px;color:var(--text2)}
-.cv-lv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:var(--text2);margin-bottom:6px}
-.cv-lv strong{font-family:var(--f-serif);font-weight:400;font-size:24px;color:var(--text)}
-.cv-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.cv-bar>i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .4s var(--ease-out)}
-.cv-chips{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--text2)}
-.cv-chips b{color:var(--text);font-weight:600}
-.cv-attrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px 22px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
-.cv-attr{display:grid;grid-template-columns:1fr auto;gap:5px 8px;font-size:13px;color:var(--text2)}
-.cv-attr b{color:var(--text);font-variant-numeric:tabular-nums}
-.cv-attr .cv-bar{grid-column:1/-1}
-.cv-metas{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.cv-meta h3{margin:0 0 2px;font-size:15px}
-.cv-quem{font-size:12px;color:var(--text3)}
-.cv-num{display:flex;align-items:baseline;gap:6px;margin:12px 0 8px}
-.cv-num b{font-family:var(--f-serif);font-weight:400;font-size:34px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
-.cv-num span{font-size:13px;color:var(--text2)}
-.cv-ritmo{font-size:12.5px;color:var(--text2);margin-top:8px}
-.cv-ritmo b{color:var(--text);font-weight:600}
-.cv-dias{display:grid;grid-template-rows:repeat(7,11px);grid-auto-flow:column;grid-auto-columns:11px;gap:3px;margin-top:14px}
-.cv-d{border-radius:2px;background:var(--bg3)}
-.cv-d.pad{background:transparent}
-.cv-d.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--border)}
-.cv-d.l1{background:var(--accent);opacity:.45}
-.cv-d.l2{background:var(--accent)}
-.cv-d.hoje{outline:1px solid var(--text2);outline-offset:1px}
-.cv-leg{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text3);margin-top:8px}
-.cv-leg .cv-d{width:10px;height:10px;display:inline-block}
-.px{display:block;image-rendering:pixelated}
-.cv-id{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.cv-tag{font-size:12px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text2)}
+/* ══ EVOLUÇÃO — visual esportivo (10/10/2026): anéis por atributo, números grandes em Archivo condensada ══ */
+#page-evolucao,#modal-cv{
+  --ev-card:#10131a;--ev-line:#1c212c;--ev-track:rgba(255,255,255,.06);
+  --c-corpo:#ff5a4e;--c-flex:#ffaa2b;--c-mente:#3d9bff;--c-sab:#9b7bff;--c-estilo:#ff5ca8;--c-cozinha:#2fd38a;--c-neutro:#8892a4;
+  --bronze:#d08a4f;--prata:#c6ccd8;--ouro:#f2c14e;
+  --f-num:'Archivo','Inter',sans-serif;
+}
+#page-evolucao .card{background:var(--ev-card);border-color:var(--ev-line);backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:none}
+#page-evolucao .card::before{display:none}
+#page-evolucao .card:hover{box-shadow:none;border-color:var(--ev-line)}
+.ev-num{font-family:var(--f-num);font-stretch:62%;font-weight:800;font-variant-numeric:tabular-nums;line-height:.9;letter-spacing:-.01em}
+
+/* Hero: anéis + nível + sequência */
+.cv-hero{display:grid;grid-template-columns:auto 1fr auto;gap:36px;align-items:center}
+.cv-aneis{position:relative;width:220px;height:220px}
+.cv-aneis svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+.cv-aneis circle{fill:none;stroke-width:9}
+.cv-aneis .trilho{stroke:var(--ev-track)}
+.cv-aneis .arco{stroke-linecap:round;animation:ev-arco 1.1s var(--ease-cine) both}
+.cv-aneis .arco:nth-of-type(2n){animation-delay:.06s}
+@keyframes ev-arco{from{stroke-dasharray:0 100}}
+.cv-ovr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cv-ovr b{font-size:52px;color:var(--text)}
+.cv-ovr span{font-size:11.5px;color:var(--text2);margin-top:3px}
+.cv-lv{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.cv-lv b{font-size:64px;color:var(--text)}
+.cv-lv b small{font-size:.42em;font-weight:600;font-stretch:100%;color:var(--text2);margin-right:4px;letter-spacing:0}
+.cv-id{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 16px}
+.cv-tag{font-size:12.5px;padding:4px 11px;border-radius:20px;border:1px solid var(--ev-line);color:var(--text2);background:rgba(255,255,255,.02)}
 .cv-tag b{color:var(--text);font-weight:600}
-.cv-tag.cls{border-color:var(--accent);color:var(--accent);background:var(--adim)}
-.cv-seq{display:flex;align-items:flex-end;gap:12px}
-.cv-seq-num{line-height:1.1}
-.cv-seq-num b{display:block;font-family:var(--f-serif);font-weight:400;font-size:34px;color:var(--text)}
-.cv-seq-num span{font-size:12px;color:var(--text2)}
-.cv-escudos{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text2);margin-left:4px}
-.cv-escudos b{color:var(--text)}
-.fogo{position:relative;display:inline-block;aspect-ratio:8/10;flex-shrink:0}
-.fogo-f{position:absolute;inset:0;width:100%;height:100%}
-.fogo .f1,.fogo .f2{opacity:0}
-.fogo.vivo .fogo-f{animation:fogo-quadro .54s steps(1,end) infinite}
-.fogo.vivo .f1{animation-delay:.18s}
-.fogo.vivo .f2{animation-delay:.36s}
-.fogo.vivo{animation:fogo-pulso 1.8s ease-in-out infinite;transform-origin:50% 100%}
-@keyframes fogo-quadro{0%{opacity:1}33.33%{opacity:0}100%{opacity:0}}
-@keyframes fogo-pulso{0%,100%{transform:scale(1)}50%{transform:scale(1.06,1.1)}}
-.cv-npc{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
-.cv-npc .px{flex-shrink:0;animation:npc-idle 2.4s steps(2,end) infinite}
-@keyframes npc-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-.cv-balao{position:relative;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12.5px;line-height:1.45;color:var(--text)}
-.cv-balao::before{content:"";position:absolute;left:-6px;top:12px;width:10px;height:10px;background:var(--bg3);border-left:1px solid var(--border);border-bottom:1px solid var(--border);transform:rotate(45deg)}
-.cv-balao small{display:block;color:var(--text3);font-size:11px;margin-bottom:2px}
-.cv-conq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.cv-conq{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs)}
-.cv-conq.off{opacity:.55}
+.cv-tag.cls{border-color:var(--cor);color:var(--cor);background:color-mix(in srgb,var(--cor) 12%,transparent)}
+.cv-tag.cls b{color:inherit}
+.cv-bar{height:6px;background:var(--ev-track);border-radius:3px;overflow:hidden}
+.cv-bar>i{display:block;height:100%;background:var(--cor,var(--text));border-radius:3px;transition:width .5s var(--ease-out)}
+.cv-xp{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text2);margin-bottom:7px;font-variant-numeric:tabular-nums}
+.cv-chips{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;font-size:12.5px;color:var(--text2)}
+.cv-chips b{color:var(--text);font-weight:600}
+.cv-chips a{color:var(--accent)}
+.cv-seq{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:120px}
+.cv-seq-top{display:flex;align-items:flex-end;gap:8px}
+.cv-seq-top b{font-size:64px;color:var(--text)}
+.cv-seq>span{font-size:12px;color:var(--text2)}
+.fogo{display:block;flex-shrink:0;transform-origin:50% 100%}
+.fogo.vivo{animation:ev-chama 1.6s ease-in-out infinite}
+@keyframes ev-chama{0%,100%{transform:scale(1)}50%{transform:scale(1.05,1.1)}}
+.cv-escudos{display:flex;gap:4px;margin-top:4px}
+.cv-escudos svg{display:block}
+.cv-legenda{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:26px;padding-top:20px;border-top:1px solid var(--ev-line)}
+.cv-attr{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text2)}
+.cv-attr span{display:flex;align-items:center;gap:6px}
+.cv-attr span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cor)}
+.cv-attr b{font-size:30px;color:var(--cor)}
+
+/* Metas */
+.cv-metas{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.cv-meta{border-top:3px solid var(--cor)!important}
+.cv-meta-top{display:flex;align-items:center;gap:14px}
+.cv-mini{position:relative;width:58px;height:58px;flex-shrink:0}
+.cv-mini svg{width:100%;height:100%;transform:rotate(-90deg)}
+.cv-mini circle{fill:none;stroke-width:6}
+.cv-mini .trilho{stroke:var(--ev-track)}
+.cv-mini .arco{stroke:var(--cor);stroke-linecap:round;animation:ev-arco 1s var(--ease-cine) both}
+.cv-mini em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.cv-meta h3{margin:0;font-size:15px;color:var(--text)}
+.cv-quem{font-size:12px;color:var(--text3);margin-top:2px}
+.cv-num{display:flex;align-items:baseline;gap:6px;margin:18px 0 10px}
+.cv-num b{font-size:52px;color:var(--text)}
+.cv-num span{font-size:13px;color:var(--text2)}
+.cv-ritmo{font-size:12.5px;color:var(--text2);margin-top:10px;line-height:1.5}
+.cv-ritmo b{color:var(--text);font-weight:600}
+.cv-ritmo .frente{color:var(--c-cozinha)}
+.cv-ritmo .atras{color:var(--c-corpo)}
+.cv-dias{display:grid;grid-template-rows:repeat(7,11px);grid-auto-flow:column;grid-auto-columns:11px;gap:3px;margin-top:16px}
+.cv-d{border-radius:3px;background:var(--ev-track)}
+.cv-d.pad{background:transparent}
+.cv-d.fut{background:transparent;box-shadow:inset 0 0 0 1px var(--ev-line)}
+.cv-d.l1{background:color-mix(in srgb,var(--cor,var(--accent)) 45%,transparent)}
+.cv-d.l2{background:var(--cor,var(--accent))}
+.cv-d.hoje{outline:1px solid var(--text);outline-offset:1px}
+.cv-leg{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:11.5px;color:var(--text3)}
+.cv-leg .cv-d{width:10px;height:10px;display:inline-block;--cor:var(--text2)}
+.cv-fala{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding-top:14px;border-top:1px solid var(--ev-line);font-size:13px;line-height:1.5;color:var(--text)}
+.cv-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--f-num);font-weight:800;font-size:14px;color:#0a0c10;background:var(--cor)}
+.cv-fala small{display:block;color:var(--text3);font-size:11.5px;margin-bottom:1px}
+
+/* Conquistas e títulos */
+.cv-conq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.cv-conq{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--ev-line);border-radius:var(--rs);background:rgba(255,255,255,.015)}
+.cv-conq.off{opacity:.5}
+.cv-conq svg{flex-shrink:0;display:block}
 .cv-conq b{display:block;font-size:13px;color:var(--text)}
 .cv-conq span{font-size:12px;color:var(--text2)}
 .cv-conq.off b{color:var(--text2)}
 .cv-titulos{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-.modal.cv-cer{width:440px;text-align:center;position:relative;overflow-x:hidden;overflow-y:auto;max-height:90vh;background:var(--bg2);backdrop-filter:none}
-.cv-cer-top{font-size:12.5px;color:var(--accent);letter-spacing:.04em}
-.cv-cer-nivel{font-family:var(--f-serif);font-size:58px;line-height:1.05;color:var(--text);margin:6px 0 4px;animation:cer-entra .6s var(--ease-out) both}
+.cv-titulos .cv-tag.on{background:var(--text);border-color:var(--text);color:#0a0c10}
+
+/* Cerimônia e tela final */
+.modal.cv-cer{width:440px;text-align:center;position:relative;overflow-x:hidden;overflow-y:auto;max-height:90vh;background:var(--ev-card);border-color:var(--ev-line);backdrop-filter:none;-webkit-backdrop-filter:none}
+.cv-cer-top{font-size:13px;color:var(--text2)}
+.cv-cer-nivel{font-size:120px;color:var(--text);margin:8px 0 2px;animation:cer-entra .6s var(--ease-cine) both}
 .cv-cer h2{margin:8px 0 2px}
 .cv-cer p{color:var(--text2);font-size:13.5px;margin:6px 0}
+.cv-cer .cv-tag.cls{display:inline-block;margin:8px 0 4px}
 .cv-cer-lista{display:flex;flex-direction:column;gap:8px;margin:16px 0;text-align:left}
-.cv-cer .cv-npc{justify-content:center;text-align:left;margin:18px 0 6px}
-.cv-cer .btn{width:100%;justify-content:center;margin-top:10px}
-.cv-cer-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;text-align:left}
-.cv-cer-stats div{background:var(--bg3);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--text2)}
-.cv-cer-stats b{display:block;font-size:16px;color:var(--text)}
+.cv-cer .cv-fala{text-align:left;margin-top:18px}
+.cv-cer .btn{width:100%;justify-content:center;margin-top:16px}
+.cv-cer-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0;text-align:left}
+.cv-cer-stats div{background:rgba(255,255,255,.03);border:1px solid var(--ev-line);border-radius:var(--rs);padding:9px 11px;font-size:12px;color:var(--text2)}
+.cv-cer-stats b{display:block;font-family:var(--f-num);font-stretch:62%;font-weight:800;font-size:24px;color:var(--text)}
 .cv-confete{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.cv-confete i{position:absolute;top:-10px;width:6px;height:6px;animation:confete 2.2s linear forwards}
+.cv-confete i{position:absolute;top:-10px;width:6px;height:10px;border-radius:1px;animation:confete 2.2s linear forwards}
 @keyframes confete{to{transform:translateY(520px) rotate(360deg);opacity:0}}
-@keyframes cer-entra{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes cer-entra{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 
-/* ══ Teste de estilo RPG — só a aba Evolução e a cerimônia do Modo Caverna (05/10/2026) ══ */
-.evo-estilos{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-18px 0 24px;font-size:12.5px;color:var(--text2)}
-.evo-estilos span{margin-right:4px}
-.evo-estilos button{all:unset;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:12.5px}
-.evo-estilos button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--adim)}
-.evo-estilos button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#page-evolucao[data-rpg]::before{content:"";position:fixed;inset:0 0 0 var(--sb,0);z-index:-1;pointer-events:none}
-#page-evolucao[data-rpg] .evo-estilos button{background:var(--card);color:var(--text)}
-#page-evolucao[data-rpg] .evo-estilos button[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-#page-evolucao[data-rpg] .card::before{display:none}
-#page-evolucao[data-rpg] .card,#modal-cv[data-rpg] .modal{backdrop-filter:none;-webkit-backdrop-filter:none}
-#page-evolucao[data-rpg],#modal-cv[data-rpg]{font-family:var(--f-sans)}
-#page-evolucao[data-rpg] h1,#page-evolucao[data-rpg] h2,#page-evolucao[data-rpg] .cv-ovr b,#page-evolucao[data-rpg] .cv-num b,
-#page-evolucao[data-rpg] .cv-lv strong,#page-evolucao[data-rpg] .cv-seq-num b,#modal-cv[data-rpg] .cv-cer-nivel,#modal-cv[data-rpg] h2{font-family:var(--f-serif)}
-#page-evolucao[data-rpg] input,#page-evolucao[data-rpg] select,#page-evolucao[data-rpg] .btn,#modal-cv[data-rpg] .btn{font-family:var(--f-sans)}
-
-/* Pergaminho: manuscrito, tinta sépia, selo de cera */
-#page-evolucao[data-rpg="pergaminho"],#modal-cv[data-rpg="pergaminho"]{
-  --bg:#d9c08a;--bg2:#efe0b8;--bg3:#e3cd98;--card:#f4e6c2;--card-glass:#f4e6c2;
-  --border:#b39466;--border-strong:#8a6a3e;--text:#3a2716;--text2:#664a2e;--text3:#8f7552;
-  --accent:#9a2a1f;--accent2:#b8442f;--adim:rgba(154,42,31,.12);--aglow:rgba(154,42,31,.2);
-  --f-serif:'IM Fell English',Georgia,serif;--f-sans:'IM Fell English',Georgia,serif;--r:3px;--rs:2px;
-}
-#page-evolucao[data-rpg="pergaminho"]::before{background:radial-gradient(ellipse at 50% 20%,#ecd9ab 0%,#d6bb83 55%,#a9864f 100%)}
-#page-evolucao[data-rpg="pergaminho"] .card,#modal-cv[data-rpg="pergaminho"] .modal{
-  background:#f4e6c2 radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.35),transparent 60%);border:1px solid #8a6a3e;border-radius:3px;
-  box-shadow:inset 0 0 0 4px #f4e6c2,inset 0 0 0 5px #c4a46e,0 1px 0 #8a6a3e,0 10px 22px rgba(70,40,10,.22)}
-#page-evolucao[data-rpg="pergaminho"] h1{font-size:46px;color:#3a2716}
-#page-evolucao[data-rpg="pergaminho"] .cv-ovr b{color:#9a2a1f;font-size:72px}
-#page-evolucao[data-rpg="pergaminho"] .cv-bar{background:#e0c993;border:1px solid #c4a46e;height:7px}
-#page-evolucao[data-rpg="pergaminho"] .cv-bar>i{background:linear-gradient(#b8442f,#8a2318)}
-#page-evolucao[data-rpg="pergaminho"] .cv-balao,#modal-cv[data-rpg="pergaminho"] .cv-balao{background:#fbf3dc}
-#page-evolucao[data-rpg="pergaminho"] .cv-balao::before,#modal-cv[data-rpg="pergaminho"] .cv-balao::before{background:#fbf3dc}
-#page-evolucao[data-rpg="pergaminho"] .cv-d.fut{box-shadow:inset 0 0 0 1px #c9ad78}
-
-/* Masmorra: pedra, bronze e luz de tocha */
-#page-evolucao[data-rpg="masmorra"],#modal-cv[data-rpg="masmorra"]{
-  --bg:#15120e;--bg2:#1f1b16;--bg3:#0f0d0a;--card:#26221b;--card-glass:#26221b;
-  --border:#5e4a24;--border-strong:#8a6b2e;--text:#efe2c2;--text2:#bfaa80;--text3:#7f7055;
-  --accent:#e2b24c;--accent2:#f0c96a;--adim:rgba(226,178,76,.14);--aglow:rgba(226,178,76,.25);
-  --f-serif:'Cinzel',Georgia,serif;--f-sans:'Alegreya Sans',system-ui,sans-serif;--r:4px;--rs:3px;
-}
-#page-evolucao[data-rpg="masmorra"]::before{background:
-  radial-gradient(ellipse at 50% -10%,rgba(255,140,50,.16),transparent 55%),
-  repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 2px,transparent 2px 38px),
-  repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 2px,transparent 2px 76px),#1b1712}
-#page-evolucao[data-rpg="masmorra"] .card,#modal-cv[data-rpg="masmorra"] .modal{
-  background:
-    radial-gradient(circle at 9px 9px,#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#c9a24a 0 2px,transparent 3px),
-    radial-gradient(circle at 9px calc(100% - 9px),#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#c9a24a 0 2px,transparent 3px),
-    linear-gradient(180deg,#2d2820,#1e1a15);
-  border:2px solid #6e5427;border-radius:4px;
-  box-shadow:inset 0 0 0 1px rgba(232,190,100,.16),inset 0 1px 0 rgba(255,255,255,.05),0 12px 26px rgba(0,0,0,.55)}
-#page-evolucao[data-rpg="masmorra"] h1{letter-spacing:.02em;color:#f3e3bb}
-#page-evolucao[data-rpg="masmorra"] .cv-ovr b{color:#f0c96a;text-shadow:0 0 18px rgba(255,150,40,.45)}
-#page-evolucao[data-rpg="masmorra"] .cv-bar{background:#0c0a07;border:1px solid #4a3a1c;height:8px;border-radius:2px}
-#page-evolucao[data-rpg="masmorra"] .cv-bar>i{background:linear-gradient(#f0c96a,#b8862c);border-radius:1px}
-#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(1) .cv-bar>i{background:linear-gradient(#e86a5a,#a8322a)}
-#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(3) .cv-bar>i{background:linear-gradient(#6aa8f0,#2f5fb0)}
-#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(4) .cv-bar>i{background:linear-gradient(#b48af0,#6a3fb8)}
-#page-evolucao[data-rpg="masmorra"] .cv-attr:nth-child(6) .cv-bar>i{background:linear-gradient(#7fd08a,#3a8a4a)}
-
-/* 16-bit: janela de JRPG antigo */
-#page-evolucao[data-rpg="16bit"],#modal-cv[data-rpg="16bit"]{
-  --bg:#070a3a;--bg2:#0d1560;--bg3:#0a1150;--card:#1a2687;--card-glass:#1a2687;
-  --border:#5a6cff;--border-strong:#ffffff;--text:#ffffff;--text2:#cdd3ff;--text3:#8d97e0;
-  --accent:#ffd84a;--accent2:#ffe788;--adim:rgba(255,216,74,.16);--aglow:rgba(255,216,74,.25);
-  --f-serif:'Pixelify Sans',monospace;--f-sans:'Pixelify Sans',monospace;--r:8px;--rs:4px;
-}
-#page-evolucao[data-rpg="16bit"]::before{background:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1.5px) 0 0/26px 26px,linear-gradient(#070a3a,#0c1250)}
-#page-evolucao[data-rpg="16bit"] .card,#modal-cv[data-rpg="16bit"] .modal{
-  background:linear-gradient(180deg,#3447c9 0%,#1b288c 55%,#111a66 100%);border:3px solid #f4f4f4;border-radius:8px;
-  box-shadow:0 0 0 3px #070a3a,inset 0 0 0 2px rgba(120,140,255,.35),5px 5px 0 3px rgba(0,0,0,.45)}
-#page-evolucao[data-rpg="16bit"] h1{font-weight:600;font-size:38px;text-shadow:3px 3px 0 #000}
-#page-evolucao[data-rpg="16bit"] h2,#page-evolucao[data-rpg="16bit"] .cv-ovr b,#page-evolucao[data-rpg="16bit"] .cv-num b{text-shadow:2px 2px 0 #000}
-#page-evolucao[data-rpg="16bit"] .cv-ovr b{color:#ffd84a}
-#page-evolucao[data-rpg="16bit"] .cv-bar{background:#070a3a;border:2px solid #f4f4f4;height:10px;border-radius:0}
-#page-evolucao[data-rpg="16bit"] .cv-bar>i{border-radius:0;background:repeating-linear-gradient(90deg,#ffd84a 0 6px,#e8b820 6px 8px)}
-#page-evolucao[data-rpg="16bit"] .cv-d{border-radius:0}
-#page-evolucao[data-rpg="16bit"] .cv-tag,#page-evolucao[data-rpg="16bit"] .cv-balao,#modal-cv[data-rpg="16bit"] .cv-balao{border-radius:2px;border-color:#f4f4f4}
-#page-evolucao[data-rpg="16bit"] .cv-balao,#modal-cv[data-rpg="16bit"] .cv-balao{background:#0d1660}
-#page-evolucao[data-rpg="16bit"] .cv-balao::before,#modal-cv[data-rpg="16bit"] .cv-balao::before{background:#0d1660;border-color:#f4f4f4}
-#modal-cv[data-rpg="16bit"] .btn-p,#page-evolucao[data-rpg="16bit"] .btn-p{background:#ffd84a;color:#070a3a;border:2px solid #fff;border-radius:2px;box-shadow:3px 3px 0 #000}
-
-/* ══ MUNDO (Fase 2) — tela cheia ao lado da barra lateral; no celular para acima da barra de baixo ══ */
-#page-mundo.on{animation:none}   /* o transform da animação prenderia o position:fixed à página (altura 0) */
-.mundo-moldura{position:fixed;inset:0 0 0 var(--sb,0);z-index:1;background:#120d08}
-.mundo-jogo{position:absolute;inset:0}
-.mundo-jogo canvas{image-rendering:pixelated}
-.mundo-livro-btn{position:absolute;top:12px;right:14px;z-index:5;width:52px;height:52px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6));transition:transform .15s}
-.mundo-livro-btn svg{width:100%;height:100%;display:block}
-.mundo-livro-btn:hover{transform:translateY(-2px) rotate(-4deg)}
-.mundo-livro-btn:focus-visible{outline:2px solid #f0c96a;outline-offset:3px}
-.mundo-aviso[hidden]{display:none}
-.mundo-aviso{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#efe2c2;text-align:center;padding:24px;font-family:'Alegreya Sans',sans-serif}
-@media(max-width:640px){.mundo-moldura{inset:0 0 calc(64px + env(safe-area-inset-bottom)) 0}}
-.mundo-moldura.reveal{opacity:1;transform:none;will-change:auto;transition:none}   /* sem transform/will-change: prenderia os modais fixos das telas */
-.mundo-janela{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,7,4,.6)}
-.mundo-janela[hidden]{display:none}
-.mj-painel{width:min(1100px,100%);height:100%;display:flex;flex-direction:column;background:var(--bg);border:3px solid #6e5427;border-radius:6px;box-shadow:0 0 0 2px #1e1a15,0 20px 60px rgba(0,0,0,.6);overflow:hidden}
-.mj-topo{display:flex;align-items:center;gap:12px;padding:10px 14px 10px 18px;background:#2d2820;border-bottom:2px solid #6e5427}
-.mj-topo h2{margin:0;font:700 18px 'Cinzel',Georgia,serif;color:#f3e3bb}
-.mj-dono{flex:1;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80}
-.mj-abas{display:flex;gap:4px}
-.mj-abas button,.mj-fechar{all:unset;cursor:pointer;font:600 14px 'Alegreya Sans',sans-serif;color:#bfaa80;padding:6px 12px;border-radius:3px}
-.mj-abas button[aria-selected="true"]{background:rgba(226,178,76,.18);color:#f0c96a}
-.mj-fechar{font-size:22px;line-height:1;color:#f3e3bb;padding:4px 10px}
-.mj-abas button:focus-visible,.mj-fechar:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
-.mj-corpo{flex:1;overflow:auto;padding:28px 32px 40px}
-.mj-status{padding:6px 18px;font:500 13px 'Alegreya Sans',sans-serif;color:#bfaa80;background:#241f19;border-bottom:1px solid #4a3a1e}
-.mj-status:empty{display:none}
-#mundo-janela-corpo #tv-cena,#mundo-janela-corpo #tv-btn-mundo{display:none}   /* dentro do Mundo a Taverna mostra só o painel e a crônica */
-/* Painel de RPG, minimapa e cabeçalho das janelas por sala (Fase 5C bloco 8) */
-.mundo-hud{position:absolute;top:12px;left:14px;z-index:6;display:flex;align-items:center;gap:10px;background:#1e1a15;border:2px solid #6e5427;border-radius:6px;padding:6px 10px 6px 6px;box-shadow:0 0 0 2px #120d08,0 6px 18px rgba(0,0,0,.5);color:#efe2c2;font:500 13px 'Alegreya Sans',sans-serif}
-.mh-retrato{all:unset;cursor:pointer;width:34px;height:48px;background:#2d2820;border:2px solid #6e5427;border-radius:4px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.mh-retrato img{width:32px;height:48px;image-rendering:pixelated}
-.mh-retrato:focus-visible,.mh-seguir:focus-visible{outline:2px solid #f0c96a;outline-offset:2px}
-.mh-info{display:flex;flex-direction:column;gap:3px;min-width:120px}
-.mh-info b{font:700 13px 'Cinzel',Georgia,serif;color:#f3e3bb}
-.mh-info span{font-size:12px;color:#bfaa80}
-.mh-xp{height:6px;background:#2d2820;border:1px solid #6e5427;border-radius:3px;overflow:hidden}
-.mh-xp i{display:block;height:100%;background:linear-gradient(90deg,#c99a1f,#f5c542)}
-.mh-relogio{display:flex;align-items:center;gap:5px;font:700 13px 'Alegreya Sans',sans-serif;color:#f3e3bb;padding-left:8px;border-left:1px solid #3a2f22}
-.mh-relogio svg{width:18px;height:18px}
-.mh-seguir{all:unset;cursor:pointer;font:600 12px 'Alegreya Sans',sans-serif;color:#bfaa80;border:1px solid #6e5427;border-radius:3px;padding:4px 8px}
-.mh-seguir.on{background:rgba(226,178,76,.18);color:#f0c96a}
-.mundo-minimapa{position:absolute;top:80px;left:14px;z-index:6;background:#120d08;border:2px solid #6e5427;border-radius:4px;box-shadow:0 0 0 2px #120d08;cursor:pointer;image-rendering:pixelated}
-@media(max-width:640px){.mundo-minimapa{display:none}.mh-seguir{display:none}.mundo-hud{gap:6px;padding:4px 8px 4px 4px}.mh-info{min-width:0}.mh-relogio{padding-left:6px}}
-.mj-retrato{width:32px;height:48px;image-rendering:pixelated;background:#1e1a15;border:2px solid #6e5427;border-radius:4px;margin:-2px 0}
-.mj-retrato[hidden]{display:none}
-.mj-fala{padding:8px 18px;font:500 14px 'Alegreya Sans',sans-serif;color:#2a1e12;background:#f3e3bb;border-bottom:2px solid #6e5427}
-.mj-fala:empty{display:none}
-.mj-fala::before{content:'“'}.mj-fala::after{content:'”'}
-#mundo-janela.sala-tesouro .mj-topo{background:linear-gradient(180deg,#4a3a14,#2d2410);border-bottom-color:#c99a1f}
-#mundo-janela.sala-cozinha .mj-topo{background:repeating-linear-gradient(45deg,#2a4a8a 0 8px,#e8e4dc 8px 16px);border-bottom-color:#2a4a8a}
-#mundo-janela.sala-cozinha .mj-topo h2,#mundo-janela.sala-cozinha .mj-dono{background:#2d2820;padding:2px 8px;border-radius:3px}
-#mundo-janela.sala-cozinha .mj-dono{max-width:max-content}
-#mundo-janela.sala-cozinha .mj-fechar,#mundo-janela.sala-cozinha .mj-abas button{background:#2d2820}
-.mj-fechar{margin-left:auto}
-#mundo-janela.sala-biblioteca .mj-topo{background:linear-gradient(180deg,#3a2414,#22140a)}
-#mundo-janela.sala-escritorio .mj-topo{background:linear-gradient(180deg,#4a3a28,#2d2418)}
-#mundo-janela.sala-patio .mj-topo{background:linear-gradient(180deg,#2f5a3a,#1e3a24);border-bottom-color:#4f9a63}
-#mundo-janela.sala-quarto .mj-topo{background:linear-gradient(180deg,#5a1a14,#3a100c);border-bottom-color:#e2b24c}
-#mundo-janela.sala-porao .mj-topo{background:linear-gradient(180deg,#3a3e44,#22262a);border-bottom-color:#4f6a4a}
-#mundo-janela.sala-salao .mj-topo{background:linear-gradient(180deg,#4a2c16,#2d1a0c)}
-#page-mapa .mm-svg{display:block;width:100%;max-width:720px;margin:0 auto 14px;background:#e8dcbc;border:3px solid #6e5427;border-radius:6px}
-#page-mapa .mm-svg polygon{cursor:pointer;stroke:#3b2716;stroke-width:2}
-#page-mapa .mm-svg polygon:hover{filter:brightness(1.15)}
-#page-mapa .mm-svg text{font:700 13px 'Alegreya Sans',sans-serif;fill:#2a1e12;pointer-events:none;paint-order:stroke;stroke:#f3e3bb;stroke-width:3px}
-/* Ficha do Rei (clicar no Rei) */
-.mundo-ficha{position:absolute;left:14px;bottom:14px;z-index:15;width:min(300px,calc(100% - 28px));background:#1e1a15;border:3px solid #6e5427;border-radius:6px;box-shadow:0 0 0 2px #120d08,0 10px 30px rgba(0,0,0,.6);color:#efe2c2;font:500 14px 'Alegreya Sans',sans-serif;padding:14px 16px}
-.mundo-ficha[hidden]{display:none}
-.mundo-ficha .mj-fechar{position:absolute;top:4px;right:4px}
-.mf-topo{display:flex;gap:12px;align-items:center;margin-bottom:10px}
-.mf-topo img{width:64px;height:96px;image-rendering:pixelated;background:#2d2820;border:2px solid #6e5427;border-radius:4px}
-.mf-topo h3{margin:0;font:700 18px 'Cinzel',Georgia,serif;color:#f3e3bb}
-.mf-topo span{color:#bfaa80;font-size:13px}
-.mf-barra{height:8px;background:#2d2820;border:1px solid #6e5427;border-radius:4px;overflow:hidden;margin:4px 0 10px}
-.mf-barra i{display:block;height:100%;background:linear-gradient(90deg,#c99a1f,#f5c542)}
-.mf-linha{display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid #3a2f22}
-.mf-linha b{color:#f0c96a}
-/* Livro do Reino: a janela com pele de livro + capa que vira ao abrir/fechar */
-.mj-capa{position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;transform-origin:left center;backface-visibility:hidden;
-  background:#7a2620;border:3px solid #e2b24c;box-shadow:inset 0 0 0 6px #5a1a14,inset 0 0 0 8px #e2b24c;border-radius:4px}
-.mj-capa[hidden]{display:none}
-.mj-capa span{font:700 26px 'Cinzel',Georgia,serif;color:#f5d46a;text-shadow:0 2px 0 #2a0e0c;letter-spacing:.06em}
-.mj-capa.abrindo{animation:capaAbre .65s ease-in forwards}
-.mj-capa.fechando{animation:capaAbre .45s ease-out reverse forwards}
-@keyframes capaAbre{from{transform:perspective(3000px) rotateY(0)}to{transform:perspective(3000px) rotateY(-180deg)}}
-.mj-painel{position:relative}
-#mundo-janela.livro .mj-painel{overflow:visible;border:10px solid #5a1a14;border-radius:8px;box-shadow:0 0 0 2px #e2b24c,0 0 0 4px #2a0e0c,0 20px 60px rgba(0,0,0,.6)}
-#mundo-janela.livro .mj-topo{background:#3a1512;border-bottom:2px solid #e2b24c}
-#mundo-janela.livro .mj-abas button{background:#7a2620;color:#f3e3bb;border-radius:0 0 4px 4px;padding:6px 12px 9px}
-#mundo-janela.livro .mj-abas button[aria-selected="true"]{background:#e2b24c;color:#2a0e0c}
-#mundo-janela.livro .mj-corpo{animation:paginas .45s .3s both}
-@keyframes paginas{from{opacity:0}to{opacity:1}}
-#page-mapa .mm-linha{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--border)}
-#page-mapa .mm-linha:last-child{border-bottom:0}
-#page-mapa .mm-linha>div{flex:1;display:flex;flex-direction:column;gap:2px}
-#page-mapa .mm-linha span{font-size:12px;color:var(--text3)}
-@media(prefers-reduced-motion:reduce){.mj-capa{display:none!important}#mundo-janela.livro .mj-corpo{animation:none}}
-@media(max-width:640px){.mundo-janela{padding:0}.mj-painel{border-width:0;border-radius:0}.mj-topo{flex-wrap:wrap}.mj-corpo{padding:18px 14px 30px}}
-
-/* ══ TAVERNA (05/10/2026) — mesma paleta da Masmorra ══ */
-#page-taverna{
-  --bg:#15120e;--bg2:#1f1b16;--bg3:#0f0d0a;--card:#26221b;--card-glass:#26221b;
-  --border:#5e4a24;--border-strong:#8a6b2e;--text:#efe2c2;--text2:#bfaa80;--text3:#7f7055;
-  --accent:#e2b24c;--accent2:#f0c96a;--adim:rgba(226,178,76,.14);--aglow:rgba(226,178,76,.25);
-  --f-serif:'Cinzel',Georgia,serif;--f-sans:'Alegreya Sans',system-ui,sans-serif;--r:4px;--rs:3px;
-  font-family:var(--f-sans)
-}
-#page-taverna::before{content:"";position:fixed;inset:0 0 0 var(--sb,0);z-index:-1;pointer-events:none;background:
-  radial-gradient(ellipse at 50% -10%,rgba(255,140,50,.16),transparent 55%),
-  repeating-linear-gradient(0deg,rgba(0,0,0,.32) 0 2px,transparent 2px 38px),
-  repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 2px,transparent 2px 76px),#1b1712}
-#page-taverna h1,#page-taverna h2{font-family:var(--f-serif);color:#f3e3bb}
-#page-taverna .card{backdrop-filter:none;-webkit-backdrop-filter:none;background:
-    radial-gradient(circle at 9px 9px,#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) 9px,#c9a24a 0 2px,transparent 3px),
-    radial-gradient(circle at 9px calc(100% - 9px),#c9a24a 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#c9a24a 0 2px,transparent 3px),
-    linear-gradient(180deg,#2d2820,#1e1a15);
-  border:2px solid #6e5427;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(232,190,100,.16),0 12px 26px rgba(0,0,0,.55)}
-#page-taverna .card::before{display:none}
-.tv-cena{border:3px solid #6e5427;border-radius:4px;overflow-x:auto;background:#120d08;box-shadow:0 0 0 2px #140f18,0 14px 30px rgba(0,0,0,.6)}
-.tv-mapa{position:relative;min-width:560px}
-.tv-cena canvas{display:block;width:100%;height:auto;image-rendering:pixelated;cursor:pointer}
-.tv-falas{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.tv-fala{position:absolute;transform:translate(-50%,-100%);max-width:170px;width:max-content;background:#efe2c2;color:#1b1d24;font:600 12.5px/1.3 'Alegreya Sans',sans-serif;padding:4px 8px;border:2px solid #140f18;border-radius:4px;box-shadow:2px 2px 0 rgba(0,0,0,.35);animation:tv-fala-in .18s ease-out}
-.tv-fala::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-4px;border:4px solid transparent;border-top-color:#140f18}
-@keyframes tv-fala-in{from{opacity:0;transform:translate(-50%,-80%)}to{opacity:1;transform:translate(-50%,-100%)}}
-.tv-cron{display:grid;grid-template-columns:118px 1fr;gap:10px;padding:8px 2px;border-bottom:1px solid var(--border);font-size:13.5px;line-height:1.45;color:var(--text)}
-.tv-cron:last-child{border-bottom:none}
-.tv-cron span{color:var(--accent);font-size:12.5px;white-space:nowrap}
-@media(max-width:640px){.tv-cron{grid-template-columns:1fr;gap:2px}}
-.tv-lista{display:flex;flex-direction:column}
-.tv-row{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);border-radius:3px}
-.tv-row:last-child{border-bottom:none}
-.tv-row:hover,.tv-row.sel{background:rgba(226,178,76,.08)}
-.tv-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.tv-row b{display:block;font-size:14.5px;color:var(--text)}
-.tv-row .tv-papel{font-size:12.5px;color:var(--text2)}
-.tv-row .tv-det{grid-column:2 / -1;font-size:12.5px;color:var(--text2);line-height:1.5}
-.tv-row .tv-det strong{color:var(--text);font-weight:600}
-.tv-est{font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--text2);white-space:nowrap}
-.tv-est.trabalhando{border-color:#e2b24c;color:#f0c96a;background:rgba(226,178,76,.14)}
-.tv-est.erro{border-color:#d94848;color:#ff9a8a;background:rgba(217,72,72,.14)}
-.tv-est.recente{border-color:#3a8a4a;color:#8fe0a0}
 @media (prefers-reduced-motion: reduce){
-  .cv-eu,.fogo.vivo,.fogo.vivo .fogo-f,.cv-npc .px,.cv-confete i,.cv-cer-nivel{animation:none}
-  .fogo.vivo .f0{opacity:1}
+  .cv-aneis .arco,.cv-mini .arco,.fogo.vivo,.cv-confete i,.cv-cer-nivel{animation:none}
 }
+@media(max-width:900px){.cv-legenda{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){
-  .cv-hero{grid-template-columns:1fr;gap:12px}
-  .cv-seq{order:-1}
-  .cv-ovr{display:flex;align-items:baseline;gap:10px;text-align:left}
-  .cv-ovr b{font-size:56px}
-  .cv-ovr{text-align:left}
-  .cv-attrs{grid-template-columns:1fr 1fr;gap:12px 16px}
+  .cv-hero{grid-template-columns:1fr;justify-items:center;text-align:center;gap:20px}
+  .cv-hero>div{width:100%}
+  .cv-lv,.cv-id,.cv-chips{justify-content:center}
+  .cv-seq{flex-direction:row;gap:14px}
+  .cv-lv b,.cv-seq-top b{font-size:52px}
+  .cv-legenda{gap:12px}
 }
 .lv-aval{display:flex;gap:8px;margin-top:16px}
 .lv-aval .btn.on{border-color:var(--accent);color:var(--accent);background:var(--adim)}
@@ -2013,10 +1820,6 @@ body.dens-compact .gap{margin-bottom:14px}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('leitura')" id="n-leitura">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg><span>Leitura</span></button>
-  <button class="nb" onclick="go('taverna')" id="n-taverna">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h11v11a2 2 0 01-2 2H7a2 2 0 01-2-2z"/><path d="M16 11h2a2 2 0 012 2v2a2 2 0 01-2 2h-2"/><path d="M6 8c0-3 2-4 4-4 1-1 4-1 5 1 1.5 0 2 1.5 1 3"/></svg><span>Taverna</span></button>
-  <button class="nb" onclick="go('mundo')" id="n-mundo" style="display:none">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V10l7-6 7 6v11"/><path d="M9 21v-6h6v6M3 10h18"/></svg><span>Mundo</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
@@ -2356,13 +2159,6 @@ body.dens-compact .gap{margin-bottom:14px}
 <!-- ════════════════ EVOLUÇÃO ════════════════ -->
 <section class="page" id="page-evolucao">
   <h1>Evolução Pessoal</h1><p class="psub">Modo Caverna e metas anuais</p>
-  <div class="evo-estilos" role="group" aria-label="Estilo desta página">
-    <span>Estilo da página:</span>
-    <button data-v="original" onclick="aplicarEstiloEvo('original')">Original</button>
-    <button data-v="pergaminho" onclick="aplicarEstiloEvo('pergaminho')">Pergaminho</button>
-    <button data-v="masmorra" onclick="aplicarEstiloEvo('masmorra')">Masmorra</button>
-    <button data-v="16bit" onclick="aplicarEstiloEvo('16bit')">16-bit</button>
-  </div>
 
   <div class="card gap" id="cv-hero"></div>
   <div class="cv-metas gap" id="cv-metas"></div>
@@ -2378,61 +2174,6 @@ body.dens-compact .gap{margin-bottom:14px}
     <button class="btn btn-p btn-sm" onclick="addMetaAnual()">+ Adicionar meta</button>
   </div>
   <div class="card"><h2>Minhas metas de <span id="ano-atual"></span></h2><div id="lista-ma"></div></div>
-</section>
-
-
-<!-- ════════════════ MUNDO ════════════════ -->
-<!-- MAPA DO REINO: só aparece dentro do Livro do Reino (não tem aba própria) -->
-<section class="page" id="page-mapa">
-  <h1>Mapa do Reino</h1><p class="psub">Escolha uma sala: "Ir" leva a câmera até ela; "Abrir" abre a função do dono.</p>
-  <div class="card" id="mundo-mapa-lista"></div>
-</section>
-
-<section class="page" id="page-mundo">
-  <div class="mundo-moldura">
-    <div id="mundo-jogo" class="mundo-jogo"></div>
-    <div class="mundo-hud" id="mundo-hud">
-      <button class="mh-retrato" onclick="mundoFicha()" aria-label="Ficha do Rei"><img id="mh-img" alt=""></button>
-      <div class="mh-info"><b id="mh-titulo">Nível 1 · Recruta</b><div class="mh-xp" aria-hidden="true"><i id="mh-xp"></i></div><span id="mh-dia"></span></div>
-      <div class="mh-relogio" id="mh-relogio"></div>
-      <button class="mh-seguir" id="mh-seguir" onclick="mundoSeguir()" aria-pressed="false">Seguir o Rei</button>
-    </div>
-    <canvas class="mundo-minimapa" id="mundo-minimapa" width="168" height="104" role="img" aria-label="Minimapa do castelo: toque pra levar a câmera até lá"></canvas>
-    <button class="mundo-livro-btn" id="mundo-btn-livro" onclick="mundoAbrirJanela('livro')" aria-label="Abrir o Livro do Reino" title="Livro do Reino"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="0" width="14" height="16" fill="#2a0e0c"/><rect x="3" y="2" width="11" height="13" fill="#d9c79a"/><rect x="2" y="1" width="11" height="13" fill="#8a2a22"/><rect x="2" y="1" width="2" height="13" fill="#5a1a14"/><rect x="4" y="1" width="9" height="1" fill="#a8392e"/><rect x="11" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="2" width="1" height="1" fill="#e2b24c"/><rect x="12" y="3" width="1" height="1" fill="#e2b24c"/><rect x="11" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="12" width="1" height="1" fill="#e2b24c"/><rect x="12" y="11" width="1" height="1" fill="#e2b24c"/><rect x="2" y="4" width="1" height="1" fill="#e2b24c"/><rect x="3" y="4" width="1" height="1" fill="#e2b24c"/><rect x="2" y="10" width="1" height="1" fill="#e2b24c"/><rect x="3" y="10" width="1" height="1" fill="#e2b24c"/><rect x="8" y="5" width="1" height="1" fill="#e2b24c"/><rect x="7" y="6" width="1" height="1" fill="#e2b24c"/><rect x="9" y="6" width="1" height="1" fill="#e2b24c"/><rect x="6" y="7" width="1" height="1" fill="#e2b24c"/><rect x="10" y="7" width="1" height="1" fill="#e2b24c"/><rect x="7" y="8" width="1" height="1" fill="#e2b24c"/><rect x="9" y="8" width="1" height="1" fill="#e2b24c"/><rect x="8" y="9" width="1" height="1" fill="#e2b24c"/><rect x="8" y="7" width="1" height="1" fill="#f5d46a"/></svg></button>
-    <div class="mundo-aviso" id="mundo-aviso" hidden>
-      <p>O Mundo não carregou (sem internet ou o servidor do jogo fora do ar).</p>
-      <button class="btn btn-p" onclick="go('home')">Usar o modo clássico</button>
-    </div>
-    <div class="mundo-ficha" id="mundo-ficha" hidden role="dialog" aria-labelledby="mundo-ficha-titulo">
-      <button class="mj-fechar" onclick="mundoFicha(false)" aria-label="Fechar">×</button>
-      <div id="mundo-ficha-corpo"></div>
-    </div>
-    <div class="mundo-janela" id="mundo-janela" hidden onclick="if (event.target === this) mundoFecharJanela()">
-      <div class="mj-painel" role="dialog" aria-modal="true" aria-labelledby="mundo-janela-titulo">
-        <div class="mj-capa" id="mundo-janela-capa" hidden aria-hidden="true"><span>Livro do Reino</span></div>
-        <div class="mj-topo">
-          <img class="mj-retrato" id="mundo-janela-retrato" alt="" hidden>
-          <h2 id="mundo-janela-titulo"></h2>
-          <span class="mj-dono" id="mundo-janela-dono"></span>
-          <div class="mj-abas" id="mundo-janela-abas" role="tablist"></div>
-          <button class="mj-fechar" id="mundo-janela-fechar" onclick="mundoFecharJanela()" aria-label="Fechar">×</button>
-        </div>
-        <div class="mj-fala" id="mundo-janela-fala"></div>
-        <div class="mj-status" id="mundo-janela-status"></div>
-        <div class="mj-corpo" id="mundo-janela-corpo"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════ TAVERNA ════════════════ -->
-<section class="page" id="page-taverna">
-  <h1>Taverna</h1><p class="psub">Seus agentes vivem aqui. Toque num personagem pra ver o que ele fez.</p>
-  <button class="btn btn-p" id="tv-btn-mundo" onclick="go('mundo')" style="margin:-18px 0 22px">Entrar no Mundo</button>
-  <div class="tv-cena gap" id="tv-cena"><div class="tv-mapa"><canvas id="tv-canvas" width="320" height="240" role="img" aria-label="Taverna vista de cima com os agentes andando"></canvas><div class="tv-falas" id="tv-falas" aria-live="polite"></div></div></div>
-  <div class="card gap" id="tv-quadro" hidden></div>
-  <div class="card gap" id="tv-cronica"></div>
-  <div class="card gap" id="tv-painel"></div>
 </section>
 
 <!-- ════════════════ LEITURA ════════════════ -->
@@ -3025,7 +2766,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3163,7 +2904,6 @@ window.addEventListener('resize', () => {
 });
 
 function go(p) {
-  if (_mjAberta) mundoFecharJanela(true);
   document.querySelectorAll('.page').forEach(x => x.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(x => x.classList.remove('on'));
   $('page-' + p).classList.add('on');
@@ -3175,20 +2915,17 @@ function go(p) {
 
   if (p === 'home')     { safeCall(startParticleLoop, 'startParticleLoop'); }
   else { safeCall(stopParticleLoop, 'stopParticleLoop'); }
-  if (p === 'mundo') { safeCall(abrirMundo, 'abrirMundo'); } else if (window.MundoTracker) window.MundoTracker.pausar();
   renderAba(p);
 }
 
-// render de cada aba — usado pelo go() e pela janela do Mundo
+// render de cada aba — usado pelo go()
 function renderAba(p) {
-  if (p === 'mapa')     { safeCall(mundoRenderMapa, 'mundoRenderMapa'); }
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
-  if (p === 'taverna')  { safeCall(renderTaverna, 'renderTaverna'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -4117,7 +3854,7 @@ function delMetaAnual(id) { save('metas_a', load('metas_a', []).filter(m => m.id
 // Os agentes continuam atualizando `contadores` em metas_a e marcando a meta como concluída;
 // o alvo vem de lá (assim, se o Eduardo mudar o alvo, a seção acompanha).
 // Gamificação (05/10/2026): classe (maior atributo), título (nível), conquistas, cerimônia de nível,
-// fogo de sequência com escudos (1 por semana perfeita, máx. 3), NPCs em pixel e tela final.
+// fogo de sequência com escudos (1 por semana perfeita, máx. 3), falas dos agentes e tela final.
 const CV_INI = '2026-10-21', CV_FIM = '2026-12-31', CV_TELA_FINAL = '2026-12-30';
 const _cvDia = d => d.slice(0, 10);
 const _cvNaJanela = d => d && d >= CV_INI && d <= CV_FIM && d <= today();   // evento futuro marcado por engano não conta
@@ -4160,43 +3897,21 @@ function _cvDatas() {
   }
 }
 
-// ── Pixel art ──
-// Bonecos 20x28 estilo RPG medieval (contorno, sombra, objetos) (agentes + uma versão do Eduardo por classe), fonte: Projetos/Tracker/Pixel Art/sprites.py
-const PX_COR = {"S": "#f2c49b", "s": "#d9a07a", "z": "#b07a55", "k": "#1b1d24", "H": "#6b4226", "h": "#4a2c18", "A": "#e2e5ea", "a": "#a9aeb8", "R": "#e05252", "r": "#b33a3a", "x": "#7a2424", "B": "#4a7fe0", "b": "#3561b8", "N": "#33467a", "m": "#253358", "M": "#1a2440", "W": "#f4f4f4", "w": "#cfd3da", "v": "#a3a9b3", "Y": "#f5c542", "y": "#c99a1f", "G": "#4f9a63", "g": "#3a7a4c", "L": "#8a5a32", "l": "#6a4122", "o": "#3e2614", "O": "#e88a3a", "p": "#b0662a", "E": "#c4c9d2", "e": "#949aa6", "t": "#6b717d", "D": "#3a3f4c", "d": "#2a2e38", "P": "#7b5cc9", "i": "#5a3fa0", "u": "#3e2a78", "c": "#c2404a", "f": "#eb9a9a", "T": "#e8d5a3", "j": "#c4ad78", "K": "#140f18", "Q": "rgba(0,0,0,.35)", "C": "#8fd3ff"};
-const PX_SPR = {
-  'Friday': ["....................", "....................", ".......KKKKKK.......", "......KyYYYYyK......", ".....KyYYYYYYyK.....", "....KyYYYYYYYYyK....", "....KyYSSSSSSYyK....", "....KySSkSSkSSyK....", "....KySSSSSSSSyK....", "....KySSSccSSSyK....", "....KyYsSSSSsYyK....", "....KyYKssssKYyK....", "....KyYKBBBBKYyK....", ".....KBBBYYBBBK.....", "....KBBBBYYBBBBK....", "...KBBBBBYYBBBBBK...", "...KBbBBBYYBBBbBK...", "...KSbBTTTTTTBbSK...", "...KbBBTjTTjTBBbK...", "....KBBBYYYYBBBK....", "....KBBBBBBBBBBK....", "...KBBBBBBBBBBBBK...", "...KbBBBBBBBBBBbK...", "...KbbbbbbbbbbbbK...", "....KKooKKKKooKK....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
-  'Arauto': ["....................", "....................", "............KK......", "......KKKKKKWWK.....", ".....KRRRRRRWK......", "....KRRRRRRRRRK.....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "......KKssssKK......", ".....KRRRYYYYYK.....", "....KRRRRYYYYYYK....", "...KRRRRRYYYYYYYKK..", "...KYYYYYRRRRRRSKYK.", "...KSYYYYRRRRRRYYYK.", "....KYYYYRRRRRRKYRK.", ".....KyyyyyyyyK.KK..", "......KDDDKDDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Tesoureiro': ["....................", "....................", "....................", ".......KKKKKK.......", "......KhHHHHhK......", ".....KhHHHHHHhK.....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", "....KsSHHzzHHSsK....", ".....KsSSSSSSsK.....", ".....KKsssssKKK.....", "....KGGGYYYYGGGKK...", "...KGGGGGYYGGGGGyK..", "..KGGGGGGYYGGGGGGYK.", "..KGGGGGGGGGGGGGGK..", "..KSgGGGGGGGGGgSLK..", "...KgGGGGGGGGGgLYLK.", "...KgYYYYYYYYYgLLLK.", "....KgGGGGGGGgKKKK..", ".....KKDDDKDDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Escrivão': ["....................", "....................", "....................", ".......KKKKKK.......", "......KaAAAAaK......", ".....KaAAAAAAaK.....", "....KaAAAAAAAAaK....", "....KaSSSSSSSSaK....", "....KaEkESSEkEaK....", "....KaSSSSSSSSaK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "......KKssssKK......", ".....KLLWWWWLLK.....", "....KLLLWWWWLLLK....", "...KLLLLLLLLLLLLK...", "...KLLLLLLLLLLLLK...", "...KSLLLLLLLLLLSWK..", "...KlLLLLLLLLLLlWK..", "...KlYYYYYYYYYYlK...", "...KlLLLLLLLLLLlK...", "...KlLLLLLLLLLLlK...", "...KllLLLLLLLLllK...", "....KllllllllllK....", ".....KooKKKKooK.....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
-  'Kobe': ["....................", "....................", ".......KKKKKK.......", "......KdDDDDdK......", ".....KdDDDDDDdK.....", "....KdDDDDDDDDdK....", "....KdDhSSSShDdK....", "....KdDSkSSkSDdK....", "....KdDSSSSSSDdK....", "....KdDkkkkkkDdK....", "....KdDkkkkkkDdK....", ".....KdDDDDDDdK.....", "....KdDDDDDDDDdK....", "...KdDDDDLLDDDDdK...", "...KDDDDLLDDDDDDK...", "...KDDDLLDDDDDDDK...", "...KSDLLDDDDDDDSEK..", "...KdDDDDDDDDDDdK...", "...KdLLLLLLLLLLdK...", "....KdDDDDDDDDdK....", ".....KKDDdKdDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KdddKdddK.....", ".....KooooKooooK....", "......KKKK.KKKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
-  'Jefrey': ["................K...", "...............KeK..", "...............KEK..", ".......KKKKKK..KEK..", "......KhHHHHhK.KEK..", ".....KhHHHHHHhKKEK..", "....KhHHHHHHHHhKEK..", "....KhHhhSShhHhKEK..", "....KhSSkSSkSShKEK..", "....KHSSSSSSrSHKEK..", "....KHHSSzzSrHHKEK..", ".....KHHHHHHHHKKEK..", "...KKKKhHHHHhKKKEK..", "..KxEEtLLLLLLLlKEK..", "..KxeEtLLLyLLLlKEK..", ".KrxSSlLLLyLLLlyYyK.", ".KrxSSlLLLyLLLlSSK..", ".KrxzzKYYYYYYYKLLK..", ".KrxKKKLLLLLLLKKxK..", ".KrxK.KlLLlLLlKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KDDdKdDDKKxK..", ".KrxK.KlLlKlLlKKxK..", "..KxKKolllKllloKxK..", "...K.KooooKooooKK...", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Mônica': ["................KWK.", "................KWK.", ".......KKKKKK..KWWK.", "......KwWWWWwK.KWwK.", ".....KwWWWWWWwKwKK..", "....KwWWWWWWWWwkK...", "....KwWhHHHhhWwK....", "....KwWShSSShWwK....", "....KwWSkSSkSWwK....", "....KwWSSSSSSWwK....", "....KwWSSccSSWwK....", ".....KwWsSSsWwK.....", "......KwWWWWwK......", ".....KNNNYYNNNK.....", "....KNNNNNNNNNNK....", "...KNNNNNNNNNNNNK...", "...KNmNNTjjTNNmNK...", "...KSSTTTRTTTTSSK...", "...KmNNNYYYYNNYmK...", "....KNNNNNNNNNyK....", "....KNNNNNNNNNNmK...", "...KNNNNNNNNNNNmK...", "...KmNNNNNNNNNNmK...", "...KmmmmmmmmmmmmK...", "....KKooKKKKooKK....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
-  'Maria': ["....................", "....................", "....................", ".......KKKKKK.......", "......KrRRRRrK......", ".....KrRRRRRRrK.....", "....KrRRWRRWRRrK....", "....KhHRRRRRRHhK....", "....KhSSkSSkSShK....", "....KhfShSShSfhK....", ".....KSSSzzSSSKKK...", "......KsSSSSsKKeeK..", "......KKssssKKKeEK..", ".....KGGWWWWGGKEK...", "....KGGGWWWWGGGEK...", "...KGGGGWWWWGGGSK...", "...KGGWWWWWWWWGGK...", "..KKSGWWWWWWWWGK....", ".KwKKGWWWWWWWWGK....", "KwKwKGWWWWWWWWGK....", "KKwKKGGWwwwwWGGK....", "kGGGGkGGGGGGGGGgK...", "dDDDDdGGGGGGGGGgK...", "dDDDDdggggggggggK...", "KddddKooKKKKooKK....", ".KKKKoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
-  'Mosley': ["....................", "....................", ".......KKKKKK.......", ".K....KlLLLLlK......", "KYK..KlLLLLLLlK.....", "YWYKKlLLLLLLLLlK....", "KWK.KlLaAAAAaLlK....", "KWK.KlLAASSAALlK....", "KwK.KlLSkSSkSLlK....", "yYyKKlLSSSSSSLlK....", "KKK.KlLAASSAALlK....", "....KlLAAAAAALlK.K..", "....KlLLAAAALLlKKyK.", "...KlLLLLAAALLLlKK..", "...KlLLLLLAALLLlYK..", "...KlLxRRRRRRxLlK...", "...KlSxRRYYRRxSlK...", "...KlLxRRRRRRxLlK...", "...KlLLYYYYYYLLlK...", "...KlLLLLLYLLLLlK...", "...KlLLLLLYLLLLlK...", "...KlLLLLLLLLLLlK...", "...KllLLLLLLLLllK...", "....KllllllllllK....", ".....KooKKKKooK.....", "....KoooK..KoooK....", ".....KKKQQQQKKK.....", ".......QQQQQQ......."],
-  'Andarilho': ["....................", "....................", "....................", ".......KKKKKK.......", "......KlLLLLlK......", ".....KlLLLLLLlK.....", "....KlLLLLLLLLlK....", "....KlLhSSSShLlK....", "....KlLSkSSkSLlK.K..", "....KlLSSSSSSLlKKkK.", "....KllsSzzSsllKtYtK", ".....KlLsSSsLlKKYWYK", "....KlLLLssLLLlKtYtK", "..KKlLLLLLLLLLLlKLK.", ".KlKlLLoLLLLoLLlKLK.", ".KlKlLLoLLLLoLLlSLK.", ".KlKlLLLLLLLLLLlKLK.", ".KlKllLLLLLLLLllKLK.", ".KlKllLLLYYLLLllKLK.", ".KlKKllLLLLLLllKKLK.", ".KlK.KlllllllKK.KLK.", ".KlK..KDDdKdDDK.KLK.", "..KlK.KDDdKdDDK.KLK.", "...K..KDDdKdDDK.KLK.", "......KoooKoooK.KLK.", ".....KooooKooooK.K..", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Guerreiro': ["........KRRKK.......", ".........KRRrK......", "..........KRrK......", ".......KKKKKK.......", "......KeEEEEeK......", ".....KeEEEEEEeK..K..", "....KtEEEEEEEEtKKeK.", "....KtESSSSSSEtKKEK.", "....KtSSkSSkSStKKEK.", "....KtSSSSSSSStKKEK.", ".....KsSSzzSSsK.KEK.", "......KsSSSSsK..KEK.", "...K.KKKtttKKKK.KEK.", ".KKxKeEEEEEEEEeKKEK.", "KeEEEeEEEeeEEEEeKEK.", "KERYREEEEeeEEEEeSEK.", "KEYYYEEEEeeEEEEeKyK.", "KERYREEEEEEEEEeKxK..", ".KEREKYYYYYYYYKKxK..", "..KEKKeEEeeEEeKKxK..", "...K..KEEeKeEEKKxK..", "......KEEeKeEEKKxK..", "......KeEeKeEeKKxK..", "......KtEtKtEtKKxK..", ".....KttteKetttKxK..", ".....KttttKttttKK...", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Acrobata': [".....KBK.KYK.KRK....", "......K...K...K.....", "....K..........K....", "...KYK........KYK...", "...KRRKK.KK.KKGGK...", "....KRRRKYYKGGGK....", ".....KRRRRGGGGK.....", "....KyRRRRGGGGyK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "....KKYWYWYWYWKK....", "...KSKRRRRGGGGKSK...", "...KsRRRRRGGGGGsK...", "...KsRRRYRGYGGGsK...", "....KRRRRRGGGGGK....", ".....KRRRRGGGGK.....", ".....KYYYYYYYYK.....", ".....KRRRRGGGGK.....", ".....KRRRKKGGGK.....", ".....KRRRKKGGGK.....", ".....KrRRKKGGgK.....", ".....KGGGKKRRRK.....", "....KGGGYKKYRRRK....", ".....KKKK..KKKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
-  'Monge': ["....................", ".......KKKKKK.......", ".....KKYYYYYYKK.....", "....KYKKKKKKKKYK....", ".....KKsSSSSsKK.....", ".....KHsSSSSsHK..K..", "..K.KhHHSSSSHHhKKYK.", ".KYKKhHSSSSSSHhK.K..", "..K.KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK....K.", ".K...KDDdssdDDK..KyK", "KyK.KDDDDDDDDDDK..K.", ".K.KDDDDDxDDDDDDK...", "...KDDDDDSSDDDDdK...", "...KDDDDSSSSDDDdK...", "...KdDDDDxDDDDddK...", "...KdYYYYYYYYYYdK...", "...KdDDDDYDDDDDdK...", "...KdDDDDYDDDDDdK...", "...KdDDDDDDDDDDdK...", "...KddDDDDDDDDddK...", "....KddddddddddK....", ".....KKLLKKLLKK.....", ".....KLLLKKLLLK.....", "......KKKQQKKK......", ".......QQQQQQ......."],
-  'Sábio': ["....................", "..........KK........", ".........KuuK.......", "........KuPuK.......", ".K...K.KuPPiK.......", "KWKKKWKuPPPPiKKK....", ".KKCiiiiiiiiiiiiK...", ".KCWChHSSSSSSHhK....", "KKCCChSSkSSkSShK....", "WKKBKsSSSSSSSSsK....", "K.KYYKsSSzzSSsK.....", "..KYYKKsSSSSsK......", "...KLKKKssssKK......", "...KLKPPPPPPPPK.....", "...KLPPPiPPiPPPK....", "...KSPPPPiiPPPPPK...", "...KLPPPPYYPPPPSK...", "...KLiPPPPPPPPiK....", "...KLiPPPPPPPPPiK...", "...KLiPPPPPPPYPiK...", "...KLiiPPPPPPPiiK...", "...KLuiiYPPPPiiuK...", "...KLuuuuuuuuuuuK...", "...KLKKooKKKooKK....", "...KLKoooK.KoooK....", "....K.KKK...KKK.....", "......QQQQQQQQ......", ".......QQQQQQ......."],
-  'Nobre': ["....................", "....................", "............K.......", "......KKKKKKWKK.....", ".....KxRYRRRRWwK....", "....KxRRRRRRRRxK....", "....KhHHHHHHHHhK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShK....", "....KsSSSSSSSSsK....", ".....KsSSzzSSsK.....", "......KsSSSSsK......", "....KKMWWWWWWMKK....", "...KMMRRRYYRRRMMK...", "...KMNRRRYYRRRNMK...", "...KMNRRRYYRRRNMKK..", "...KMNSRRYYRRSNMKYK.", "...KMNNYYYYYYNNMKEK.", "...KMNKRRRRRRKNMKEK.", "...KMNKWWWKWWWKNMEK.", "...KMMKWWwKwWWKMMEK.", "...KMMKWWwKwWWKMMEK.", "....KMKWWwKwWWKMKEK.", ".....KKWWwKwWWKKKeK.", "......KoooKoooK..K..", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-  'Chef': ["....................", "....................", "....................", ".......KKKKKK.......", "......KTTTTTTK......", ".....KTTTTTTTjK.....", "....KjTTTTTTTTjK....", "....KhHSSSSSSHhK....", "....KhSSkSSkSShKK...", "....KsSSSSSSSSsKwK..", ".....KsSSzzSSsKKKK..", "......KsSSSSsKKwKwK.", "......KKssssKKWWKK..", ".....KLLWWWWLLOpK...", "....KLLLWWWWLLOOpK..", "...KLLLWWWWWWLSpK...", "...KLLWWWWWWWWLLK...", "...KSLWWWWWWWWLK....", "....KLWWWWWWWWLK....", "....KLwWWWWWWwLK....", ".....KKDDdKdDDK.....", "......KDDdKdDDK.....", "......KDDdKdDDK.....", "......KlLlKlLlK.....", ".....KolllKllloK....", ".....KooooKooooK....", "......KKKKQKKKK.....", ".......QQQQQQ......."],
-};
-function _px(mapa, cores) {
-  let r = '';
-  mapa.forEach((linha, y) => [...linha].forEach((c, x) => { if (c !== '.') r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${cores[c]}"/>`; }));
-  return r;
-}
-const pxSvg = (mapa, w, cores = PX_COR, cls = '') =>
-  `<svg class="px ${cls}" viewBox="0 0 ${mapa[0].length} ${mapa.length}" width="${w}" shape-rendering="crispEdges" aria-hidden="true">${_px(mapa, cores)}</svg>`;
+// ── Visual (10/10/2026: saiu a pixel art, entrou o visual esportivo — anéis, números grandes, cor por atributo) ──
+const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Cozinha: 'var(--c-cozinha)' };
+const _cvCorClasse = classe => CV_COR[Object.keys(CV_CLASSES).find(k => CV_CLASSES[k] === classe)] || 'var(--c-neutro)';
+// arco de progresso: círculo com pathLength 100, o traço é a fração
+const _cvArco = (r, frac, cor) => `<circle class="trilho" cx="50%" cy="50%" r="${r}"${cor ? ` style="stroke:color-mix(in srgb,${cor} 16%,transparent)"` : ''}/>` +
+  (frac > 0 ? `<circle class="arco" cx="50%" cy="50%" r="${r}" pathLength="100" stroke-dasharray="${Math.min(100, frac * 100).toFixed(1)} 100"${cor ? ` style="stroke:${cor}"` : ''}/>` : '');
 
 const NPCS = {
-  Jefrey: { papel: 'Mestre de armas', mapa: PX_SPR['Jefrey'],
+  Jefrey: { papel: 'Mestre de armas',
     falas: { antes: 'Dia 21 começa. Até lá, dorme cedo e chega inteiro.', frente: 'Tá voando. Mantém a técnica, não só o volume.', ritmo: 'No ritmo. É assim que se constrói.', atras: 'Ficou pra trás, mas dá pra tirar. Amanhã, sem desculpa.', feito: 'Meta batida. Agora é manter.' } },
-  'Mônica': { papel: 'Escriba', mapa: PX_SPR['Mônica'],
+  'Mônica': { papel: 'Escriba',
     falas: { antes: 'Sua agenda nova já começa em 21/10. Eu cuido dos horários.', frente: 'Adiantado. Vou anotar isso com orgulho.', ritmo: 'Tudo em dia na agenda.', atras: 'Reorganizei a semana. Só aparece no horário.', feito: 'Meta concluída, já registrei.' } },
-  Maria: { papel: 'Cozinheira', mapa: PX_SPR['Maria'],
+  Maria: { papel: 'Cozinheira',
     falas: { antes: 'Separa o avental, dia 21 a gente começa.', frente: 'Tá cozinhando mais que eu, menino!', ritmo: 'Do jeitinho que eu gosto.', atras: 'A panela tá fria... bora uma receita fácil hoje?', feito: 'Trinta receitas! Já pode me substituir.' } },
-  Mosley: { papel: 'Monge bibliotecário', mapa: PX_SPR['Mosley'],
+  Mosley: { papel: 'Monge bibliotecário',
     falas: { antes: 'Sua estante já está pronta. Escolha o primeiro.', frente: 'Lendo acima do ritmo. Admirável.', ritmo: 'Página por página, como deve ser.', atras: 'Um capítulo por manhã resolve. Sem pressa, sem pausa.', feito: 'Quatro livros. Nada mal para um homem de ação.' } },
 };
 // Fala escrita pelo agente na rotina dele (`npc_falas[<meta>] = {agente, texto, em}`) vale por 8 dias; senão, a padrão pelo ritmo
@@ -4205,28 +3920,23 @@ function _npcFala(chave, agente, status) {
   if (f && f.texto && f.em && (Date.parse(today()) - Date.parse(f.em)) <= 8 * 864e5) return f.texto;
   return NPCS[agente].falas[status];
 }
-const _npcHtml = (agente, fala, w = 36) =>
-  `<div class="cv-npc">${pxSvg(NPCS[agente].mapa, w)}<div class="cv-balao"><small>${agente} · ${NPCS[agente].papel}</small>${_escH(fala)}</div></div>`;
+const _npcHtml = (agente, fala, cor = 'var(--text2)') =>
+  `<div class="cv-fala" style="--cor:${cor}"><span class="cv-av" aria-hidden="true">${agente[0]}</span><div><small>${agente}, ${NPCS[agente].papel.toLowerCase()}</small>${_escH(fala)}</div></div>`;
 
-const FOGO_F = [
-  ['...o....', '..oo....', '..ooo.o.', '.oooooo.', '.ooyyooo', 'oooyyyoo', 'ooyyyyoo', 'ooyywyyo', '.oywwyo.', '..oooo..'],
-  ['....o...', '...oo...', '.o.ooo..', '.oooooo.', 'oooyyoo.', 'ooyyyooo', 'ooyyyyoo', 'oyywyyoo', '.oywwyo.', '..oooo..'],
-  ['..o.....', '..oo..o.', '..ooo.o.', '.ooooooo', '.oooyyoo', 'ooyyyyoo', 'ooyyyyoo', 'ooyywwyo', '.oywwyo.', '..oooo..'],
-];
-const FOGO_COR = { laranja: { o:'#f97316', y:'#fbbf24', w:'#fff7c2' }, azul: { o:'#3b82f6', y:'#93c5fd', w:'#e0f2fe' }, cinza: { o:'#3a3f4c', y:'#4b5160', w:'#5d6475' } };
 function fogoHtml(seq) {
-  const cor = !seq ? 'cinza' : seq >= 21 ? 'azul' : 'laranja';
-  const tam = !seq ? 26 : seq < 3 ? 30 : seq < 7 ? 38 : seq < 21 ? 46 : 54;
-  return `<span class="fogo${seq ? ' vivo' : ''}" style="width:${tam}px" role="img" aria-label="Fogo da sequência: ${seq} dias">${FOGO_F.map((f, i) =>
-    `<svg class="px fogo-f f${i}" viewBox="0 0 8 10" shape-rendering="crispEdges" aria-hidden="true">${_px(f, FOGO_COR[cor])}</svg>`).join('')}</span>`;
+  const cor = !seq ? '#3a3f4c' : seq >= 21 ? '#5aa9ff' : '#ff8a1f', miolo = !seq ? '#4b5160' : seq >= 21 ? '#d6ecff' : '#ffd166';
+  const tam = !seq ? 30 : seq < 3 ? 34 : seq < 7 ? 40 : seq < 21 ? 46 : 52;
+  return `<svg class="fogo${seq ? ' vivo' : ''}" width="${tam}" height="${Math.round(tam * 1.25)}" viewBox="0 0 24 30" role="img" aria-label="Sequência: ${seq} dias">
+    <path fill="${cor}" d="M12 0c1.2 4.6 6.4 7.6 8.6 12.6 2.6 6-.6 15.4-8.6 17.4C4 28-1 21.6 1.4 14.6 2.6 11 5 9.4 5.6 6c2 1.6 2.6 3.8 2.6 5.8C10.6 9 12.6 5 12 0z"/>
+    <path fill="${miolo}" d="M12.4 13c.6 2.6 3.6 4.2 4 7.2.6 4.2-2 7.2-4.6 7.4-3.2.2-5.6-2.6-5-5.8.4-2 1.8-2.8 2.2-4.8 1 .8 1.4 2 1.4 3 1.4-1.6 2.4-4.2 2-7z"/></svg>`;
 }
-const ESCUDO = ['dddddddd', 'dbbbbbbd', 'dbwbbbbd', 'dbwbbbbd', 'dbbbbbbd', '.dbbbbd.', '.dbbbbd.', '..dbbd..', '...dd...'];
-const escudoHtml = (w, apagado) => pxSvg(ESCUDO, w, apagado ? { d:'#2a2f3a', b:'#1f232c', w:'#2a2f3a' } : { d:'#1e3a8a', b:'#60a5fa', w:'#dbeafe' });
-const MEDALHA = ['.bb..bb.', '..bbbb..', '..cccc..', '.cyyyyc.', 'cyywyyyc', 'cyyyyyyc', '.cyyyyc.', '..cccc..'];
-const MEDALHA_COR = {
-  bronze: { b:'#d94848', c:'#7a4a1e', y:'#cd7f32', w:'#f0c08a' }, prata: { b:'#3b6fd8', c:'#6b7280', y:'#c0c6d0', w:'#f3f4f6' },
-  ouro: { b:'#22a06b', c:'#a16207', y:'#f5c542', w:'#fff3b0' }, off: { b:'#2a2f3a', c:'#1f232c', y:'#2a2f3a', w:'#2a2f3a' },
-};
+const _cvEscudo = cheio => `<svg width="16" height="19" viewBox="0 0 16 19" aria-hidden="true"><path d="M8 1 1.5 3.5v5.2c0 4.2 2.8 7.8 6.5 9.3 3.7-1.5 6.5-5.1 6.5-9.3V3.5z" fill="${cheio ? '#3d9bff' : 'none'}" stroke="${cheio ? '#3d9bff' : '#2f3542'}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+const MEDALHA_COR = { bronze: 'var(--bronze)', prata: 'var(--prata)', ouro: 'var(--ouro)' };
+function _cvMedalha(c, w = 34) {
+  const cor = c.ok ? MEDALHA_COR[c.tier] : '#2f3542';
+  return `<svg width="${w}" height="${w}" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="15" fill="${c.ok ? `color-mix(in srgb,${cor} 16%,transparent)` : 'none'}" stroke="${cor}" stroke-width="2"${c.ok ? '' : ' stroke-dasharray="3 3"'}/>
+    <path d="m17 9 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.6-4.8 2.6.9-5.4-3.9-3.8 5.4-.8z" fill="${cor}"/></svg>`;
+}
 
 // ── Regras do jogo ──
 const CV_XP_NIVEL = 250;
@@ -4266,7 +3976,7 @@ function _cvRitmo(feitas, alvo, decorridos, total, un) {
   if (!decorridos) return 'Começa em 21/10.';
   const esperado = Math.round(alvo * decorridos / total);
   const dif = feitas - esperado;
-  return `Esperado até hoje: <b>${esperado}</b> ${un} · ${dif === 0 ? '<b>no ritmo</b>' : dif > 0 ? `<b>${dif} à frente</b>` : `<b>${-dif} atrás</b>`}`;
+  return `Esperado até hoje: <b>${esperado}</b> ${un} · ${dif === 0 ? '<b>no ritmo</b>' : dif > 0 ? `<b class="frente">${dif} à frente</b>` : `<b class="atras">${-dif} atrás</b>`}`;
 }
 function _cvGrade(dias, porDia) {
   const hoje = today(), cont = {};
@@ -4358,18 +4068,7 @@ function _cvStats() {
   return st;
 }
 
-function _cvMedalha(c, w = 32) { return pxSvg(MEDALHA, w, MEDALHA_COR[c.ok ? c.tier : 'off']); }
-
-// Teste de estilo da aba Evolução (e da cerimônia): original | pergaminho | masmorra | 16bit — sincroniza como as outras chaves
-function aplicarEstiloEvo(v) {
-  if (v) save('evo_estilo', v);
-  const e = load('evo_estilo', 'masmorra');   // Masmorra escolhida pelo Eduardo em 05/10/2026
-  ['page-evolucao', 'modal-cv'].forEach(id => { const el = $(id); if (!el) return; if (e === 'original') delete el.dataset.rpg; else el.dataset.rpg = e; });
-  document.querySelectorAll('.evo-estilos button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === e)));
-}
-
 function renderCaverna() {
-  aplicarEstiloEvo();
   const hero = $('cv-hero'), metasEl = $('cv-metas'), conqEl = $('cv-conq');
   if (!hero) return;
   const st = _cvStats();
@@ -4378,12 +4077,18 @@ function renderCaverna() {
   const xpNoNivel = st.xp % CV_XP_NIVEL;
   const diaAtual = Math.min(st.decorridos, total);
 
+  // anéis de fora pra dentro na ordem dos atributos (Corpo por fora)
+  const aneis = st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome])).join('');
   hero.innerHTML = `
     <div class="cv-hero">
-      <div class="cv-ovr">${pxSvg(PX_SPR[st.classe], 64, PX_COR, 'cv-eu')}<div><b>${st.overall}</b><span>Overall</span></div></div>
+      <div class="cv-aneis">
+        <svg viewBox="0 0 220 220" role="img" aria-label="Atributos: ${st.attr.map(a => `${a.nome} ${a.val}`).join(', ')}">${aneis}</svg>
+        <div class="cv-ovr"><b class="ev-num">${st.overall}</b><span>Overall</span></div>
+      </div>
       <div>
-        <div class="cv-id"><span class="cv-tag cls">Classe: <b>${st.classe}</b></span><span class="cv-tag">Título: <b>${st.titulo}</b></span>${prox ? `<span class="cv-tag">Próximo: ${prox[1]} no nível ${prox[0]}</span>` : ''}</div>
-        <div class="cv-lv"><span><strong>Nível ${st.nivel}</strong></span><span>${xpNoNivel} / ${CV_XP_NIVEL} XP</span></div>
+        <div class="cv-lv"><b class="ev-num"><small>Nível</small>${st.nivel}</b></div>
+        <div class="cv-id"><span class="cv-tag cls" style="--cor:${_cvCorClasse(st.classe)}">Classe <b>${st.classe}</b></span><span class="cv-tag">Título <b>${st.titulo}</b></span>${prox ? `<span class="cv-tag">${prox[1]} no nível ${prox[0]}</span>` : ''}</div>
+        <div class="cv-xp"><span>XP do nível</span><span>${xpNoNivel} / ${CV_XP_NIVEL}</span></div>
         <div class="cv-bar" role="progressbar" aria-label="XP do nível" aria-valuenow="${xpNoNivel}" aria-valuemin="0" aria-valuemax="${CV_XP_NIVEL}"><i style="width:${xpNoNivel / CV_XP_NIVEL * 100}%"></i></div>
         <div class="cv-chips">
           <span>${diaAtual ? `Dia <b>${diaAtual}</b> de ${total}` : 'Começa em <b>21/10</b>'}</span>
@@ -4393,34 +4098,32 @@ function renderCaverna() {
         </div>
       </div>
       <div class="cv-seq">
-        ${fogoHtml(st.seq.atual)}
-        <div class="cv-seq-num"><b>${st.seq.atual}</b><span>dia${st.seq.atual === 1 ? '' : 's'} seguidos</span></div>
-        <div class="cv-escudos" title="Escudos: cada semana perfeita dá 1 (máx. 3) e ele salva a sequência num dia em branco">${escudoHtml(18, !st.seq.escudos)}<b>${st.seq.escudos}</b>/3</div>
+        <div class="cv-seq-top">${fogoHtml(st.seq.atual)}<b class="ev-num">${st.seq.atual}</b></div>
+        <span>dia${st.seq.atual === 1 ? '' : 's'} seguidos</span>
+        <div class="cv-escudos" title="Escudos: cada semana perfeita dá 1 (máx. 3) e ele salva a sequência num dia em branco" role="img" aria-label="${st.seq.escudos} de 3 escudos">${[0, 1, 2].map(i => _cvEscudo(i < st.seq.escudos)).join('')}</div>
       </div>
     </div>
-    <div class="cv-attrs">${st.attr.map(a => `
-      <div class="cv-attr"><span>${a.nome}</span><b>${a.val}</b>
-        <div class="cv-bar" role="progressbar" aria-label="${a.nome}" aria-valuenow="${a.val}" aria-valuemin="0" aria-valuemax="99"><i style="width:${a.frac * 100}%"></i></div>
-      </div>`).join('')}
+    <div class="cv-legenda">${st.attr.map(a => `
+      <div class="cv-attr" style="--cor:${CV_COR[a.nome]}"><span>${a.nome}</span><b class="ev-num">${a.val}</b></div>`).join('')}
     </div>`;
 
+  const mini = (frac, txt) => `<div class="cv-mini"><svg viewBox="0 0 58 58" aria-hidden="true">${_cvArco(25, frac)}</svg><em>${txt}</em></div>`;
   metasEl.innerHTML = st.linhas.map(({ m, frac, p, dias, alvo, extra }) => {
-    const status = _cvStatus(frac, st.decorridos, total);
-    const npc = _npcHtml(m.npc, _npcFala(m.chave, m.npc, status));
-    if (m.peso) return `<div class="card cv-meta">
+    const status = _cvStatus(frac, st.decorridos, total), cor = CV_COR[m.attr];
+    const pct = Math.round(frac * 100) + '%';
+    const npc = _npcHtml(m.npc, _npcFala(m.chave, m.npc, status), cor);
+    if (m.peso) return `<div class="card cv-meta" style="--cor:${cor}">
+        <div class="cv-meta-top">${mini(frac, pct)}<div><h3>Peso</h3><div class="cv-quem">${m.attr} · acompanhado pelo Jefrey</div></div></div>
+        <div class="cv-num"><b class="ev-num">${p ? String(p.atual).replace('.', ',') : '—'}</b><span>kg, meta ${m.alvoKg} kg</span></div>
+        <div class="cv-ritmo">${p ? `Saiu de <b>${String(p.base).replace('.', ',')} kg</b>, faltam <b>${Math.max(0, p.atual - m.alvoKg).toFixed(1).replace('.', ',')} kg</b>. Última pesagem ${_rcData(p.data)}.` : 'Sem pesagem registrada.'}</div>
         ${npc}
-        <h3>Peso</h3><div class="cv-quem">Acompanhado pelo Jefrey</div>
-        <div class="cv-num"><b>${p ? String(p.atual).replace('.', ',') : '—'}</b><span>kg · meta ${m.alvoKg} kg</span></div>
-        <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(frac * 100)}%"></i></div>
-        <div class="cv-ritmo">${p ? `Saiu de <b>${String(p.base).replace('.', ',')} kg</b> · faltam <b>${Math.max(0, p.atual - m.alvoKg).toFixed(1).replace('.', ',')} kg</b> · última pesagem ${_rcData(p.data)}` : 'Sem pesagem registrada.'}</div>
       </div>`;
-    return `<div class="card cv-meta">
-      ${npc}
-      <h3>${m.nome}</h3><div class="cv-quem">Acompanhado por ${m.quem || m.npc}</div>
-      <div class="cv-num"><b>${dias.length}</b><span>de ${alvo} ${m.un}</span></div>
-      <div class="cv-bar" aria-hidden="true"><i style="width:${Math.round(Math.min(1, dias.length / alvo) * 100)}%"></i></div>
-      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, st.decorridos, total, m.un)}${extra ? ` · cortes: <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
+    return `<div class="card cv-meta" style="--cor:${cor}">
+      <div class="cv-meta-top">${mini(frac, pct)}<div><h3>${m.nome}</h3><div class="cv-quem">${m.attr} · acompanhado por ${m.quem || m.npc}</div></div></div>
+      <div class="cv-num"><b class="ev-num">${dias.length}</b><span>de ${alvo} ${m.un}</span></div>
+      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, st.decorridos, total, m.un)}${extra ? ` · cortes <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
       ${_cvGrade(dias, extra ? 2 : 1)}
+      ${npc}
     </div>`;
   }).join('') + `
     <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, skincare 5, corte 20, receita 30, livro 100, kg perdido 50</div>`;
@@ -4430,8 +4133,8 @@ function renderCaverna() {
     <div class="cv-conq-grid">${st.conquistas.map(c => `
       <div class="cv-conq${c.ok ? '' : ' off'}">${_cvMedalha(c)}<div><b>${c.nome}</b><span>${c.ok ? c.desc : 'Bloqueada: ' + c.desc}</span></div></div>`).join('')}
     </div>
-    <h3 style="margin:18px 0 0">Títulos</h3>
-    <div class="cv-titulos">${CV_TITULOS.map(([lv, t]) => `<span class="cv-tag${st.nivel >= lv ? ' cls' : ''}">${t} · nível ${lv}</span>`).join('')}</div>`;
+    <h3 style="margin:22px 0 0">Títulos</h3>
+    <div class="cv-titulos">${CV_TITULOS.map(([lv, t]) => `<span class="cv-tag${st.nivel >= lv ? ' on' : ''}">${t}, nível ${lv}</span>`).join('')}</div>`;
 
   _cvCerimonia(st);
 }
@@ -4453,20 +4156,20 @@ function _cvCerimonia(st) {
   const tituloNovo = subiu && _cvTitulo(st.nivel) !== _cvTitulo(visto.nivel) ? _cvTitulo(st.nivel) : '';
   const npc = ['Jefrey', 'Mônica', 'Maria', 'Mosley'][st.nivel % 4];
   const fala = subiu ? `Nível ${st.nivel}! ${tituloNovo ? `Agora é ${tituloNovo}.` : 'Segue assim.'}` : 'Mais uma pra coleção. Bem feito.';
+  const corCls = _cvCorClasse(st.classe);
   $('cv-cer').innerHTML = `${_cvConfete()}
     <div class="cv-cer-top">${subiu ? 'Subiu de nível' : novas.length > 1 ? 'Conquistas desbloqueadas' : 'Conquista desbloqueada'}</div>
-    ${subiu ? `<div class="cv-cer-nivel" id="cv-cer-tit">Nível ${st.nivel}</div>` : `<h2 id="cv-cer-tit">${novas.length > 1 ? novas.length + ' conquistas novas' : _escH(novas[0].nome)}</h2>`}
-    ${tituloNovo ? `<p>Novo título desbloqueado: <b>${tituloNovo}</b></p>` : ''}
-    <div style="display:flex;justify-content:center;margin:10px 0 4px">${pxSvg(PX_SPR[st.classe], 72, PX_COR, 'cv-eu')}</div>
-    <p>Classe atual: <b>${st.classe}</b></p>
-    ${novas.length ? `<div class="cv-cer-lista">${novas.slice(0, 4).map(c => `<div class="cv-conq">${_cvMedalha(c, 36)}<div><b>${_escH(c.nome)}</b><span>${_escH(c.desc)}</span></div></div>`).join('')}${novas.length > 4 ? `<p>+ ${novas.length - 4} conquista${novas.length > 5 ? 's' : ''} — veja na aba Evolução</p>` : ''}</div>` : ''}
-    ${_npcHtml(npc, fala, 44)}
+    ${subiu ? `<div class="cv-cer-nivel ev-num" id="cv-cer-tit">${st.nivel}</div>` : `<h2 id="cv-cer-tit">${novas.length > 1 ? novas.length + ' conquistas novas' : _escH(novas[0].nome)}</h2>`}
+    ${tituloNovo ? `<p>Novo título: <b>${tituloNovo}</b></p>` : ''}
+    <span class="cv-tag cls" style="--cor:${corCls}">Classe <b>${st.classe}</b></span>
+    ${novas.length ? `<div class="cv-cer-lista">${novas.slice(0, 4).map(c => `<div class="cv-conq">${_cvMedalha(c, 36)}<div><b>${_escH(c.nome)}</b><span>${_escH(c.desc)}</span></div></div>`).join('')}${novas.length > 4 ? `<p>+ ${novas.length - 4} conquista${novas.length > 5 ? 's' : ''} na aba Evolução</p>` : ''}</div>` : ''}
+    ${_npcHtml(npc, fala, corCls)}
     <button class="btn btn-p" onclick="fecharCerimonia()">Continuar</button>`;
   $('modal-cv').classList.add('on');
 }
 function _cvConfete() {
-  const cores = ['#22d3a0', '#f5c542', '#f97316', '#60a5fa', '#e88a8a'];
-  return `<div class="cv-confete" aria-hidden="true">${Array.from({ length: 28 }, (_, i) =>
+  const cores = ['#ff5a4e', '#ffaa2b', '#3d9bff', '#9b7bff', '#ff5ca8', '#2fd38a'];
+  return `<div class="cv-confete" aria-hidden="true">${Array.from({ length: 30 }, (_, i) =>
     `<i style="left:${(i * 37) % 100}%;background:${cores[i % cores.length]};animation-delay:${(i % 7) * 0.12}s"></i>`).join('')}</div>`;
 }
 function fecharCerimonia() {
@@ -4478,12 +4181,14 @@ function abrirTelaFinal(st = _cvStats()) {
   const metasOk = st.linhas.filter(l => l.frac >= 1).length;
   const linhaMeta = l => l.m.peso
     ? `<div><b>${l.p ? String(l.p.atual).replace('.', ',') + ' kg' : '—'}</b>Peso (meta ${l.m.alvoKg} kg)</div>`
-    : `<div><b>${l.dias.length}/${l.alvo}</b>${l.m.nome}${l.extra ? ` · cortes ${l.extra.feitas}/${l.extra.alvo}` : ''}</div>`;
+    : `<div><b>${l.dias.length}/${l.alvo}</b>${l.m.nome}${l.extra ? `, cortes ${l.extra.feitas}/${l.extra.alvo}` : ''}</div>`;
   $('cv-cer').innerHTML = `${_cvConfete()}
-    <div class="cv-cer-top">Modo Caverna · 21/10 a 31/12</div>
-    <div style="display:flex;justify-content:center;margin:12px 0 0">${pxSvg(PX_SPR[st.classe], 96, PX_COR, 'cv-eu')}</div>
-    <div class="cv-cer-nivel" id="cv-cer-tit">${st.overall}</div>
-    <p>Overall final${st.hoje < CV_FIM ? ' (até agora — conta até 31/12)' : ''} · Nível <b>${st.nivel}</b> · <b>${st.titulo}</b> · classe <b>${st.classe}</b></p>
+    <div class="cv-cer-top">Modo Caverna, 21/10 a 31/12</div>
+    <div class="cv-aneis" style="margin:16px auto 0;width:180px;height:180px">
+      <svg viewBox="0 0 220 220" aria-hidden="true">${st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome])).join('')}</svg>
+      <div class="cv-ovr"><b class="ev-num" id="cv-cer-tit">${st.overall}</b><span>Overall</span></div>
+    </div>
+    <p>Overall final${st.hoje < CV_FIM ? ' (até agora, conta até 31/12)' : ''}. Nível <b>${st.nivel}</b>, <b>${st.titulo}</b>, classe <b>${st.classe}</b>.</p>
     <div class="cv-cer-stats">
       <div><b>${metasOk}/${st.linhas.length}</b>Metas batidas</div>
       <div><b>${st.diasComRegistro}/${total}</b>Dias com registro</div>
@@ -4491,8 +4196,8 @@ function abrirTelaFinal(st = _cvStats()) {
       <div><b>${st.conquistas.filter(c => c.ok).length}/${st.conquistas.length}</b>Conquistas</div>
       ${st.linhas.map(linhaMeta).join('')}
     </div>
-    ${_npcHtml('Jefrey', 'Foram 72 dias. Olha o que você construiu.', 40)}
-    ${_npcHtml('Mônica', 'Registrei tudo. Que venha 2027.', 40)}
+    ${_npcHtml('Jefrey', 'Foram 72 dias. Olha o que você construiu.', 'var(--c-corpo)')}
+    ${_npcHtml('Mônica', 'Registrei tudo. Que venha 2027.', 'var(--c-mente)')}
     <button class="btn btn-p" onclick="fecharCerimonia()">Fechar</button>`;
   $('modal-cv').classList.add('on');
 }
@@ -4877,884 +4582,6 @@ function toggleLivroLido(id) {
 }
 
 // ──────────────────────────────────
-// MUNDO — o Tracker como jogo isométrico (Phaser carregado só quando a aba abre)
-// ──────────────────────────────────
-const MUNDO_SCRIPTS = ['https://cdnjs.cloudflare.com/ajax/libs/phaser/3.90.0/phaser.min.js', 'mundo/iso.js?v=12', 'mundo/mapa.js?v=12', 'mundo/vida.js?v=12', 'mundo/mundo.js?v=12'];
-let _mundoCarregando = null;
-function _carregarScript(src) {
-  return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error(src)); document.head.appendChild(s); });
-}
-async function abrirMundo() {
-  if (window.MundoTracker?.cena()) { window.MundoTracker.retomar(); safeCall(mundoHud, 'mundoHud'); return; }
-  try {
-    _mundoCarregando = _mundoCarregando || MUNDO_SCRIPTS.reduce((p, src) => p.then(() => _carregarScript(src)), Promise.resolve());
-    await _mundoCarregando;
-    // o canvas não espera webfont: carrega os pesos usados nas placas e balões antes de desenhar texto
-    await Promise.all(['10px "Alegreya Sans"', 'bold 11px "Alegreya Sans"'].map(f => document.fonts.load(f))).catch(() => {});
-    $('mundo-aviso').hidden = true;
-    window.MundoTracker.iniciar($('mundo-jogo'), { teste: !!window.__mundoTeste, abrirSala: mundoAbrirJanela, resumo: mundoResumo, quadro: mundoQuadro, vida: mundoVida, frase: mundoFrase, reacoes: mundoReacoes, progresso: mundoProgresso, texto: mundoTextoAmbiente, dados: mundoDados, abrirLivro: mundoAbrirLivro, ficha: () => mundoFicha(),
-      aoSeguir: s => { $('mh-seguir').classList.toggle('on', s); $('mh-seguir').setAttribute('aria-pressed', String(s)); } });
-    setTimeout(mundoHud, 2500);
-  } catch (e) {
-    console.warn('[Mundo]', e.message); _mundoCarregando = null; $('mundo-aviso').hidden = false;
-  }
-}
-// Mapa do Reino (página do Livro): uma linha por sala com quem mora lá, "Ir" (câmera) e "Abrir" (janela do dono)
-function mundoRenderMapa() {
-  if (!window.MapaMundo) return;
-  const Mu = MapaMundo.MURALHA, L = (() => { const ps = [[Mu.x, Mu.y], [Mu.x + Mu.w, Mu.y], [Mu.x, Mu.y + Mu.h], [Mu.x + Mu.w, Mu.y + Mu.h]].map(([c, r]) => Iso.paraTela(c - .5, r - .5));
-    const xs = ps.map(p => p.x), ys = ps.map(p => p.y); return { x: Math.min(...xs) - 20, y: Math.min(...ys) - 60, w: Math.max(...xs) - Math.min(...xs) + 40, h: Math.max(...ys) - Math.min(...ys) + 80 }; })();
-  const esc = 720 / L.w, pts = s => _mmPoligono(s, esc, L).map(p => p.map(Math.round).join(',')).join(' ');
-  const svg = `<svg class="mm-svg" viewBox="0 0 720 ${Math.round(L.h * esc)}" role="img" aria-label="Mapa ilustrado do castelo">
-    <polygon points="${pts(Mu)}" fill="#b7ad97" style="cursor:default"></polygon>
-    ${MapaMundo.SALAS.map(s => { const c = Iso.paraTela(s.x + s.w / 2 - .5, s.y + s.h / 2 - .5);
-      return `<polygon points="${pts(s)}" fill="${MM_COR[s.chao] || '#8a5a32'}" onclick="mundoIrSala('${s.id}')"><title>${s.nome}</title></polygon>
-        <text x="${Math.round((c.x - L.x) * esc)}" y="${Math.round((c.y - (s.alt || 0) - L.y) * esc)}" text-anchor="middle">${s.nome.split(':')[0]}</text>`; }).join('')}
-  </svg>`;
-  $('mundo-mapa-lista').innerHTML = svg + MapaMundo.SALAS.map(s => {
-    const quem = [...MapaMundo.DONOS, ...MapaMundo.MORADORES].filter(d => d.sala === s.id && !d.objeto).map(d => d.nome);
-    if (s.id === 'quarto') quem.unshift('o Rei');
-    return `<div class="mm-linha"><div><b>${s.nome}</b><span>${quem.join(', ') || 'ninguém por enquanto'}</span></div>
-      <button class="btn btn-sm" onclick="mundoIrSala('${s.id}')" aria-label="Ir até ${s.nome}">Ir</button>
-      ${MUNDO_JANELAS[s.id] ? `<button class="btn btn-p btn-sm" onclick="mundoAbrirJanela('${s.id}');window.MundoTracker.irPara('${s.id}')" aria-label="Abrir ${s.nome}">Abrir</button>` : ''}</div>`;
-  }).join('');
-}
-function mundoIrSala(id) { mundoFecharJanela(); window.MundoTracker.irPara(id); }
-// Janela de RPG: empresta a seção da aba de hoje (mesmas funções nas duas caras do app) e devolve ao fechar
-const MUNDO_JANELAS = {
-  tesouro: { titulo: 'Casa do Tesouro', dono: 'Banqueiro', retrato: 'banqueiro_f', agente: 'tesoureiro', abas: [['financas', 'Finanças'], ['investimentos', 'Investimentos']] },
-  cozinha: { titulo: 'Cozinha', dono: 'Maria', retrato: 'maria_f', agente: 'maria', abas: [['receitas', 'Receitas']] },
-  biblioteca: { titulo: 'Biblioteca', dono: 'Mosley', retrato: 'mosley_f', agente: 'mosley', abas: [['leitura', 'Leitura']] },
-  escritorio: { titulo: 'Escritório', dono: 'Mônica', retrato: 'monica_f', agente: 'monica', abas: [['agenda', 'Agenda']] },
-  patio:      { titulo: 'Pátio de Treino', dono: 'Jefrey', retrato: 'jefrey_f', agente: 'jefrey', abas: [['corpo', 'Corpo']] },
-  salao:      { titulo: 'Salão da Taverna', dono: 'Quadro de avisos', abas: [['home', 'Início']] },
-  livro:      { titulo: 'Livro do Reino', dono: 'mapa, metas e crônica', livro: true, abas: [['mapa', 'Mapa'], ['evolucao', 'Metas e evolução'], ['taverna', 'Crônica dos agentes']] },   // a crônica dos agentes fica no Livro do Reino
-  quarto:     { titulo: 'Seu Quarto', dono: 'o Rei', retrato: 'eu_rei_f', abas: [['evolucao', 'Evolução']] },
-  porao:      { titulo: 'Arquivo', dono: 'Escrivão', retrato: 'escrivao_f', abas: [['backup', 'Backup']] },
-};
-// Vida do Mundo: estados e falas dos agentes com as mesmas regras da Taverna
-function mundoVida() {
-  const st = load('agentes_status', {}), agentes = {};
-  TV_AGENTES.forEach(a => { agentes[a.id] = { estado: _tvEstado(a, st[a.id]), recente: _tvRecente(st[a.id]), noHorario: _tvNoHorario({ def: a }), acao: a.acao }; });
-  return { agentes, noite: _tvNoite() };
-}
-// Ambiente do Mundo (Fase 5B): números do Modo Caverna e as frases da Taverna pra lareira, estante e troféus
-function mundoProgresso() {
-  let st = null; try { st = _cvStats(); } catch (e) {}
-  return { antes: !st || st.hoje < CV_INI, seq: st ? st.seq.atual : 0, nivel: st ? st.nivel : 1,
-    classe: (st ? st.classe : 'Andarilho').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(),
-    conquistas: st ? st.conquistas.map(c => ({ ok: c.ok, tier: c.tier })) : [] };
-}
-// dados reais que viram objetos no castelo (pratos, estantes, moedas, boneco, calendário, gráfico, missões)
-function mundoDados() {
-  const hoje = new Date(), cfg = load('fin_cfg', {}), desp = load('despesas', []);
-  const gastoMes = m => desp.filter(d => d.tipo === 'despesa' && d.data.startsWith(m)).reduce((s, d) => s + d.val, 0);
-  const mesStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  const gastos = [5, 4, 3, 2, 1, 0].map(i => gastoMes(mesStr(new Date(hoje.getFullYear(), hoje.getMonth() - i, 1))));
-  const livre = (cfg.renda || 0) - (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
-  let st = null; try { st = _cvStats(); } catch (e) {}
-  const c = _tvContagens();
-  return {
-    pratos: load('receitas', []).slice(0, 5).map(r => !!r.feita), livros: 6 + c.livro, treinos: c.treino,
-    livre, sobra: cfg.renda ? Math.max(0, livre - gastoMes(mesStr(hoje))) : null, gastos,
-    metas: CV_METAS.filter(m => m.un).map(m => ({ nome: m.nome, feitas: st ? st.n[m.chave] || 0 : 0, alvo: st ? st.alvo[m.chave] || m.alvo : m.alvo })),
-    dia: hoje.getDate(), mes: hoje.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase(),
-  };
-}
-// Ficha do Rei: nível, título, XP, classe, sequência, conquistas e o dia do Modo Caverna (números do _cvStats)
-function mundoFicha(abrir = $('mundo-ficha').hidden) {
-  const el = $('mundo-ficha');
-  if (!abrir) { el.hidden = true; return; }
-  let st = null; try { st = _cvStats(); } catch (e) {}
-  const nivel = st ? st.nivel : 1, xp = st ? st.xp % CV_XP_NIVEL : 0, img = window.MundoTracker && MundoTracker.retrato('eu_rei_f');
-  const dia = !st || st.hoje < CV_INI ? 'Começa em 21/10' : `Dia ${st.decorridos} de ${st.datas.length}`;
-  $('mundo-ficha-corpo').innerHTML = `<div class="mf-topo">${img ? `<img src="${img}" alt="">` : ''}<div><h3 id="mundo-ficha-titulo">O Rei</h3>
-      <span>Nível ${nivel} · ${_escH(st ? st.titulo : 'Recruta')}</span><br><span>Classe: ${_escH(st ? st.classe : 'Andarilho')}</span></div></div>
-    <div style="font-size:12px;color:#bfaa80">XP ${xp} / ${CV_XP_NIVEL}</div><div class="mf-barra"><i style="width:${Math.round(100 * xp / CV_XP_NIVEL)}%"></i></div>
-    <div class="mf-linha"><span>Modo Caverna</span><b>${dia}</b></div>
-    <div class="mf-linha"><span>Sequência</span><b>${st ? st.seq.atual : 0} dias (recorde ${st ? st.seq.max : 0})</b></div>
-    <div class="mf-linha"><span>Escudos</span><b>${st ? st.seq.escudos : 0}/3</b></div>
-    <div class="mf-linha"><span>Conquistas</span><b>${st ? st.conquistas.filter(c => c.ok).length : 0} de ${st ? st.conquistas.length : 20}</b></div>`;
-  el.hidden = false;
-}
-// Painel de RPG: retrato do Rei, nível/título/XP, relógio (sol/lua) e o dia do Modo Caverna
-function mundoHud() {
-  if (!$('page-mundo').classList.contains('on')) return;
-  let st = null; try { st = _cvStats(); } catch (e) {}
-  const img = window.MundoTracker && MundoTracker.retrato('eu_rei_f'); if (img && !$('mh-img').src) $('mh-img').src = img;
-  $('mh-titulo').textContent = `Nível ${st ? st.nivel : 1} · ${st ? st.titulo : 'Recruta'}`;
-  $('mh-xp').style.width = Math.round(100 * (st ? st.xp % CV_XP_NIVEL : 0) / CV_XP_NIVEL) + '%';
-  $('mh-dia').textContent = !st || st.hoje < CV_INI ? 'Modo Caverna começa em 21/10' : `Dia ${st.decorridos} de ${st.datas.length}`;
-  const d = new Date(), h = d.getHours();
-  $('mh-relogio').innerHTML = (h >= 6 && h < 18 ? '<svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="0" width="3" height="1" fill="#f5c542"/><rect x="3" y="8" width="3" height="1" fill="#f5c542"/><rect x="0" y="3" width="1" height="3" fill="#f5c542"/><rect x="8" y="3" width="1" height="3" fill="#f5c542"/><rect x="2" y="2" width="5" height="5" fill="#f5c542"/><rect x="3" y="3" width="2" height="2" fill="#fff3b0"/></svg>' : '<svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><rect x="3" y="1" width="4" height="7" fill="#cdd3ff"/><rect x="2" y="2" width="1" height="5" fill="#cdd3ff"/><rect x="5" y="2" width="2" height="4" fill="#1e1a15"/><rect x="7" y="2" width="1" height="5" fill="#cdd3ff"/></svg>') + `<span>${String(h).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span>`;
-}
-setInterval(() => safeCall(mundoHud, 'mundoHud'), 30000);
-function mundoSeguir() { const on = $('mh-seguir').getAttribute('aria-pressed') !== 'true'; window.MundoTracker && MundoTracker.seguir(on); }
-// Minimapa: salas, Rei (dourado), agentes e o pedaço que a câmera mostra; tocar leva a câmera até lá
-const MM_COR = { madeira: '#8a5a32', madeira_escura: '#5a361c', pedra: '#7d8590', grama: '#3d7a52', terra: '#8a6a3e' };
-function _mmPoligono(s, esc, lim) {
-  return [[s.x, s.y], [s.x + s.w, s.y], [s.x + s.w, s.y + s.h], [s.x, s.y + s.h]].map(([c, r]) => {
-    const p = Iso.paraTela(c - .5, r - .5); return [(p.x - lim.x) * esc, (p.y - (s.alt || 0) - lim.y) * esc];
-  });
-}
-function _mmLim() {   // enquadra a muralha (com uma borda de grama) no minimapa
-  const Mu = MapaMundo.MURALHA, ps = [[Mu.x - 1, Mu.y - 1], [Mu.x + Mu.w + 1, Mu.y - 1], [Mu.x - 1, Mu.y + Mu.h + 1], [Mu.x + Mu.w + 1, Mu.y + Mu.h + 1]].map(([c, r]) => Iso.paraTela(c - .5, r - .5));
-  const xs = ps.map(p => p.x), ys = ps.map(p => p.y);
-  return { x: Math.min(...xs), y: Math.min(...ys) - 40, w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) + 40 };
-}
-function mundoMinimapa() {
-  const cv = $('mundo-minimapa'), e = window.MundoTracker && MundoTracker.estado();
-  if (!cv || !e || !$('page-mundo').classList.contains('on') || document.hidden || cv.offsetParent === null) return;
-  const L = _mmLim(), g = cv.getContext('2d'), esc = Math.min(cv.width / L.w, cv.height / L.h);
-  g.clearRect(0, 0, cv.width, cv.height); g.fillStyle = '#2f5a3a'; g.fillRect(0, 0, cv.width, cv.height);
-  const Mu = MapaMundo.MURALHA; g.fillStyle = '#5d6475'; g.beginPath(); _mmPoligono(Mu, esc, L).forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.fill();
-  for (const s of MapaMundo.SALAS) { g.fillStyle = MM_COR[s.chao] || '#8a5a32'; g.beginPath(); _mmPoligono(s, esc, L).forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.fill(); }
-  g.fillStyle = '#efe2c2'; for (const [x, y] of e.agentes) g.fillRect((x - L.x) * esc - 1, (y - L.y) * esc - 1, 2, 2);
-  g.fillStyle = '#f5c542'; g.fillRect((e.rei[0] - L.x) * esc - 2, (e.rei[1] - L.y) * esc - 2, 4, 4);
-  const [vx, vy, vw, vh] = e.vista; g.strokeStyle = '#f3e3bb'; g.lineWidth = 1; g.strokeRect((vx - L.x) * esc + .5, (vy - L.y) * esc + .5, vw * esc, vh * esc);
-}
-setInterval(() => safeCall(mundoMinimapa, 'mundoMinimapa'), 250);
-document.addEventListener('click', ev => {
-  const cv = $('mundo-minimapa'); if (ev.target !== cv) return;
-  const L = _mmLim(), r = cv.getBoundingClientRect(), esc = Math.min(cv.width / L.w, cv.height / L.h);
-  MundoTracker.centrarEm((ev.clientX - r.left) * cv.width / r.width / esc + L.x, (ev.clientY - r.top) * cv.height / r.height / esc + L.y);
-});
-function mundoAbrirLivro(aba) { mundoAbrirJanela('livro'); if (aba) mundoJanelaAba(aba); }
-function mundoTextoAmbiente(id) {
-  let st = null; try { st = _cvStats(); } catch (e) {}
-  if (id === 'lareira') return !st || st.hoje < CV_INI ? 'O fogo da sua sequência acende em 21/10.' : `Sequência: ${st.seq.atual} dia${st.seq.atual === 1 ? '' : 's'} (recorde ${st.seq.max}). Escudos: ${st.seq.escudos}/3.`;
-  if (id === 'estante') return `${6 + _tvContagens().livro} livros na estante.`;
-  if (id === 'trofeus') return `${st ? st.conquistas.filter(c => c.ok).length : 0} de 20 conquistas na parede.`;
-  return null;
-}
-function mundoReacoes() {   // o que você fez desde a última visita ao Mundo (contagem guardada neste aparelho)
-  const agora = _tvContagens(), antes = _tvLS.get('mundo_contagens');
-  _tvLS.set('mundo_contagens', agora);
-  return { quem: VidaMundo.reacoes(antes, agora), agora };
-}
-function mundoFrase(id) {
-  if (id === 'arauto') { const s = load('agentes_status', {}).arauto; if (s?.resumo && (s.fim || '').startsWith(today())) return 'Notícia de hoje: ' + s.resumo; }
-  const def = TV_AGENTES.find(a => a.id === id);
-  return def ? _tvFrase({ def }) : null;
-}
-// quadro do atlas pros donos-objeto: o estandarte do quarto na cor da classe atual e os papéis do quadro de avisos
-function mundoQuadro(id) {
-  if (id === 'quadro') return 'quadro_avisos_' + Math.min(6, _tvAgenda().length);
-  if (id !== 'estandarte') return null;
-  let classe = 'Andarilho';
-  try { classe = _cvStats().classe; } catch (e) {}
-  return 'estandarte_' + classe.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-}
-let _mjAberta = null;
-// Frase do dono pro balão — só dados reais do app (nunca inventar número)
-function mundoResumo(sala) {
-  if (sala === 'tesouro') {
-    const mes = today().substring(0, 7), cfg = load('fin_cfg', {});
-    const gasto = load('despesas', []).filter(d => d.tipo === 'despesa' && d.data.startsWith(mes)).reduce((s, d) => s + d.val, 0);
-    const livre = (cfg.renda || 0) - (cfg.fixos || []).reduce((s, f) => s + f.val, 0);
-    if (!gasto) return 'Nenhum gasto lançado este mês, Majestade.';
-    return cfg.renda ? `Este mês: ${fmtBRL(gasto)} gastos de ${fmtBRL(livre)} livres.` : `Este mês: ${fmtBRL(gasto)} em gastos.`;
-  }
-  if (sala === 'cozinha') {
-    const ativas = load('receitas', []), n = ativas.filter(r => !r.feita).length;
-    if (!ativas.length) return 'Amanhã às 7h deixo 5 receitas aqui.';
-    return n ? `${n} receita${n > 1 ? 's' : ''} esperando por você.` : 'Tudo feito! Amanhã às 7h trago receitas novas.';
-  }
-  if (sala === 'biblioteca') {
-    const ativos = load('leitura', []), n = ativos.filter(l => !l.lido).length;
-    if (!ativos.length) return 'Domingo trago 5 livros pra você.';
-    return n ? `${n} livro${n > 1 ? 's' : ''} esperando na estante.` : 'Tudo lido! Domingo trago livros novos.';
-  }
-  if (sala === 'escritorio') {
-    const hoje = today(), n = load('eventos', []).filter(e => e.dt && e.dt.startsWith(hoje) && !e.done).length;
-    return n ? `${n} compromisso${n > 1 ? 's' : ''} hoje, Majestade.` : 'Agenda livre hoje.';
-  }
-  if (sala === 'patio') {
-    const semana = load('treino_semana', {}), tid = semana[String(new Date().getDay())];
-    const tpl = load('treino_templates', []).find(t => t.id === tid);
-    if (tpl) return `Hoje: ${tpl.nome}.`;
-    return Object.keys(semana).length ? 'Hoje é descanso.' : 'Domingo monto seu treino da semana.';
-  }
-  if (sala === 'quarto') {
-    const st = _cvStats();
-    return `Nível ${st.nivel}, ${st.titulo}. Classe: ${st.classe}.`;
-  }
-  if (sala === 'porao') {
-    const n = _bkContagens().reduce((s, [, c]) => s + (typeof c === 'number' ? c : 0), 0);
-    return n ? `Guardo ${n} registros seus no arquivo.` : 'O arquivo ainda está vazio.';
-  }
-  if (sala === 'salao') {
-    const n = _tvAgenda().length;
-    return n ? `${n} compromisso${n > 1 ? 's' : ''} no quadro pros próximos 7 dias.` : 'Quadro limpo: nada nos próximos 7 dias.';
-  }
-  return null;
-}
-// situação do agente dono na janela: estado, última execução (com resumo) e próxima — mesmas regras do painel da Taverna
-function mundoStatusAgente(id) {
-  const a = TV_AGENTES.find(x => x.id === id), st = load('agentes_status', {})[id], est = _tvEstado(a, st), prox = _tvProxima(a);
-  const partes = [_tvRecente(st) && est !== 'erro' && est !== 'trabalhando' ? 'Terminou há pouco' : TV_EST_TXT[est]];
-  if (st && (st.fim || st.inicio)) partes.push(`Última: ${_tvFmt(new Date(st.fim || st.inicio))}${st.resumo ? ' — ' + st.resumo : ''}`);
-  if (prox) partes.push(`Próxima: ${_tvFmt(prox)}`);
-  return partes.join(' · ');
-}
-function mundoAbrirJanela(sala) {
-  const cfg = MUNDO_JANELAS[sala];
-  if (!cfg) return;
-  if (_mjAberta) mundoFecharJanela(true);
-  _mjAberta = { sala, foco: document.activeElement };
-  $('mundo-janela').classList.toggle('livro', !!cfg.livro);
-  $('mundo-janela').className = $('mundo-janela').className.replace(/\bsala-\S+/g, '').trim() + (cfg.livro ? '' : ' sala-' + sala);
-  const img = cfg.retrato && window.MundoTracker && MundoTracker.retrato(cfg.retrato);   // o dono em pixel art falando o resumo do dia
-  $('mundo-janela-retrato').hidden = !img; if (img) $('mundo-janela-retrato').src = img;
-  $('mundo-janela-fala').textContent = cfg.livro ? '' : (mundoResumo(sala) || '');
-  $('mundo-janela-titulo').textContent = cfg.titulo;
-  $('mundo-janela-dono').textContent = cfg.dono;
-  $('mundo-janela-status').textContent = cfg.agente ? mundoStatusAgente(cfg.agente) : '';
-  $('mundo-janela-abas').innerHTML = cfg.abas.length > 1 ? cfg.abas.map(([id, nome]) =>
-    `<button role="tab" id="mj-aba-${id}" aria-selected="false" onclick="mundoJanelaAba('${id}')">${nome}</button>`).join('') : '';
-  $('mundo-janela').hidden = false;
-  mundoJanelaAba(cfg.abas[0][0]);
-  $('mundo-janela-fechar').focus();
-  if (cfg.livro) _mjCapa(true);
-}
-// capa do livro: vira pra abrir; ao fechar volta e só então a janela some ("reduzir movimento": sem animação)
-function _mjCapa(abrir, depois) {
-  const capa = $('mundo-janela-capa');
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { capa.hidden = true; if (depois) depois(); return; }
-  capa.hidden = false; capa.classList.remove('abrindo', 'fechando'); void capa.offsetWidth;
-  capa.classList.add(abrir ? 'abrindo' : 'fechando');
-  let feito = false;
-  const fim = () => { if (feito) return; feito = true; if (abrir) capa.hidden = true; if (depois) depois(); };
-  capa.addEventListener('animationend', fim, { once: true });
-  setTimeout(fim, 900);   // segurança: com a aba escondida o animationend pode não vir e o livro travaria
-}
-function _mjDevolver(j) { const s = $('page-' + j.aba); s.classList.remove('on'); j.marcador.replaceWith(s); }
-function mundoJanelaAba(id) {
-  const j = _mjAberta;
-  if (!j) return;
-  if (j.aba) _mjDevolver(j);
-  const sec = $('page-' + id);
-  j.marcador = document.createComment('mundo:' + id);
-  sec.before(j.marcador);
-  $('mundo-janela-corpo').appendChild(sec);
-  sec.classList.add('on');
-  j.aba = id;
-  document.querySelectorAll('#mundo-janela-abas [role=tab]').forEach(b => b.setAttribute('aria-selected', String(b.id === 'mj-aba-' + id)));
-  $('mundo-janela-corpo').scrollTop = 0;
-  setupScrollReveal(id);
-  renderAba(id);
-}
-function mundoFecharJanela(imediato) {
-  const j = _mjAberta;
-  if (!j) return;
-  if (!imediato && MUNDO_JANELAS[j.sala].livro) { if (!j.fechando) { j.fechando = true; _mjCapa(false, () => mundoFecharJanela(true)); } return; }
-  if (j.aba) _mjDevolver(j);
-  $('mundo-janela-capa').hidden = true;
-  $('mundo-janela').classList.remove('livro');
-  $('mundo-janela').hidden = true;
-  _mjAberta = null;
-  j.foco?.focus?.();
-}
-// captura: roda antes do Esc dos modais das telas, então ainda vê o modal aberto e deixa ele fechar sozinho
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && _mjAberta && !document.querySelector('.overlay.on')) mundoFecharJanela(); }, true);
-
-// ──────────────────────────────────
-// TAVERNA — os agentes (automações do Routines) num salão em pixel art
-// ──────────────────────────────────
-// Estado vem de `agentes_status` ({<id>: {estado: trabalhando|ok|erro, inicio, fim, resumo}}), escrito pelos
-// próprios agentes no começo e no fim de cada execução (passo "Taverna" nos playbooks). Horários = cron do Routines.
-const TV_AGENTES = [
-  { id: 'mosley', nome: 'Mosley', papel: 'Monge bibliotecário · Leitura', sprite: 'Mosley', est: [2, 3], acao: 'ler', horarios: [[14, 17]], metas: ['leitura'], verbo: 'renovou a estante', agenda: { tipo: 'semanal', dow: 0, h: 9 }, faz: 'Mantém 5 livros na aba Leitura e conta os lidos.',
-    frases: ['O silêncio também é uma página.', 'Já leu o capítulo de hoje?', 'Livros são conselheiros que não se cansam.'] },
-  { id: 'escrivao', nome: 'Escrivão', papel: 'Sync Checklist South Shop', sprite: 'Escrivão', est: [2, 12], acao: 'dormir', desligado: true, verbo: 'sincronizou o checklist', faz: 'Sincronizava o Checklist da South Shop com o Tracker. Desligado desde 21/09/2026.',
-    frases: ['Zzz... checklist... zzz', 'Hã? Já é segunda?'] },
-  { id: 'monica', nome: 'Mônica', papel: 'Escriba · Revisão semanal', sprite: 'Mônica', est: [5, 3], acao: 'escrever', horarios: [[9, 12]], metas: ['meditacao', 'aparencia'], verbo: 'fechou o livro da semana', agenda: { tipo: 'semanal', dow: 0, h: 22 }, faz: 'Revisa a semana no Tracker e agenda meditação, aparência e leitura.',
-    frases: ['Sua agenda está em ordem.', 'Anotado.', 'Não esquece o compromisso de amanhã.'] },
-  { id: 'maria', nome: 'Maria', papel: 'Cozinheira · Receitas', sprite: 'Maria', est: [16, 3], acao: 'mexer', horarios: [[11.5, 13.5]], metas: ['cozinhar'], verbo: 'preparou o cardápio', agenda: { tipo: 'diario', h: 7 }, faz: 'Mantém 5 receitas na aba Receitas, com kcal, e agenda os almoços.',
-    frases: ['Quem tá com fome?', 'O segredo é o fogo baixo.', 'Prova esse caldo, menino!'] },
-  { id: 'tesoureiro', nome: 'Tesoureiro', papel: 'Radar de Aportes', sprite: 'Tesoureiro', est: [12, 4], acao: 'contar', horarios: [[9, 18]], verbo: 'contou o tesouro do mês', agenda: { tipo: 'mensal', dom: 1, h: 8 }, faz: 'Todo dia 1 procura oportunidades de aporte e escreve o relatório do mês.',
-    frases: ['Cada moeda no seu lugar.', 'Juros compostos, meu caro.', 'A casa agradece a preferência.'] },
-  { id: 'jefrey', nome: 'Jefrey', papel: 'Mestre de armas · Treino', sprite: 'Jefrey', est: [17, 7], acao: 'treinar', horarios: [[6, 8]], metas: ['alongamento', 'peso'], verbo: 'forjou o treino da semana', agenda: { tipo: 'semanal', dow: 0, h: 16 }, faz: 'Monta o treino da semana, o alongamento e acompanha o peso.',
-    frases: ['Bora treinar!', 'Disciplina vence motivação.', 'Alongou hoje?'] },
-  { id: 'friday', nome: 'Friday', papel: 'Embaixadora · Inglês', sprite: 'Friday', est: [6, 11], acao: 'estudar', horarios: [[19, 21]], verbo: 'trouxe a lição de inglês', agenda: { tipo: 'semanal', dow: 1, h: 8 }, faz: 'Define o cenário de inglês da semana e marca a sessão de prática.',
-    frases: ['Ready for practice?', "Let's talk!", 'Um pouco de inglês todo dia.'] },
-  { id: 'arauto', nome: 'Arauto', papel: 'Pesquisas e Notícias', sprite: 'Arauto', est: [2, 8], acao: 'anunciar', horarios: [[6, 8]], verbo: 'anunciou a notícia do dia', agenda: { tipo: 'diario', h: 6 }, faz: 'Toda manhã traz um conhecimento novo pro vault.',
-    frases: ['Ouçam, ouçam!', 'Notícia fresquinha no vault!', 'Aprendeu algo novo hoje?'] },
-  { id: 'kobe', nome: 'Kobe', papel: 'Prospector de Ofertas · Drop', sprite: 'Kobe', est: [18, 13], acao: 'dormir', desligado: true, preso: true, verbo: 'minerou ofertas', faz: 'Minerava ofertas pro Drop. Preso desde que o Drop travou (24/09/2026).',
-    frases: ['Me tira daqui...', 'Um dia o Drop volta.'] },
-];
-const TV_EST_TXT = { trabalhando: 'Trabalhando agora', descansando: 'Descansando', dormindo: 'Dormindo', erro: 'Deu erro', desligado: 'Desligado', preso: 'Preso' };
-const TV_DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
-let _tvSel = null, _tvStats = null, _tvQuadroAberto = false;
-
-function _tvProxima(a) {
-  if (a.desligado || !a.agenda) return null;
-  const n = new Date(), g = a.agenda;
-  for (let i = 0; i < 40; i++) {
-    const d = new Date(n.getFullYear(), n.getMonth(), n.getDate() + i, g.h, 0);
-    if (d <= n) continue;
-    if (g.tipo === 'semanal' && d.getDay() !== g.dow) continue;
-    if (g.tipo === 'mensal' && d.getDate() !== g.dom) continue;
-    return d;
-  }
-  return null;
-}
-const _tvFmt = d => `${TV_DIAS[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}h${d.getMinutes() ? String(d.getMinutes()).padStart(2, '0') : ''}`;
-const _tvNoite = () => { const h = new Date().getHours(); return h >= 22 || h < 6; };
-function _tvEstado(a, st) {
-  if (a.preso) return 'preso';
-  if (a.desligado) return 'desligado';
-  if (a.usuario) return _tvNoite() ? 'dormindo' : 'descansando';
-  if (st?.estado === 'trabalhando') return st.inicio && Date.now() - Date.parse(st.inicio) < 3 * 36e5 ? 'trabalhando' : 'erro';
-  if (st?.estado === 'erro') return 'erro';
-  return _tvNoite() ? 'dormindo' : 'descansando';
-}
-const _tvRecente = st => st?.estado === 'ok' && st.fim && Date.now() - Date.parse(st.fim) < 12 * 36e5;
-const _tvAtiva = () => $('page-taverna')?.classList.contains('on') && !$('mundo-janela-corpo')?.contains($('page-taverna'));
-const _tvLS = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
-
-// ── Mapa (tiles de 16px, 20x15; linhas 0-2 são a parede do fundo) ──
-const TV_T = 16, TV_COLS = 20, TV_LINS = 15;
-const _tvMes = new Date().getMonth(), _tvNatal = _tvMes === 11;
-const TV_MOVEIS = [
-  { t: 'escrivaninha', x: 4, y: 4, w: 2, h: 1 }, { t: 'armadura', x: 7, y: 3, w: 1, h: 1 },
-  { t: 'balcao', x: 10, y: 5, w: 6, h: 1 }, { t: 'bau', x: 13, y: 3, w: 1, h: 1 },
-  { t: 'caldeirao', x: 17, y: 3, w: 1, h: 1 }, { t: 'palco', x: 0, y: 7, w: 2, h: 3 },
-  { t: 'mesaRedonda', x: 5, y: 8, w: 1, h: 1 }, { t: 'mesaRedonda', x: 7, y: 11, w: 1, h: 1, mapa: true },
-  { t: 'mesaLonga', x: 12, y: 9, w: 5, h: 1 }, { t: 'boneco', x: 18, y: 7, w: 1, h: 1 },
-  { t: 'armas', x: 19, y: 5, w: 1, h: 2 }, { t: 'mesinha', x: 1, y: 12, w: 1, h: 1 },
-  { t: 'barris', x: 0, y: 13, w: 2, h: 2 }, { t: 'jaula', x: 17, y: 12, w: 3, h: 3 },
-  ...(_tvNatal ? [{ t: 'arvore', x: 0, y: 11, w: 1, h: 1 }] : []),
-];
-const TV_DECOR = [
-  { t: 'tapete', x: 9, y: 8, w: 2, h: 5 }, { t: 'pele', x: 4, y: 12, w: 2, h: 1 }, { t: 'capacho', x: 9, y: 14, w: 2, h: 1 },
-  { t: 'banco', x: 12, y: 8, w: 5 }, { t: 'banco', x: 12, y: 10, w: 5 },
-  ...[10, 12, 14].map(x => ({ t: 'banqueta', x, y: 6 })),
-  ...[[4, 8], [6, 8], [6, 11], [8, 11], [2, 12]].map(([x, y]) => ({ t: 'cadeira', x, y })),
-  { t: 'lugarEu', x: 11, y: 9 },
-];
-const TV_POIS = [
-  { x: 10, y: 6, a: 'beber' }, { x: 12, y: 6, a: 'beber' }, { x: 14, y: 6, a: 'beber' }, { x: 15, y: 3, a: 'aquecer' },
-  { x: 4, y: 8, a: 'sentar' }, { x: 6, y: 8, a: 'sentar' }, { x: 8, y: 11, a: 'sentar' },
-  { x: 12, y: 8, a: 'comer' }, { x: 14, y: 8, a: 'comer' }, { x: 16, y: 8, a: 'comer' }, { x: 13, y: 10, a: 'comer' }, { x: 15, y: 10, a: 'comer' },
-  { x: 9, y: 10, a: 'passear' }, { x: 10, y: 12, a: 'passear' }, { x: 8, y: 3, a: 'janela' }, { x: 9, y: 13, a: 'porta' },
-];
-// enfeites liberados pelo seu nível no Modo Caverna
-const TV_ENFEITES = [[2, 'bandeiras', 'Bandeiras na parede'], [3, 'lustre', 'Lustre de velas'], [5, 'vasos', 'Vasos de planta'], [8, 'trono', 'Trono no seu lugar'], [11, 'tapeteReal', 'Tapete vermelho real'], [13, 'estatua', 'Estátua dourada']];
-const _tvTem = enf => (_tvStats?.nivel || 1) >= TV_ENFEITES.find(e => e[1] === enf)[0];
-const TV_PORTA = [9, 14];
-const _tvBloq = (() => {
-  const g = Array.from({ length: TV_LINS }, (_, y) => Array(TV_COLS).fill(y < 3));
-  TV_MOVEIS.forEach(m => { for (let y = m.y; y < m.y + m.h; y++) for (let x = m.x; x < m.x + m.w; x++) g[y][x] = true; });
-  return g;
-})();
-function _tvCaminho(de, para) {   // BFS em 4 direções; devolve lista de tiles (sem o de partida)
-  const k = (x, y) => y * TV_COLS + x, veio = new Map([[k(...de), null]]), fila = [de];
-  while (fila.length) {
-    const [x, y] = fila.shift();
-    if (x === para[0] && y === para[1]) break;
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const nx = x + dx, ny = y + dy;
-      if (nx < 0 || ny < 0 || nx >= TV_COLS || ny >= TV_LINS || _tvBloq[ny][nx] || veio.has(k(nx, ny))) continue;
-      veio.set(k(nx, ny), [x, y]); fila.push([nx, ny]);
-    }
-  }
-  if (!veio.has(k(...para))) return [];
-  const out = []; for (let c = para; c && !(c[0] === de[0] && c[1] === de[1]); c = veio.get(k(...c))) out.unshift(c);
-  return out;
-}
-const _tvPx = ([tx, ty]) => [tx * TV_T + 8, ty * TV_T + 14];
-const _tvTile = ag => [Math.max(0, Math.min(TV_COLS - 1, Math.floor(ag.x / TV_T))), Math.max(3, Math.min(TV_LINS - 1, Math.floor((ag.y - 2) / TV_T)))];
-
-// ── Sprites (com passo alternando as pernas e versão de costas) ──
-const _tvR = (g, x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
-function _tvVariante(m, passo, costas) {
-  const g = m.map(l => [...l]);
-  if (costas) {   // de costas: o rosto vira a cor de cabelo/capuz mais comum no topo da cabeça
-    const rosto = 'SszkcfE', cont = {};
-    for (let y = 1; y < 8; y++) g[y].forEach(c => { if (c !== '.' && c !== 'K' && c !== 'Q' && !rosto.includes(c)) cont[c] = (cont[c] || 0) + 1; });
-    const cab = Object.entries(cont).sort((a, b) => b[1] - a[1])[0]?.[0] || 'H';
-    for (let y = 4; y < 14; y++) for (let x = 4; x < 16; x++) if (rosto.includes(g[y][x])) g[y][x] = cab;
-  }
-  if (passo) { const lado = passo === 1 ? x => x < 10 : x => x >= 10; for (let y = 19; y < 26; y++) for (let x = 0; x < g[y].length; x++) if (lado(x)) g[y][x] = g[y + 1][x]; }
-  return g.map(r => r.join(''));
-}
-const _tvSprCache = {};
-function _tvSpr(nome, flip, passo = 0, costas = false, paleta = null) {
-  const k = [nome, flip, passo, costas, !!paleta].join('|');
-  if (_tvSprCache[k]) return _tvSprCache[k];
-  const m = _tvVariante(PX_SPR[nome], passo, costas), c = document.createElement('canvas');
-  c.width = m[0].length; c.height = m.length;
-  const g = c.getContext('2d');
-  m.forEach((l, y) => [...l].forEach((ch, x) => { if (ch !== '.') _tvR(g, flip ? c.width - 1 - x : x, y, 1, 1, paleta ? paleta(ch) : PX_COR[ch]); }));
-  return (_tvSprCache[k] = c);
-}
-const _tvOuro = ch => { if (ch === 'K' || ch === 'Q') return ch === 'Q' ? PX_COR.Q : '#5a4210'; const h = PX_COR[ch] || '#888'; const n = parseInt(h.slice(1, 7), 16); const lum = ((n >> 16) * .3 + ((n >> 8) & 255) * .59 + (n & 255) * .11); return lum > 150 ? '#f5d46a' : lum > 90 ? '#e2b24c' : '#a8781c'; };
-const TV_GATO = { pe: ['......K.K', '.K...KOOK', 'K.KKKOkOk', 'K.KOOOOOK', '.KOOOOOK.', '..KK.KK..'], dorme: ['..KKKK..', '.KOOOOK.', 'KOOkOOOK', '.KKKKKK.'] };
-const TV_GATO_COR = { K: '#140f18', O: '#e88a3a', k: '#3e2614' };
-function _tvGatoSpr(tipo, flip) {
-  const k = 'gato|' + tipo + flip;
-  if (_tvSprCache[k]) return _tvSprCache[k];
-  const m = TV_GATO[tipo], c = document.createElement('canvas'); c.width = m[0].length; c.height = m.length;
-  const g = c.getContext('2d');
-  m.forEach((l, y) => [...l].forEach((ch, x) => { if (ch !== '.') _tvR(g, flip ? c.width - 1 - x : x, y, 1, 1, TV_GATO_COR[ch]); }));
-  return (_tvSprCache[k] = c);
-}
-
-// ── Cenário ──
-function _tvCeu() { const h = new Date().getHours(); return h >= 6 && h < 17 ? 'dia' : h >= 17 && h < 19 ? 'tarde' : 'noite'; }
-let _tvFundoCache = null, _tvFundoChave = '';
-function _tvFundo() {
-  const ceu = _tvCeu(), livros = Math.min(54, 6 + (_tvStats?.livrosLidos || 0)), chave = ceu + livros;
-  if (_tvFundoCache && _tvFundoChave === chave) return _tvFundoCache;
-  const c = document.createElement('canvas'); c.width = 320; c.height = 240;
-  const g = c.getContext('2d');
-  _tvR(g, 0, 48, 320, 192, '#7a5030');
-  for (let y = 48, i = 0; y < 240; y += 8, i++) {
-    _tvR(g, 0, y, 320, 1, '#5a3a1e');
-    for (let x = (i % 4) * 9; x < 320; x += 36) { _tvR(g, x, y + 1, 1, 7, '#5a3a1e'); _tvR(g, x + 1, y + 1, 34, 7, (x + i * 7) % 3 ? '#7a5030' : '#73492b'); }
-  }
-  _tvR(g, 0, 0, 320, 48, '#e8dcc4'); _tvR(g, 0, 0, 320, 3, '#24170c');
-  for (let x = 0; x < 320; x += 64) _tvR(g, x, 3, 4, 28, '#5a3a1e');
-  _tvR(g, 0, 28, 320, 4, '#5a3a1e'); _tvR(g, 0, 32, 320, 16, '#4a2c16');
-  for (let x = 0; x < 320; x += 8) _tvR(g, x, 32, 1, 16, '#3b2716');
-  _tvR(g, 0, 46, 320, 2, '#24170c');
-  const vidro = ceu === 'dia' ? '#8fc4e8' : ceu === 'tarde' ? '#e08a5a' : '#1b2550';
-  [[116, 8], [292, 8]].forEach(([x, y]) => {
-    _tvR(g, x - 2, y - 2, 26, 22, '#3b2716'); _tvR(g, x, y, 22, 18, vidro); _tvR(g, x + 10, y, 2, 18, '#3b2716'); _tvR(g, x, y + 8, 22, 2, '#3b2716');
-    if (ceu === 'noite') { _tvR(g, x + 4, y + 3, 3, 3, '#f4f4f4'); _tvR(g, x + 17, y + 13, 1, 1, '#f4f4f4'); }
-    if (_tvNatal) { _tvR(g, x, y + 15, 10, 3, '#f4f4f4'); _tvR(g, x + 12, y + 14, 10, 4, '#f4f4f4'); _tvR(g, x + 3, y + 4, 1, 1, '#f4f4f4'); _tvR(g, x + 15, y + 2, 1, 1, '#f4f4f4'); }
-  });
-  // estante: começa com os 6 livros já lidos e ganha um por livro concluído
-  _tvR(g, 2, 2, 60, 46, '#2a1a0d'); _tvR(g, 4, 4, 56, 42, '#3b2716');
-  const cores = ['#d94848', '#3b6fd8', '#3d7a52', '#c99a1f', '#7b5cc9', '#b0662a', '#e8d5a3'];
-  let n = 0;
-  [4, 18, 32].forEach(y => { _tvR(g, 4, y + 12, 56, 2, '#6b4426'); for (let x = 5; x < 58; x += 3, n++) if (n < livros) _tvR(g, x, y + 2 + (n % 3), 2, 10 - (n % 3), cores[n % 7]); });
-  // lareira (o fogo é desenhado a cada quadro)
-  _tvR(g, 240, 0, 48, 48, '#6b6b72');
-  for (let y = 2, i = 0; y < 48; y += 6, i++) { _tvR(g, 240, y + 5, 48, 1, '#55555c'); for (let x = 240 + (i % 2) * 6; x < 288; x += 12) _tvR(g, x, y, 1, 5, '#55555c'); }
-  _tvR(g, 236, 20, 56, 4, '#6b4426'); _tvR(g, 236, 24, 56, 1, '#3b2716');
-  _tvR(g, 250, 27, 28, 21, '#120b07'); _tvR(g, 252, 44, 24, 3, '#6b4426');
-  [16, 32].forEach((y, r) => { _tvR(g, 164, y, 72, 3, '#6b4426'); ['#3d7a52', '#7a2424', '#c99a1f', '#3b6fd8', '#3d7a52', '#7a2424', '#c99a1f', '#3b6fd8', '#7a2424'].forEach((cor, i) => { const x = 167 + i * 8 + r * 3; _tvR(g, x, y - 9, 4, 9, cor); _tvR(g, x + 1, y - 12, 2, 3, cor); _tvR(g, x + 1, y - 7, 1, 4, 'rgba(255,255,255,.35)'); }); });
-  _tvR(g, 144, 236, 32, 4, '#24170c');
-  return (_tvFundoCache = c, _tvFundoChave = chave, c);
-}
-// parede de troféus (um gancho por conquista) no rodapé de madeira
-const TV_TROFEUS_X = [...Array.from({ length: 19 }, (_, i) => 66 + i * 9), 292, 302];
-function _tvParede(g, t) {
-  // quadro de avisos: um papel por compromisso dos próximos 7 dias (até 6)
-  _tvR(g, 68, 8, 30, 22, '#3b2716'); _tvR(g, 70, 10, 26, 18, '#8a5a32');
-  [[72, 12, 8, 6], [82, 11, 10, 7], [74, 20, 9, 6], [85, 20, 8, 6], [90, 13, 5, 5], [71, 21, 3, 4]].slice(0, Math.max(1, Math.min(6, _tvStats?.agenda.length || 0))).forEach(([x, y, w, h]) => { _tvR(g, x, y, w, h, '#efe2c2'); _tvR(g, x + 1, y + 2, w - 2, 1, '#8a6a3e'); _tvR(g, x + w / 2 - 1, y - 1, 2, 2, '#d94848'); });
-  (_tvStats?.conquistas || []).forEach((cq, i) => {
-    const x = TV_TROFEUS_X[i]; if (x === undefined) return;
-    _tvR(g, x + 3, 33, 2, 2, '#24170c');
-    if (cq.ok) MEDALHA.forEach((l, y) => [...l].forEach((ch, xx) => { if (ch !== '.') _tvR(g, x + xx, 35 + y, 1, 1, MEDALHA_COR[cq.tier][ch]); }));
-    else _tvR(g, x + 2, 36, 4, 4, 'rgba(0,0,0,.25)');
-  });
-  if (_tvTem('bandeiras')) [[100, '#9a2a1f'], [146, '#27345c']].forEach(([x, cor]) => { _tvR(g, x, 4, 12, 22, cor); _tvR(g, x, 26, 4, 3, cor); _tvR(g, x + 8, 26, 4, 3, cor); _tvR(g, x + 4, 10, 4, 6, '#e2b24c'); _tvR(g, x - 1, 3, 14, 2, '#6b4426'); });
-  if (_tvNatal) for (let x = 0; x < 320; x += 6) { _tvR(g, x, 3 + (x % 12 ? 1 : 0), 6, 3, '#2f6a3a'); if (x % 12 === 0) _tvR(g, x + 2, 6, 2, 2, ['#d94848', '#f5c542', '#3b6fd8'][((x / 12) + (t * 2 | 0)) % 3]); }
-}
-function _tvFogo(g, t) {   // lareira = fogo da sua sequência
-  const st = _tvStats, antes = !st || st.hoje < CV_INI, seq = st?.seq.atual || 0;
-  const f = FOGO_F[((t / .18) | 0) % 3];
-  if (!antes && seq === 0) { for (let i = 0; i < 6; i++) _tvR(g, 256 + i * 3, 41 + ((i + (t * 3 | 0)) % 2), 2, 2, i % 2 ? '#a8322a' : '#e86a3a'); return 18; }
-  const esc = antes || seq < 3 ? 1.5 : 2, cor = seq >= 21 ? FOGO_COR.azul : FOGO_COR.laranja;
-  const x0 = 264 - 4 * esc, y0 = 46 - 10 * esc;
-  f.forEach((l, y) => [...l].forEach((c, x) => { if (c !== '.') _tvR(g, x0 + x * esc, y0 + y * esc, esc, esc, cor[c]); }));
-  if (seq >= 7) f.forEach((l, y) => [...l].forEach((c, x) => { if (c === 'o' && (x + y + (t * 6 | 0)) % 5 === 0) _tvR(g, x0 + x * esc, y0 + y * esc - 3, 1, 1, cor.y); }));
-  return antes ? 70 : seq >= 21 ? 110 : seq >= 7 ? 95 : seq >= 3 ? 80 : 60;
-}
-function _tvDecor(g) {
-  if (_tvTem('tapeteReal')) { _tvR(g, 146, 196, 36, 44, '#e2b24c'); _tvR(g, 148, 196, 32, 44, '#9a2a1f'); }
-  TV_DECOR.forEach(d => {
-    const x = d.x * TV_T, y = d.y * TV_T;
-    if (d.t === 'tapete') { _tvR(g, x + 2, y + 2, d.w * 16 - 4, d.h * 16 - 4, '#c99a1f'); _tvR(g, x + 4, y + 4, d.w * 16 - 8, d.h * 16 - 8, '#2f5a3a'); _tvR(g, x + 6, y + 6, d.w * 16 - 12, d.h * 16 - 12, '#3d7a52'); }
-    else if (d.t === 'pele') { _tvR(g, x + 4, y + 3, 24, 10, '#9aa0a8'); _tvR(g, x + 2, y + 5, 28, 6, '#9aa0a8'); [[0, 2], [28, 2], [0, 11], [28, 11]].forEach(([a, b]) => _tvR(g, x + a, y + b, 4, 3, '#9aa0a8')); _tvR(g, x + 8, y + 6, 16, 4, '#b8bcc6'); }
-    else if (d.t === 'capacho') { _tvR(g, x + 2, y + 4, 28, 10, '#8a6a3e'); _tvR(g, x + 4, y + 6, 24, 6, '#a8865a'); }
-    else if (d.t === 'banco') { _tvR(g, x, y + 7, d.w * 16, 5, '#6b4426'); _tvR(g, x, y + 11, d.w * 16, 1, '#3b2716'); }
-    else if (d.t === 'banqueta') { _tvR(g, x + 4, y + 6, 8, 7, '#6b4426'); _tvR(g, x + 5, y + 7, 6, 4, '#8a5a32'); }
-    else if (d.t === 'cadeira') { _tvR(g, x + 3, y + 3, 10, 10, '#5a361c'); _tvR(g, x + 4, y + 4, 8, 7, '#3d7a52'); }
-    else if (d.t === 'lugarEu') {
-      if (_tvTem('trono')) { _tvR(g, x + 1, y - 6, 14, 20, '#a8781c'); _tvR(g, x + 3, y - 4, 10, 16, '#9a2a1f'); _tvR(g, x + 1, y - 8, 3, 3, '#f5c542'); _tvR(g, x + 12, y - 8, 3, 3, '#f5c542'); _tvR(g, x + 6, y - 9, 4, 3, '#f5c542'); }
-      else { _tvR(g, x + 3, y + 3, 10, 10, '#5a361c'); _tvR(g, x + 4, y + 4, 8, 7, '#9a2a1f'); }
-    }
-  });
-  if (_tvTem('vasos')) [[2, 98], [306, 178]].forEach(([x, y]) => { _tvR(g, x, y + 6, 10, 8, '#b0662a'); _tvR(g, x + 1, y + 6, 8, 2, '#d98a3a'); _tvR(g, x - 1, y - 2, 12, 8, '#3d7a52'); _tvR(g, x + 2, y - 5, 6, 4, '#4f9a63'); });
-}
-function _tvMovel(g, m, t) {
-  const x = m.x * TV_T, y = m.y * TV_T, w = m.w * TV_T, h = m.h * TV_T;
-  switch (m.t) {
-    case 'escrivaninha': _tvR(g, x, y + 2, w, 10, '#8a5a32'); _tvR(g, x, y + 12, w, 4, '#5a361c'); _tvR(g, x + 4, y + 4, 10, 5, '#efe2c2'); _tvR(g, x + 24, y, 3, 7, '#f4f4f4'); _tvR(g, x + 24, y - 2 - ((t * 6 | 0) % 2), 3, 2, '#f5c542'); break;
-    case 'armadura': _tvR(g, x + 6, y + 13, 5, 3, '#6b717d'); _tvR(g, x + 4, y - 2, 9, 15, '#949aa6'); _tvR(g, x + 5, y - 8, 7, 7, '#c4c9d2'); _tvR(g, x + 6, y - 5, 5, 1, '#1b1d24'); _tvR(g, x + 3, y, 2, 9, '#c4c9d2'); _tvR(g, x + 12, y, 2, 9, '#c4c9d2'); _tvR(g, x + 14, y - 10, 1, 22, '#c4c9d2'); break;
-    case 'balcao': _tvR(g, x, y, w, 10, '#8a5a32'); _tvR(g, x, y + 1, w, 1, '#a06a3c'); _tvR(g, x, y + 10, w, 6, '#4a2c16'); for (let i = 4; i < w; i += 16) _tvR(g, x + i, y + 11, 10, 4, '#5a361c'); [8, 40, 70].forEach(i => { _tvR(g, x + i, y + 2, 5, 6, '#c4c9d2'); _tvR(g, x + i, y + 1, 5, 2, '#fff7c2'); _tvR(g, x + i + 5, y + 3, 2, 3, '#c4c9d2'); }); break;
-    case 'bau': _tvR(g, x + 2, y + 4, 12, 10, '#6b4426'); _tvR(g, x + 2, y + 4, 12, 3, '#8a5a32'); _tvR(g, x + 7, y + 7, 2, 3, '#f5c542'); _tvR(g, x + 4, y + 1, 3, 3, '#f5c542'); _tvR(g, x + 8, y, 3, 4, '#c99a1f'); break;
-    case 'caldeirao': _tvR(g, x + 1, y + 4, 14, 11, '#2a2e38'); _tvR(g, x + 2, y + 3, 12, 3, '#1b1d24'); _tvR(g, x + 3, y + 4, 10, 2, (t * 3 | 0) % 2 ? '#4f9a63' : '#5fb070'); _tvR(g, x + 3, y + 15, 2, 1, '#1b1d24'); _tvR(g, x + 11, y + 15, 2, 1, '#1b1d24'); break;
-    case 'palco': _tvR(g, x, y, w, h, '#5a361c'); _tvR(g, x, y, w, 2, '#8a5a32'); for (let i = 4; i < h; i += 6) _tvR(g, x, y + i, w, 1, '#4a2c16'); _tvR(g, x + w - 3, y, 3, h, '#3b2716'); _tvR(g, x + 6, y + 16, 12, 9, '#b0662a'); _tvR(g, x + 9, y + 18, 5, 4, '#3b2716'); _tvR(g, x + 17, y + 12, 2, 9, '#6b4426'); _tvR(g, x + 4, y + 2, 4, 10, '#9a2a1f'); _tvR(g, x + 24, y + 2, 4, 10, '#9a2a1f'); break;
-    case 'mesaRedonda': _tvR(g, x - 1, y + 2, 18, 11, '#5a361c'); _tvR(g, x, y + 1, 16, 10, '#8a5a32'); _tvR(g, x + 2, y, 12, 1, '#8a5a32'); if (m.mapa) { _tvR(g, x + 2, y + 2, 11, 7, '#e8d5a3'); _tvR(g, x + 4, y + 4, 4, 2, '#3d7a52'); _tvR(g, x + 9, y + 3, 2, 3, '#3b6fd8'); } else { _tvR(g, x + 5, y + 3, 5, 5, '#c4c9d2'); _tvR(g, x + 5, y + 2, 5, 2, '#fff7c2'); } break;
-    case 'mesaLonga': _tvR(g, x, y + 1, w, 13, '#8a5a32'); _tvR(g, x, y + 14, w, 2, '#5a361c'); _tvR(g, x + 4, y + 4, w - 8, 7, '#9a2a1f'); _tvR(g, x + 4, y + 4, w - 8, 1, '#c2404a'); [10, 30, 50, 68].forEach(i => { _tvR(g, x + i, y + 5, 6, 5, '#efe2c2'); _tvR(g, x + i + 2, y + 6, 2, 2, i % 20 ? '#b0662a' : '#4f9a63'); });
-      if (_tvPrato > 0) { _tvR(g, x + 1, y + 3, 8, 7, '#f4f4f4'); _tvR(g, x + 2, y + 4, 6, 5, '#d98a3a'); _tvR(g, x + 3, y + 4, 2, 2, '#4f9a63'); if ((t * 2 | 0) % 2) _tvR(g, x + 5, y - 1, 1, 2, '#d7dbe2'); } break;
-    case 'boneco': _tvR(g, x + 7, y + 2, 2, 14, '#6b4426'); _tvR(g, x + 3, y - 2, 10, 10, '#c4ad78'); _tvR(g, x + 4, y - 8, 8, 7, '#c4ad78'); _tvR(g, x + 3, y + 3, 10, 1, '#8a6a3e'); _tvR(g, x + 6, y - 6, 1, 1, '#4a2c16'); _tvR(g, x + 9, y - 6, 1, 1, '#4a2c16'); break;
-    case 'armas': _tvR(g, x + 2, y, 12, 30, '#5a361c'); _tvR(g, x + 2, y + 6, 12, 2, '#3b2716'); _tvR(g, x + 2, y + 20, 12, 2, '#3b2716'); _tvR(g, x + 5, y - 6, 1, 32, '#c4c9d2'); _tvR(g, x + 9, y - 2, 1, 28, '#c4c9d2'); _tvR(g, x + 8, y + 6, 3, 1, '#f5c542'); _tvR(g, x + 4, y + 2, 3, 1, '#f5c542'); _tvR(g, x + 12, y - 8, 1, 34, '#8a5a32'); _tvR(g, x + 11, y - 10, 3, 3, '#949aa6'); break;
-    case 'mesinha': _tvR(g, x + 1, y + 3, 14, 10, '#8a5a32'); _tvR(g, x + 1, y + 13, 14, 3, '#5a361c'); _tvR(g, x + 4, y + 5, 7, 4, '#efe2c2'); _tvR(g, x + 11, y, 2, 6, '#f4f4f4'); _tvR(g, x + 11, y - 2, 2, 2, '#f5c542'); break;
-    case 'barris': [[x + 2, y + 2], [x + 16, y + 4], [x + 6, y + 16]].forEach(([bx, by]) => { _tvR(g, bx, by, 12, 13, '#6b4426'); _tvR(g, bx, by + 3, 12, 1, '#3b2716'); _tvR(g, bx, by + 9, 12, 1, '#3b2716'); _tvR(g, bx + 2, by, 8, 2, '#8a5a32'); }); _tvR(g, x + 19, y + 18, 11, 11, '#e8dcc4'); _tvR(g, x + 21, y + 16, 7, 3, '#c4ad78'); break;
-    case 'jaula': _tvR(g, x, y, w, h, '#4b4850'); for (let i = 0; i < w; i += 8) _tvR(g, x + i, y, 1, h, '#3e3b42'); break;
-    case 'arvore': for (let i = 0; i < 4; i++) _tvR(g, x + 6 - i * 2, y - 12 + i * 6, 4 + i * 4, 6, '#2f6a3a'); _tvR(g, x + 6, y + 12, 4, 4, '#6b4426'); _tvR(g, x + 6, y - 15, 4, 4, '#f5c542'); [[4, -4, '#d94848'], [10, 2, '#3b6fd8'], [2, 6, '#f5c542'], [12, 8, '#d94848']].forEach(([a, b, c]) => _tvR(g, x + a, y + b, 2, 2, (t * 2 | 0) % 2 ? c : '#f4f4f4')); break;
-  }
-}
-function _tvJaulaFrente(g) {
-  const x = 17 * TV_T, y = 12 * TV_T;
-  _tvR(g, x, y - 8, 48, 3, '#4b505c'); _tvR(g, x, y + 46, 48, 2, '#4b505c');
-  for (let i = 0; i <= 46; i += 5) _tvR(g, x + i, y - 8, 2, 56, '#6b717d');
-  _tvR(g, x + 20, y + 22, 7, 6, '#c99a1f'); _tvR(g, x + 22, y + 19, 3, 3, '#c99a1f');
-}
-function _tvLustre(g, t) {
-  if (!_tvTem('lustre')) return;
-  const cx = 160, cy = 118;
-  g.strokeStyle = '#3b2716'; g.lineWidth = 2; g.beginPath(); g.ellipse(cx, cy, 18, 7, 0, 0, Math.PI * 2); g.stroke();
-  [[-18, 0], [18, 0], [0, -7], [0, 7], [-12, -5], [12, -5], [-12, 5], [12, 5]].forEach(([dx, dy], i) => { _tvR(g, cx + dx - 1, cy + dy - 4, 2, 4, '#f4f4f4'); _tvR(g, cx + dx - 1, cy + dy - 6 - ((t * 5 + i) | 0) % 2, 2, 2, '#f5c542'); });
-}
-function _tvEstatua(g) {
-  if (!_tvTem('estatua')) return;
-  _tvR(g, 126, 70, 16, 6, '#8a8f99'); _tvR(g, 124, 74, 20, 4, '#6b717d');
-  g.drawImage(_tvSpr(_tvStats.classe, false, 0, false, _tvOuro), 124, 44);
-}
-function _tvFogos(g, t) {   // virada do ano nas janelas
-  const d = new Date(), virada = (d.getMonth() === 11 && d.getDate() === 31 && d.getHours() >= 20) || (d.getMonth() === 0 && d.getDate() === 1 && d.getHours() < 3);
-  if (!virada) return;
-  [[116, 8], [292, 8]].forEach(([wx, wy], j) => {
-    const fase = (t * .7 + j * .5) % 1, cx = wx + 6 + j * 8, cy = wy + 8, cor = ['#f5c542', '#d94848', '#8fd3ff', '#4f9a63'][((t * .7 + j) | 0) % 4];
-    for (let a = 0; a < 8; a++) { const r = fase * 7; _tvR(g, cx + Math.cos(a * .785) * r, cy + Math.sin(a * .785) * r, 1, 1, cor); }
-  });
-}
-const TV_ICONES = {
-  caneca: ['.WWWW.', '.EEEEe', '.EEEEe', '.EEEE.'],
-  nota: ['..kk', '..k.', '..k.', 'kkk.', 'kk..'],
-  coracao: ['RR.RR', 'RRRRR', '.RRR.', '..R..'],
-  fala: ['k.k.k'],
-  erro: ['R', 'R', 'R', '.', 'R'],
-  ok: ['....G', '...G.', 'G.G..', '.G...'],
-  livro: ['RRRRR', 'RWWWR', 'RRRRR'],
-};
-function _tvBalao(g, x, y, icone, cor) {
-  const m = TV_ICONES[icone], w = m[0].length + 4, h = m.length + 4;
-  _tvR(g, x - w / 2 - 1, y - h - 1, w + 2, h + 2, '#140f18');
-  _tvR(g, x - w / 2, y - h, w, h, cor || '#efe2c2');
-  _tvR(g, x - 1, y, 2, 2, '#140f18');
-  const pal = { W: '#fff7c2', E: '#c99a1f', e: '#8a6a1f', k: '#140f18', R: '#d94848', G: '#2f8a4a' };
-  m.forEach((l, yy) => [...l].forEach((c, xx) => { if (c !== '.') _tvR(g, x - w / 2 + 2 + xx, y - h + 2 + yy, 1, 1, pal[c]); }));
-}
-
-// ── Falas (balões de texto em HTML por cima do mapa, nítidos em qualquer tamanho) ──
-const _tvBolhas = {};
-function _tvFalar(chave, texto, seg = 4.5, pos = null) { _tvBolhas[chave] = { texto, t: seg, pos }; }
-function _tvDesenharBolhas(dt) {
-  const camada = $('tv-falas'); if (!camada) return;
-  Object.entries(_tvBolhas).forEach(([k, b]) => {
-    b.t -= dt;
-    let el = camada.querySelector(`[data-k="${k}"]`);
-    if (b.t <= 0) { el?.remove(); delete _tvBolhas[k]; return; }
-    const ag = _tvAgs?.find(a => a.def.id === k);
-    const [x, y] = b.pos || (ag ? [ag.x, ag.y - 30] : k === 'gato' && _tvGato ? [_tvGato.x, _tvGato.y - 10] : [160, 120]);
-    if (!el) { el = document.createElement('div'); el.className = 'tv-fala'; el.dataset.k = k; el.textContent = b.texto; camada.appendChild(el); }
-    else if (el.textContent !== b.texto) el.textContent = b.texto;
-    el.style.left = (x / 320 * 100) + '%'; el.style.top = (y / 240 * 100) + '%';
-  });
-}
-function _tvFrase(ag) {
-  const falas = load('npc_falas', {});
-  const reais = (ag.def.metas || []).map(m => falas[m]).filter(f => f?.texto && f.em && Date.parse(today()) - Date.parse(f.em) <= 8 * 864e5).map(f => f.texto);
-  const lista = reais.length && Math.random() < .6 ? reais : ag.def.frases || ['...'];
-  return lista[Math.random() * lista.length | 0];
-}
-
-// ── Agentes vivos ──
-let _tvAgs = null, _tvGato = null, _tvParts = [], _tvRaf = 0, _tvUlt = 0, _tvTempo = 0, _tvPrato = 0, _tvProxConversa = 15, _tvProxCena = 40;
-const _tvMovRed = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const _tvEu = () => ({ id: 'eu', nome: 'Você', papel: _tvStats ? `${_tvStats.classe} · ${_tvStats.titulo} · nível ${_tvStats.nivel}` : '', sprite: _tvStats?.classe || 'Andarilho', est: [11, 9], usuario: true, frases: [] });
-function _tvIniciarAgentes() {
-  _tvAgs = [...TV_AGENTES, _tvEu()].map(def => { const [x, y] = _tvPx(def.est); return { def, x, y, path: [], modo: 'parado', t: 2 + Math.random() * 4, face: 1, costas: false, emote: null, emoteT: 0, objetivo: '', poi: null, dirKobe: 1, missao: null, rapido: false, pulo: 0, estAnt: null }; });
-  const [gx, gy] = _tvPx([14, 3]);
-  _tvGato = { x: gx, y: gy, path: [], modo: 'dorme', t: 5, face: 1 };
-  // você entra pela porta e vai pro seu lugar; alguém te recebe
-  const eu = _tvAgs.find(a => a.def.usuario);
-  if (!_tvMovRed) {
-    [eu.x, eu.y] = _tvPx(TV_PORTA);
-    eu.missao = { alvo: eu.def.est, chegar: () => {
-      const quem = _tvAgs.filter(a => !a.def.usuario && !a.def.desligado && a.modo !== 'dormindo' && a.modo !== 'trabalhando');
-      const ag = quem[Math.random() * quem.length | 0];
-      if (ag) _tvFalar(ag.def.id, `Bem-vindo de volta, ${_tvStats?.titulo || 'Recruta'}!`, 4);
-    } };
-  }
-}
-function _tvEmote(ag, icone, seg = 3) { ag.emote = icone; ag.emoteT = seg; }
-function _tvMissao(ag, missao) { if (!ag) return; ag.missao = missao; ag.path = []; ag.modo = 'parado'; }
-function _tvIrPara(ag, tile) { ag.path = _tvCaminho(_tvTile(ag), tile); ag.modo = ag.path.length ? 'andando' : 'chegou'; }
-function _tvAndar(ag, dt, vel) {   // devolve true quando chegou ao fim do caminho
-  const [px, py] = _tvPx(ag.path[0]), dx = px - ag.x, dy = py - ag.y, d = Math.hypot(dx, dy), v = vel * dt;
-  if (Math.abs(dx) > .5) ag.face = Math.sign(dx);
-  if (Math.abs(dy) > Math.abs(dx)) ag.costas = dy < 0; else if (Math.abs(dx) > .5) ag.costas = false;
-  if (d <= v) { ag.x = px; ag.y = py; ag.path.shift(); return !ag.path.length; }
-  ag.x += dx / d * v; ag.y += dy / d * v; return false;
-}
-const _tvNoHorario = ag => { const h = new Date().getHours() + new Date().getMinutes() / 60; return (ag.def.horarios || []).some(([de, ate]) => h >= de && h < ate); };
-function _tvAtualizar(ag, dt, est) {
-  ag.emoteT -= dt; if (ag.emoteT <= 0) ag.emote = null;
-  if (ag.pulo > 0) ag.pulo -= dt;
-  // chegada dramática: a rotina começou de verdade → entra correndo pela porta
-  if (est === 'trabalhando' && ag.estAnt && ag.estAnt !== 'trabalhando' && !_tvMovRed) {
-    [ag.x, ag.y] = _tvPx(TV_PORTA); ag.path = _tvCaminho(TV_PORTA, ag.def.est); ag.rapido = true; ag.missao = null;
-    _tvFalar(ag.def.id, 'Chegou trabalho! Com licença!', 3);
-  }
-  ag.estAnt = est;
-  if (ag.def.preso) {
-    if (_tvNoite()) { ag.modo = 'dormindo'; return; }
-    ag.modo = 'andando'; ag.x += ag.dirKobe * 10 * dt; ag.face = ag.dirKobe; ag.costas = false;
-    if (ag.x > 19 * TV_T + 4 || ag.x < 17 * TV_T + 10) ag.dirKobe *= -1;
-    return;
-  }
-  if (ag.missao && est !== 'trabalhando') {   // reação ou cena combinada
-    if (!ag.path.length && ag.modo !== 'indo') { ag.path = _tvCaminho(_tvTile(ag), ag.missao.alvo); ag.modo = 'indo'; if (!ag.path.length) ag.path = [ag.missao.alvo]; }
-    if (_tvAndar(ag, dt, 34)) { const m = ag.missao; ag.missao = null; ag.modo = 'atividade'; ag.t = 6; ag.poi = null; ag.objetivo = 'vagar'; m.chegar?.(); }
-    return;
-  }
-  const desejo = est === 'trabalhando' || est === 'erro' ? 'posto' : est === 'dormindo' || est === 'desligado' ? 'cama' : 'vagar';
-  if (desejo !== ag.objetivo) { ag.objetivo = desejo; ag.path = []; ag.poi = null; ag.t = 0; ag.modo = 'parado'; }
-  if (ag.path.length) { if (_tvAndar(ag, dt, ag.rapido ? 60 : 26)) { ag.modo = 'chegou'; ag.rapido = false; } else ag.modo = 'andando'; return; }
-  if (desejo !== 'vagar') {
-    const [tx, ty] = _tvTile(ag);
-    if (tx !== ag.def.est[0] || ty !== ag.def.est[1]) { if (!_tvMovRed) return _tvIrPara(ag, ag.def.est); [ag.x, ag.y] = _tvPx(ag.def.est); }
-    ag.costas = false;
-    ag.modo = desejo === 'posto' ? (est === 'erro' ? 'erro' : 'trabalhando') : 'dormindo';
-    return;
-  }
-  if (ag.modo === 'chegou') {
-    ag.costas = false; ag.modo = 'atividade'; ag.t = 4 + Math.random() * 7;
-    const a = ag.poi?.a;
-    if (a === 'beber') _tvEmote(ag, 'caneca', 3);
-    else if (a === 'aquecer') _tvEmote(ag, 'coracao', 2.5);
-    else if (a === 'comer' || a === 'sentar') { if (_tvAgs.some(o => o !== ag && Math.hypot(o.x - ag.x, o.y - ag.y) < 40)) _tvEmote(ag, 'fala', 4); }
-    else if (!ag.poi && !ag.def.usuario) ag.modo = 'atividadeLeve';
-  }
-  ag.t -= dt;
-  if (ag.t > 0 || _tvMovRed) return;
-  const ocupados = new Set(_tvAgs.filter(o => o !== ag && o.poi).map(o => o.poi.x + ',' + o.poi.y));
-  const casa = ag.def.usuario ? .55 : _tvNoHorario(ag) ? .85 : .25;   // rotina por horário: no horário dele, fica mais no posto
-  if (Math.random() < casa) { ag.poi = null; _tvIrPara(ag, ag.def.est); }
-  else { const livres = TV_POIS.filter(p => !ocupados.has(p.x + ',' + p.y)); ag.poi = livres[Math.random() * livres.length | 0]; _tvIrPara(ag, [ag.poi.x, ag.poi.y]); }
-  if (ag.modo === 'chegou') ag.t = 0;
-}
-function _tvAtualizarGato(dt) {
-  const g = _tvGato; if (!g || _tvMovRed) return;
-  if (g.path.length) { const [px, py] = _tvPx(g.path[0]), dx = px - g.x, dy = py - g.y, d = Math.hypot(dx, dy), v = 18 * dt; if (Math.abs(dx) > .5) g.face = Math.sign(dx); if (d <= v) { g.x = px; g.y = py; g.path.shift(); } else { g.x += dx / d * v; g.y += dy / d * v; } g.modo = 'anda'; return; }
-  if (g.modo === 'anda') { g.modo = Math.random() < .5 ? 'senta' : 'dorme'; g.t = 6 + Math.random() * 10; }
-  g.t -= dt; if (g.t > 0) return;
-  const [tx, ty] = [Math.floor(g.x / TV_T), Math.floor((g.y - 2) / TV_T)];
-  let alvo;
-  if (_tvNoite() || Math.random() < .3) alvo = [14, 3];   // dorme perto da lareira
-  else { const eu = _tvAgs.find(a => a.def.usuario); alvo = Math.random() < .3 && eu ? [Math.min(TV_COLS - 1, _tvTile(eu)[0] + 1), _tvTile(eu)[1]] : [Math.max(0, Math.min(TV_COLS - 1, tx + (Math.random() * 9 | 0) - 4)), Math.max(3, Math.min(TV_LINS - 1, ty + (Math.random() * 7 | 0) - 3))]; }
-  if (_tvBloq[alvo[1]][alvo[0]]) { g.t = 1; return; }
-  g.path = _tvCaminho([tx, ty], alvo); if (!g.path.length) g.t = 2;
-}
-// cenas entre agentes livres
-const TV_CENAS = [
-  { a: 'jefrey', b: 'maria', ta: [12, 6], tb: [14, 6], fa: 'Saúde!', fb: 'Saúde! Bebe devagar, hein.', emote: 'caneca' },
-  { a: 'monica', b: 'tesoureiro', ta: [11, 4], tb: [12, 4], fa: 'O relatório que você pediu.', fb: 'Hmm... as contas fecham.', emote: 'livro' },
-  { a: 'mosley', b: 'friday', ta: [9, 9], tb: [10, 9], fa: 'E então o estoico disse...', fb: 'Interesting! Tell me more.', emote: 'livro' },
-  { a: 'arauto', b: 'jefrey', ta: [3, 9], tb: [4, 9], fa: 'Notícia: o campeão treinou hoje!', fb: 'Claro que treinou.', emote: 'nota' },
-];
-function _tvTentarCena() {
-  const livre = id => { const ag = _tvAgs.find(a => a.def.id === id); return ag && !ag.missao && ag.objetivo === 'vagar' && ag.modo !== 'trabalhando' ? ag : null; };
-  const opcoes = TV_CENAS.filter(c => livre(c.a) && livre(c.b));
-  const c = opcoes[Math.random() * opcoes.length | 0]; if (!c) return;
-  const A = livre(c.a), B = livre(c.b);
-  A.path = []; B.path = []; A.modo = B.modo = 'parado';
-  A.missao = { alvo: c.ta, chegar: () => { _tvFalar(c.a, c.fa, 4); _tvEmote(A, c.emote, 4); } };
-  B.missao = { alvo: c.tb, chegar: () => setTimeout(() => { _tvFalar(c.b, c.fb, 4); _tvEmote(B, c.emote, 4); }, 1200) };
-}
-// reações ao que você fez no Tracker desde a última visita (contagem guardada neste aparelho)
-function _tvContagens() {
-  const ev = load('eventos', []), rec = [...load('receitas', []).filter(r => r.feita), ...load('receitas_feitas', [])], liv = [...load('leitura', []).filter(l => l.lido), ...load('leitura_lidos', [])];
-  const ult = (arr, campo) => arr.slice().sort((a, b) => String(a[campo] || '').localeCompare(String(b[campo] || ''))).pop();
-  return { treino: ev.filter(e => e.done && (e.notas || '').includes('Treino (Jefrey)')).length, receita: rec.length, livro: liv.length, receitaNome: ult(rec, 'feitaEm')?.nome, livroNome: ult(liv, 'lidoEm')?.titulo };
-}
-function _tvReagir() {
-  const agora = _tvContagens(), antes = _tvLS.get('tv_contagens');
-  _tvLS.set('tv_contagens', agora);
-  if (!antes || !_tvAgs) return;
-  const ag = id => _tvAgs.find(a => a.def.id === id), eu = ag('eu');
-  if (agora.treino > antes.treino) _tvMissao(ag('jefrey'), { alvo: [10, 9], chegar: () => { _tvFalar('jefrey', 'Treino feito! É disso que eu tô falando!', 5); _tvEmote(ag('jefrey'), 'coracao', 4); ag('jefrey').pulo = 1.6; if (eu) _tvEmote(eu, 'coracao', 3); } });
-  if (agora.receita > antes.receita) _tvMissao(ag('maria'), { alvo: [11, 8], chegar: () => { _tvPrato = 120; _tvFalar('maria', `Prontinho${agora.receitaNome ? ': ' + agora.receitaNome : ''}! Bom apetite.`, 5); } });
-  if (agora.livro > antes.livro) _tvMissao(ag('mosley'), { alvo: [12, 10], chegar: () => {
-    _tvFalar('mosley', `${agora.livroNome ? '"' + agora.livroNome + '"' : 'Esse livro'} vai pra estante.`, 4); _tvEmote(ag('mosley'), 'livro', 6);
-    ag('mosley').missao = { alvo: [2, 3], chegar: () => _tvFalar('mosley', 'Guardado. A estante cresce.', 4) };
-  } });
-}
-const TV_PART_COR = { mexer: ['#d7dbe2', -14], contar: ['#f5c542', -10], ler: ['#efe2c2', -8], escrever: ['#1b1d24', -4], treinar: ['#f4f4f4', -6], anunciar: ['#f5c542', -16], estudar: ['#8fc4e8', -10] };
-function _tvParticulas(ag, dt) {
-  const ac = ag.def.acao, cfg = TV_PART_COR[ac];
-  if (!cfg || Math.random() > dt * (ag.modo === 'trabalhando' ? 6 : 2)) return;
-  let x = ag.x + ag.face * 7, y = ag.y - 14;
-  if (ac === 'mexer') { x = 17 * TV_T + 8; y = 3 * TV_T + 4; }
-  if (ac === 'treinar') { x = ag.x + 10; y = ag.y - 12; }
-  _tvParts.push({ x: x + (Math.random() * 6 - 3), y, vx: (Math.random() - .5) * 6, vy: cfg[1], vida: 1.2, cor: cfg[0], nota: ac === 'anunciar' });
-}
-
-function _tvDesenhar() {
-  const cv = $('tv-canvas'); if (!cv) return;
-  const g = cv.getContext('2d'), t = _tvTempo, status = load('agentes_status', {});
-  g.imageSmoothingEnabled = false;
-  g.drawImage(_tvFundo(), 0, 0);
-  _tvParede(g, t);
-  const luzFogo = _tvFogo(g, t);
-  _tvDecor(g);
-  const gato = _tvGato;
-  const coisas = [
-    ...TV_MOVEIS.map(m => ({ y: (m.y + m.h) * TV_T - (m.t === 'jaula' ? 48 : 1), d: () => _tvMovel(g, m, t) })),
-    { y: 76, d: () => _tvEstatua(g) },
-    ...(gato ? [{ y: gato.y, d: () => { const tipo = gato.modo === 'anda' || gato.modo === 'senta' ? 'pe' : 'dorme', s = _tvGatoSpr(tipo, gato.face < 0); g.drawImage(s, Math.round(gato.x - s.width / 2), Math.round(gato.y - s.height + ((gato.modo === 'anda' && (t * 8 | 0) % 2) ? -1 : 0))); if (tipo === 'dorme' && (t | 0) % 3 === 0) _tvR(g, gato.x + 3, gato.y - 9, 2, 1, '#cdd3ff'); } }] : []),
-    ..._tvAgs.map(ag => ({ y: ag.y, d: () => {
-      const est = _tvEstado(ag.def, status[ag.def.id]);
-      const andando = ag.modo === 'andando' || ag.modo === 'indo' || (ag.def.preso && ag.modo === 'andando');
-      let dy = 0, dx = 0, passo = 0;
-      if (andando) { passo = ((t * (ag.rapido ? 10 : 6)) | 0) % 2 + 1; dy = passo === 1 ? -1 : 0; }
-      else if (ag.modo === 'trabalhando') { dy = ((t * 5) | 0) % 2 ? -1 : 0; if (ag.def.acao === 'treinar') dx = ((t * 5) | 0) % 2 ? 1 : 0; }
-      else if (ag.modo !== 'dormindo' && ag.modo !== 'erro') dy = ((t * 1.2 + ag.def.est[0]) | 0) % 2 ? -1 : 0;
-      if (ag.pulo > 0) dy -= Math.abs(Math.sin(ag.pulo * 8)) * 4;
-      if (_tvSel === ag.def.id) { g.strokeStyle = '#f0c96a'; g.lineWidth = 1; g.beginPath(); g.ellipse(ag.x, ag.y + 1, 9, 3, 0, 0, Math.PI * 2); g.stroke(); }
-      if (ag.def.usuario) { g.strokeStyle = 'rgba(240,201,106,.55)'; g.lineWidth = 1; g.beginPath(); g.ellipse(ag.x, ag.y + 1, 7, 2, 0, 0, Math.PI * 2); g.stroke(); }
-      g.globalAlpha = ag.modo === 'dormindo' ? .85 : 1;
-      g.drawImage(_tvSpr(ag.def.sprite, ag.face < 0, passo, ag.costas && andando), Math.round(ag.x - 10 + dx), Math.round(ag.y - 26 + dy));
-      g.globalAlpha = 1;
-      const hx = Math.round(ag.x), hy = Math.round(ag.y - 27);
-      if (_tvBolhas[ag.def.id]) { /* fala em HTML já mostra */ }
-      else if (ag.modo === 'dormindo') { const f = (t * .8 + ag.def.est[1]) % 2; g.fillStyle = '#cdd3ff'; g.globalAlpha = 1 - f / 2; _tvR(g, hx + 5 + f * 2, hy + 1 - f * 4, 3, 1, '#cdd3ff'); _tvR(g, hx + 6 + f * 2, hy + 2 - f * 4, 1, 1, '#cdd3ff'); _tvR(g, hx + 5 + f * 2, hy + 3 - f * 4, 3, 1, '#cdd3ff'); g.globalAlpha = 1; }
-      else if (ag.modo === 'erro') _tvBalao(g, hx, hy - 1, 'erro');
-      else if (ag.modo === 'trabalhando') _tvBalao(g, hx, hy - 1, 'fala');
-      else if (ag.emote) _tvBalao(g, hx, hy - 1, ag.emote);
-      else if (!ag.def.usuario && _tvRecente(status[ag.def.id]) && est === 'descansando') _tvBalao(g, hx, hy - 1, 'ok');
-      if (_tvSel === ag.def.id) { g.font = '7px "Alegreya Sans",sans-serif'; const w = g.measureText(ag.def.nome).width + 6; _tvR(g, hx - w / 2, hy + 30, w, 9, '#140f18'); g.fillStyle = '#f0c96a'; g.fillText(ag.def.nome, hx - w / 2 + 3, hy + 37); }
-    } })),
-  ].sort((a, b) => a.y - b.y);
-  coisas.forEach(c => c.d());
-  _tvJaulaFrente(g);
-  _tvLustre(g, t);
-  _tvParts.forEach(p => { if (p.nota) { _tvR(g, p.x, p.y, 1, 3, p.cor); _tvR(g, p.x - 2, p.y + 2, 2, 2, p.cor); } else _tvR(g, p.x, p.y, 1.5, 1.5, p.cor); });
-  _tvFogos(g, t);
-  if (_tvCeu() !== 'dia') {
-    const luz = document.createElement('canvas'); luz.width = 320; luz.height = 240;
-    const l = luz.getContext('2d');
-    l.fillStyle = _tvCeu() === 'noite' ? 'rgba(8,8,30,.55)' : 'rgba(40,20,30,.25)'; l.fillRect(0, 0, 320, 240);
-    l.globalCompositeOperation = 'destination-out';
-    [[264, 44, luzFogo], [90, 64, 26], [28, 192, 22], [280, 56, 30], ...(_tvTem('lustre') ? [[160, 118, 70]] : [])].forEach(([x, y, r]) => { const gr = l.createRadialGradient(x, y, 0, x, y, r * (1 + Math.sin(t * 6) * .03)); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); l.fillStyle = gr; l.fillRect(0, 0, 320, 240); });
-    g.drawImage(luz, 0, 0);
-  }
-  const brilho = g.createRadialGradient(264, 44, 0, 264, 44, luzFogo * .8);
-  brilho.addColorStop(0, (_tvStats?.seq.atual || 0) >= 21 ? 'rgba(120,170,255,.2)' : 'rgba(255,170,70,.18)'); brilho.addColorStop(1, 'rgba(255,170,70,0)');
-  g.fillStyle = brilho; g.fillRect(150, 0, 170, 150);
-}
-function _tvPasso(dt) {
-  _tvTempo += dt;
-  const status = load('agentes_status', {});
-  _tvAgs.forEach(ag => { _tvAtualizar(ag, dt, _tvEstado(ag.def, status[ag.def.id])); if (ag.modo === 'trabalhando' || ag.modo === 'atividadeLeve') _tvParticulas(ag, dt); });
-  _tvAtualizarGato(dt);
-  _tvParts = _tvParts.filter(p => (p.vida -= dt) > 0); _tvParts.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; });
-  if (_tvPrato > 0) _tvPrato -= dt;
-  if (!_tvMovRed) {
-    if ((_tvProxConversa -= dt) <= 0) {   // alguém acordado fala sozinho de vez em quando
-      _tvProxConversa = 12 + Math.random() * 10;
-      const quem = _tvAgs.filter(a => !a.def.usuario && a.modo !== 'dormindo' && !_tvBolhas[a.def.id]);
-      const ag = quem[Math.random() * quem.length | 0]; if (ag) _tvFalar(ag.def.id, _tvFrase(ag), 4.5);
-    }
-    if ((_tvProxCena -= dt) <= 0) { _tvProxCena = 35 + Math.random() * 35; if (!_tvNoite()) _tvTentarCena(); }
-  }
-  _tvDesenharBolhas(dt);
-}
-function _tvLoop(agora) {
-  if (!_tvAtiva() || document.hidden) { _tvRaf = 0; return; }
-  const dt = Math.min(.1, (agora - (_tvUlt || agora)) / 1000); _tvUlt = agora;
-  _tvPasso(dt);
-  _tvDesenhar();
-  _tvRaf = requestAnimationFrame(_tvLoop);
-}
-// clique: personagem, gato ou pontos do cenário (quadro, lareira, estante, troféus)
-function _tvClique(ev) {
-  const cv = $('tv-canvas'), r = cv.getBoundingClientRect();
-  const x = (ev.clientX - r.left) * 320 / r.width, y = (ev.clientY - r.top) * 240 / r.height;
-  const alvo = _tvAgs.filter(a => x > a.x - 10 && x < a.x + 10 && y > a.y - 28 && y < a.y + 2).sort((a, b) => b.y - a.y)[0];
-  if (alvo) { tvSelecionar(alvo.def.id); if (!alvo.def.usuario) _tvFalar(alvo.def.id, _tvFrase(alvo), 5); else _tvFalar('eu', _tvStats ? `${_tvStats.classe}, nível ${_tvStats.nivel}` : 'Eu', 3); return; }
-  if (_tvGato && Math.hypot(x - _tvGato.x, y - _tvGato.y + 4) < 9) return _tvFalar('gato', 'Miau.', 2.5);
-  const st = _tvStats, dentro = (x0, y0, x1, y1) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
-  if (dentro(68, 8, 98, 30)) { _tvQuadroAberto = !_tvQuadroAberto; _tvRenderQuadro(); if (_tvQuadroAberto) $('tv-quadro')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
-  if (dentro(240, 0, 288, 48)) return _tvFalar('lareira', !st || st.hoje < CV_INI ? 'O fogo da sua sequência acende em 21/10.' : `Sequência: ${st.seq.atual} dia${st.seq.atual === 1 ? '' : 's'} (recorde ${st.seq.max}). Escudos: ${st.seq.escudos}/3.`, 5, [264, 50]);
-  if (dentro(2, 2, 62, 48)) return _tvFalar('estante', `${6 + (st?.livrosLidos || 0)} livros na estante.`, 4, [32, 50]);
-  if (dentro(64, 31, 236, 47) || dentro(290, 31, 318, 47)) return _tvFalar('trofeus', `${st ? st.conquistas.filter(c => c.ok).length : 0} de 20 conquistas na parede.`, 4, [150, 50]);
-}
-
-function _tvAgenda() {
-  const agora = new Date(), lim = new Date(agora.getTime() + 7 * 864e5), vistos = new Set();
-  return load('eventos', []).filter(e => { if (e.done) return false; const d = new Date(e.dt); const k = e.dt + '|' + e.nome; if (vistos.has(k) || d < agora || d > lim) return false; vistos.add(k); return true; })
-    .sort((a, b) => a.dt.localeCompare(b.dt)).slice(0, 10);
-}
-function _tvRenderQuadro() {
-  const el = $('tv-quadro'); if (!el) return;
-  el.hidden = !_tvQuadroAberto;
-  if (!_tvQuadroAberto) return;
-  const ag = _tvStats?.agenda || [];
-  el.innerHTML = `<h2>Quadro de avisos</h2>${ag.length ? `<div class="tv-lista">${ag.map(e => `<div class="tv-cron"><span>${_tvFmt(new Date(e.dt))}</span>${_escH(e.nome)}</div>`).join('')}</div>` : '<p class="tv-papel">Nenhum compromisso nos próximos 7 dias.</p>'}`;
-}
-// crônica: execuções dos agentes + o que você fez, em tom de taverna
-function _tvCronica() {
-  const status = load('agentes_status', {}), itens = [];
-  TV_AGENTES.forEach(a => { const st = status[a.id]; if (st?.fim) itens.push([st.fim, `${a.nome} ${a.verbo}${st.estado === 'erro' ? ' — e tropeçou no caminho' : ''}.${st.resumo ? ' ' + st.resumo : ''}`]); });
-  [...load('receitas', []).filter(r => r.feita), ...load('receitas_feitas', [])].forEach(r => r.feitaEm && itens.push([r.feitaEm, `Você preparou ${r.nome}. A Maria aprovou.`]));
-  [...load('leitura', []).filter(l => l.lido), ...load('leitura_lidos', [])].forEach(l => l.lidoEm && itens.push([l.lidoEm, `Você terminou de ler "${l.titulo}". Mais um na estante.`]));
-  const vistos = new Set();
-  load('eventos', []).forEach(e => { if (!e.done || !(e.notas || '').includes('Treino (Jefrey)') || vistos.has(e.dt + e.nome)) return; vistos.add(e.dt + e.nome); itens.push([e.dt, `Você venceu o ${e.nome}. O Jefrey assentiu.`]); });
-  return itens.sort((a, b) => b[0].localeCompare(a[0])).slice(0, 12);
-}
-const _tvFmtData = s => { const d = new Date(s.length <= 10 ? s + 'T12:00' : s); return s.length <= 10 ? `${TV_DIAS[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}` : _tvFmt(d); };
-
-function renderTaverna() {
-  const painel = $('tv-painel');
-  if (!painel) return;
-  try { _tvStats = _cvStats(); } catch { _tvStats = null; }
-  if (_tvStats) { _tvStats.livrosLidos = _tvContagens().livro; _tvStats.agenda = _tvAgenda(); }
-  if (!_tvAgs) { _tvIniciarAgentes(); $('tv-canvas').addEventListener('click', _tvClique); }
-  const eu = _tvAgs.find(a => a.def.usuario); if (eu) eu.def = Object.assign(eu.def, _tvEu());
-  _tvReagir();
-  if (!_tvRaf && _tvAtiva()) { _tvUlt = 0; _tvRaf = requestAnimationFrame(_tvLoop); }
-  _tvRenderQuadro();
-  const cron = _tvCronica();
-  $('tv-cronica').innerHTML = `<h2>Crônica da taverna</h2>${cron.length ? `<div class="tv-lista">${cron.map(([d, txt]) => `<div class="tv-cron"><span>${_tvFmtData(d)}</span>${_escH(txt)}</div>`).join('')}</div>` : '<p class="tv-papel">Nada registrado ainda. As histórias começam quando os agentes trabalharem e você completar suas metas.</p>'}`;
-  const status = load('agentes_status', {});
-  const niv = _tvStats?.nivel || 1, prox = TV_ENFEITES.find(([lv]) => lv > niv);
-  painel.innerHTML = `<h2>Quem está na taverna</h2><div class="tv-lista">${TV_AGENTES.map(a => {
-    const st = status[a.id], est = _tvEstado(a, st), rec = _tvRecente(st), proxEx = _tvProxima(a);
-    const ult = st && (st.fim || st.inicio) ? _tvFmt(new Date(st.fim || st.inicio)) : '';
-    return `<button class="tv-row${_tvSel === a.id ? ' sel' : ''}" id="tv-row-${a.id}" onclick="tvSelecionar('${a.id}')">
-      ${pxSvg(PX_SPR[a.sprite], 34, PX_COR)}
-      <div><b>${a.nome}</b><span class="tv-papel">${a.papel}</span></div>
-      <span class="tv-est ${est === 'trabalhando' || est === 'erro' ? est : rec ? 'recente' : ''}">${rec && est !== 'erro' && est !== 'trabalhando' ? 'Terminou há pouco' : TV_EST_TXT[est]}</span>
-      <div class="tv-det">${_escH(a.faz)}<br>
-        ${ult ? `Última vez: <strong>${ult}</strong>${st.resumo ? ' — ' + _escH(st.resumo) : ''}` : a.desligado ? '' : 'Ainda não registrou nenhuma execução.'}
-        ${proxEx ? `<br>Próxima: <strong>${_tvFmt(proxEx)}</strong>` : a.desligado ? '<br>Não tem próxima execução: está desligado.' : ''}
-      </div>
-    </button>`;
-  }).join('')}</div>
-  <p class="tv-papel" style="margin-top:14px">Enfeites da taverna: ${TV_ENFEITES.map(([lv, , nome]) => niv >= lv ? `<strong>${nome}</strong>` : `<span style="color:var(--text3)">${nome} (nível ${lv})</span>`).join(' · ')}${prox ? `. Próximo: ${prox[2]} no nível ${prox[0]}.` : '.'}</p>
-  <p class="tv-papel" style="margin-top:8px;font-size:12px;color:var(--text3)">Toque no quadro de avisos, na lareira, na estante ou nos troféus da parede. As rotinas só rodam com o app do Claude aberto no computador; se ele estiver fechado no horário, o agente roda quando o app abrir.</p>`;
-}
-function tvSelecionar(id) {
-  _tvSel = _tvSel === id ? null : id;
-  renderTaverna();
-  if (_tvSel) $('tv-row-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  const cena = $('tv-cena'), ag = _tvAgs?.find(a => a.def.id === id);   // no celular o mapa rola de lado: centraliza o escolhido
-  if (_tvSel && ag && cena.scrollWidth > cena.clientWidth) cena.scrollLeft = ag.x * cena.scrollWidth / 320 - cena.clientWidth / 2;
-}
-setInterval(() => { if ($('page-taverna')?.classList.contains('on')) safeCall(renderTaverna, 'renderTaverna'); }, 60000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && $('page-taverna')?.classList.contains('on')) safeCall(renderTaverna, 'renderTaverna'); });
-
-// ──────────────────────────────────
 // COMPRAS
 // ──────────────────────────────────
 function addCompra() {
@@ -6065,10 +4892,10 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','evo_estilo','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
-// contagem por chave — usada pelo card do Backup e pelo balão do Escrivão no Mundo
+// contagem por chave — usada pelo card do Backup
 function _bkContagens() {
   return Object.entries(BK_RESUMO).map(([k, lbl]) => {
     const v = load(k, []);
@@ -8041,8 +6868,6 @@ const ALL_PAGES = [
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'leitura',  label:'Leitura',   icon:'📚' },
-  { id:'taverna',  label:'Taverna',   icon:'🍺' },
-  { id:'mundo',    label:'Mundo',     icon:'🏰' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'investimentos', label:'Investimentos', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
@@ -8050,9 +6875,9 @@ const ALL_PAGES = [
 
 function getNavFavs() {
   const favs = load('nav_favs', null);
-  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','taverna','backup'];
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','backup'];
   // Abas que entraram depois (04/10/2026) aparecem uma vez para quem já tinha favoritos salvos
-  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto'], ['taverna', 'nav_tv_visto']].forEach(([aba, flag]) => {
+  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto']].forEach(([aba, flag]) => {
     if (load(flag, false)) return;
     if (!favs.includes(aba)) { favs.push(aba); save('nav_favs', favs); }
     save(flag, true);
@@ -9485,7 +8310,7 @@ function _lpTema(html) {
   safeCall(renderGratDiaria, 'renderGratDiaria');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
   safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
-  // Link direto pra uma aba: .../Tracker/#taverna (usado no atalho do painel do app do Claude)
+  // Link direto pra uma aba: .../Tracker/#leitura (usado no atalho do painel do app do Claude)
   const abaInicial = location.hash.slice(1);
   if (abaInicial && $('page-' + abaInicial)) safeCall(() => go(abaInicial), 'abaInicial');
 
