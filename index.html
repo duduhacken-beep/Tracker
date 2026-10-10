@@ -1312,7 +1312,8 @@ a.btn{text-decoration:none}
   font-family:var(--f-serif);
   font-style:italic;
 }
-.empty .ei{font-size:32px;margin-bottom:12px;display:block;opacity:.6}
+.empty .ei{width:56px;height:56px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:24px;font-style:normal;border-radius:16px;
+  background:var(--bg3);border:1px solid var(--border-strong);box-shadow:0 0 0 6px rgba(255,255,255,.018),inset 0 1px 0 rgba(255,255,255,.04);filter:grayscale(.3)}
 
 /* HISTORY TABLE */
 .htable{width:100%;border-collapse:collapse;font-size:12.5px}
@@ -1795,6 +1796,65 @@ body.dens-compact .gap{margin-bottom:14px}
 .mov-vazio ol{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 .inv-pools{margin-top:34px}
 .inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
+/* ══ Componentes inspirados no 21st.dev (10/10/2026) — reescritos em CSS/JS puro ══ */
+
+/* Toasts empilhados (Sonner): o mais novo na frente, os antigos atrás; passando o mouse, abrem em lista */
+.toaster{position:fixed;right:20px;bottom:20px;z-index:3000;width:360px;max-width:calc(100vw - 32px);pointer-events:none}
+.toast{position:absolute;right:0;bottom:0;width:100%;display:flex;gap:10px;align-items:flex-start;padding:13px 12px 13px 14px;
+  background:var(--card2);border:1px solid var(--border-strong);border-radius:var(--r);box-shadow:var(--shadow-2);
+  font-size:13px;line-height:1.45;color:var(--text);pointer-events:auto;transform-origin:50% 100%;
+  transform:translateY(calc(var(--y,0px) * -1)) scale(var(--s,1));opacity:var(--o,1);
+  transition:transform .45s var(--ease-cine),opacity .3s var(--ease-out)}
+.toast::after{content:"";position:absolute;left:0;right:0;top:100%;height:12px}   /* ponte entre toasts abertos: o hover não pisca */
+.toast.entrando{transform:translateY(110%);opacity:0}
+.toast.saindo{transform:translateY(calc(var(--y,0px) * -1)) scale(.92);opacity:0}
+.toast>svg{flex-shrink:0;margin-top:1px}
+.toast>*{transition:opacity .25s var(--ease-out)}
+.toast.atras>*{opacity:0}
+.toast.ok>svg{color:var(--green)}.toast.erro>svg{color:var(--red)}.toast.aviso>svg{color:var(--orange)}.toast.info>svg{color:var(--accent)}
+.t-msg{flex:1;min-width:0;overflow-wrap:anywhere}
+.t-x{border:none;background:transparent;color:var(--text3);font-size:18px;line-height:1;width:24px;height:24px;margin:-3px -2px 0 0;border-radius:6px;cursor:pointer;flex-shrink:0}
+.t-x:hover{color:var(--text);background:rgba(255,255,255,.06)}
+@media(max-width:640px){.toaster{right:16px;bottom:calc(78px + env(safe-area-inset-bottom))}}
+
+/* Diálogo de confirmação (Dialogs) — no lugar do confirm() do navegador */
+.cf-modal{width:380px;text-align:center}
+.cf-icone{width:48px;height:48px;margin:0 auto 14px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--red);background:var(--rdim);box-shadow:0 0 0 6px rgba(248,113,113,.05)}
+.cf-modal p{font-size:14.5px;line-height:1.5;color:var(--text)}
+.cf-modal .mfooter{justify-content:center;border-top:none;padding-top:4px}
+.cf-modal .mfooter .btn{flex:1;justify-content:center}
+.btn-perigo{background:var(--red);color:#0a0c10;border:1px solid var(--red);font-weight:600}
+.btn-perigo:hover{filter:brightness(1.08)}
+
+/* Limelight Nav: barra de luz na aba ativa projetando um facho sobre o ícone */
+.nav-indicator{width:3px;height:26px;border-radius:0 3px 3px 0;box-shadow:0 0 12px var(--accent),0 0 2px var(--accent)}
+.nav-indicator::after{content:"";position:absolute;left:3px;top:50%;width:62px;height:58px;transform:translateY(-50%);pointer-events:none;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 26%,transparent),transparent 85%);clip-path:polygon(0 36%,100% 0,100% 100%,0 64%)}
+.nb.on{background:transparent}
+.nb.on svg{filter:drop-shadow(0 0 6px var(--aglow))}
+@media(max-width:640px){
+  .nav-indicator{top:0;bottom:auto;width:24px;height:3px;border-radius:0 0 3px 3px}
+  .nav-indicator::after{left:50%;top:3px;width:58px;height:56px;transform:translateX(-50%);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 26%,transparent),transparent 85%);clip-path:polygon(36% 0,64% 0,100% 100%,0 100%)}
+  .nb.on{border-bottom:none;background:transparent}
+}
+
+/* Glow / Spotlight Card: brilho e borda acesa seguindo o mouse nos cards (os .stat ganham só o brilho); só com mouse */
+@media (hover:hover) and (pointer:fine){
+  .card::after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;opacity:0;transition:opacity .35s var(--ease-out);
+    background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--glow,var(--accent)) 70%,transparent),transparent 70%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+  .card:hover::after{opacity:1}
+  .card:hover,.stat:hover{background-image:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--glow,var(--accent)) 6%,transparent),transparent 60%)}
+  #page-evolucao .cv-meta{--glow:var(--cor)}
+}
+
+/* Checkbox animado: o ✓ é desenhado (não é mais o caractere) e entra com mola */
+.cb{font-size:0!important;position:relative}
+.cb::after{content:"";width:5px;height:9px;margin-top:-2px;border:solid #0a0c10;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);transition:transform .3s var(--ease-spring)}
+.cb.on::after{transform:rotate(45deg) scale(1)}
+
+@media (prefers-reduced-motion: reduce){.toast,.nav-indicator,.cb::after{transition:none}}
 </style>
 </head>
 <body>
@@ -2786,7 +2846,7 @@ function subscribeRealtime() {
 
 // Push ALL localStorage keys to Supabase (used by manual sync button)
 async function pushAllToSupabase() {
-  if (!_sb) { alert('Supabase não configurado. Vá em Backup → Configurar.'); return; }
+  if (!_sb) { toast('Supabase não configurado. Vá em Backup → Configurar.', 'aviso'); return; }
   const btn = event?.target?.closest('button');
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
@@ -2806,7 +2866,7 @@ async function pushAllToSupabase() {
     console.error('[Supabase push error]', e.message);
     setSyncStatus('error');
     if (btn) { btn.textContent = '❌ Erro'; btn.disabled = false; setTimeout(() => { btn.textContent = '⬆️ Forçar upload'; }, 3000); }
-    alert('Erro ao enviar: ' + e.message);
+    toast('Erro ao enviar: ' + e.message, 'erro');
   }
 }
 
@@ -2905,6 +2965,99 @@ function fmtBRL(v) {
 }
 
 // ──────────────────────────────────
+// COMPONENTES (21st.dev, 10/10/2026): toasts empilhados (Sonner), diálogo de confirmação, brilho que segue o mouse nos cards
+// ──────────────────────────────────
+const _TOAST_ICONE = {
+  ok: '<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>',
+  erro: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  aviso: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+};
+function _toastLayout(box) {
+  const aberto = box.matches(':hover');
+  const ts = [...box.querySelectorAll('.toast:not(.saindo)')].reverse();   // o mais novo primeiro
+  ts.forEach(t => { t.style.height = ''; });
+  const hFrente = ts[0]?.offsetHeight;
+  let y = 0;
+  ts.forEach((t, i) => {
+    t.style.setProperty('--y', (aberto ? y : i * 12) + 'px');
+    t.style.setProperty('--s', aberto ? 1 : Math.max(.85, 1 - i * .05));
+    t.style.setProperty('--o', i > 2 ? 0 : 1);
+    t.style.zIndex = 50 - i;
+    y += t.offsetHeight + 10;
+    if (!aberto && i) t.style.height = hFrente + 'px';   // fechado, os de trás ficam do tamanho do da frente
+    t.classList.toggle('atras', !aberto && i > 0);       // ...e sem conteúdo à mostra
+  });
+}
+// tipo: ok | erro | aviso | info. Fica 4s (5s se for erro); com o mouse em cima, espera.
+function toast(msg, tipo = 'info', ms = tipo === 'erro' ? 5000 : 4000) {
+  let box = $('toaster');
+  if (!box) {
+    box = document.createElement('section');
+    box.id = 'toaster'; box.className = 'toaster'; box.setAttribute('aria-label', 'Avisos');
+    box.addEventListener('pointerover', () => _toastLayout(box));
+    box.addEventListener('pointerout', () => requestAnimationFrame(() => _toastLayout(box)));
+    document.body.appendChild(box);
+  }
+  const t = document.createElement('div');
+  t.className = `toast ${tipo} entrando`;
+  t.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+  t.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${_TOAST_ICONE[tipo] || _TOAST_ICONE.info}</svg><div class="t-msg"></div><button class="t-x" aria-label="Fechar aviso">×</button>`;
+  t.querySelector('.t-msg').textContent = msg;
+  const fechar = () => {
+    if (t.classList.contains('saindo')) return;
+    t.classList.add('saindo'); _toastLayout(box);
+    setTimeout(() => { t.remove(); _toastLayout(box); }, 320);
+  };
+  t.querySelector('.t-x').onclick = fechar;
+  box.appendChild(t);
+  _toastLayout(box);   // mede antes de entrar (força o reflow pra transição rodar)
+  requestAnimationFrame(() => t.classList.remove('entrando'));
+  const espera = () => (t.matches(':hover') || box.matches(':hover')) ? setTimeout(espera, 800) : fechar();
+  setTimeout(espera, ms);
+}
+
+// Diálogo de confirmação no visual do app; resolve true/false. O foco começa no "Cancelar" (Enter não apaga sem querer).
+function confirmar(msg, { acao = 'Excluir' } = {}) {
+  return new Promise(res => {
+    let ov = $('modal-confirmar');
+    if (!ov) {
+      ov = document.createElement('div');
+      ov.id = 'modal-confirmar'; ov.className = 'overlay';
+      ov.innerHTML = `<div class="modal cf-modal" role="alertdialog" aria-modal="true" aria-labelledby="cf-msg">
+        <div class="cf-icone" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/></svg></div>
+        <p id="cf-msg"></p>
+        <div class="mfooter"><button class="btn btn-g btn-sm" data-r="0">Cancelar</button><button class="btn btn-sm btn-perigo" data-r="1"></button></div></div>`;
+      document.body.appendChild(ov);
+    }
+    const voltaFoco = document.activeElement;
+    ov.querySelector('#cf-msg').textContent = msg;
+    ov.querySelector('[data-r="1"]').textContent = acao;
+    const fim = r => {
+      ov.classList.remove('on'); ov.onclick = null;
+      document.removeEventListener('keydown', tecla, true);
+      voltaFoco?.focus?.(); res(r);
+    };
+    const tecla = e => { if (e.key === 'Escape') { e.stopPropagation(); fim(false); } };
+    ov.onclick = e => { const b = e.target.closest('[data-r]'); if (b) fim(b.dataset.r === '1'); else if (e.target === ov) fim(false); };
+    document.addEventListener('keydown', tecla, true);
+    ov.classList.add('on');
+    ov.querySelector('[data-r="0"]').focus();
+  });
+}
+
+// Glow card: posição do mouse dentro do card pras variáveis --mx/--my (o CSS só liga isso com mouse)
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  document.addEventListener('pointermove', e => {
+    const c = e.target.closest?.('.card, .stat');   // .stat já usa o ::after, então ganha só o brilho de dentro
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+}
+
+// ──────────────────────────────────
 // NAVIGATION
 // ──────────────────────────────────
 function moveNavIndicator(btn) {
@@ -2913,12 +3066,13 @@ function moveNavIndicator(btn) {
   if (!ind || !sidebar || !btn) return;
   const sbRect = sidebar.getBoundingClientRect();
   const btnRect = btn.getBoundingClientRect();
+  if (!btnRect.height) { ind.style.opacity = '0'; return; }   // aba fora da barra (não favoritada): sem facho perdido no canto
   const isMobile = window.innerWidth <= 640;
   let x = 0, y = 0;
   if (isMobile) {
     x = btnRect.left - sbRect.left + (btnRect.width - 24) / 2;
   } else {
-    y = btnRect.top - sbRect.top + (btnRect.height - 24) / 2;
+    y = btnRect.top - sbRect.top + (btnRect.height - 26) / 2;
   }
   ind.style.transform = `translate(${x}px, ${y}px)`;
   ind.style.opacity = '1';
@@ -3333,7 +3487,7 @@ $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeMo
 function addEvento() {
   const nome = $('ev-n').value.trim();
   const dt = $('ev-dt').value;
-  if (!nome || !dt) return alert('Preencha nome e data/hora.');
+  if (!nome || !dt) return toast('Preencha nome e data/hora.', 'aviso');
   const eventos = load('eventos', []);
   const novo = { id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false };
   eventos.push(novo);
@@ -3649,7 +3803,7 @@ $('modal').addEventListener('click', e => { if (e.target === $('modal')) closeMo
 function addEvento() {
   const nome = $('ev-n').value.trim();
   const dt = $('ev-dt').value;
-  if (!nome || !dt) return alert('Preencha nome e data/hora.');
+  if (!nome || !dt) return toast('Preencha nome e data/hora.', 'aviso');
   const eventos = load('eventos', []);
   const novo = { id: Date.now(), nome, dt, cat: $('ev-cat').value, notas: $('ev-no').value, done: false };
   eventos.push(novo);
@@ -3774,7 +3928,7 @@ document.querySelectorAll('.mb').forEach(b => b.addEventListener('click', () => 
 
 function saveMood() {
   const sel = document.querySelector('.mb.on');
-  if (!sel) return alert('Selecione um humor!');
+  if (!sel) return toast('Selecione um humor.', 'aviso');
   const mente = load('mente', []);
   mente.unshift({ id: Date.now(), tipo: 'humor', mood: sel.dataset.m, nota: $('mood-nota').value, data: today(), hora: fmtTime() });
   save('mente', mente);
@@ -3785,7 +3939,7 @@ function saveMood() {
 
 function saveGrat() {
   const g1 = $('g1').value.trim();
-  if (!g1) return alert('Escreva ao menos uma gratidão.');
+  if (!g1) return toast('Escreva ao menos uma gratidão.', 'aviso');
   const mente = load('mente', []);
   mente.unshift({ id: Date.now(), tipo: 'gratidao', items: [$('g1').value, $('g2').value, $('g3').value].filter(Boolean), data: today(), hora: fmtTime() });
   save('mente', mente);
@@ -4289,7 +4443,7 @@ function metaRow(m, cor, comExcluir) {
 function addMetaTracking() {
   const nome = $('mt-nome').value.trim();
   const target = parseInt($('mt-target').value);
-  if (!nome || !target) return alert('Preencha nome e meta.');
+  if (!nome || !target) return toast('Preencha nome e meta.', 'aviso');
   const list = load('metas_t', []);
   list.push({ id: Date.now(), nome, target, atual: 0, unidade: $('mt-unidade').value || 'vezes', ano: new Date().getFullYear() });
   save('metas_t', list);
@@ -4718,7 +4872,7 @@ function delGastoFixo(id) {
 
 function setSaldo() {
   const val = parseFloat($('fin-saldo-inp').value);
-  if (isNaN(val)) return alert('Digite um valor válido.');
+  if (isNaN(val)) return toast('Digite um valor válido.', 'aviso');
   const cfg = load('fin_cfg', {});
   cfg.saldo = val;
   save('fin_cfg', cfg);
@@ -4738,7 +4892,7 @@ function ajustarSaldo() {
 function addDespesa() {
   const desc = $('dep-desc').value.trim();
   const val = parseFloat($('dep-val').value);
-  if (!desc || !val || val <= 0) return alert('Preencha descrição e valor.');
+  if (!desc || !val || val <= 0) return toast('Preencha descrição e valor.', 'aviso');
   const desp = load('despesas', []);
   desp.unshift({
     id: Date.now(),
@@ -4816,10 +4970,10 @@ function delDespesa(id) {
   renderDespesas();
 }
 
-function clearExtrato() {
+async function clearExtrato() {
   const mes = $('dep-filter-mes').value;
   if (!mes) return;
-  if (!confirm(`Excluir todas as movimentações de ${mes}?`)) return;
+  if (!await confirmar(`Excluir todas as movimentações de ${mes}?`)) return;
   // Before deleting, reverse saldo effects
   const cfg = load('fin_cfg', {});
   const toDelete = load('despesas', []).filter(d => d.data.startsWith(mes));
@@ -5154,7 +5308,7 @@ function abrirModalRelatorio(id) {
 function onArquivoRelatorio(input) {
   const file = input.files[0];
   if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { alert('Arquivo muito grande. Máximo 3MB.'); return; }
+  if (file.size > 3 * 1024 * 1024) { toast('Arquivo muito grande. Máximo 3 MB.', 'erro'); return; }
   const reader = new FileReader();
   reader.onload = e => {
     _mrArquivoB64 = e.target.result;
@@ -5192,8 +5346,8 @@ function salvarRelatorioCarteira() {
   renderRelatoriosCarteira();
 }
 
-function delRelatorioCarteira(id) {
-  if (!confirm('Excluir este relatório?')) return;
+async function delRelatorioCarteira(id) {
+  if (!await confirmar('Excluir este relatório?')) return;
   save('relatorios_carteira', load('relatorios_carteira',[]).filter(r => r.id !== id));
   renderRelatoriosCarteira();
 }
@@ -5464,10 +5618,10 @@ function negColRename(colId) {
   saveNegBoard(board);
   renderNegocios();
 }
-function negColDel(colId) {
+async function negColDel(colId) {
   const board = getNegBoard();
   const cards = board.cards.filter(c => c.colId === colId);
-  if (!confirm(cards.length ? `Excluir coluna e ${cards.length} cartão(ões)?` : 'Excluir esta coluna?')) return;
+  if (!await confirmar(cards.length ? `Excluir a coluna e ${cards.length} cartão(ões)?` : 'Excluir esta coluna?')) return;
   board.colunas = board.colunas.filter(c => c.id !== colId);
   board.cards = board.cards.filter(c => c.colId !== colId);
   saveNegBoard(board);
@@ -5552,7 +5706,7 @@ function negCapaUpload(ev) {
   // perderia a animação. Tem um limite de tamanho pra não inchar o localStorage.
   if (file.type === 'image/gif') {
     if (file.size > 3 * 1024 * 1024) {
-      alert('Esse GIF tem mais de 3MB — é melhor usar o link da imagem (botão "Link de imagem/GIF") em vez de fazer upload, pra não pesar o armazenamento local.');
+      toast('Esse GIF passa de 3 MB. Use o botão "Link de imagem/GIF" em vez de fazer upload, pra não pesar o armazenamento.', 'aviso', 7000);
       ev.target.value = '';
       return;
     }
@@ -5612,10 +5766,10 @@ function negCardSave() {
   $('modal-neg-card').classList.remove('on');
   renderNegocios();
 }
-function negCardDel() {
+async function negCardDel() {
   const idRaw = $('neg-card-id').value;
   if (!idRaw) return;
-  if (!confirm('Excluir este cartão?')) return;
+  if (!await confirmar('Excluir este cartão?')) return;
   const board = getNegBoard();
   board.cards = board.cards.filter(c => c.id !== Number(idRaw));
   saveNegBoard(board);
@@ -5801,11 +5955,7 @@ function atualizarMetaHidratacaoAutomatica() {
   if (meta === metaAtual) return;
   save('agua_meta', meta);
   refreshHome();
-  const banner = document.createElement('div');
-  banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--blue);border-radius:var(--rs);padding:10px 18px;z-index:9000;font-size:12px;color:var(--blue);box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap';
-  banner.textContent = `💧 Meta de água ajustada: ${meta}ml (${peso}kg × 35ml/kg)`;
-  document.body.appendChild(banner);
-  setTimeout(() => banner.remove(), 4000);
+  toast(`Meta de água ajustada: ${meta} ml (${peso} kg × 35 ml/kg)`, 'info');
 }
 
 // ══════════════════════════════════════════
@@ -6313,7 +6463,7 @@ function gerarRelatorio() {
 
   const w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(()=>w.print(), 600); }
-  else alert('Permita pop-ups para gerar o PDF.');
+  else toast('Permita pop-ups para gerar o PDF.', 'aviso');
   if (btn) { btn.textContent='✅ Gerado!'; btn.disabled=false; setTimeout(()=>{ btn.textContent='Gerar relatório da semana'; },3000); }
 }
 
@@ -6750,7 +6900,7 @@ function ntcRenderAnexos() {
 function salvarNoticia() {
   const titulo = $('ntc-titulo').value.trim();
   const texto  = $('ntc-texto').value.trim();
-  if (!titulo || !texto) { alert('Preencha o título e o texto do relatório.'); return; }
+  if (!titulo || !texto) { toast('Preencha o título e o texto do relatório.', 'aviso'); return; }
   const lista = load('relatorios_noticias', []);
   const id = parseInt($('ntc-id').value) || Date.now();
   const item = {
@@ -6770,8 +6920,8 @@ function salvarNoticia() {
   renderNoticias();
 }
 
-function delNoticia(id) {
-  if (!confirm('Excluir este relatório?')) return;
+async function delNoticia(id) {
+  if (!await confirmar('Excluir este relatório?')) return;
   save('relatorios_noticias', load('relatorios_noticias', []).filter(n => n.id !== id));
   renderNoticias();
 }
@@ -6972,7 +7122,7 @@ function salvarNavConfig() {
     const cb = document.getElementById('nf-' + id);
     return cb && cb.checked;
   });
-  if (favs.length === 0) { alert('Selecione pelo menos uma aba.'); return; }
+  if (favs.length === 0) { toast('Selecione pelo menos uma aba.', 'aviso'); return; }
   save('nav_favs', favs);
   aplicarNavFavs();
   $('modal-nav-config').classList.remove('on');
@@ -6995,11 +7145,11 @@ function toggleSbForm() {
 function salvarCredenciais() {
   const url = ($('sb-url-inp').value || '').trim();
   const key = ($('sb-key-inp').value || '').trim();
-  if (!url || !key) { alert('Preencha URL e Key.'); return; }
+  if (!url || !key) { toast('Preencha URL e Key.', 'aviso'); return; }
   localStorage.setItem('sb_url', url);
   localStorage.setItem('sb_key', key);
-  alert('✅ Credenciais salvas! A página vai recarregar para conectar.');
-  location.reload();
+  toast('Credenciais salvas. Recarregando pra conectar…', 'ok');
+  setTimeout(() => location.reload(), 1200);
 }
 
 function updateSbStatusArea() {
@@ -7068,7 +7218,7 @@ function initGcal() {
 
 function gcalConectar() {
   if (!GCAL_CLIENT_ID) { toggleGcalForm(); return; }
-  if (!_gcalTokenClient) { alert('Aguarde o carregamento do Google Sign-In (verifique sua conexão) e tente novamente.'); return; }
+  if (!_gcalTokenClient) { toast('O login do Google ainda está carregando. Confira a conexão e tente de novo.', 'aviso'); return; }
   _gcalTokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
@@ -7093,10 +7243,10 @@ async function gcalEnsureToken(interactive) {
 
 function gcalSalvarClientId() {
   const id = ($('gcal-id-inp').value || '').trim();
-  if (!id) { alert('Cole o Client ID.'); return; }
+  if (!id) { toast('Cole o Client ID.', 'aviso'); return; }
   localStorage.setItem('gcal_client_id', id);
-  alert('✅ Client ID salvo! A página vai recarregar.');
-  location.reload();
+  toast('Client ID salvo. Recarregando…', 'ok');
+  setTimeout(() => location.reload(), 1200);
 }
 
 function toggleGcalForm() {
