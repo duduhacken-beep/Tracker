@@ -1826,17 +1826,17 @@ body.dens-compact .gap{margin-bottom:14px}
 .btn-perigo{background:var(--red);color:#0a0c10;border:1px solid var(--red);font-weight:600}
 .btn-perigo:hover{filter:brightness(1.08)}
 
-/* Limelight Nav: barra de luz na aba ativa projetando um facho sobre o ícone */
-.nav-indicator{width:3px;height:26px;border-radius:0 3px 3px 0;box-shadow:0 0 12px var(--accent),0 0 2px var(--accent)}
-.nav-indicator::after{content:"";position:absolute;left:3px;top:50%;width:62px;height:58px;transform:translateY(-50%);pointer-events:none;
-  background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 26%,transparent),transparent 85%);clip-path:polygon(0 36%,100% 0,100% 100%,0 64%)}
-.nb.on{background:transparent}
-.nb.on svg{filter:drop-shadow(0 0 6px var(--aglow))}
+/* Vercel Tabs na barra (troca da Limelight, 10/10/2026): bloco da aba ativa desliza com mola até ela;
+   com mouse, um "fantasma" claro acompanha a aba sob o cursor */
+.nav-indicator,.nav-hover{position:absolute;left:0;top:0;bottom:auto;width:0;height:0;border-radius:12px;pointer-events:none;z-index:0;box-shadow:none;
+  transition:transform .5s var(--ease-spring),width .3s var(--ease-out),height .3s var(--ease-out),opacity .2s var(--ease-out)}
+.nav-indicator{background:var(--adim);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 24%,transparent),0 8px 22px -10px var(--accent)}
+.nav-hover{background:rgba(255,255,255,.05);opacity:0}
+.sidebar .nb{z-index:1}
+.nb:hover,.nb.on{background:transparent}
 @media(max-width:640px){
-  .nav-indicator{top:0;bottom:auto;width:24px;height:3px;border-radius:0 0 3px 3px}
-  .nav-indicator::after{left:50%;top:3px;width:58px;height:56px;transform:translateX(-50%);
-    background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 26%,transparent),transparent 85%);clip-path:polygon(36% 0,64% 0,100% 100%,0 100%)}
-  .nb.on{border-bottom:none;background:transparent}
+  .nav-indicator,.nav-hover{top:0;bottom:auto;border-radius:14px}
+  .nb.on{border-bottom:none}
 }
 
 /* Glow / Spotlight Card: brilho e borda acesa seguindo o mouse nos cards (os .stat ganham só o brilho); só com mouse */
@@ -1854,7 +1854,7 @@ body.dens-compact .gap{margin-bottom:14px}
 .cb::after{content:"";width:5px;height:9px;margin-top:-2px;border:solid #0a0c10;border-width:0 2px 2px 0;transform:rotate(45deg) scale(0);transition:transform .3s var(--ease-spring)}
 .cb.on::after{transform:rotate(45deg) scale(1)}
 
-@media (prefers-reduced-motion: reduce){.toast,.nav-indicator,.cb::after{transition:none}}
+@media (prefers-reduced-motion: reduce){.toast,.nav-indicator,.nav-hover,.cb::after{transition:none}}
 </style>
 </head>
 <body>
@@ -1885,7 +1885,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- SIDEBAR -->
 <nav class="sidebar">
-  <div class="nav-indicator" id="navIndicator"></div>
+  <div class="nav-indicator" id="navIndicator"></div><div class="nav-hover" id="navHover"></div>
   <div class="logo">
     <svg viewBox="0 0 40 40" width="36" height="36" style="display:block" aria-label="EH Tracker">
       <ellipse cx="20" cy="20" rx="14.5" ry="5.5" fill="none"
@@ -3064,18 +3064,21 @@ function moveNavIndicator(btn) {
   const ind = document.getElementById('navIndicator');
   const sidebar = document.querySelector('.sidebar');
   if (!ind || !sidebar || !btn) return;
-  const sbRect = sidebar.getBoundingClientRect();
-  const btnRect = btn.getBoundingClientRect();
-  if (!btnRect.height) { ind.style.opacity = '0'; return; }   // aba fora da barra (não favoritada): sem facho perdido no canto
-  const isMobile = window.innerWidth <= 640;
-  let x = 0, y = 0;
-  if (isMobile) {
-    x = btnRect.left - sbRect.left + (btnRect.width - 24) / 2;
-  } else {
-    y = btnRect.top - sbRect.top + (btnRect.height - 26) / 2;
-  }
-  ind.style.transform = `translate(${x}px, ${y}px)`;
-  ind.style.opacity = '1';
+  _navBloco(ind, btn);
+}
+// encaixa um bloco (aba ativa ou fantasma do hover) no botão; no celular com folga em cima e embaixo
+function _navBloco(el, btn) {
+  if (!btn.offsetParent) { el.style.opacity = '0'; return; }   // aba fora da barra (não favoritada)
+  const cel = window.innerWidth <= 640, fx = cel ? 1 : 0, fy = cel ? 6 : 0;
+  el.style.width = (btn.offsetWidth - fx * 2) + 'px';
+  el.style.height = (btn.offsetHeight - fy * 2) + 'px';
+  el.style.transform = `translate(${btn.offsetLeft + fx}px, ${btn.offsetTop + fy}px)`;
+  el.style.opacity = '1';
+}
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  const sb = document.querySelector('.sidebar'), fant = $('navHover');   // a barra vem antes deste script no HTML
+  sb?.addEventListener('pointerover', e => { const b = e.target.closest('.nb'); if (b) _navBloco(fant, b); });
+  sb?.addEventListener('pointerleave', () => { fant.style.opacity = '0'; });
 }
 window.addEventListener('resize', () => {
   const active = document.querySelector('.nb.on');
