@@ -1855,6 +1855,59 @@ body.dens-compact .gap{margin-bottom:14px}
 .cb.on::after{transform:rotate(45deg) scale(1)}
 
 @media (prefers-reduced-motion: reduce){.toast,.nav-indicator,.nav-hover,.cb::after{transition:none}}
+/* ══ Mapa 3D, Sankey e baralho (10/10/2026, ideias do 21st.dev reescritas em SVG/CSS puro) ══ */
+
+/* Mapa do Modo Caverna em 3D (Contribution Skyline): um prédio por dia, andares na cor do atributo */
+.sk-cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.sk-cab h2{margin:0}
+.sk-resumo{font-size:12.5px;color:var(--text2)}
+.sk-resumo b{color:var(--text);font-weight:600}
+.sk-cena{display:flex;justify-content:center;margin:8px 0 4px}
+.sk-cena svg{width:100%;max-width:680px;height:auto;overflow:visible}
+.sk-chao{fill:var(--ev-track);stroke:rgba(255,255,255,.035);stroke-width:.6}
+.sk-chao.fut{fill:none;stroke:var(--ev-line);stroke-dasharray:2 2}
+.sk-chao.hoje{stroke:var(--text);stroke-width:1.2}
+.sk-predio{transform-box:fill-box;transform-origin:50% 100%}
+.sk-predio:hover polygon{filter:brightness(1.25)}
+.ev-anim .sk-predio{transform:scaleY(0)}
+.ev-anim.ev-vis .sk-predio{animation:sk-sobe .7s calc(.1s + var(--d,0) * 45ms) var(--ease-spring) both}
+@keyframes sk-sobe{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.sk-leg{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:12px;color:var(--text2)}
+.sk-leg span{display:flex;align-items:center;gap:6px}
+.sk-leg i{width:9px;height:9px;border-radius:2px;background:var(--cor)}
+
+/* Para onde vai o dinheiro (Sankey) */
+.sk-fin-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.sk-fin-cab h2{margin:0}
+.sk-fin-cab select{width:auto;min-width:150px}
+.sk-fin-resumo{font-size:12.5px;color:var(--text2);margin-bottom:12px}
+.sk-fin-resumo b{font-weight:600}
+.sk-rolagem{overflow-x:auto;margin:0 -6px;padding:0 6px}
+.sk-rolagem svg{display:block;width:100%;min-width:640px;height:auto}
+.sk-banda{opacity:.3;transition:opacity .2s}
+.sk-banda:hover{opacity:.6}
+.sk-no{rx:2px}
+.sk-txt{font-family:var(--f-sans);font-size:12px;fill:var(--text);paint-order:stroke;stroke:#10131a;stroke-width:3px;stroke-linejoin:round}
+.sk-txt tspan.v{fill:var(--text2);font-size:11px}
+.sk-anim .sk-banda{animation:sk-entra .7s calc(var(--c,0) * 120ms) var(--ease-out) both}
+.sk-anim .sk-no{animation:sk-entra .5s calc(var(--c,0) * 120ms) var(--ease-out) both}
+@keyframes sk-entra{from{opacity:0}}
+
+/* Baralho (Card Stack / Card Fan): os 5 de Receitas e Leitura em leque; arrastar ou ‹ › troca a carta */
+.deck{grid-column:1/-1;display:grid;justify-content:center;padding:4px var(--deck-passo,26px) 22px 0;outline:none;touch-action:pan-y;user-select:none;--deck-passo:26px}
+.deck:focus-visible .deck-carta.frente .rc-card{outline:2px solid var(--accent);outline-offset:3px}
+.deck-carta{grid-area:1/1;width:min(320px,72vw);transform-origin:50% 100%;
+  transform:translateX(calc(var(--o) * var(--deck-passo))) rotate(calc(var(--o) * 4deg)) scale(calc(1 - var(--o) * .05));
+  z-index:calc(10 - var(--o));opacity:calc(1 - var(--o) * .2);transition:transform .5s var(--ease-cine),opacity .35s var(--ease-out)}
+.deck-carta:not(.frente){pointer-events:none}
+.deck-carta.longe{opacity:0}
+.deck-carta.arrastando{transition:none;cursor:grabbing}
+.deck-carta .rc-card{width:100%;background:var(--card2)}
+.deck-carta.frente .rc-card{box-shadow:0 22px 44px -22px rgba(0,0,0,.8);cursor:grab}
+.deck-ctrl{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px;color:var(--text2);font-variant-numeric:tabular-nums}
+.deck-ctrl .ib{width:36px;height:36px;font-size:20px}
+@media(max-width:640px){.deck{--deck-passo:14px}}
+@media (prefers-reduced-motion: reduce){.deck-carta,.sk-banda{transition:none}.ev-anim.ev-vis .sk-predio,.sk-anim .sk-banda,.sk-anim .sk-no{animation:none}.ev-anim .sk-predio{transform:none}}
 </style>
 </head>
 <body>
@@ -2246,6 +2299,7 @@ body.dens-compact .gap{margin-bottom:14px}
   <h1>Evolução Pessoal</h1><p class="psub">Modo Caverna e metas anuais</p>
 
   <div class="card gap" id="cv-hero"></div>
+  <div class="card gap" id="cv-mapa"></div>
   <div class="cv-metas gap" id="cv-metas"></div>
   <div class="card gap" id="cv-conq"></div>
 
@@ -2360,6 +2414,13 @@ body.dens-compact .gap{margin-bottom:14px}
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- PARA ONDE VAI O DINHEIRO (Sankey) -->
+  <div class="card gap">
+    <div class="sk-fin-cab"><h2>Para onde vai o dinheiro</h2><select id="sk-mes" aria-label="Mês" onchange="renderSankey(true)"></select></div>
+    <div class="sk-fin-resumo" id="sk-fin-resumo"></div>
+    <div id="fin-sankey"></div>
   </div>
 
   <!-- LANÇAR DESPESA / ENTRADA -->
@@ -4275,6 +4336,52 @@ function _cvStats() {
   return st;
 }
 
+// ── Mapa do Modo Caverna em 3D (21st.dev "Contribution Skyline"): um prédio por dia; cada andar = 1 coisa feita, na cor do atributo ──
+function renderSkyline() {
+  const el = $('cv-mapa');
+  if (!el) return;
+  const datas = _cvDatas(), hoje = today(), ordem = Object.keys(CV_COR);
+  const porDia = {};
+  CV_METAS.filter(m => !m.peso).forEach(m => [...m.dias(), ...(m.extra ? m.extra.dias() : [])].forEach(d => {
+    const o = porDia[d] || (porDia[d] = {});
+    o[m.attr] = (o[m.attr] || 0) + 1;
+  }));
+  const total = d => Object.values(porDia[d] || {}).reduce((a, b) => a + b, 0);
+  const pad = (new Date(CV_INI + 'T12:00').getDay() + 6) % 7;   // colunas = semanas, linhas = seg..dom
+  const cols = Math.ceil((pad + datas.length) / 7), TW = 30, TH = 15;
+  const maxN = Math.max(1, ...datas.map(total));
+  const U = Math.min(9, 72 / maxN);   // altura de um andar (o prédio mais alto fica com ~72px)
+  const altoMax = maxN * U, x0 = 7 * TW / 2 + 4, y0 = altoMax + 8;
+  const W = (cols + 7) * TW / 2 + 8, H = y0 + (cols + 7) * TH / 2 + 6;
+  const pt = (x, y) => `${x.toFixed(1)},${y.toFixed(1)}`;
+  const losango = (x, y, z) => [pt(x, y - TH / 2 - z), pt(x + TW / 2, y - z), pt(x, y + TH / 2 - z), pt(x - TW / 2, y - z)].join(' ');
+  const fmt = d => { const [, m, dd] = d.split('-'); return `${['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'][new Date(d + 'T12:00').getDay()]} ${dd}/${m}`; };
+  const celulas = datas.map((d, i) => { const k = pad + i; return { d, c: Math.floor(k / 7), r: k % 7 }; })
+    .sort((a, b) => (a.c + a.r) - (b.c + b.r) || a.c - b.c);   // pintor: de trás pra frente
+  const svg = celulas.map(({ d, c, r }) => {
+    const x = x0 + (c - r) * TW / 2, y = y0 + (c + r) * TH / 2, n = total(d);
+    const chao = `<polygon class="sk-chao${d > hoje ? ' fut' : ''}${d === hoje ? ' hoje' : ''}" points="${losango(x, y, 0)}"/>`;
+    if (!n || d > hoje) return chao + `<title>${fmt(d)}: ${d > hoje ? 'ainda não chegou' : 'nada feito'}</title>`;
+    let z = 0, andares = '';
+    ordem.forEach(attr => {
+      const q = (porDia[d] || {})[attr];
+      if (!q) return;
+      const h = q * U, cor = CV_COR[attr];
+      andares += `<polygon points="${[pt(x - TW / 2, y - z - h), pt(x, y + TH / 2 - z - h), pt(x, y + TH / 2 - z), pt(x - TW / 2, y - z)].join(' ')}" style="fill:color-mix(in srgb,${cor} 70%,#000)"/>`
+        + `<polygon points="${[pt(x, y + TH / 2 - z - h), pt(x + TW / 2, y - z - h), pt(x + TW / 2, y - z), pt(x, y + TH / 2 - z)].join(' ')}" style="fill:color-mix(in srgb,${cor} 48%,#000)"/>`
+        + `<polygon points="${losango(x, y, z + h)}" style="fill:${cor}"/>`;
+      z += h;
+    });
+    const det = ordem.filter(a => (porDia[d] || {})[a]).map(a => `${a} ${porDia[d][a]}`).join(', ');
+    return chao + `<g class="sk-predio" style="--d:${c}">${andares}<title>${fmt(d)}: ${n} feito${n > 1 ? 's' : ''} (${det})</title></g>`;
+  }).join('');
+  const dias = datas.filter(d => d <= hoje && total(d)).length;
+  const melhor = datas.filter(d => d <= hoje).reduce((m, d) => total(d) > total(m || d) ? d : (m || d), null);
+  el.innerHTML = `<div class="sk-cab"><h2>Mapa do Modo Caverna</h2><span class="sk-resumo">${hoje < CV_INI ? 'Começa em <b>21/10</b>: cada dia vira um prédio' : `<b>${dias}</b> de ${datas.length} dias com registro${melhor && total(melhor) ? ` · melhor dia: <b>${fmt(melhor)}</b> (${total(melhor)})` : ''}`}</span></div>
+    <div class="sk-cena"><svg viewBox="0 0 ${W.toFixed(0)} ${H.toFixed(0)}" role="img" aria-label="Mapa 3D dos ${datas.length} dias do Modo Caverna: ${dias} dias com registro">${svg}</svg></div>
+    <div class="sk-leg">${ordem.map(a => `<span style="--cor:${CV_COR[a]}"><i></i>${a}</span>`).join('')}<span>1 andar = 1 coisa feita</span></div>`;
+}
+
 function renderCaverna() {
   const hero = $('cv-hero'), metasEl = $('cv-metas'), conqEl = $('cv-conq');
   if (!hero) return;
@@ -4343,12 +4450,14 @@ function renderCaverna() {
     <div class="cv-titulos">${CV_TITULOS.map(([lv, t]) => `<span class="cv-tag${st.nivel >= lv ? ' on' : ''}">${t}, nível ${lv}</span>`).join('')}</div>`;
 
   // entrada: o topo anima já; cards e conquistas quando aparecem na tela
+  safeCall(renderSkyline, 'renderSkyline');
+  const mapaEl = $('cv-mapa');
   _evObs.disconnect();
-  [hero, metasEl, conqEl].forEach(el => el.classList.toggle('ev-anim', _evAnimar));
-  conqEl.classList.remove('ev-vis');
+  [hero, metasEl, conqEl, mapaEl].forEach(el => el.classList.toggle('ev-anim', _evAnimar));
+  [conqEl, mapaEl].forEach(el => el.classList.remove('ev-vis'));
   if (_evAnimar) {
     _evContar(hero);
-    [...metasEl.querySelectorAll('.cv-meta'), conqEl].forEach(el => _evObs.observe(el));
+    [mapaEl, ...metasEl.querySelectorAll('.cv-meta'), conqEl].forEach(el => _evObs.observe(el));
     _evAnimar = false;
   }
 
@@ -4599,6 +4708,66 @@ const _rcUrl = u => /^(https:\/\/|data:image\/)/.test(u || '') ? u : '';
 const _rcData = d => d ? d.split('-').reverse().join('/') : '';
 const _rcKcal = r => r.kcal ? `≈ ${r.kcal} kcal/${r.kcalPor || 'porção'}` : '';   // estimativa da Maria (TACO)
 
+// ──────────────────────────────────
+// BARALHO (21st.dev "Card Stack / Card Fan"): os 5 de Receitas e Leitura como cartas em leque
+// ──────────────────────────────────
+// Arrastar a carta da frente pro lado, ‹ › ou as setas do teclado trocam a carta; tocar nela abre o detalhe como antes.
+const _deckIdx = {};
+function _deck(cont, chave, cartas) {
+  const n = cartas.length;
+  _deckIdx[chave] = Math.min(_deckIdx[chave] || 0, n - 1);
+  cont.innerHTML = `<div class="deck" data-deck="${chave}" tabindex="0" aria-label="Use as setas para trocar a carta">${cartas.map((h, k) => `<div class="deck-carta" data-k="${k}">${h}</div>`).join('')}</div>
+    <div class="deck-ctrl"><button class="ib" onclick="_deckIr('${chave}', -1)" aria-label="Carta anterior">‹</button><span aria-live="polite"></span><button class="ib" onclick="_deckIr('${chave}', 1)" aria-label="Próxima carta">›</button></div>`;
+  const deck = cont.querySelector('.deck');
+  _deckAplicar(deck);
+  deck.addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); _deckIr(chave, e.key === 'ArrowRight' ? 1 : -1); } });
+  // arrastar: segue o dedo/mouse; passou de 80px, a carta voa e a próxima vem pra frente
+  let x0 = null, dx = 0, carta = null, arrastou = false;
+  deck.addEventListener('pointerdown', e => {
+    carta = e.target.closest('.deck-carta.frente');
+    if (!carta) return;
+    x0 = e.clientX; dx = 0; arrastou = false;
+  });
+  deck.addEventListener('pointermove', e => {
+    if (x0 == null) return;
+    dx = e.clientX - x0;
+    if (!arrastou && Math.abs(dx) > 6) { arrastou = true; carta.classList.add('arrastando'); carta.setPointerCapture?.(e.pointerId); }
+    if (arrastou) carta.style.transform = `translateX(${dx}px) rotate(${dx / 18}deg)`;
+  });
+  const solta = () => {
+    if (x0 == null) return;
+    x0 = null;
+    if (!arrastou) return;
+    carta.classList.remove('arrastando');
+    if (Math.abs(dx) > 80) {
+      carta.style.transform = `translateX(${Math.sign(dx) * 140}%) rotate(${Math.sign(dx) * 18}deg)`;
+      const c = carta;
+      setTimeout(() => { c.style.transform = ''; _deckIr(chave, dx < 0 ? 1 : -1); }, 180);
+    } else carta.style.transform = '';
+  };
+  deck.addEventListener('pointerup', solta);
+  deck.addEventListener('pointercancel', solta);
+  deck.addEventListener('click', e => { if (arrastou) { e.stopPropagation(); e.preventDefault(); arrastou = false; } }, true);   // arrasto não abre a carta
+}
+function _deckAplicar(deck) {
+  const cartas = [...deck.querySelectorAll('.deck-carta')], n = cartas.length, i = _deckIdx[deck.dataset.deck];
+  cartas.forEach((c, k) => {
+    const o = (k - i + n) % n;
+    c.style.setProperty('--o', o);
+    c.classList.toggle('frente', !o);
+    c.classList.toggle('longe', o > 3);
+    c.inert = !!o;
+  });
+  deck.nextElementSibling.querySelector('span').textContent = `${i + 1} de ${n}`;
+}
+function _deckIr(chave, passo) {
+  const deck = document.querySelector(`.deck[data-deck="${chave}"]`);
+  if (!deck) return;
+  const n = deck.querySelectorAll('.deck-carta').length;
+  _deckIdx[chave] = ((_deckIdx[chave] || 0) + passo + n) % n;
+  _deckAplicar(deck);
+}
+
 function _rcFotoHtml(r) {
   const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
   return src ? `<img src="${_escH(src)}" alt="" loading="lazy">` : `<span class="rc-sem-foto">${_escH((r.nome || '?')[0])}</span>`;
@@ -4608,7 +4777,7 @@ function renderReceitas() {
   const cont = $('lista-receitas');
   if (!cont) return;
   const ativas = load('receitas', []);
-  cont.innerHTML = ativas.length ? ativas.map(r => `
+  if (ativas.length) _deck(cont, 'receitas', ativas.map(r => `
     <button class="rc-card${r.feita ? ' feita' : ''}" onclick="abrirReceita(${_eid(r.id)})">
       <div class="rc-foto">${_rcFotoHtml(r)}${r.feita ? '<span class="rc-selo">Feita</span>' : ''}</div>
       <div class="rc-corpo">
@@ -4616,8 +4785,8 @@ function renderReceitas() {
         <h3 class="rc-nome">${_escH(r.nome)}</h3>
         <div class="rc-meta">${[r.tempo, r.porcoes, _rcKcal(r), r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
       </div>
-    </button>`).join('')
-    : '<div class="card empty" style="grid-column:1/-1"><div class="ei">🍳</div>A Maria deixa 5 receitas aqui toda manhã, às 7h.</div>';
+    </button>`));
+  else cont.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="ei">🍳</div>A Maria deixa 5 receitas aqui toda manhã, às 7h.</div>';
 
   const feitas = load('receitas_feitas', []);
   $('rc-feitas-n').textContent = feitas.length ? `(${feitas.length})` : '';
@@ -4719,7 +4888,7 @@ function renderLeitura() {
   const cont = $('lista-leitura');
   if (!cont) return;
   const ativos = load('leitura', []);
-  cont.innerHTML = ativos.length ? ativos.map(l => `
+  if (ativos.length) _deck(cont, 'leitura', ativos.map(l => `
     <button class="rc-card${l.lido ? ' feita' : ''}" onclick="abrirLivro(${_eid(l.id)})">
       <div class="rc-foto lv-capa">${_lvCapaHtml(l)}${l.lido ? '<span class="rc-selo">Lido</span>' : ''}</div>
       <div class="rc-corpo">
@@ -4727,8 +4896,8 @@ function renderLeitura() {
         <h3 class="rc-nome">${_escH(l.titulo)}</h3>
         <div class="rc-meta">${_lvMeta(l)}</div>
       </div>
-    </button>`).join('')
-    : '<div class="card empty" style="grid-column:1/-1"><div class="ei">📚</div>O Mosley deixa 5 livros aqui todo domingo.</div>';
+    </button>`));
+  else cont.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="ei">📚</div>O Mosley deixa 5 livros aqui todo domingo.</div>';
 
   const lidos = load('leitura_lidos', []);
   $('lv-lidos-n').textContent = lidos.length ? `(${lidos.length})` : '';
@@ -5036,11 +5205,87 @@ function renderFinancas() {
   animateNumber($('fin-mes-entr'), totalEntr, { prefix: '+ R$ ', decimals: 2, separator: true, duration: 800 });
 
   renderCatBars(desp);
+  safeCall(() => renderSankey(true), 'renderSankey');
   populateMesFilter();
   renderDespesas();
   renderRelatoriosCarteira();
   renderNoticias();
   renderPatrimonialChart();
+}
+
+// ──────────────────────────────────
+// PARA ONDE VAI O DINHEIRO — Sankey (21st.dev "Sankey Chart", em SVG puro)
+// ──────────────────────────────────
+// Entradas do mês (ou a renda configurada, se o mês não tem entrada lançada) → mês → gastos fixos (cada um),
+// despesas por categoria e o que sobrou. Se saiu mais do que entrou, a diferença aparece como "Saldo" do lado das entradas.
+// ponytail: os gastos fixos vêm do cadastro (fin_cfg.fixos); se o mesmo gasto também for lançado como despesa, conta duas vezes
+const _skMes = m => { const [y, mo] = m.split('-'); return ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][+mo - 1] + ' ' + y; };
+function renderSankey(animar) {
+  const cont = $('fin-sankey'), sel = $('sk-mes');
+  if (!cont || !sel) return;
+  const mesAtual = today().slice(0, 7), todas = load('despesas', []);
+  const meses = [...new Set([mesAtual, ...todas.map(d => (d.data || '').slice(0, 7)).filter(Boolean)])].sort().reverse();
+  const mes = meses.includes(sel.value) ? sel.value : mesAtual;
+  sel.innerHTML = meses.map(m => `<option value="${m}"${m === mes ? ' selected' : ''}>${_skMes(m)}</option>`).join('');
+  const cfg = load('fin_cfg', {}), desp = todas.filter(d => (d.data || '').startsWith(mes));
+  const porCat = tipo => { const o = {}; desp.filter(d => d.tipo === tipo).forEach(d => { o[d.cat] = (o[d.cat] || 0) + d.val; }); return Object.entries(o).sort((a, b) => b[1] - a[1]); };
+  const soma = arr => arr.reduce((t, [, v]) => t + v, 0);
+  let fontes = porCat('entrada');
+  const usouRenda = !fontes.length && cfg.renda > 0;
+  if (usouRenda) fontes = [['Renda mensal', cfg.renda]];
+  let fixos = (cfg.fixos || []).filter(f => f.val > 0).sort((a, b) => b.val - a.val).map(f => [f.nome, f.val]);
+  if (fixos.length > 6) fixos = [...fixos.slice(0, 5), ['Outros fixos', soma(fixos.slice(5))]];
+  const totFixo = soma(fixos), gastos = porCat('despesa');
+  const entra = soma(fontes), sai = totFixo + soma(gastos);
+  const resumo = $('sk-fin-resumo');
+  if (!entra && !sai) {
+    resumo.textContent = '';
+    cont.innerHTML = '<div class="empty"><div class="ei">💸</div>Nada lançado neste mês e sem renda configurada</div>';
+    return;
+  }
+  if (sai > entra) fontes.push(['Saldo (cobriu a diferença)', sai - entra]);
+  const sobra = entra - sai;
+  resumo.innerHTML = `Entrou <b style="color:var(--green)">${fmtBRL(entra)}</b>${usouRenda ? ' (renda configurada, sem entrada lançada no mês)' : ''} · saiu <b style="color:var(--red)">${fmtBRL(sai)}</b> · ${sobra >= 0 ? `sobrou <b style="color:var(--green)">${fmtBRL(sobra)}</b>${entra ? ` (${Math.round(sobra / entra * 100)}%)` : ''}` : `faltou <b style="color:var(--red)">${fmtBRL(-sobra)}</b>`}`;
+
+  // nós por coluna: 0 entradas · 1 mês · 2 destinos · 3 cada gasto fixo
+  const cor = c => finCatColors[c] || 'var(--c-neutro, #8892a4)';
+  const nos = [
+    ...fontes.map(([n, v]) => ({ id: 'e:' + n, nome: n, v, col: 0, cor: n.startsWith('Saldo') ? 'var(--red)' : n === 'Renda mensal' ? 'var(--green)' : cor(n) })),
+    { id: 'mes', nome: _skMes(mes).split(' ')[0], v: Math.max(entra, sai), col: 1, cor: 'var(--text2)' },
+    ...(totFixo ? [{ id: 'fixos', nome: 'Gastos fixos', v: totFixo, col: 2, cor: 'var(--orange)' }] : []),
+    ...gastos.map(([n, v]) => ({ id: 'g:' + n, nome: n, v, col: 2, cor: cor(n) })),
+    ...(sobra > 0 ? [{ id: 'sobra', nome: 'Sobrou', v: sobra, col: 2, cor: 'var(--green)' }] : []),
+    ...fixos.map(([n, v]) => ({ id: 'f:' + n, nome: n, v, col: 3, cor: 'color-mix(in srgb,var(--orange) 70%,#fff)' })),
+  ];
+  const liga = [
+    ...fontes.map(([n, v]) => ['e:' + n, 'mes', v]),
+    ...nos.filter(n => n.col === 2).map(n => ['mes', n.id, n.v]),
+    ...fixos.map(([n, v]) => ['fixos', 'f:' + n, v]),
+  ];
+  // layout: altura proporcional ao valor, cada coluna centralizada; a coluna mais cheia define a escala
+  const W = 760, H = Math.max(240, 46 * Math.max(...[0, 1, 2, 3].map(c => nos.filter(n => n.col === c).length))), GAP = 12, NW = 10;
+  const colX = fixos.length ? [0, 210, 420, 600] : [0, 300, 600];
+  const k = Math.min(...[0, 1, 2, 3].map(c => { const ns = nos.filter(n => n.col === c); return ns.length ? (H - GAP * (ns.length - 1)) / soma(ns.map(n => [0, n.v])) : Infinity; }));
+  [0, 1, 2, 3].forEach(c => {
+    const ns = nos.filter(n => n.col === c);
+    let y = (H - (soma(ns.map(n => [0, n.v])) * k + GAP * (ns.length - 1))) / 2;
+    ns.forEach(n => { n.x = colX[c]; n.y = y; n.h = Math.max(2, n.v * k); n.saida = n.y; n.entrada = n.y; y += n.h + GAP; });
+  });
+  [0, 2, 3].forEach(c => { let ult = -Infinity; nos.filter(n => n.col === c).forEach(n => { n.ly = Math.max(n.y + n.h / 2, ult + 15); ult = n.ly; }); });   // rótulos não se encostam quando os blocos são finos
+  const no = id => nos.find(n => n.id === id);
+  const bandas = liga.map(([a, b, v]) => {
+    const s = no(a), t = no(b), h = v * k, x1 = s.x + NW, x2 = t.x, mx = (x1 + x2) / 2;
+    const sy = s.saida, ty = t.entrada; s.saida += h; t.entrada += h;
+    const pinta = s.col === 0 ? s.cor : t.cor;
+    return `<path class="sk-banda" style="fill:${pinta};--c:${s.col}" d="M${x1},${sy} C${mx},${sy} ${mx},${ty} ${x2},${ty} L${x2},${ty + h} C${mx},${ty + h} ${mx},${sy + h} ${x1},${sy + h} Z"><title>${_escH(s.nome)} → ${_escH(t.nome)}: ${fmtBRL(v)}</title></path>`;
+  }).join('');
+  const rotulos = nos.map(n => {
+    const tx = n.col === 1 ? n.x + NW / 2 : n.x + NW + 7, ty = n.col === 1 ? n.y - 10 : n.ly;
+    const anc = n.col === 1 ? 'middle' : 'start';
+    return `<rect class="sk-no" x="${n.x}" y="${n.y}" width="${NW}" height="${n.h}" style="fill:${n.cor};--c:${n.col}"><title>${_escH(n.nome)}: ${fmtBRL(n.v)}</title></rect>`
+      + `<text class="sk-txt" x="${tx}" y="${ty}" text-anchor="${anc}"${n.col === 1 ? '' : ' dominant-baseline="middle"'}>${_escH(n.nome)} <tspan class="v">${fmtBRL(n.v)}</tspan></text>`;
+  }).join('');
+  cont.innerHTML = `<div class="sk-rolagem${animar ? ' sk-anim' : ''}"><svg viewBox="-4 -26 ${W + 150} ${H + 34}" role="img" aria-label="Fluxo do dinheiro em ${_skMes(mes)}">${bandas}${rotulos}</svg></div>`;
 }
 
 function renderCatBars(desp) {
@@ -7103,8 +7348,7 @@ function aplicarNavFavs() {
     const btn = $('n-' + p.id);
     if (btn) btn.style.display = favs.includes(p.id) ? '' : 'none';
   });
-  const active = document.querySelector('.nb.on');
-  if (active) requestAnimationFrame(() => moveNavIndicator(active));
+  requestAnimationFrame(() => { const active = document.querySelector('.nb.on'); if (active) moveNavIndicator(active); });   // lê a aba na hora: com a aba do navegador em segundo plano o quadro atrasa
 }
 
 function abrirNavConfig() {
