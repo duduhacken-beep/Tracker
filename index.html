@@ -660,12 +660,11 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .cv-aneis svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
 .cv-aneis circle{fill:none;stroke-width:9}
 .cv-aneis .trilho{stroke:var(--ev-track)}
-.cv-aneis .arco{stroke-linecap:round;animation:ev-arco 1.1s var(--ease-cine) both}
-.cv-aneis .arco:nth-of-type(2n){animation-delay:.06s}
+.cv-aneis .arco{stroke-linecap:round}
 @keyframes ev-arco{from{stroke-dasharray:0 100}}
 .cv-ovr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .cv-ovr b{font-size:52px;color:var(--text)}
-.cv-ovr span{font-size:11.5px;color:var(--text2);margin-top:3px}
+.cv-ovr>span{font-size:11.5px;color:var(--text2);margin-top:3px}
 .cv-lv{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
 .cv-lv b{font-size:64px;color:var(--text)}
 .cv-lv b small{font-size:.42em;font-weight:600;font-stretch:100%;color:var(--text2);margin-right:4px;letter-spacing:0}
@@ -691,25 +690,26 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .cv-escudos svg{display:block}
 .cv-legenda{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:26px;padding-top:20px;border-top:1px solid var(--ev-line)}
 .cv-attr{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text2)}
-.cv-attr span{display:flex;align-items:center;gap:6px}
-.cv-attr span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cor)}
+.cv-attr>span{display:flex;align-items:center;gap:6px}
+.cv-attr>span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cor)}
 .cv-attr b{font-size:30px;color:var(--cor)}
 
 /* Metas */
 .cv-metas{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.cv-meta{border-top:3px solid var(--cor)!important}
+#page-evolucao .cv-meta{padding-top:25px;overflow:hidden}
+#page-evolucao .cv-meta::before{display:block;content:"";position:absolute;inset:0 0 auto;height:3px;background:var(--cor);border-radius:0}
 .cv-meta-top{display:flex;align-items:center;gap:14px}
 .cv-mini{position:relative;width:58px;height:58px;flex-shrink:0}
 .cv-mini svg{width:100%;height:100%;transform:rotate(-90deg)}
 .cv-mini circle{fill:none;stroke-width:6}
 .cv-mini .trilho{stroke:var(--ev-track)}
-.cv-mini .arco{stroke:var(--cor);stroke-linecap:round;animation:ev-arco 1s var(--ease-cine) both}
+.cv-mini .arco{stroke:var(--cor);stroke-linecap:round}
 .cv-mini em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
 .cv-meta h3{margin:0;font-size:15px;color:var(--text)}
 .cv-quem{font-size:12px;color:var(--text3);margin-top:2px}
 .cv-num{display:flex;align-items:baseline;gap:6px;margin:18px 0 10px}
 .cv-num b{font-size:52px;color:var(--text)}
-.cv-num span{font-size:13px;color:var(--text2)}
+.cv-num>span{font-size:13px;color:var(--text2)}
 .cv-ritmo{font-size:12.5px;color:var(--text2);margin-top:10px;line-height:1.5}
 .cv-ritmo b{color:var(--text);font-weight:600}
 .cv-ritmo .frente{color:var(--c-cozinha)}
@@ -756,8 +756,33 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 @keyframes confete{to{transform:translateY(520px) rotate(360deg);opacity:0}}
 @keyframes cer-entra{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 
+/* Entrada da aba (10/10/2026): só quando a aba abre (classe .ev-anim posta pelo renderCaverna), nunca num re-render.
+   Topo: anéis de fora pra dentro + números contando + XP enchendo + chama acendendo.
+   Cards e conquistas: quando entram na tela (.ev-vis) — faixa correndo, mini-anel, número, onda na grade, medalhas. */
+.ev-anim .cv-aneis .arco{animation:ev-arco 1.2s calc(var(--i,0) * 90ms) var(--ease-cine) both}
+.ev-anim .cv-bar>i{transform-origin:left;animation:ev-encher 1.1s .35s var(--ease-cine) both}
+@keyframes ev-encher{from{transform:scaleX(0)}}
+.ev-anim .fogo{animation:ev-acende .7s .5s var(--ease-spring) both}
+.ev-anim .fogo.vivo{animation:ev-acende .7s .5s var(--ease-spring) both,ev-chama 1.6s 1.2s ease-in-out infinite}
+@keyframes ev-acende{from{transform:scale(.2);opacity:0}}
+.ev-anim .cv-escudos svg{animation:ev-pop .45s calc(.8s + var(--k,0) * 110ms) var(--ease-spring) both}
+.ev-anim .cv-attr>span::before{animation:ev-pop .4s calc(.2s + var(--i,0) * 90ms) var(--ease-spring) both}
+@keyframes ev-pop{from{transform:scale(0);opacity:0}}
+.ev-anim .cv-meta::before{transform:scaleX(0);transform-origin:left}
+.ev-anim .cv-meta.ev-vis::before{transform:none;transition:transform .9s var(--ease-cine)}
+.ev-anim .cv-meta .arco{opacity:0}
+.ev-anim .cv-meta.ev-vis .arco{opacity:1;animation:ev-arco 1s .15s var(--ease-cine) both}
+.ev-anim .cv-meta .cv-d:not(.pad){opacity:0}
+.ev-anim .cv-meta.ev-vis .cv-d:not(.pad){animation:ev-celula .35s calc(.25s + var(--c,0) * 30ms) var(--ease-spring) both}
+@keyframes ev-celula{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+.ev-anim .cv-conq svg{opacity:0}
+.ev-anim.ev-vis .cv-conq svg{animation:ev-medalha .5s calc(var(--k,0) * 45ms) var(--ease-spring) both}
+.ev-anim.ev-vis .cv-conq.off svg{animation-name:ev-surge}
+@keyframes ev-medalha{from{opacity:0;transform:scale(0) rotate(-120deg)}to{opacity:1;transform:none}}
+@keyframes ev-surge{from{opacity:0}to{opacity:1}}
+
 @media (prefers-reduced-motion: reduce){
-  .cv-aneis .arco,.cv-mini .arco,.fogo.vivo,.cv-confete i,.cv-cer-nivel{animation:none}
+  .fogo.vivo,.cv-confete i,.cv-cer-nivel{animation:none}
 }
 @media(max-width:900px){.cv-legenda{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){
@@ -2911,6 +2936,7 @@ function go(p) {
   navBtn.classList.add('on');
   moveNavIndicator(navBtn);
   setupScrollReveal(p);
+  if (p === 'evolucao') _evAnimar = !matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (window.innerWidth <= 640) navBtn.scrollIntoView({ inline: 'center', behavior: 'smooth' });
 
   if (p === 'home')     { safeCall(startParticleLoop, 'startParticleLoop'); }
@@ -2952,7 +2978,7 @@ const _revealObserver = new IntersectionObserver((entries) => {
 
 function setupScrollReveal(pageId) {
   const page = document.getElementById('page-' + pageId);
-  if (!page) return;
+  if (!page || pageId === 'evolucao') return;   // a Evolução tem entrada própria (renderCaverna)
   const items = Array.from(page.children).filter(el =>
     el.nodeType === 1 && !el.classList.contains('reveal-done') && !el.classList.contains('overlay')
   );
@@ -3901,8 +3927,32 @@ function _cvDatas() {
 const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Cozinha: 'var(--c-cozinha)' };
 const _cvCorClasse = classe => CV_COR[Object.keys(CV_CLASSES).find(k => CV_CLASSES[k] === classe)] || 'var(--c-neutro)';
 // arco de progresso: círculo com pathLength 100, o traço é a fração
-const _cvArco = (r, frac, cor) => `<circle class="trilho" cx="50%" cy="50%" r="${r}"${cor ? ` style="stroke:color-mix(in srgb,${cor} 16%,transparent)"` : ''}/>` +
-  (frac > 0 ? `<circle class="arco" cx="50%" cy="50%" r="${r}" pathLength="100" stroke-dasharray="${Math.min(100, frac * 100).toFixed(1)} 100"${cor ? ` style="stroke:${cor}"` : ''}/>` : '');
+const _cvArco = (r, frac, cor, i = 0) => `<circle class="trilho" cx="50%" cy="50%" r="${r}"${cor ? ` style="stroke:color-mix(in srgb,${cor} 16%,transparent)"` : ''}/>` +
+  (frac > 0 ? `<circle class="arco" cx="50%" cy="50%" r="${r}" pathLength="100" stroke-dasharray="${Math.min(100, frac * 100).toFixed(1)} 100" style="--i:${i}${cor ? `;stroke:${cor}` : ''}"/>` : '');
+
+// Entrada animada da aba: só quando ela abre pelo go() (não a cada re-render) e sem "reduzir movimento"
+let _evAnimar = false;
+const _evObs = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add('ev-vis'); _evContar(e.target); _evObs.unobserve(e.target);
+}), { threshold: 0.25 });
+// número que conta até o valor (a partir de `de`, padrão 0); fora da entrada já nasce com o valor final
+function _evN(v, { de = 0, dec = 0, suf = '' } = {}) {
+  const fmt = n => n.toFixed(dec).replace('.', ',') + suf;
+  return _evAnimar ? `<span data-alvo="${v}" data-de="${de}" data-dec="${dec}" data-suf="${suf}">${fmt(de)}</span>` : fmt(v);
+}
+function _evContar(root) {
+  root.querySelectorAll('[data-alvo]').forEach(el => {
+    const alvo = +el.dataset.alvo, de = +el.dataset.de, dec = +el.dataset.dec, suf = el.dataset.suf, t0 = performance.now();
+    el.removeAttribute('data-alvo');
+    const tick = t => {
+      const p = Math.min(1, (t - t0) / 1200);
+      el.textContent = (de + (alvo - de) * (1 - Math.pow(1 - p, 3))).toFixed(dec).replace('.', ',') + suf;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
 
 const NPCS = {
   Jefrey: { papel: 'Mestre de armas',
@@ -3987,7 +4037,7 @@ function _cvGrade(dias, porDia) {
   datas.forEach(d => {
     const n = cont[d] || 0;
     const cls = d > hoje ? 'fut' : n >= porDia ? 'l2' : n ? 'l1' : '';
-    cel.push(`<i class="cv-d ${cls}${d === hoje ? ' hoje' : ''}" title="${_rcData(d)}: ${n ? n + ' feito' + (n > 1 ? 's' : '') : d > hoje ? 'ainda não chegou' : 'nada'}"></i>`);
+    cel.push(`<i class="cv-d ${cls}${d === hoje ? ' hoje' : ''}" style="--c:${Math.floor(cel.length / 7)}" title="${_rcData(d)}: ${n ? n + ' feito' + (n > 1 ? 's' : '') : d > hoje ? 'ainda não chegou' : 'nada'}"></i>`);
   });
   return `<div class="cv-dias" role="img" aria-label="${Object.keys(cont).length} dias com registro de ${datas.length}">${cel.join('')}</div>`;
 }
@@ -4078,15 +4128,15 @@ function renderCaverna() {
   const diaAtual = Math.min(st.decorridos, total);
 
   // anéis de fora pra dentro na ordem dos atributos (Corpo por fora)
-  const aneis = st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome])).join('');
+  const aneis = st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome], i)).join('');
   hero.innerHTML = `
     <div class="cv-hero">
       <div class="cv-aneis">
         <svg viewBox="0 0 220 220" role="img" aria-label="Atributos: ${st.attr.map(a => `${a.nome} ${a.val}`).join(', ')}">${aneis}</svg>
-        <div class="cv-ovr"><b class="ev-num">${st.overall}</b><span>Overall</span></div>
+        <div class="cv-ovr"><b class="ev-num">${_evN(st.overall)}</b><span>Overall</span></div>
       </div>
       <div>
-        <div class="cv-lv"><b class="ev-num"><small>Nível</small>${st.nivel}</b></div>
+        <div class="cv-lv"><b class="ev-num"><small>Nível</small>${_evN(st.nivel)}</b></div>
         <div class="cv-id"><span class="cv-tag cls" style="--cor:${_cvCorClasse(st.classe)}">Classe <b>${st.classe}</b></span><span class="cv-tag">Título <b>${st.titulo}</b></span>${prox ? `<span class="cv-tag">${prox[1]} no nível ${prox[0]}</span>` : ''}</div>
         <div class="cv-xp"><span>XP do nível</span><span>${xpNoNivel} / ${CV_XP_NIVEL}</span></div>
         <div class="cv-bar" role="progressbar" aria-label="XP do nível" aria-valuenow="${xpNoNivel}" aria-valuemin="0" aria-valuemax="${CV_XP_NIVEL}"><i style="width:${xpNoNivel / CV_XP_NIVEL * 100}%"></i></div>
@@ -4098,29 +4148,28 @@ function renderCaverna() {
         </div>
       </div>
       <div class="cv-seq">
-        <div class="cv-seq-top">${fogoHtml(st.seq.atual)}<b class="ev-num">${st.seq.atual}</b></div>
+        <div class="cv-seq-top">${fogoHtml(st.seq.atual)}<b class="ev-num">${_evN(st.seq.atual)}</b></div>
         <span>dia${st.seq.atual === 1 ? '' : 's'} seguidos</span>
-        <div class="cv-escudos" title="Escudos: cada semana perfeita dá 1 (máx. 3) e ele salva a sequência num dia em branco" role="img" aria-label="${st.seq.escudos} de 3 escudos">${[0, 1, 2].map(i => _cvEscudo(i < st.seq.escudos)).join('')}</div>
+        <div class="cv-escudos" title="Escudos: cada semana perfeita dá 1 (máx. 3) e ele salva a sequência num dia em branco" role="img" aria-label="${st.seq.escudos} de 3 escudos">${[0, 1, 2].map(i => _cvEscudo(i < st.seq.escudos).replace('<svg', `<svg style="--k:${i}"`)).join('')}</div>
       </div>
     </div>
-    <div class="cv-legenda">${st.attr.map(a => `
-      <div class="cv-attr" style="--cor:${CV_COR[a.nome]}"><span>${a.nome}</span><b class="ev-num">${a.val}</b></div>`).join('')}
+    <div class="cv-legenda">${st.attr.map((a, i) => `
+      <div class="cv-attr" style="--cor:${CV_COR[a.nome]};--i:${i}"><span>${a.nome}</span><b class="ev-num">${_evN(a.val)}</b></div>`).join('')}
     </div>`;
 
-  const mini = (frac, txt) => `<div class="cv-mini"><svg viewBox="0 0 58 58" aria-hidden="true">${_cvArco(25, frac)}</svg><em>${txt}</em></div>`;
+  const mini = frac => `<div class="cv-mini"><svg viewBox="0 0 58 58" aria-hidden="true">${_cvArco(25, frac)}</svg><em>${_evN(Math.round(frac * 100), { suf: '%' })}</em></div>`;
   metasEl.innerHTML = st.linhas.map(({ m, frac, p, dias, alvo, extra }) => {
     const status = _cvStatus(frac, st.decorridos, total), cor = CV_COR[m.attr];
-    const pct = Math.round(frac * 100) + '%';
     const npc = _npcHtml(m.npc, _npcFala(m.chave, m.npc, status), cor);
     if (m.peso) return `<div class="card cv-meta" style="--cor:${cor}">
-        <div class="cv-meta-top">${mini(frac, pct)}<div><h3>Peso</h3><div class="cv-quem">${m.attr} · acompanhado pelo Jefrey</div></div></div>
-        <div class="cv-num"><b class="ev-num">${p ? String(p.atual).replace('.', ',') : '—'}</b><span>kg, meta ${m.alvoKg} kg</span></div>
+        <div class="cv-meta-top">${mini(frac)}<div><h3>Peso</h3><div class="cv-quem">${m.attr} · acompanhado pelo Jefrey</div></div></div>
+        <div class="cv-num"><b class="ev-num">${p ? _evN(p.atual, { de: p.base, dec: Number.isInteger(p.atual) ? 0 : 1 }) : '—'}</b><span>kg, meta ${m.alvoKg} kg</span></div>
         <div class="cv-ritmo">${p ? `Saiu de <b>${String(p.base).replace('.', ',')} kg</b>, faltam <b>${Math.max(0, p.atual - m.alvoKg).toFixed(1).replace('.', ',')} kg</b>. Última pesagem ${_rcData(p.data)}.` : 'Sem pesagem registrada.'}</div>
         ${npc}
       </div>`;
     return `<div class="card cv-meta" style="--cor:${cor}">
-      <div class="cv-meta-top">${mini(frac, pct)}<div><h3>${m.nome}</h3><div class="cv-quem">${m.attr} · acompanhado por ${m.quem || m.npc}</div></div></div>
-      <div class="cv-num"><b class="ev-num">${dias.length}</b><span>de ${alvo} ${m.un}</span></div>
+      <div class="cv-meta-top">${mini(frac)}<div><h3>${m.nome}</h3><div class="cv-quem">${m.attr} · acompanhado por ${m.quem || m.npc}</div></div></div>
+      <div class="cv-num"><b class="ev-num">${_evN(dias.length)}</b><span>de ${alvo} ${m.un}</span></div>
       <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, st.decorridos, total, m.un)}${extra ? ` · cortes <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
       ${_cvGrade(dias, extra ? 2 : 1)}
       ${npc}
@@ -4130,11 +4179,21 @@ function renderCaverna() {
 
   const nOk = st.conquistas.filter(c => c.ok).length;
   conqEl.innerHTML = `<h2>Conquistas <span style="color:var(--text3);font-size:.8em">${nOk}/${st.conquistas.length}</span></h2>
-    <div class="cv-conq-grid">${st.conquistas.map(c => `
-      <div class="cv-conq${c.ok ? '' : ' off'}">${_cvMedalha(c)}<div><b>${c.nome}</b><span>${c.ok ? c.desc : 'Bloqueada: ' + c.desc}</span></div></div>`).join('')}
+    <div class="cv-conq-grid">${st.conquistas.map((c, i) => `
+      <div class="cv-conq${c.ok ? '' : ' off'}" style="--k:${i}">${_cvMedalha(c)}<div><b>${c.nome}</b><span>${c.ok ? c.desc : 'Bloqueada: ' + c.desc}</span></div></div>`).join('')}
     </div>
     <h3 style="margin:22px 0 0">Títulos</h3>
     <div class="cv-titulos">${CV_TITULOS.map(([lv, t]) => `<span class="cv-tag${st.nivel >= lv ? ' on' : ''}">${t}, nível ${lv}</span>`).join('')}</div>`;
+
+  // entrada: o topo anima já; cards e conquistas quando aparecem na tela
+  _evObs.disconnect();
+  [hero, metasEl, conqEl].forEach(el => el.classList.toggle('ev-anim', _evAnimar));
+  conqEl.classList.remove('ev-vis');
+  if (_evAnimar) {
+    _evContar(hero);
+    [...metasEl.querySelectorAll('.cv-meta'), conqEl].forEach(el => _evObs.observe(el));
+    _evAnimar = false;
+  }
 
   _cvCerimonia(st);
 }
