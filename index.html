@@ -618,6 +618,7 @@ select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml;u
 .rc-hist summary h2 span{color:var(--text3);font-size:.8em}
 .rc-hist[open] summary{margin-bottom:12px}
 .rc-hist-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+button.rc-hist-row{width:100%;background:none;border:none;border-bottom:1px solid var(--border);font:inherit;color:inherit;text-align:left;cursor:pointer}
 .rc-hist-row:last-child{border-bottom:none}
 .rc-hist-foto{width:48px;height:48px;border-radius:8px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rc-hist-foto .rc-sem-foto{font-size:22px}
@@ -4794,17 +4795,26 @@ function renderReceitas() {
   const feitas = load('receitas_feitas', []);
   $('rc-feitas-n').textContent = feitas.length ? `(${feitas.length})` : '';
   $('lista-receitas-feitas').innerHTML = feitas.length ? feitas.slice().reverse().map(r => `
-    <div class="rc-hist-row">
+    <button class="rc-hist-row" onclick="abrirReceita(${_eid(r.id)})">
       <div class="rc-hist-foto">${_rcFotoHtml(r)}</div>
       <div><div class="rc-hist-nome">${_escH(r.nome)}</div><div class="rc-meta">${_escH(r.categoria || '')}${r.feitaEm ? ' · feita em ' + _rcData(r.feitaEm) : ''}</div></div>
-    </div>`).join('')
+    </button>`).join('')
     : '<p class="rc-meta" style="margin:0">Quando você marcar uma receita como feita, ela vem pra cá na manhã seguinte.</p>';
 
   if (_rcAberta != null && $('modal-receita').classList.contains('on')) abrirReceita(_rcAberta);
 }
 
+// procura nas 5 ativas e depois no histórico (lá a receita só abre pra ler e trocar a foto)
+function _rcAchar(id) {
+  for (const chave of ['receitas', 'receitas_feitas']) {
+    const list = load(chave, []), r = list.find(x => x.id === id);
+    if (r) return { chave, list, r };
+  }
+  return {};
+}
+
 function abrirReceita(id) {
-  const r = load('receitas', []).find(x => x.id === id);
+  const { r, chave } = _rcAchar(id);
   if (!r) return fecharReceita();
   _rcAberta = id;
   const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
@@ -4824,11 +4834,11 @@ function abrirReceita(id) {
       <h3>Modo de preparo</h3>
       <ol class="rc-passos">${(r.passos || []).map(p => `<li>${_escH(p)}</li>`).join('')}</ol>
 
-      ${r.dica ? `<div class="rc-dica"><strong>Dica da Maria:</strong> ${_escH(r.dica)}</div>` : ''}
+      ${r.dica ? `<div class="rc-dica"><strong>${String(r.id).startsWith('maria-') ? 'Dica da Maria' : 'Anotação'}:</strong> ${_escH(r.dica)}</div>` : ''}
 
       <div class="mfooter rc-acoes">
         <button class="btn btn-g" onclick="$('rc-foto-inp').click()">${r.minhaFoto ? 'Trocar minha foto' : 'Adicionar minha foto'}</button>
-        <button class="btn ${r.feita ? 'btn-g' : 'btn-p'}" onclick="toggleReceitaFeita(${_eid(r.id)})">${r.feita ? 'Desmarcar' : 'Marcar como feita'}</button>
+        ${chave === 'receitas' ? `<button class="btn ${r.feita ? 'btn-g' : 'btn-p'}" onclick="toggleReceitaFeita(${_eid(r.id)})">${r.feita ? 'Desmarcar' : 'Marcar como feita'}</button>` : ''}
       </div>
     </div>`;
   $('modal-receita').classList.add('on');
@@ -4862,11 +4872,10 @@ function rcFoto(ev) {
       const canvas = document.createElement('canvas');
       canvas.width = img.width * scale; canvas.height = img.height * scale;
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const list = load('receitas', []);
-      const r = list.find(x => x.id === id);
+      const { r, chave, list } = _rcAchar(id);
       if (!r) return;
       r.minhaFoto = canvas.toDataURL('image/jpeg', 0.72);
-      save('receitas', list);
+      save(chave, list);
       renderReceitas();
     };
     img.src = e.target.result;
