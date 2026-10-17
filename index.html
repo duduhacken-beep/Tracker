@@ -2207,6 +2207,11 @@ body.dens-compact .gap{margin-bottom:14px}
   </div>
 
   <div class="card gap">
+    <div class="sh"><h2>Rotina ideal</h2><span style="font-size:11px;color:var(--text3)">Ajustada pelo Jefrey</span></div>
+    <div id="rotina-ideal"></div>
+  </div>
+
+  <div class="card gap">
     <h3>Adicionar evento</h3>
     <div class="row"><div class="fg" style="flex:2"><label>Nome do evento</label><input id="ev-n" type="text" placeholder="Reunião, médico, academia..."></div><div class="fg"><label>Categoria</label><select id="ev-cat"><option>Trabalho</option><option>Saúde</option><option>Pessoal</option><option>Social</option><option>Educação</option><option>Outro</option></select></div></div>
     <div class="row"><div class="fg"><label>Data & Hora</label><input id="ev-dt" type="datetime-local"></div><div class="fg"><label>Notas</label><input id="ev-no" type="text" placeholder="Opcional..."></div></div>
@@ -3600,7 +3605,27 @@ function agNovoNoDia() {
   $('ev-n').focus({ preventScroll: true });
 }
 
+// Rotina ideal do Modo Caverna (chave 'rotina_ideal': [{hora, oque}]).
+// Só leitura — o Jefrey ajusta os horários. Sem a chave, vale o padrão (Modo Caverna, 04/10/2026).
+const ROTINA_PADRAO = [
+  { hora: '6h', oque: 'Acordar e tomar um café' },
+  { hora: '6h10', oque: 'Skincare' },
+  { hora: '6h30', oque: 'Treino ou cardio + alongamento' },
+  { hora: '8h', oque: '~30 min de sol + leitura' },
+  { hora: '8h30', oque: 'Meditação' },
+  { hora: '9h–12h', oque: 'Estudar uma habilidade nova' },
+  { hora: '12h–13h30', oque: 'Fazer o almoço' },
+  { hora: '14h–20h', oque: 'Trabalhar no negócio online' },
+  { hora: '21h30', oque: 'Skincare' },
+  { hora: '22h', oque: 'Dormir' }
+];
+function renderRotinaIdeal() {
+  $('rotina-ideal').innerHTML = load('rotina_ideal', ROTINA_PADRAO).map(r =>
+    `<div class="evi"><div class="evi-t">${_escH(r.hora)}</div><div class="evi-info" style="flex:1"><div class="evi-n">${_escH(r.oque)}</div></div></div>`).join('');
+}
+
 function renderAgenda() {
+  renderRotinaIdeal();
   const filter = $('ev-filter').value;
   const eventos = load('eventos', []).filter(e => e.dt && (!filter || e.cat === filter));
   const porDia = {};
