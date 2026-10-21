@@ -1924,6 +1924,10 @@ body.dens-compact .gap{margin-bottom:14px}
 .al-box{padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs)}
 .al-sub{font-size:12px;color:var(--text2);line-height:1.5}
 .al-sum{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 0;user-select:none}
+.al-minis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.al-mini .al-m-top{font-size:11.5px;margin-bottom:4px}
+.al-mini .al-bar{height:6px}
+@media (max-width:480px){.al-minis{gap:10px}.al-mini .al-m-top{flex-direction:column;gap:0}}
 .al-m{margin-bottom:12px}
 .al-m-top{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text2);margin-bottom:5px}
 .al-m-top b{color:var(--text);font-variant-numeric:tabular-nums}
@@ -2099,6 +2103,13 @@ body.dens-compact .gap{margin-bottom:14px}
       </div>
       <div class="sub" id="hs-peso-sub">toque para registrar</div>
     </div>
+  </div>
+
+  <!-- ALIMENTAÇÃO DE HOJE -->
+  <div class="card gap" id="home-comida">
+    <div class="sh" style="margin-bottom:12px"><h2 style="font-size:14px">Alimentação hoje</h2>
+      <div style="display:flex;gap:6px"><button class="btn btn-p btn-sm" onclick="alimAbrir()">Adicionar</button><button class="btn btn-g btn-sm" onclick="go('corpo')">Ver tudo →</button></div></div>
+    <div id="home-comida-corpo"></div>
   </div>
 
   <!-- ALERTA DE GASTOS -->
@@ -3423,6 +3434,7 @@ function ritmoDoDia() {
 }
 
 function refreshHome() {
+  safeCall(renderComidaHome, 'renderComidaHome');
   const d = new Date();
   const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
   const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -4193,7 +4205,30 @@ function _alSemana(cfg) {
   return linhas + media;
 }
 
+// Widget resumido da página inicial: sempre o dia de hoje
+function renderComidaHome() {
+  const cont = $('home-comida-corpo');
+  if (!cont) return;
+  const cfg = alimCfg(), its = (load('comida_d', {}) || {})[today()] || [];
+  const kcal = _alSoma(its, 'kcal'), resta = cfg.kcal - kcal;
+  const mini = (rot, val, meta, cor) => `<div class="al-mini"><div class="al-m-top"><span>${rot}</span><span><b>${_alF(val, 0)}</b>/${_alF(meta, 0)} g</span></div>
+    <div class="al-bar" role="progressbar" aria-label="${rot}" aria-valuenow="${_alR(val)}" aria-valuemin="0" aria-valuemax="${_alR(meta)}"><i style="width:${Math.min(100, val / meta * 100)}%;background:${cor}"></i></div></div>`;
+  cont.innerHTML = `
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div><span style="font-family:var(--f-serif);font-size:30px;line-height:1">${_alF(kcal, 0)}</span><span class="al-sub"> / ${_alF(cfg.kcal, 0)} kcal</span></div>
+      <span class="al-sub" style="color:${resta < 0 ? 'var(--red)' : 'var(--text2)'}">${its.length ? (resta < 0 ? `${_alF(-resta, 0)} kcal acima` : `faltam ${_alF(resta, 0)} kcal`) : 'nada registrado hoje'}</span>
+    </div>
+    <div class="al-bar" style="margin:8px 0 14px" role="progressbar" aria-label="Calorias" aria-valuenow="${_alR(kcal)}" aria-valuemin="0" aria-valuemax="${_alR(cfg.kcal)}"><i style="width:${Math.min(100, kcal / cfg.kcal * 100)}%;background:${resta < 0 ? 'var(--red)' : 'var(--accent)'}"></i></div>
+    <div class="al-minis">${mini('Proteína', _alSoma(its, 'p'), cfg.prot, 'var(--blue)')}${mini('Carbo', _alSoma(its, 'c'), cfg.carb, 'var(--orange)')}${mini('Gordura', _alSoma(its, 'l'), cfg.gord, 'var(--purple)')}</div>`;
+}
+
+function alimAbrir() {
+  go('corpo');
+  setTimeout(() => { const b = $('al-busca'); if (b) { b.scrollIntoView({ block: 'center' }); b.focus(); } }, 150);
+}
+
 function renderComida() {
+  renderComidaHome();
   if (!$('al-resumo')) return;
   const cfg = alimCfg(), dia = _alDiaAtual(), its = (load('comida_d', {}) || {})[dia] || [];
   $('al-dia').value = dia;
