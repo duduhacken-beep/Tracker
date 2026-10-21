@@ -2264,10 +2264,13 @@ body.dens-compact .gap{margin-bottom:14px}
     <div id="gcal-form" style="display:none">
       <div class="fg"><label>OAuth Client ID</label><input id="gcal-id-inp" type="text" placeholder="xxxxx.apps.googleusercontent.com"></div>
       <button class="btn btn-p btn-sm" onclick="gcalSalvarClientId()" style="width:100%;justify-content:center">💾 Salvar Client ID</button>
+      <div class="fg" style="margin-top:14px"><label for="gcal-email-inp">Conta do Google (e-mail)</label><input id="gcal-email-inp" type="email" placeholder="voce@gmail.com" autocomplete="off">
+        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5">O Google entra direto nessa conta, sem pedir pra escolher entre as do aparelho. Preenche sozinho depois da primeira conexão. Pra trocar de conta, mude aqui e clique em Conectar.</div></div>
+      <button class="btn btn-g btn-sm" onclick="gcalSalvarEmail()" style="width:100%;justify-content:center">Salvar conta</button>
     </div>
     <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn btn-p btn-sm" onclick="gcalConectar()" style="flex:1;justify-content:center">🔗 Conectar</button>
-      <button class="btn btn-g btn-sm" onclick="gcalPullAndMerge()" style="flex:1;justify-content:center">🔄 Sincronizar agora</button>
+      <button class="btn btn-g btn-sm" onclick="_gcalSilentFail=0;gcalPullAndMerge()" style="flex:1;justify-content:center">🔄 Sincronizar agora</button>
       <button class="btn btn-g btn-sm" onclick="toggleGcalForm()" style="flex:1;justify-content:center" id="gcal-config-btn">⚙️ Configurar</button>
     </div>
     <details style="margin-top:12px">
@@ -3277,7 +3280,7 @@ function go(p) {
 // render de cada aba — usado pelo go()
 function renderAba(p) {
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); }
-  if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
+  if (p === 'agenda')   { _gcalSilentFail = 0; safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderMuralAlongamento,'renderMuralAlongamento'); safeCall(renderComida,'renderComida'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
@@ -7929,6 +7932,28 @@ let _gcalTokenClient = null;
 let _gcalToken = '';
 let _gcalTokenExp = 0;
 let _gcalPulling = false;
+let _gcalSilentFail = 0;   // quando a última renovação silenciosa falhou (os timers de fundo esperam 10 min)
+
+// A conta do Google fica guardada (chave gcal_email) e vai como "hint" em todo pedido de token:
+// com várias contas no aparelho, o Google abre direto nela em vez de mostrar a lista de contas.
+// O token (vale ~1 h) também fica guardado, então reabrir o app não pede login de novo dentro desse prazo.
+const _gcalEmail = () => localStorage.getItem('gcal_email') || '';
+function _gcalGuardar(resp) {
+  _gcalToken = resp.access_token;
+  _gcalTokenExp = Date.now() + ((resp.expires_in || 3300) * 1000);
+  _gcalSilentFail = 0;
+  try { localStorage.setItem('gcal_tok', JSON.stringify({ t: _gcalToken, exp: _gcalTokenExp })); } catch (e) {}
+}
+function _gcalEsquecerToken() {
+  _gcalToken = ''; _gcalTokenExp = 0;
+  try { localStorage.removeItem('gcal_tok'); } catch (e) {}
+}
+(function _gcalRestaurar() {
+  try {
+    const s = JSON.parse(localStorage.getItem('gcal_tok') || 'null');
+    if (s && s.t && s.exp > Date.now() + 60000) { _gcalToken = s.t; _gcalTokenExp = s.exp; }
+  } catch (e) {}
+})();
 
 function _gcalInitTokenClient() {
   if (!GCAL_CLIENT_ID) return false;
@@ -7939,8 +7964,7 @@ function _gcalInitTokenClient() {
       scope: GCAL_SCOPE,
       callback: (resp) => {
         if (resp && resp.access_token) {
-          _gcalToken = resp.access_token;
-          _gcalTokenExp = Date.now() + ((resp.expires_in || 3300) * 1000);
+          _gcalGuardar(resp);
           localStorage.setItem('gcal_connected', '1');
           updateGcalStatusArea();
           safeCall(() => gcalPullAndMerge(), 'gcalPullAndMerge');
@@ -7969,26 +7993,37 @@ function initGcal() {
 function gcalConectar() {
   if (!GCAL_CLIENT_ID) { toggleGcalForm(); return; }
   if (!_gcalTokenClient) { toast('O login do Google ainda está carregando. Confira a conexão e tente de novo.', 'aviso'); return; }
-  _gcalTokenClient.requestAccessToken({ prompt: 'consent' });
+  const email = _gcalEmail();
+  // conta já conhecida: abre direto nela, sem tela de consentimento nem lista de contas
+  _gcalTokenClient.requestAccessToken(email ? { prompt: '', hint: email } : { prompt: 'consent' });
 }
 
 async function gcalEnsureToken(interactive) {
   if (_gcalToken && Date.now() < _gcalTokenExp - 30000) return _gcalToken;
   if (!_gcalTokenClient) return '';
+  // renovação em segundo plano falhou há pouco: não insiste (evita janela do Google a cada 5 min)
+  if (!interactive && Date.now() - _gcalSilentFail < 10 * 60 * 1000) return '';
   return new Promise((resolve) => {
     const prevCb = _gcalTokenClient.callback;
+    const fim = (tok) => { clearTimeout(tmo); _gcalTokenClient.callback = prevCb; if (!tok) _gcalSilentFail = Date.now(); resolve(tok); };
+    const tmo = setTimeout(() => fim(''), 20000);   // janela bloqueada/fechada: não deixa a promessa pendurada
     _gcalTokenClient.callback = (resp) => {
-      _gcalTokenClient.callback = prevCb;
-      if (resp && resp.access_token) {
-        _gcalToken = resp.access_token;
-        _gcalTokenExp = Date.now() + ((resp.expires_in || 3300) * 1000);
-        updateGcalStatusArea();
-        resolve(_gcalToken);
-      } else resolve('');
+      if (resp && resp.access_token) { _gcalGuardar(resp); updateGcalStatusArea(); fim(_gcalToken); }
+      else fim('');
     };
-    try { _gcalTokenClient.requestAccessToken({ prompt: interactive ? 'consent' : '' }); }
-    catch (e) { resolve(''); }
+    const email = _gcalEmail();
+    try { _gcalTokenClient.requestAccessToken({ prompt: interactive && !email ? 'consent' : '', ...(email ? { hint: email } : {}) }); }
+    catch (e) { fim(''); }
   });
+}
+
+function gcalSalvarEmail() {
+  const email = ($('gcal-email-inp').value || '').trim().toLowerCase();
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) { toast('E-mail inválido.', 'aviso'); return; }
+  if (email) localStorage.setItem('gcal_email', email); else localStorage.removeItem('gcal_email');
+  _gcalEsquecerToken();
+  updateGcalStatusArea();
+  toast(email ? 'Conta salva. Clique em Conectar para entrar com ela.' : 'Conta removida.', 'ok');
 }
 
 function gcalSalvarClientId() {
@@ -8005,6 +8040,7 @@ function toggleGcalForm() {
   const visible = f.style.display !== 'none';
   f.style.display = visible ? 'none' : 'block';
   if (!visible && $('gcal-id-inp')) $('gcal-id-inp').value = localStorage.getItem('gcal_client_id') || '';
+  if (!visible && $('gcal-email-inp')) $('gcal-email-inp').value = _gcalEmail();
 }
 
 function updateGcalStatusArea() {
@@ -8012,7 +8048,7 @@ function updateGcalStatusArea() {
   if (!area) return;
   if (_gcalToken) {
     area.innerHTML = `<div style="background:var(--gdim);border:1px solid var(--green);border-radius:var(--rs);padding:10px 13px;font-size:12px;color:var(--green);line-height:1.6">
-      <strong>Conectado</strong> ao Google Calendar<br>
+      <strong>Conectado</strong> ao Google Calendar${_gcalEmail() ? ' como ' + _gcalEmail().replace(/[<>&"]/g, '') : ''}<br>
       <span style="color:var(--text3)">Eventos criados/editados aqui são enviados automaticamente, e eventos do Google aparecem na Agenda.</span>
     </div>`;
   } else if (GCAL_CLIENT_ID) {
@@ -8082,6 +8118,8 @@ async function gcalPullAndMerge() {
     const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
+    // a agenda principal tem o e-mail da conta no título: guarda pra abrir direto nela nas próximas vezes
+    if (!_gcalEmail() && /^\S+@\S+\.\S+$/.test(data.summary || '')) { localStorage.setItem('gcal_email', data.summary.toLowerCase()); updateGcalStatusArea(); }
     const items = data.items || [];
     const eventos = load('eventos', []);
     let changed = false;
@@ -8110,6 +8148,7 @@ async function gcalPullAndMerge() {
     }
   } catch (e) {
     console.warn('[GCal pull]', e.message);
+    if (/HTTP 401/.test(e.message)) { _gcalEsquecerToken(); updateGcalStatusArea(); }   // token revogado/expirado: na próxima vez renova
   } finally {
     _gcalPulling = false;
   }
