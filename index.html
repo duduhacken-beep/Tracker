@@ -1912,6 +1912,34 @@ body.dens-compact .gap{margin-bottom:14px}
 .deck-ctrl .ib{width:36px;height:36px;font-size:20px}
 @media(max-width:640px){.deck{--deck-passo:14px}}
 @media (prefers-reduced-motion: reduce){.deck-carta,.sk-banda{transition:none}.ev-anim.ev-vis .sk-predio,.sk-anim .sk-banda,.sk-anim .sk-no{animation:none}.ev-anim .sk-predio{transform:none}}
+
+/* ── CORPO: alongamentos e alimentação ── */
+.al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.al-card{padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)}
+.al-hoje{border-color:var(--accent);box-shadow:0 0 0 3px var(--adim)}
+.al-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.al-dia{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em}
+.al-st{font-size:11.5px;font-weight:600}
+.al-txt{font-size:12.5px;color:var(--text2);margin-top:5px;white-space:pre-wrap;line-height:1.5}
+.al-box{padding:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs)}
+.al-sub{font-size:12px;color:var(--text2);line-height:1.5}
+.al-sum{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--accent);padding:6px 0;user-select:none}
+.al-m{margin-bottom:12px}
+.al-m-top{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--text2);margin-bottom:5px}
+.al-m-top b{color:var(--text);font-variant-numeric:tabular-nums}
+.al-bar{height:8px;background:var(--bg);border:1px solid var(--border);border-radius:99px;overflow:hidden}
+.al-bar i{display:block;height:100%;border-radius:99px;transition:width var(--dur-3) var(--ease-out)}
+.al-res-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;margin-top:8px}
+.al-res{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;min-height:44px;padding:9px 12px;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.al-res:hover,.al-res:focus-visible{border-color:var(--accent)}
+.al-res small{color:var(--text3);white-space:nowrap}
+.al-ref{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px;border-bottom:1px solid var(--border-strong)}
+.al-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.al-sem{display:grid;grid-template-columns:52px 1fr 78px 70px;gap:10px;align-items:center;width:100%;min-height:40px;padding:6px 8px;margin-bottom:4px;background:none;border:1px solid transparent;border-radius:var(--rs);color:var(--text2);font:inherit;font-size:12.5px;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums}
+.al-sem:hover{border-color:var(--border-strong)}
+.al-sem-sel{border-color:var(--accent);background:var(--adim);color:var(--text)}
+@media (max-width:640px){.al-sem{grid-template-columns:48px 1fr 70px 0}.al-sem span:last-child{display:none}}
+@media (prefers-reduced-motion:reduce){.al-bar i{transition:none}}
 </style>
 </head>
 <body>
@@ -2272,7 +2300,7 @@ body.dens-compact .gap{margin-bottom:14px}
 
 <!-- ════════════════ CORPO ════════════════ -->
 <section class="page" id="page-corpo">
-  <h1>Corpo</h1><p class="psub">Mural do treinador e peso</p>
+  <h1>Corpo</h1><p class="psub">Mural do treinador, alongamentos, alimentação e peso</p>
 
   <div class="g4 gap" style="grid-template-columns:minmax(160px,220px)">
     <div class="stat c-gold"><div class="lbl">Peso</div><div class="val" id="cp-peso-v">—</div><div class="sub">kg último reg.</div></div>
@@ -2291,6 +2319,68 @@ body.dens-compact .gap{margin-bottom:14px}
       <h2>Peso</h2>
       <div class="fg"><label>Peso de hoje (kg)</label><input type="number" id="cp-peso" placeholder="75.2" step="0.1" onchange="saveCorpoDiario()"></div>
       <button class="btn btn-p btn-sm" onclick="saveCorpoDiario()">💾 Salvar</button>
+    </div>
+  </div>
+
+  <!-- MURAL DE ALONGAMENTOS -->
+  <div class="card gap">
+    <h2>Mural de Alongamentos</h2>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:10px">Sessões de 15 min que o Jefrey marca na agenda, com o que alongar em cada uma. Só leitura.</p>
+    <div id="mural-alongamento" class="al-grid"></div>
+  </div>
+
+  <!-- ALIMENTAÇÃO -->
+  <div class="card gap">
+    <h2>Alimentação</h2>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Anote o que comeu. Valores da Tabela TACO (UNICAMP). No domingo o Jefrey lê a semana e ajusta o plano.</p>
+    <div class="fg" style="max-width:220px"><label for="al-dia">Dia</label><input type="date" id="al-dia" onchange="alimMudarDia()"></div>
+    <div class="g2 gap">
+      <div class="al-box">
+        <h3 style="margin-bottom:10px">Meta do dia</h3>
+        <div id="al-resumo"></div>
+        <details style="margin-top:6px">
+          <summary class="al-sum">Ajustar metas</summary>
+          <div class="row" style="margin-top:10px">
+            <div class="fg"><label for="acfg-kcal">Calorias (kcal)</label><input type="number" id="acfg-kcal" min="800" max="6000" step="10"></div>
+            <div class="fg"><label for="acfg-prot">Proteína (g)</label><input type="number" id="acfg-prot" min="20" max="400" step="5"></div>
+            <div class="fg"><label for="acfg-gord">Gordura (% kcal)</label><input type="number" id="acfg-gord" min="10" max="50" step="1"></div>
+          </div>
+          <p class="al-sub" id="acfg-nota" style="margin-bottom:10px"></p>
+          <button class="btn btn-p btn-sm" onclick="alimSalvarCfg()">Salvar metas</button>
+        </details>
+      </div>
+      <div class="al-box">
+        <h3 style="margin-bottom:10px">Adicionar alimento</h3>
+        <div class="fg" style="margin-bottom:0"><label for="al-busca">Buscar</label><input type="search" id="al-busca" placeholder="Ex.: arroz, feijão, frango, banana" autocomplete="off" oninput="alimBuscar()"></div>
+        <div class="al-res-list" id="al-resultados"></div>
+        <div id="al-form" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div id="al-sel-nome" style="font-weight:700;font-size:13.5px;margin-bottom:8px"></div>
+          <div class="row">
+            <div class="fg"><label for="al-g">Quantidade (g)</label><input type="number" id="al-g" min="1" step="1" inputmode="decimal" oninput="alimPreview()"></div>
+            <div class="fg"><label for="al-ref">Refeição</label><select id="al-ref"><option>Café da manhã</option><option>Almoço</option><option>Lanche</option><option>Jantar</option><option>Outro</option></select></div>
+          </div>
+          <p class="al-sub" id="al-hint"></p>
+          <p style="font-size:13px;margin:6px 0 12px" id="al-prev"></p>
+          <button class="btn btn-p btn-sm" onclick="alimAdicionar()">Adicionar</button>
+        </div>
+        <details style="margin-top:12px">
+          <summary class="al-sum">Não achou? Cadastrar alimento (whey, marmita, linguiça...)</summary>
+          <p class="al-sub" style="margin:8px 0">Preencha por 100 g, como vem no rótulo.</p>
+          <div class="fg"><label for="ac-nome">Nome</label><input type="text" id="ac-nome" placeholder="Ex.: Whey protein"></div>
+          <div class="row">
+            <div class="fg"><label for="ac-kcal">kcal</label><input type="number" id="ac-kcal" min="0" step="0.1"></div>
+            <div class="fg"><label for="ac-p">Proteína (g)</label><input type="number" id="ac-p" min="0" step="0.1"></div>
+            <div class="fg"><label for="ac-c">Carbo (g)</label><input type="number" id="ac-c" min="0" step="0.1"></div>
+            <div class="fg"><label for="ac-l">Gordura (g)</label><input type="number" id="ac-l" min="0" step="0.1"></div>
+            <div class="fg"><label for="ac-f">Fibra (g)</label><input type="number" id="ac-f" min="0" step="0.1"></div>
+          </div>
+          <button class="btn btn-g btn-sm" onclick="alimSalvarCustom()">Cadastrar e escolher</button>
+        </details>
+      </div>
+    </div>
+    <div class="g2">
+      <div><h3 style="margin-bottom:10px">O que comi no dia</h3><div id="al-lista"></div></div>
+      <div><h3 style="margin-bottom:10px">Semana (seg a dom)</h3><div id="al-semana"></div></div>
     </div>
   </div>
 
@@ -2921,7 +3011,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -2954,6 +3044,8 @@ function reRenderAll() {
   safeCall(renderAgenda, 'renderAgenda');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
   safeCall(renderMuralTreinador, 'renderMuralTreinador');
+  safeCall(renderMuralAlongamento, 'renderMuralAlongamento');
+  safeCall(renderComida, 'renderComida');
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderMapaHome, 'renderMapaHome');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
@@ -3175,7 +3267,7 @@ function go(p) {
 function renderAba(p) {
   if (p === 'home')     { safeCall(refreshHome, 'refreshHome'); }
   if (p === 'agenda')   { safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
-  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
+  if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderMuralAlongamento,'renderMuralAlongamento'); safeCall(renderComida,'renderComida'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
@@ -3782,6 +3874,343 @@ function renderMuralTreinador() {
       <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(c.titulo || '')}</div>
       <div style="font-size:12.5px;color:var(--text2);margin-top:4px;white-space:pre-wrap">${esc(c.texto || '')}</div>
     </div>`).join('');
+}
+
+// ──────────────────────────────────
+// CORPO - MURAL DE ALONGAMENTOS
+// Sessões 'Alongamento (Jefrey)' que o Jefrey cria no Google Calendar (já chegam na chave 'eventos').
+// Mostra da segunda desta semana em diante. Só leitura.
+// ──────────────────────────────────
+const _alEsc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const _alSegunda = () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; };
+
+function renderMuralAlongamento() {
+  const cont = $('mural-alongamento');
+  if (!cont) return;
+  const hoje = today(), desde = localDateStr(_alSegunda());
+  const evs = load('eventos', [])
+    .filter(e => /Alongamento \(Jefrey\)/.test(e.notas || '') && (e.dt || '').slice(0, 10) >= desde)
+    .sort((a, b) => a.dt.localeCompare(b.dt));
+  if (!evs.length) { cont.innerHTML = '<div class="empty"><div class="ei">🧘</div>Nenhum alongamento marcado pra esta semana</div>'; return; }
+  cont.innerHTML = evs.map(e => {
+    const dia = e.dt.slice(0, 10), [y, m, d] = dia.split('-');
+    const ehHoje = dia === hoje;
+    const estado = e.done ? 'Feito' : dia < hoje ? 'Não feito' : ehHoje ? 'Hoje' : 'Em breve';
+    const cor = e.done ? 'var(--green)' : ehHoje ? 'var(--accent)' : 'var(--text3)';
+    const texto = (e.notas || '').split('\n').filter(l => !/^Categoria:/.test(l)).join('\n').trim();
+    return `<div class="al-card${ehHoje ? ' al-hoje' : ''}">
+      <div class="al-top"><span class="al-dia">${DIAS_SEMANA_LABEL[new Date(+y, m - 1, +d).getDay()]} ${d}/${m} · ${e.dt.slice(11, 16)}</span><span class="al-st" style="color:${cor}">${estado}</span></div>
+      <div class="al-txt">${_alEsc(texto)}</div></div>`;
+  }).join('');
+}
+
+// ──────────────────────────────────
+// CORPO - ALIMENTAÇÃO
+// Chaves: 'comida_d' {AAAA-MM-DD: [refeição...]} (o Jefrey lê no domingo), 'comida_cfg' (metas do dia),
+// 'comida_custom' (alimentos cadastrados por mim). Valores por 100 g da TACO 4ª ed. (NEPA/UNICAMP, 2011),
+// arredondados como no original; "Tr"/"NA" viram 0. As porções (colher, unidade...) são aproximadas.
+// ──────────────────────────────────
+const ALIM_GRUPOS = ["Cereais e derivados","Verduras, hortaliças e derivados","Alimentos preparados","Leguminosas e derivados","Carnes e derivados","Pescados e frutos do mar","Ovos e derivados","Leite e derivados","Gorduras e óleos","Frutas e derivados","Nozes e sementes","Outros alimentos industrializados","Produtos açucarados","Bebidas (alcoólicas e não alcoólicas)"];
+// [id TACO, descrição, grupo, kcal, proteína g, carboidrato g, lipídeos g, fibra g, sódio mg (por 100 g), rótulo da porção, gramas da porção]
+const ALIM_DB = [
+ [3,"Arroz, tipo 1, cozido",0,128,2.5,28.1,0.2,1.6,1,"4 colheres de sopa",100],
+ [1,"Arroz, integral, cozido",0,124,2.6,25.8,1,2.7,1,"4 colheres de sopa",100],
+ [53,"Pão, trigo, francês",0,300,8,58.6,3.1,2.3,648,"1 unidade",50],
+ [52,"Pão, trigo, forma, integral",0,253,9.4,49.9,3.7,6.9,506,"2 fatias",50],
+ [140,"Pão, de queijo, assado",1,363,5.1,34.2,24.6,0.6,773,"1 unidade",30],
+ [551,"Tapioca, com manteiga",2,348,0.1,63.6,10.9,0,158,"100 g",100],
+ [533,"Cuscuz, de milho, cozido com sal",2,113,2.2,25.3,0.7,2.1,248,"100 g",100],
+ [534,"Cuscuz, paulista",2,142,2.6,22.5,4.6,2.4,236,"100 g",100],
+ [542,"Macarrão, molho bolognesa",2,120,4.9,22.5,0.9,0.8,9,"100 g",100],
+ [37,"Lasanha, massa fresca, cozida",0,164,5.8,32.5,1.2,1.6,207,"100 g",100],
+ [7,"Aveia, flocos, crua",0,394,13.9,66.6,8.5,9.1,5,"2 colheres de sopa",20],
+ [13,"Biscoito, salgado, cream cracker",0,432,10.1,68.7,14.4,2.5,854,"100 g",100],
+ [8,"Biscoito, doce, maisena",0,443,8.1,75.2,12,2.1,352,"100 g",100],
+ [99,"Biscoito, polvilho doce",1,438,1.3,80.5,12.2,1.2,98,"100 g",100],
+ [62,"Polenta, pré-cozida",0,103,2.3,23.3,0.3,2.4,442,"100 g",100],
+ [122,"Farinha, de mandioca, torrada",1,365,1.2,89.2,0.3,6.5,10,"100 g",100],
+ [131,"Mandioca, farofa, temperada",1,406,2.1,80.3,9.1,7.8,575,"100 g",100],
+ [129,"Mandioca, cozida",1,125,0.6,30.1,0.3,1.6,1,"100 g",100],
+ [88,"Batata, doce, cozida",1,77,0.6,18.4,0.1,2.2,3,"100 g",100],
+ [91,"Batata, inglesa, cozida",1,52,1.2,11.9,0,1.3,2,"100 g",100],
+ [45,"Milho, verde, enlatado, drenado",0,98,3.2,17.1,2.4,4.6,260,"100 g",100],
+ [61,"Pipoca, com óleo de soja, sem sal",0,448,9.9,70.3,15.9,14.3,4,"100 g",100],
+ [561,"Feijão, carioca, cozido",3,76,4.8,13.6,0.5,8.5,2,"1 concha",90],
+ [567,"Feijão, preto, cozido",3,77,4.5,14,0.5,8.4,2,"1 concha",90],
+ [577,"Lentilha, cozida",3,93,6.3,16.3,0.5,7.9,1,"1 concha",90],
+ [584,"Soja, queijo (tofu)",3,64,6.6,2.1,4,0.8,1,"100 g",100],
+ [560,"Ervilha, enlatada, drenada",3,74,4.6,13.4,0.4,5.1,372,"100 g",100],
+ [410,"Frango, peito, sem pele, grelhado",4,159,32,0,2.5,0,50,"1 filé",120],
+ [413,"Frango, sobrecoxa, sem pele, assada",4,233,29.2,0,12,0,106,"100 g",100],
+ [398,"Frango, coxa, sem pele, cozida",4,167,26.9,0,5.8,0,64,"100 g",100],
+ [377,"Carne, bovina, patinho, sem gordura, grelhado",4,219,35.9,0,7.3,0,60,"1 bife",100],
+ [370,"Carne, bovina, miolo de alcatra, sem gordura, grelhado",4,241,31.9,0,11.6,0,52,"1 bife",100],
+ [326,"Carne, bovina, acém, moído, cozido",4,212,26.7,0,10.9,0,52,"100 g",100],
+ [344,"Carne, bovina, contra-filé, com gordura, grelhado",4,278,32.4,0,15.5,0,57,"100 g",100],
+ [361,"Carne, bovina, fraldinha, com gordura, cozida",4,338,24.2,0,26,0,39,"100 g",100],
+ [417,"Hambúrguer, bovino, grelhado",4,210,13.2,11.3,12.4,0,1090,"100 g",100],
+ [432,"Porco, lombo, assado",4,210,35.7,0,6.4,0,39,"100 g",100],
+ [439,"Presunto, sem capa de gordura",4,94,14.3,2.1,2.7,0,1039,"1 fatia",15],
+ [424,"Mortadela",4,269,12,5.8,21.6,0,1212,"100 g",100],
+ [425,"Peru, congelado, assado",4,163,26.2,0,5.7,0,628,"100 g",100],
+ [356,"Carne, bovina, fígado, grelhado",4,225,29.9,4.2,9,0,82,"100 g",100],
+ [386,"Coxinha de frango, frita",4,283,9.6,34.5,11.8,5,532,"100 g",100],
+ [389,"Empada de frango, pré-cozida, assada",4,358,6.9,47.5,15.6,2.2,525,"100 g",100],
+ [56,"Pastel, de carne, frito",0,388,10.1,43.8,20.1,1,1040,"100 g",100],
+ [58,"Pastel, de queijo, frito",0,422,8.7,48.1,22.7,0.9,821,"100 g",100],
+ [317,"Salmão, sem pele, fresco, grelhado",5,243,26.1,0,14.5,0,96,"100 g",100],
+ [318,"Sardinha, assada",5,164,32.2,0,3,0,74,"100 g",100],
+ [277,"Atum, conserva em óleo",5,166,26.2,0,6,0,362,"100 g",100],
+ [301,"Merluza, filé, assado",5,122,26.6,0,0.9,0,120,"100 g",100],
+ [284,"Camarão, Rio Grande, grande, cozido",5,90,19,0,1,0,367,"100 g",100],
+ [488,"Ovo, de galinha, inteiro, cozido/10minutos",6,146,13.3,0.6,9.5,0,146,"1 unidade",50],
+ [490,"Ovo, de galinha, inteiro, frito",6,240,15.6,1.2,18.6,0,166,"1 unidade",50],
+ [484,"Omelete, de queijo",6,268,15.6,0.4,22,0,216,"100 g",100],
+ [486,"Ovo, de galinha, clara, cozida/10minutos",6,59,13.4,0,0.1,0,181,"1 clara",33],
+ [458,"Leite, de vaca, integral",7,0,0,0,0,0,64,"1 copo",200],
+ [457,"Leite, de vaca, desnatado, UHT",7,0,0,0,0,0,51,"100 g",100],
+ [448,"Iogurte, natural",7,51,4.1,1.9,3,0,52,"1 pote",170],
+ [449,"Iogurte, natural, desnatado",7,41,3.8,5.8,0.3,0,60,"100 g",100],
+ [451,"Iogurte, sabor morango",7,70,2.7,9.7,2.3,0.2,38,"100 g",100],
+ [461,"Queijo, minas, frescal",7,264,17.4,3.2,20.2,0,31,"100 g",100],
+ [463,"Queijo, mozarela",7,330,22.6,3,25.2,0,581,"1 fatia",20],
+ [467,"Queijo, prato",7,360,22.7,1.9,29.1,0,580,"1 fatia",20],
+ [464,"Queijo, parmesão",7,453,35.6,1.7,33.5,0,1844,"100 g",100],
+ [469,"Queijo, ricota",7,140,12.6,3.8,8.1,0,283,"100 g",100],
+ [468,"Queijo, requeijão, cremoso",7,257,9.6,2.4,23.4,0,558,"100 g",100],
+ [261,"Manteiga, com sal",8,726,0.4,0.1,82.4,0,579,"1 colher de chá",5],
+ [260,"Azeite, de oliva, extra virgem",8,884,0,0,100,0,0,"1 colher de sopa",13],
+ [263,"Margarina, com óleo hidrogenado, com sal (65% de lipídeos)",8,596,0,0,67.4,0,894,"100 g",100],
+ [272,"Óleo, de soja",8,884,0,0,100,0,0,"100 g",100],
+ [182,"Banana, prata, crua",9,98,1.3,26,0.1,2,0,"1 unidade",70],
+ [179,"Banana, nanica, crua",9,92,1.4,23.8,0.1,1.9,0,"1 unidade",90],
+ [221,"Maçã, Argentina, com casca, crua",9,63,0.2,16.6,0.2,2,1,"1 unidade",130],
+ [214,"Laranja, pêra, crua",9,37,1,8.9,0.1,0.8,0,"1 unidade",180],
+ [226,"Mamão, Papaia, cru",9,40,0.5,10.4,0.1,1,2,"100 g",100],
+ [225,"Mamão, Formosa, cru",9,45,0.8,11.6,0.1,1.8,3,"100 g",100],
+ [231,"Manga, Tommy Atkins, crua",9,51,0.9,12.8,0.2,2.1,0,"100 g",100],
+ [164,"Abacaxi, cru",9,48,0.9,12.3,0.1,1,0,"100 g",100],
+ [235,"Melancia, crua",9,33,0.9,8.1,0,0.1,0,"100 g",100],
+ [256,"Uva, Itália, crua",9,53,0.7,13.6,0.2,0.9,0,"100 g",100],
+ [239,"Morango, cru",9,30,0.9,6.8,0.3,1.7,0,"100 g",100],
+ [163,"Abacate, cru",9,96,1.2,6,8.4,6.3,0,"100 g",100],
+ [251,"Tangerina, Poncã, crua",9,38,0.8,9.6,0.1,0.9,0,"100 g",100],
+ [200,"Goiaba, vermelha, com casca, crua",9,54,1.1,13,0.4,6.2,0,"100 g",100],
+ [232,"Maracujá, cru",9,68,2,12.3,2.1,1.1,2,"100 g",100],
+ [168,"Açaí, polpa, congelada",9,58,0.8,6.2,3.9,2.6,5,"100 g",100],
+ [236,"Melão, cru",9,29,0.7,7.5,0,0.3,11,"100 g",100],
+ [215,"Laranja, pêra, suco",9,33,0.7,7.6,0.1,0,0,"100 g",100],
+ [78,"Alface, crespa, crua",1,11,1.3,1.7,0.2,1.8,3,"100 g",100],
+ [157,"Tomate, com semente, cru",1,15,1.1,3.1,0.2,1.2,1,"100 g",100],
+ [110,"Cenoura, crua",1,34,1.3,7.7,0.2,3.2,3,"100 g",100],
+ [109,"Cenoura, cozida",1,30,0.8,6.7,0.2,2.6,8,"100 g",100],
+ [101,"Brócolis, cru",1,25,3.6,4,0.3,2.9,3,"100 g",100],
+ [116,"Couve, manteiga, refogada",1,90,1.7,8.7,6.6,5.7,11,"100 g",100],
+ [118,"Couve-flor, cozida",1,19,1.2,3.9,0.3,2.1,2,"100 g",100],
+ [142,"Pepino, cru",1,10,0.9,2,0,1.1,0,"100 g",100],
+ [107,"Cebola, crua",1,39,1.7,8.9,0.1,2.2,1,"100 g",100],
+ [98,"Beterraba, crua",1,49,1.9,11.1,0.1,3.4,10,"100 g",100],
+ [112,"Chuchu, cozido",1,19,0.4,4.8,0,1,2,"100 g",100],
+ [64,"Abóbora, cabotian, cozida",1,48,1.4,10.8,0.7,2.5,1,"100 g",100],
+ [147,"Quiabo, cru",1,30,1.9,6.4,0.3,4.6,1,"100 g",100],
+ [162,"Vagem, crua",1,25,1.8,5.3,0.2,2.4,0,"100 g",100],
+ [149,"Repolho, branco, cru",1,17,0.9,3.9,0.1,1.9,4,"100 g",100],
+ [546,"Salada, de legumes, cozida no vapor",2,35,2,7.1,0.3,2.5,3,"100 g",100],
+ [558,"Amendoim, torrado, salgado",3,606,22.5,18.7,54,7.8,376,"100 g",100],
+ [589,"Castanha-do-Brasil, crua",10,643,14.5,15.1,63.5,7.9,1,"100 g",100],
+ [588,"Castanha-de-caju, torrada, salgada",10,570,18.5,29.1,46.3,3.7,125,"100 g",100],
+ [587,"Amêndoa, torrada, salgada",10,581,18.6,29.5,47.3,11.6,279,"100 g",100],
+ [540,"Feijoada",2,117,8.7,11.6,6.5,5.1,278,"100 g",100],
+ [526,"Arroz carreteiro",2,154,10.8,11.6,7.1,1.5,1622,"100 g",100],
+ [527,"Baião de dois, arroz e feijão-de-corda",2,136,6.2,20.4,3.2,5.1,93,"100 g",100],
+ [545,"Salada, de legumes, com maionese",2,96,1.1,8.9,7,2.2,228,"100 g",100],
+ [524,"Maionese, tradicional com ovos",11,302,0.6,7.9,30.5,0,787,"100 g",100],
+ [492,"Açúcar, cristal",12,387,0.3,99.6,0,0,0,"1 colher de chá",5],
+ [507,"Mel, de abelha",12,309,0,84,0,0,6,"1 colher de sopa",20],
+ [495,"Chocolate, ao leite",12,540,7.2,59.6,30.3,2.2,77,"100 g",100],
+ [501,"Doce, de leite, cremoso",12,306,5.5,59.5,6,0,120,"100 g",100],
+ [579,"Paçoca, amendoim",3,487,16,52.4,26.1,7.3,167,"100 g",100],
+ [198,"Goiaba, doce em pasta",9,269,0.6,74.1,0,3.7,4,"100 g",100],
+ [471,"Café, infusão 10%",13,9,0.7,1.5,0.1,0,1,"100 g",100],
+ [480,"Refrigerante, tipo cola",13,34,0,8.7,0,0,7,"1 lata",350],
+ [481,"Refrigerante, tipo guaraná",13,39,0,10,0,0,9,"100 g",100],
+ [474,"Cerveja, pilsen",13,41,0.6,3.3,0,0,4,"1 lata",350],
+ [478,"Coco, água de",13,22,0,5.3,0,0.1,2,"1 copo",200],
+ [476,"Chá, mate, infusão 5%",13,3,0,0.6,0.1,0,0,"100 g",100]
+];
+const ALIM_REFEICOES = ['Café da manhã', 'Almoço', 'Lanche', 'Jantar', 'Outro'];
+// Metas iniciais: ESTIMATIVA (Mifflin-St Jeor × 1,55 − 500 kcal; proteína dentro da faixa 140–190 g da Regra 35;
+// gordura 25% das kcal, Regra 38). Não é gasto medido: o Jefrey calibra pela tendência de peso (Regras 33, 34 e 43).
+const ALIM_CFG_PADRAO = { kcal: 2570, prot: 160, gordPct: 25, estimada: true };
+let _alSel = null;   // alimento escolhido na busca
+let _alDia = null;   // dia em edição (null = hoje)
+
+const _alNorm = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const _alR = (n, d = 0) => { const f = 10 ** d; return Math.round(n * f) / f; };
+const _alF = (n, d = 1) => String(_alR(n, d)).replace('.', ',');
+const _alDiaAtual = () => _alDia || today();
+const _alSoma = (its, k) => its.reduce((s, i) => s + (Number(i[k]) || 0), 0);
+
+function alimCfg() {
+  const c = { ...ALIM_CFG_PADRAO, ...(load('comida_cfg', {}) || {}) };
+  const gordKcal = c.kcal * c.gordPct / 100;
+  c.gord = gordKcal / 9;
+  c.carb = Math.max(0, (c.kcal - c.prot * 4 - gordKcal) / 4);
+  return c;
+}
+
+function alimTodos() {
+  const custom = (load('comida_custom', []) || []).map(c => ({ id: 'c' + c.id, nome: c.nome, grupo: 'Meus alimentos', kcal: c.kcal, p: c.p, c: c.c, l: c.l, f: c.f, na: 0, rot: '100 g', g: 100 }));
+  const taco = ALIM_DB.map(r => ({ id: 't' + r[0], nome: r[1], grupo: ALIM_GRUPOS[r[2]], kcal: r[3], p: r[4], c: r[5], l: r[6], f: r[7], na: r[8], rot: r[9], g: r[10] }));
+  return custom.concat(taco);
+}
+
+function _alBotaoAlimento(a) {
+  return `<button type="button" class="al-res" onclick="alimEscolher('${a.id}')"><span>${_alEsc(a.nome)}</span><small>${_alF(a.kcal, 0)} kcal/100 g</small></button>`;
+}
+
+function alimBuscar() {
+  const cont = $('al-resultados');
+  if (!cont) return;
+  const termos = _alNorm($('al-busca').value.trim()).split(/\s+/).filter(Boolean);
+  const todos = alimTodos();
+  if (!termos.length) {
+    const dados = load('comida_d', {}), vistos = [];
+    Object.keys(dados).sort().reverse().slice(0, 14).forEach(d => (dados[d] || []).slice().reverse().forEach(i => { if (i.ref && !vistos.includes(i.ref)) vistos.push(i.ref); }));
+    const rec = vistos.map(r => todos.find(a => a.id === r)).filter(Boolean).slice(0, 8);
+    cont.innerHTML = rec.length ? '<div class="al-sub" style="margin:2px 0">Usados recentemente</div>' + rec.map(_alBotaoAlimento).join('') : '';
+    return;
+  }
+  const res = todos.filter(a => { const n = _alNorm(a.nome + ' ' + a.grupo); return termos.every(t => n.includes(t)); }).slice(0, 30);
+  cont.innerHTML = res.length ? res.map(_alBotaoAlimento).join('') : '<div class="al-sub">Não achei. Use "Cadastrar alimento" logo abaixo.</div>';
+}
+
+function alimEscolher(id) {
+  _alSel = alimTodos().find(a => a.id === id);
+  if (!_alSel) return;
+  $('al-form').style.display = 'block';
+  $('al-sel-nome').textContent = _alSel.nome;
+  $('al-g').value = _alSel.g;
+  $('al-hint').textContent = _alSel.g === 100 && _alSel.rot === '100 g' ? 'Informe os gramas (peso do alimento pronto, como comeu).' : `Porção sugerida: ${_alSel.rot} ≈ ${_alSel.g} g (aproximada, ajuste os gramas).`;
+  const h = new Date().getHours();
+  $('al-ref').value = h < 10 ? 'Café da manhã' : h < 15 ? 'Almoço' : h < 18 ? 'Lanche' : 'Jantar';
+  alimPreview();
+  $('al-g').focus();
+}
+
+function alimPreview() {
+  if (!_alSel) return;
+  const k = (parseFloat($('al-g').value) || 0) / 100;
+  $('al-prev').textContent = `${_alF(_alSel.kcal * k, 0)} kcal · proteína ${_alF(_alSel.p * k)} g · carbo ${_alF(_alSel.c * k)} g · gordura ${_alF(_alSel.l * k)} g`;
+}
+
+function alimAdicionar() {
+  const g = parseFloat($('al-g').value);
+  if (!_alSel || !(g > 0)) { toast('Escolha um alimento e informe os gramas', 'aviso'); return; }
+  const k = g / 100, a = _alSel, now = new Date();
+  const item = { id: Date.now(), ref: a.id, nome: a.nome, g, refeicao: $('al-ref').value,
+    hora: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+    kcal: _alR(a.kcal * k, 1), p: _alR(a.p * k, 1), c: _alR(a.c * k, 1), l: _alR(a.l * k, 1), f: _alR(a.f * k, 1), na: _alR(a.na * k) };
+  const dados = load('comida_d', {}), dia = _alDiaAtual();
+  dados[dia] = (dados[dia] || []).concat(item);
+  save('comida_d', dados);
+  _alSel = null;
+  $('al-form').style.display = 'none';
+  $('al-busca').value = '';
+  alimBuscar();
+  renderComida();
+  toast(`${a.nome} adicionado`, 'ok');
+}
+
+function alimRemover(id) {
+  const dados = load('comida_d', {}), dia = _alDiaAtual();
+  dados[dia] = (dados[dia] || []).filter(i => i.id !== id);
+  if (!dados[dia].length) delete dados[dia];
+  save('comida_d', dados);
+  renderComida();
+  toast('Removido', 'info');
+}
+
+function alimMudarDia() {
+  const v = $('al-dia').value;
+  _alDia = !v || v === today() ? null : v;
+  renderComida();
+}
+function alimIrDia(ds) { _alDia = ds === today() ? null : ds; renderComida(); }
+
+function alimSalvarCustom() {
+  const n = id => parseFloat($(id).value);
+  const nome = $('ac-nome').value.trim(), kcal = n('ac-kcal');
+  if (!nome || !(kcal >= 0)) { toast('Precisa de nome e kcal por 100 g', 'aviso'); return; }
+  const novo = { id: Date.now(), nome, kcal, p: n('ac-p') || 0, c: n('ac-c') || 0, l: n('ac-l') || 0, f: n('ac-f') || 0 };
+  save('comida_custom', (load('comida_custom', []) || []).concat(novo));
+  ['ac-nome', 'ac-kcal', 'ac-p', 'ac-c', 'ac-l', 'ac-f'].forEach(id => { $(id).value = ''; });
+  alimEscolher('c' + novo.id);
+  toast('Alimento cadastrado', 'ok');
+}
+
+function alimSalvarCfg() {
+  const kcal = parseFloat($('acfg-kcal').value), prot = parseFloat($('acfg-prot').value), gordPct = parseFloat($('acfg-gord').value);
+  if (!(kcal >= 800 && kcal <= 6000) || !(prot >= 20 && prot <= 400) || !(gordPct >= 10 && gordPct <= 50)) { toast('Valores fora do razoável (kcal 800–6000, proteína 20–400 g, gordura 10–50%)', 'aviso'); return; }
+  save('comida_cfg', { kcal, prot, gordPct, estimada: false, em: today() });
+  renderComida();
+  toast('Metas salvas. O Jefrey usa estas metas na revisão de domingo.', 'ok');
+}
+
+function _alBarra(rot, val, meta, un, cor, estourar) {
+  const acima = estourar && val > meta;
+  return `<div class="al-m"><div class="al-m-top"><span>${rot}</span><span><b>${_alF(val, 0)}</b> / ${_alF(meta, 0)} ${un}${acima ? ' · acima' : ''}</span></div>
+    <div class="al-bar" role="progressbar" aria-label="${rot}" aria-valuenow="${_alR(val)}" aria-valuemin="0" aria-valuemax="${_alR(meta)}"><i style="width:${meta ? Math.min(100, val / meta * 100) : 0}%;background:${acima ? 'var(--red)' : cor}"></i></div></div>`;
+}
+
+function _alListaDia(itens) {
+  if (!itens.length) return '<div class="empty"><div class="ei">🍽️</div>Nada registrado neste dia</div>';
+  return ALIM_REFEICOES.map(r => {
+    const its = itens.filter(i => (i.refeicao || 'Outro') === r);
+    if (!its.length) return '';
+    return `<div style="margin-bottom:12px"><div class="al-ref"><span>${r}</span><span>${_alF(_alSoma(its, 'kcal'), 0)} kcal</span></div>` + its.map(i => `
+      <div class="al-item"><div><div>${_alEsc(i.nome)}</div><div class="al-sub">${_alF(i.g, 0)} g · ${_alF(i.kcal, 0)} kcal · P ${_alF(i.p)} · C ${_alF(i.c)} · G ${_alF(i.l)}</div></div>
+      <button class="btn btn-g btn-sm" aria-label="Remover ${_alEsc(i.nome)}" onclick="alimRemover(${i.id})">Remover</button></div>`).join('') + '</div>';
+  }).join('');
+}
+
+function _alSemana(cfg) {
+  const dados = load('comida_d', {}), hoje = today(), seg = _alSegunda();
+  let nDias = 0, sk = 0, sp = 0;
+  const linhas = [0, 1, 2, 3, 4, 5, 6].map(i => {
+    const d = new Date(seg); d.setDate(seg.getDate() + i);
+    const ds = localDateStr(d), its = dados[ds] || [], k = _alSoma(its, 'kcal'), p = _alSoma(its, 'p');
+    if (its.length && ds <= hoje) { nDias++; sk += k; sp += p; }
+    const rot = `${DIAS_SEMANA_LABEL[d.getDay()].slice(0, 3)} ${String(d.getDate()).padStart(2, '0')}`;
+    return `<button type="button" class="al-sem${ds === (_alDiaAtual()) ? ' al-sem-sel' : ''}" onclick="alimIrDia('${ds}')" aria-label="Ver ${rot}">
+      <span>${rot}</span>
+      <div class="al-bar"><i style="width:${Math.min(100, k / cfg.kcal * 100)}%;background:${k > cfg.kcal ? 'var(--red)' : 'var(--accent)'}"></i></div>
+      <span>${its.length ? _alF(k, 0) + ' kcal' : '—'}</span><span>${its.length ? _alF(p, 0) + ' g prot' : ''}</span></button>`;
+  }).join('');
+  const media = nDias ? `<div class="al-sub" style="margin-top:8px">Média de ${nDias} dia${nDias > 1 ? 's' : ''} com registro: <b>${_alF(sk / nDias, 0)} kcal</b> · <b>${_alF(sp / nDias, 0)} g</b> de proteína (meta ${_alF(cfg.kcal, 0)} kcal · ${_alF(cfg.prot, 0)} g)</div>` : '<div class="al-sub" style="margin-top:8px">Nenhum dia registrado nesta semana ainda.</div>';
+  return linhas + media;
+}
+
+function renderComida() {
+  if (!$('al-resumo')) return;
+  const cfg = alimCfg(), dia = _alDiaAtual(), its = (load('comida_d', {}) || {})[dia] || [];
+  $('al-dia').value = dia;
+  $('al-resumo').innerHTML =
+    _alBarra('Calorias', _alSoma(its, 'kcal'), cfg.kcal, 'kcal', 'var(--accent)', true) +
+    _alBarra('Proteína', _alSoma(its, 'p'), cfg.prot, 'g', 'var(--blue)') +
+    _alBarra('Carboidrato', _alSoma(its, 'c'), cfg.carb, 'g', 'var(--orange)') +
+    _alBarra('Gordura', _alSoma(its, 'l'), cfg.gord, 'g', 'var(--purple)') +
+    `<div class="al-sub">Fibra ${_alF(_alSoma(its, 'f'))} g · Sódio ${_alF(_alSoma(its, 'na'), 0)} mg</div>`;
+  $('al-lista').innerHTML = _alListaDia(its);
+  $('al-semana').innerHTML = _alSemana(cfg);
+  const foc = document.activeElement && document.activeElement.id;
+  if (foc !== 'acfg-kcal') $('acfg-kcal').value = cfg.kcal;
+  if (foc !== 'acfg-prot') $('acfg-prot').value = cfg.prot;
+  if (foc !== 'acfg-gord') $('acfg-gord').value = cfg.gordPct;
+  $('acfg-nota').textContent = cfg.estimada
+    ? 'Metas iniciais são uma estimativa (fórmula Mifflin-St Jeor × 1,55, menos 500 kcal de déficit; proteína dentro da faixa de 140–190 g). Não é gasto medido: o Jefrey revisa pela tendência do seu peso e ajusta no domingo.'
+    : `Metas definidas em ${cfg.em ? cfg.em.split('-').reverse().join('/') : '—'}. Carboidrato é o que sobra depois da proteína e da gordura.`;
+  alimBuscar();
 }
 
 // ──────────────────────────────────
@@ -5390,7 +5819,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
@@ -8786,6 +9215,8 @@ function _lpTema(html) {
   safeCall(renderAgenda, 'renderAgenda');
   safeCall(loadCorpoDiario, 'loadCorpoDiario');
   safeCall(renderMuralTreinador, 'renderMuralTreinador');
+  safeCall(renderMuralAlongamento, 'renderMuralAlongamento');
+  safeCall(renderComida, 'renderComida');
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
