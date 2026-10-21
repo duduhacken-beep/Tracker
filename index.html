@@ -1913,6 +1913,15 @@ body.dens-compact .gap{margin-bottom:14px}
 @media(max-width:640px){.deck{--deck-passo:14px}}
 @media (prefers-reduced-motion: reduce){.deck-carta,.sk-banda{transition:none}.ev-anim.ev-vis .sk-predio,.sk-anim .sk-banda,.sk-anim .sk-no{animation:none}.ev-anim .sk-predio{transform:none}}
 
+/* ── Modal dentro de uma aba: o <main> tem z-index:1, então o overlay (z 1000) ficava ABAIXO da barra
+   de navegação (z 200) e o fim do modal (botões) ficava coberto no celular. Com um modal aberto, a barra
+   desce pra trás do conteúdo; o overlay escurece a barra como nos outros modais. ── */
+body:has(.overlay.on) .sidebar{z-index:0}
+@media (max-width:768px){
+  .modal{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+  .rc-det-corpo{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+}
+
 /* ── CORPO: alongamentos e alimentação ── */
 .al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .al-card{padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)}
