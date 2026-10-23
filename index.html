@@ -1922,6 +1922,18 @@ body:has(.overlay.on) .sidebar{z-index:0}
   .rc-det-corpo{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
 }
 
+/* ── INÍCIO: status dos projetos ── */
+.pj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:640px){.pj-grid{grid-template-columns:1fr}}
+.pj-item{padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--pj-cor,var(--accent));border-radius:var(--rs)}
+.pj-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.pj-nome{font-size:13px;font-weight:700;color:var(--text)}
+.pj-ritmo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--pj-cor,var(--accent));white-space:nowrap}
+.pj-fase{font-size:12px;color:var(--text2);margin-top:4px}
+.pj-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-top:9px}
+.pj-prox{font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.45}
+.pj-data{font-size:10px;color:var(--text3);font-family:var(--f-mono);margin-top:8px}
+
 /* ── CORPO: alongamentos e alimentação ── */
 .al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
 .al-card{padding:11px 12px;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border)}
@@ -2157,6 +2169,13 @@ body:has(.overlay.on) .sidebar{z-index:0}
       </div>
     </div>
     <div id="prox-semana-content"></div>
+  </div>
+
+  <!-- STATUS DOS PROJETOS (chave 'projetos_status', escrita pelo Claude a partir do vault) -->
+  <div class="card gap" id="home-projetos">
+    <div class="sh" style="margin-bottom:12px"><h2 style="font-size:14px">Status dos projetos</h2>
+      <span id="home-projetos-data" style="font-size:10px;color:var(--text3);font-family:var(--f-mono)"></span></div>
+    <div id="home-projetos-corpo"></div>
   </div>
 
   <div class="g2 gap">
@@ -3034,7 +3053,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3523,6 +3542,9 @@ function refreshHome() {
 
   // Próxima semana
   renderProxSemana();
+
+  // Status dos projetos
+  safeCall(renderStatusProjetos, 'renderStatusProjetos');
 }
 
 function adjTrackHome(id, delta) {
@@ -3898,6 +3920,30 @@ function renderMuralTreinador() {
       <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(c.titulo || '')}</div>
       <div style="font-size:12.5px;color:var(--text2);margin-top:4px;white-space:pre-wrap">${esc(c.texto || '')}</div>
     </div>`).join('');
+}
+
+// ──────────────────────────────────
+// INÍCIO - STATUS DOS PROJETOS
+// Chave 'projetos_status' = { atualizado: 'AAAA-MM-DD', projetos: [{ nome, ritmo, cor, fase, proximo, atualizado }] }.
+// Escrita pelo Claude a partir dos hubs do vault (Projetos/*/CLAUDE.md). Só leitura no app.
+// ──────────────────────────────────
+function renderStatusProjetos() {
+  const cont = $('home-projetos-corpo');
+  if (!cont) return;
+  const dados = load('projetos_status', null) || {};
+  const lista = Array.isArray(dados.projetos) ? dados.projetos : [];
+  const fmt = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+  $('home-projetos-data').textContent = dados.atualizado ? 'atualizado ' + fmt(dados.atualizado) : '';
+  if (!lista.length) { cont.innerHTML = '<div class="empty"><div class="ei">🧭</div>Nenhum projeto no radar ainda</div>'; return; }
+  const cores = { teal: 'var(--teal)', blue: 'var(--blue)', purple: 'var(--purple)', orange: 'var(--orange)' };
+  cont.innerHTML = '<div class="pj-grid">' + lista.map(p => `
+    <div class="pj-item" style="--pj-cor:${cores[p.cor] || 'var(--accent)'}">
+      <div class="pj-top"><span class="pj-nome">${_alEsc(p.nome || '')}</span><span class="pj-ritmo">${_alEsc(p.ritmo || '')}</span></div>
+      <div class="pj-fase">${_alEsc(p.fase || '')}</div>
+      <div class="pj-lbl">Próximo passo</div>
+      <div class="pj-prox">${_alEsc(p.proximo || '—')}</div>
+      ${p.atualizado ? `<div class="pj-data">atualizado ${fmt(p.atualizado)}</div>` : ''}
+    </div>`).join('') + '</div>';
 }
 
 // ──────────────────────────────────
@@ -5869,7 +5915,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
