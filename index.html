@@ -646,7 +646,7 @@ button.rc-hist-row{width:100%;background:none;border:none;border-bottom:1px soli
 /* ══ EVOLUÇÃO — visual esportivo (10/10/2026): anéis por atributo, números grandes em Archivo condensada ══ */
 #page-evolucao,#modal-cv{
   --ev-card:#10131a;--ev-line:#1c212c;--ev-track:rgba(255,255,255,.06);
-  --c-corpo:#ff5a4e;--c-flex:#ffaa2b;--c-mente:#3d9bff;--c-sab:#9b7bff;--c-estilo:#ff5ca8;--c-cozinha:#2fd38a;--c-neutro:#8892a4;
+  --c-corpo:#ff5a4e;--c-flex:#ffaa2b;--c-mente:#3d9bff;--c-sab:#9b7bff;--c-estilo:#ff5ca8;--c-cozinha:#2fd38a;--c-idioma:#22c8e8;--c-neutro:#8892a4;
   --bronze:#d08a4f;--prata:#c6ccd8;--ouro:#f2c14e;
   --f-num:'Archivo','Inter',sans-serif;
 }
@@ -659,7 +659,7 @@ button.rc-hist-row{width:100%;background:none;border:none;border-bottom:1px soli
 .cv-hero{display:grid;grid-template-columns:auto 1fr auto;gap:36px;align-items:center}
 .cv-aneis{position:relative;width:220px;height:220px}
 .cv-aneis svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
-.cv-aneis circle{fill:none;stroke-width:9}
+.cv-aneis circle{fill:none;stroke-width:8}
 .cv-aneis .trilho{stroke:var(--ev-track)}
 .cv-aneis .arco{stroke-linecap:round}
 @keyframes ev-arco{from{stroke-dasharray:0 100}}
@@ -689,11 +689,25 @@ button.rc-hist-row{width:100%;background:none;border:none;border-bottom:1px soli
 @keyframes ev-chama{0%,100%{transform:scale(1)}50%{transform:scale(1.05,1.1)}}
 .cv-escudos{display:flex;gap:4px;margin-top:4px}
 .cv-escudos svg{display:block}
-.cv-legenda{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:26px;padding-top:20px;border-top:1px solid var(--ev-line)}
+.cv-legenda{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;margin-top:26px;padding-top:20px;border-top:1px solid var(--ev-line)}
 .cv-attr{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--text2)}
 .cv-attr>span{display:flex;align-items:center;gap:6px}
 .cv-attr>span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--cor)}
 .cv-attr b{font-size:30px;color:var(--cor)}
+
+/* Inglês: semana (seg–sex) e totais por modalidade */
+.cv-ing-sem{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
+.cv-ing-dia{padding:10px 8px;border:1px solid var(--ev-line);border-radius:var(--rs);text-align:center;font-size:12px;color:var(--text2);background:rgba(255,255,255,.02)}
+.cv-ing-dia b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:3px}
+.cv-ing-dia span{display:block;color:var(--text);font-weight:600}
+.cv-ing-dia em{display:block;font-style:normal;font-size:11px;margin-top:4px}
+.cv-ing-dia.feito{border-color:var(--c-idioma);background:color-mix(in srgb,var(--c-idioma) 12%,transparent)}
+.cv-ing-dia.feito em{color:var(--c-idioma)}
+.cv-ing-dia.hoje{border-color:var(--text2)}
+.cv-ing-dia.atras em{color:var(--c-corpo)}
+.cv-ing-tot{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12.5px;color:var(--text2)}
+.cv-ing-tot b{color:var(--text);font-weight:600}
+@media(max-width:520px){.cv-ing-sem{gap:5px}.cv-ing-dia{padding:8px 4px;font-size:11px}}
 
 /* Metas */
 .cv-metas{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
@@ -785,7 +799,7 @@ button.rc-hist-row{width:100%;background:none;border:none;border-bottom:1px soli
 @media (prefers-reduced-motion: reduce){
   .fogo.vivo,.cv-confete i,.cv-cer-nivel{animation:none}
 }
-@media(max-width:900px){.cv-legenda{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.cv-legenda{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:640px){
   .cv-hero{grid-template-columns:1fr;justify-items:center;text-align:center;gap:20px}
   .cv-hero>div{width:100%}
@@ -2442,6 +2456,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
   <div class="card gap" id="cv-hero"></div>
   <div class="card gap" id="cv-mapa"></div>
   <div class="cv-metas gap" id="cv-metas"></div>
+  <div class="card gap" id="cv-ingles"></div>
   <div class="card gap" id="cv-conq"></div>
 
   <div class="card gap">
@@ -4696,7 +4711,7 @@ function _cvDatas() {
 }
 
 // ── Visual (10/10/2026: saiu a pixel art, entrou o visual esportivo — anéis, números grandes, cor por atributo) ──
-const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Cozinha: 'var(--c-cozinha)' };
+const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Cozinha: 'var(--c-cozinha)', Idioma: 'var(--c-idioma)' };
 const _cvCorClasse = classe => CV_COR[Object.keys(CV_CLASSES).find(k => CV_CLASSES[k] === classe)] || 'var(--c-neutro)';
 // arco de progresso: círculo com pathLength 100, o traço é a fração
 const _cvArco = (r, frac, cor, i = 0) => `<circle class="trilho" cx="50%" cy="50%" r="${r}"${cor ? ` style="stroke:color-mix(in srgb,${cor} 16%,transparent)"` : ''}/>` +
@@ -4733,6 +4748,8 @@ const NPCS = {
     falas: { antes: 'Sua agenda nova já começa em 21/10. Eu cuido dos horários.', frente: 'Adiantado. Vou anotar isso com orgulho.', ritmo: 'Tudo em dia na agenda.', atras: 'Reorganizei a semana. Só aparece no horário.', feito: 'Meta concluída, já registrei.' } },
   Maria: { papel: 'Cozinheira',
     falas: { antes: 'Separa o avental, dia 21 a gente começa.', frente: 'Tá cozinhando mais que eu, menino!', ritmo: 'Do jeitinho que eu gosto.', atras: 'A panela tá fria... bora uma receita fácil hoje?', feito: 'Trinta receitas! Já pode me substituir.' } },
+  Friday: { papel: 'Professora de inglês',
+    falas: { antes: 'Nossas aulas começam dia 26. Já separa o fone.', frente: 'You are on fire! Keep it up.', ritmo: 'Right on track. Little by little.', atras: 'Missed a few, no stress. Let us talk today?', feito: 'All lessons done. Proud of you!' } },
   Mosley: { papel: 'Monge bibliotecário',
     falas: { antes: 'Sua estante já está pronta. Escolha o primeiro.', frente: 'Lendo acima do ritmo. Admirável.', ritmo: 'Página por página, como deve ser.', atras: 'Um capítulo por manhã resolve. Sem pressa, sem pausa.', feito: 'Quatro livros. Nada mal para um homem de ação.' } },
 };
@@ -4762,7 +4779,7 @@ function _cvMedalha(c, w = 34) {
 
 // ── Regras do jogo ──
 const CV_XP_NIVEL = 250;
-const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Nobre', Cozinha: 'Chef' };
+const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Nobre', Cozinha: 'Chef', Idioma: 'Poliglota' };
 const CV_TITULOS = [[1, 'Recruta'], [3, 'Aprendiz'], [5, 'Disciplinado'], [8, 'Implacável'], [11, 'Homem da Caverna'], [13, 'Lenda']];
 const _cvTitulo = n => (CV_TITULOS.filter(([lv]) => n >= lv).pop() || CV_TITULOS[0])[1];
 const CV_CONQUISTAS = [
@@ -4779,6 +4796,9 @@ const CV_CONQUISTAS = [
   ['biblioteca', 'Rato de biblioteca', 'Meta de leitura batida', 'ouro', st => st.ok.leitura],
   ['fogao', 'Fogão aceso', 'Primeira receita feita', 'bronze', st => st.n.cozinhar >= 1],
   ['chef', 'Chef de casa', 'Meta de receitas batida', 'ouro', st => st.ok.cozinhar],
+  ['primeira-aula', 'Hello, world', 'Primeira aula de inglês feita', 'bronze', st => st.n.ingles >= 1],
+  ['ingles-10', 'Fala que eu entendo', '10 aulas de inglês feitas', 'prata', st => st.n.ingles >= 10],
+  ['poliglota', 'Poliglota em formação', 'Meta de aulas de inglês batida', 'ouro', st => st.ok.ingles],
   ['pele', 'Pele de vidro', '10 dias seguidos de skincare manhã e noite', 'prata', st => st.skinSeqMax >= 10],
   ['regua', 'Na régua', 'Todos os cortes de cabelo feitos', 'prata', st => st.n.cortes >= st.alvo.cortes],
   ['kg5', 'Menos 5 kg', '5 kg a menos desde 21/10', 'prata', st => st.perdidoKg >= 5],
@@ -4794,8 +4814,8 @@ function _cvStatus(frac, decorridos, total) {
   const esp = decorridos / total, f = frac;
   return Math.abs(f - esp) < 0.5 / 72 + 0.01 ? 'ritmo' : f > esp ? 'frente' : 'atras';
 }
-function _cvRitmo(feitas, alvo, decorridos, total, un) {
-  if (!decorridos) return 'Começa em 21/10.';
+function _cvRitmo(feitas, alvo, decorridos, total, un, ini) {
+  if (!decorridos) return `Começa em ${ini ? ini.slice(8) + '/' + ini.slice(5, 7) : '21/10'}.`;
   const esperado = Math.round(alvo * decorridos / total);
   const dif = feitas - esperado;
   return `Esperado até hoje: <b>${esperado}</b> ${un} · ${dif === 0 ? '<b>no ritmo</b>' : dif > 0 ? `<b class="frente">${dif} à frente</b>` : `<b class="atras">${-dif} atrás</b>`}`;
@@ -4843,6 +4863,8 @@ const CV_METAS = [
   { chave: 'aparencia', id: 1791158400008, nome: 'Aparência', attr: 'Estilo', npc: 'Mônica', un: 'skincare', alvo: 120, xp: 5, dias: () => _cvEventos('Aparência (Mônica)', /skincare/i),
     extra: { chave: 'cortes', un: 'cortes', alvo: 3, xp: 20, dias: () => _cvEventos('Aparência (Mônica)', /corte/i) } },
   { chave: 'cozinhar', id: 1791158400009, nome: 'Cozinhar', attr: 'Cozinha', npc: 'Maria', un: 'receitas', alvo: 30, xp: 30, dias: () => _cvItens(['receitas', 'receitas_feitas'], 'feita', 'feitaEm') },
+  // Inglês (23/10/2026): 46 aulas de 9h–10h30 em dia útil, de 26/10 a 31/12 (sem 02/11, 20/11 e 25/12). `ini` = o ritmo conta a partir daí.
+  { chave: 'ingles', id: 1774241501988, nome: 'Inglês', attr: 'Idioma', npc: 'Friday', un: 'aulas', alvo: 46, xp: 10, ini: '2026-10-26', dias: () => _cvEventos('Inglês (Friday)') },
 ];
 
 function _cvStats() {
@@ -4946,7 +4968,7 @@ function renderCaverna() {
   const diaAtual = Math.min(st.decorridos, total);
 
   // anéis de fora pra dentro na ordem dos atributos (Corpo por fora)
-  const aneis = st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome], i)).join('');
+  const aneis = st.attr.map((a, i) => _cvArco(100 - i * 10, a.frac, CV_COR[a.nome], i)).join('');
   hero.innerHTML = `
     <div class="cv-hero">
       <div class="cv-aneis">
@@ -4977,7 +4999,9 @@ function renderCaverna() {
 
   const mini = frac => `<div class="cv-mini"><svg viewBox="0 0 58 58" aria-hidden="true">${_cvArco(25, frac)}</svg><em>${_evN(Math.round(frac * 100), { suf: '%' })}</em></div>`;
   metasEl.innerHTML = st.linhas.map(({ m, frac, p, dias, alvo, extra }) => {
-    const status = _cvStatus(frac, st.decorridos, total), cor = CV_COR[m.attr];
+    const dd = m.ini ? st.datas.filter(d => d >= m.ini && d <= st.hoje).length : st.decorridos;   // meta que começa depois de 21/10 conta o ritmo a partir da data dela
+    const tt = m.ini ? st.datas.filter(d => d >= m.ini).length : total;
+    const status = _cvStatus(frac, dd, tt), cor = CV_COR[m.attr];
     const npc = _npcHtml(m.npc, _npcFala(m.chave, m.npc, status), cor);
     if (m.peso) return `<div class="card cv-meta" style="--cor:${cor}">
         <div class="cv-meta-top">${mini(frac)}<div><h3>Peso</h3><div class="cv-quem">${m.attr} · acompanhado pelo Jefrey</div></div></div>
@@ -4988,12 +5012,12 @@ function renderCaverna() {
     return `<div class="card cv-meta" style="--cor:${cor}">
       <div class="cv-meta-top">${mini(frac)}<div><h3>${m.nome}</h3><div class="cv-quem">${m.attr} · acompanhado por ${m.quem || m.npc}</div></div></div>
       <div class="cv-num"><b class="ev-num">${_evN(dias.length)}</b><span>de ${alvo} ${m.un}</span></div>
-      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, st.decorridos, total, m.un)}${extra ? ` · cortes <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
+      <div class="cv-ritmo">${_cvRitmo(dias.length, alvo, dd, tt, m.un, m.ini)}${extra ? ` · cortes <b>${extra.feitas}/${extra.alvo}</b>` : ''}</div>
       ${_cvGrade(dias, extra ? 2 : 1)}
       ${npc}
     </div>`;
   }).join('') + `
-    <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, skincare 5, corte 20, receita 30, livro 100, kg perdido 50</div>`;
+    <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, aula de inglês 10, skincare 5, corte 20, receita 30, livro 100, kg perdido 50</div>`;
 
   const nOk = st.conquistas.filter(c => c.ok).length;
   conqEl.innerHTML = `<h2>Conquistas <span style="color:var(--text3);font-size:.8em">${nOk}/${st.conquistas.length}</span></h2>
@@ -5005,6 +5029,7 @@ function renderCaverna() {
 
   // entrada: o topo anima já; cards e conquistas quando aparecem na tela
   safeCall(renderSkyline, 'renderSkyline');
+  safeCall(renderIngles, 'renderIngles');
   const mapaEl = $('cv-mapa');
   _evObs.disconnect();
   [hero, metasEl, conqEl, mapaEl].forEach(el => el.classList.toggle('ev-anim', _evAnimar));
@@ -5016,6 +5041,35 @@ function renderCaverna() {
   }
 
   _cvCerimonia(st);
+}
+
+// ── Inglês: semana atual (seg–sex) e totais por modalidade ──
+// Lê os eventos `Categoria: Inglês (Friday)` (aulas de 9h–10h30 que a Friday cuida); a modalidade vem do título.
+const _ingMod = nome => /gram/i.test(nome) ? 'Gramática' : /speak/i.test(nome) ? 'Speaking' : /listen/i.test(nome) ? 'Listening' : null;
+function renderIngles() {
+  const el = $('cv-ingles');
+  if (!el) return;
+  const hoje = today(), porChave = {};
+  load('eventos', []).forEach(e => {
+    const d = _cvDia(e.dt || ''), mod = _ingMod(e.nome || '');
+    if (!(e.notas || '').includes('Inglês (Friday)') || !mod || d < '2026-10-26') return;
+    const k = (e.dt || '') + '|' + (e.nome || '');   // o mesmo evento pode existir com e sem googleId
+    porChave[k] = { d, mod, done: !!(porChave[k]?.done || e.done) };
+  });
+  const evs = Object.values(porChave);
+  const seg = _alSegunda(), semana = Array.from({ length: 5 }, (_, i) => { const x = new Date(seg); x.setDate(seg.getDate() + i); return localDateStr(x); });
+  const dias = semana.map(d => {
+    const ev = evs.find(x => x.d === d), nome = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'][semana.indexOf(d)];
+    if (!ev) return `<div class="cv-ing-dia"><b>${nome}</b><span>—</span><em>sem aula</em></div>`;
+    const estado = ev.done ? ['feito', 'Feita ✓'] : d < hoje ? ['atras', 'Não feita'] : d === hoje ? ['hoje', 'Hoje'] : ['', 'Em breve'];
+    return `<div class="cv-ing-dia ${estado[0]}"><b>${nome}</b><span>${ev.mod}</span><em>${estado[1]}</em></div>`;
+  }).join('');
+  const ate = evs.filter(x => x.d <= hoje);
+  const tot = ['Gramática', 'Speaking', 'Listening'].map(m => `<span>${m} <b>${ate.filter(x => x.mod === m && x.done).length}/${ate.filter(x => x.mod === m).length}</b></span>`).join('');
+  const feitas = ate.filter(x => x.done).length;
+  el.innerHTML = `<div class="sk-cab"><h2>Inglês · 9h às 10h30</h2><span class="sk-resumo">${ate.length ? `Aderência até hoje: <b>${Math.round(feitas / ate.length * 100)}%</b> (${feitas} de ${ate.length})` : 'As aulas começam em <b>26/10</b>'}</span></div>
+    <div class="cv-ing-sem">${dias}</div>
+    <div class="cv-ing-tot">${ate.length ? tot : '<span>Gramática 2x, Speaking 2x e Listening 1x por semana. A Friday avalia toda segunda.</span>'}</div>`;
 }
 
 // ── Cerimônia (nível novo / conquista nova) e tela final ──
@@ -5033,7 +5087,7 @@ function _cvCerimonia(st) {
   const subiu = st.nivel > visto.nivel;
   if (!subiu && !novas.length) return;
   const tituloNovo = subiu && _cvTitulo(st.nivel) !== _cvTitulo(visto.nivel) ? _cvTitulo(st.nivel) : '';
-  const npc = ['Jefrey', 'Mônica', 'Maria', 'Mosley'][st.nivel % 4];
+  const npc = ['Jefrey', 'Mônica', 'Maria', 'Mosley', 'Friday'][st.nivel % 5];
   const fala = subiu ? `Nível ${st.nivel}! ${tituloNovo ? `Agora é ${tituloNovo}.` : 'Segue assim.'}` : 'Mais uma pra coleção. Bem feito.';
   const corCls = _cvCorClasse(st.classe);
   $('cv-cer').innerHTML = `${_cvConfete()}
@@ -5064,7 +5118,7 @@ function abrirTelaFinal(st = _cvStats()) {
   $('cv-cer').innerHTML = `${_cvConfete()}
     <div class="cv-cer-top">Modo Caverna, 21/10 a 31/12</div>
     <div class="cv-aneis" style="margin:16px auto 0;width:180px;height:180px">
-      <svg viewBox="0 0 220 220" aria-hidden="true">${st.attr.map((a, i) => _cvArco(100 - i * 12, a.frac, CV_COR[a.nome])).join('')}</svg>
+      <svg viewBox="0 0 220 220" aria-hidden="true">${st.attr.map((a, i) => _cvArco(100 - i * 10, a.frac, CV_COR[a.nome])).join('')}</svg>
       <div class="cv-ovr"><b class="ev-num" id="cv-cer-tit">${st.overall}</b><span>Overall</span></div>
     </div>
     <p>Overall final${st.hoje < CV_FIM ? ' (até agora, conta até 31/12)' : ''}. Nível <b>${st.nivel}</b>, <b>${st.titulo}</b>, classe <b>${st.classe}</b>.</p>
