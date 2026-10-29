@@ -1948,7 +1948,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .pj-prox{font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.45}
 .pj-data{font-size:10px;color:var(--text3);font-family:var(--f-mono);margin-top:8px}
 /* Aba Trading (28/10/2026): rastreio noturno das estratégias do WIN, capital separado de R$ 1.000 cada */
-.tr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.tr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
 .tr-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .tr-nome{font-size:14px;font-weight:700;color:var(--text)}
 .tr-org{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);white-space:nowrap}
@@ -1984,6 +1984,14 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-rh{cursor:default;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);font-family:inherit}.tr-rh:hover{background:none}
 .tr-rnome{display:flex;align-items:center;gap:4px;min-width:0}.tr-rnome .tr-selo{margin-left:4px}
 .tr-card{scroll-margin-top:16px}
+.tr-sum{list-style:none;cursor:pointer;display:block}.tr-sum::-webkit-details-marker{display:none}
+.tr-mini{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11.5px;color:var(--text2);margin-top:10px;font-family:var(--f-mono)}
+.tr-abre{font-family:var(--f-sans);font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.tr-abre::after{content:'▾';transition:transform .2s}
+.tr-card[open]>.tr-sum .tr-abre::after{transform:rotate(180deg)}
+.tr-card[open]>.tr-sum{padding-bottom:10px;border-bottom:1px solid var(--border)}
+.tr-sum:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:var(--rs)}
+@media(max-width:640px){.tr-sum .tr-org{display:none}}
 @media(max-width:640px){.tr-kpis{grid-template-columns:repeat(2,1fr)}.tr-k3{grid-template-columns:repeat(3,1fr)}.tr-rrow{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))}.tr-ropt{display:none}}
 
 /* ── CORPO: alongamentos e alimentação ── */
@@ -4020,7 +4028,15 @@ function renderStatusProjetos() {
 //   29/10/2026 (histórico congelado): pronta_desde, queda_max, banca_min, pior_seq, payoff, fator_lucro, ops_mes,
 //   curva: [[dia, banca, banca_da_regua]] (todo pregão), meses: [[AAAA-MM, rs, ops]], operacoes (todas), avisos.
 // ──────────────────────────────────
+// 29/10/2026: cada estratégia é um cartão resumido (<details>) que expande ao tocar; o gráfico só é criado ao abrir.
 let _trCharts = [];
+const _trAbertos = new Set();  // cartões abertos sobrevivem ao re-render do sync
+function _trAbrir(id) {
+  const d = document.getElementById('tr-card-' + id);
+  if (!d) return;
+  d.open = true;
+  d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function renderTrading() {
   const lista = $('tr-lista'), resumo = $('tr-resumo'), rank = $('tr-rank');
   if (!lista) return;
@@ -4056,7 +4072,7 @@ function renderTrading() {
   const faltam = e => [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
                        Math.max(0, (rg.min_ops || 20) - (e.ops || 0)) && `${Math.max(0, (rg.min_ops || 20) - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
   if (rank) rank.innerHTML = `<div class="tr-rrow tr-rh"><span>Estratégia</span><span>Ao ano</span><span>Banca</span><span class="tr-ropt">Queda máx.</span><span class="tr-ropt">Ops</span></div>` +
-    est.map(e => `<button class="tr-rrow" type="button" onclick="document.getElementById('tr-card-${_alEsc(e.id)}').scrollIntoView({behavior:'smooth',block:'start'})">
+    est.map(e => `<button class="tr-rrow" type="button" onclick="_trAbrir('${_alEsc(e.id)}')">
       <span class="tr-rnome">${_alEsc(e.nome || '')}${selo(e)}</span>
       <span class="${e.rent_aa == null ? '' : cl(e.rent_aa)}">${e.quebrou ? '−100%' : e.rent_aa == null ? '—' : pc(e.rent_aa)}</span>
       <span>${brl(e.banca)}</span><span class="tr-ropt">${brl(e.queda_max || 0)}</span><span class="tr-ropt">${e.ops || 0}</span></button>`).join('');
@@ -4069,11 +4085,15 @@ function renderTrading() {
     const meses = (e.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${cl(m[1])}">${rs(m[1])}</td></tr>`).join('');
     const ops = (e.operacoes || e.ultimas || []).slice().reverse().map(o => `<tr><td>${fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
       <td>${o.contratos}x</td><td class="${cl(o.rs)}">${rs(o.rs)}</td></tr>`).join('');
-    return `<div class="card tr-card" id="tr-card-${_alEsc(e.id)}">
+    return `<details class="card tr-card" id="tr-card-${_alEsc(e.id)}" data-i="${i}" data-id="${_alEsc(e.id)}"${_trAbertos.has(e.id) ? ' open' : ''}>
+      <summary class="tr-sum">
       <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span><span class="tr-org">${_alEsc(e.origem || '')}</span>${selo(e)}</span></div>
       <div class="tr-meta">Na incubadora desde ${fmt(e.inicio)} · ${Math.max(0, e.dias || 0)} dias</div>
       <div class="tr-banca">${brl(e.banca)} <span class="tr-var ${cl(pv)}">${pv >= 0 ? '+' : '−'}${Math.abs(pv).toFixed(1).replace('.', ',')}%</span></div>
       ${rent ? `<div class="tr-rent">${rent}</div>` : ''}
+      <div class="tr-mini"><span>${e.ops || 0} ${(e.ops || 0) === 1 ? 'operação' : 'operações'} · acerto ${pct(e.acerto)} · queda máx. ${brl(e.queda_max || 0)}</span><span class="tr-abre">Detalhes</span></div>
+      </summary>
+      <div class="tr-corpo">
       ${temCurva ? `<div class="tr-leg"><span><i class="tr-li"></i>Banca</span><span><i class="tr-li tr-li-reg"></i>Régua CDI + ${Math.round((rg.spread_aa || 0) * 100)}%</span><span><i class="tr-li tr-li-ini"></i>R$ 1.000 inicial</span></div>
         <div class="tr-evo"><canvas id="tr-evo-${i}" role="img" aria-label="Evolução da banca de ${_alEsc(e.nome || '')} contra a régua do selo"></canvas></div>`
         : '<div class="pj-data">O gráfico de evolução aparece depois do segundo pregão rastreado.</div>'}
@@ -4101,19 +4121,21 @@ function renderTrading() {
         <tr><td>Acerto</td><td>${pct(e.acerto)}</td><td>${pct(bt.acerto)}</td></tr>
         <tr><td>Operações por mês</td><td>${num(e.ops_mes, 1)}</td><td>${bt.ops == null ? '—' : num(bt.ops / 12, 1)}</td></tr></tbody></table>
       ${(e.avisos || []).length ? `<div class="tr-aviso">⚠ ${e.avisos.length} aviso(s) do histórico: ${_alEsc(e.avisos[e.avisos.length - 1])}</div>` : ''}
-      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}.</div>
+      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Origem: ${_alEsc(e.origem || '')}.</div>
       <details class="tr-hist"><summary>Histórico completo (${(e.operacoes || e.ultimas || []).length} operações)</summary>
         ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
         ${ops ? `<table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table>` : '<div class="pj-data">Sem operações ainda</div>'}
       </details>
-    </div>`;
+      </div>
+    </details>`;
   }).join('');
-  if (typeof Chart === 'undefined') return;
   const css = getComputedStyle(document.documentElement), cor = n => css.getPropertyValue(n).trim();
   const azul = cor('--blue') || '#60a5fa', tinta = cor('--text3') || '#50586a', linha = cor('--border') || 'rgba(255,255,255,.08)';
-  est.forEach((e, i) => {
-    const cv = $('tr-evo-' + i);
-    if (!cv) return;
+  const criado = new Set();
+  const grafico = i => {
+    const cv = $('tr-evo-' + i), e = est[i];
+    if (!cv || criado.has(i) || typeof Chart === 'undefined') return;
+    criado.add(i);
     const c = e.curva;
     _trCharts.push(new Chart(cv, {
       type: 'line',
@@ -4127,6 +4149,12 @@ function renderTrading() {
         scales: { x: { grid: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 6 } },
                   y: { grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxTicksLimit: 5, callback: v => 'R$ ' + Math.round(v).toLocaleString('pt-BR') } } } }
     }));
+  };
+  lista.querySelectorAll('details.tr-card').forEach(d => {
+    if (d.open) grafico(+d.dataset.i);
+    d.addEventListener('toggle', () => {
+      if (d.open) { _trAbertos.add(d.dataset.id); grafico(+d.dataset.i); } else _trAbertos.delete(d.dataset.id);
+    });
   });
 }
 
