@@ -1947,6 +1947,24 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .pj-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-top:9px}
 .pj-prox{font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.45}
 .pj-data{font-size:10px;color:var(--text3);font-family:var(--f-mono);margin-top:8px}
+/* Aba Trading (28/10/2026): rastreio noturno das estratégias do WIN, capital separado de R$ 1.000 cada */
+.tr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.tr-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.tr-nome{font-size:14px;font-weight:700;color:var(--text)}
+.tr-org{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);white-space:nowrap}
+.tr-banca{font-size:28px;font-weight:800;font-family:var(--f-mono);margin-top:8px;color:var(--text)}
+.tr-var{font-size:13px;font-weight:700;font-family:var(--f-mono)}
+.tr-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.tr-kpi{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:8px}
+.tr-kpi b{display:block;font-size:13px;font-family:var(--f-mono);color:var(--text)}
+.tr-kpi span{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3)}
+.tr-desc{font-size:12px;color:var(--text2);margin-top:10px;line-height:1.45}
+.tr-spark{width:100%;height:46px;margin-top:10px;display:block}
+.tr-ops{width:100%;border-collapse:collapse;margin-top:10px;font-size:11.5px}
+.tr-ops td,.tr-ops th{padding:4px 3px;border-bottom:1px solid var(--border);text-align:left;font-family:var(--f-mono)}
+.tr-ops th{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-family:inherit}
+.tr-pos{color:var(--green)}.tr-neg{color:var(--red)}
+@media(max-width:640px){.tr-kpis{grid-template-columns:repeat(2,1fr)}}
 
 /* ── CORPO: alongamentos e alimentação ── */
 .al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
@@ -2033,6 +2051,8 @@ body:has(.overlay.on) .sidebar{z-index:0}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Investir</span></button>
+  <button class="nb" onclick="go('trading')" id="n-trading">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><rect x="4" y="8" width="4" height="7"/><line x1="12" y1="3" x2="12" y2="18"/><rect x="10" y="6" width="4" height="8"/><line x1="18" y1="6" x2="18" y2="21"/><rect x="16" y="10" width="4" height="7"/></svg><span>Trading</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
   <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
@@ -2754,6 +2774,13 @@ body:has(.overlay.on) .sidebar{z-index:0}
 </section>
 
 <!-- ════════════════ BACKUP ════════════════ -->
+<!-- ════════════════ TRADING ════════════════ -->
+<section class="page" id="page-trading">
+  <h1>Trading</h1><p class="psub">As estratégias do mini índice rastreadas toda noite com os pregões reais, cada uma com capital separado de R$ 1.000. Sem ordem real: o modelo só treina com o passado.</p>
+  <div class="card gap"><div class="sh"><h2>Carteira</h2><span class="pj-data" id="tr-data"></span></div><div id="tr-resumo"></div></div>
+  <div class="tr-grid" id="tr-lista"></div>
+</section>
+
 <section class="page" id="page-backup">
   <h1>Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
 
@@ -3068,7 +3095,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -3330,6 +3357,7 @@ function renderAba(p) {
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
+  if (p === 'trading')  { safeCall(renderTrading, 'renderTrading'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
 }
 
@@ -3959,6 +3987,62 @@ function renderStatusProjetos() {
       <div class="pj-prox">${_alEsc(p.proximo || '—')}</div>
       ${p.atualizado ? `<div class="pj-data">atualizado ${fmt(p.atualizado)}</div>` : ''}
     </div>`).join('') + '</div>';
+}
+
+// ──────────────────────────────────
+// TRADING (28/10/2026) — chave 'trading_estrategias', escrita toda noite pelo rastreio (backtest/incubadora.py):
+// { atualizado, dados_ate, inicio, banca_inicial, estrategias: [{ id, nome, origem, descricao, alavancagem, banca,
+//   lucro_total, lucro_hoje, lucro_mes, ops, acerto, pts_op, backtest_ultimo_ano: {ops, pts_op, acerto},
+//   curva: [[dia, banca]], ultimas: [{dia, lado, entrada, saida, motivo, pts, contratos, rs}] }] }. Só leitura.
+// ──────────────────────────────────
+function renderTrading() {
+  const lista = $('tr-lista'), resumo = $('tr-resumo');
+  if (!lista) return;
+  const dados = load('trading_estrategias', null) || {};
+  const est = Array.isArray(dados.estrategias) ? dados.estrategias : [];
+  const fmt = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
+  const rs = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtBRL(v || 0);
+  const cl = v => v > 0 ? 'tr-pos' : v < 0 ? 'tr-neg' : '';
+  $('tr-data').textContent = dados.dados_ate ? 'pregões até ' + fmt(dados.dados_ate) + ' · desde ' + fmt(dados.inicio) : '';
+  if (!est.length) {
+    resumo.innerHTML = '<div class="empty"><div class="ei">📈</div>Aguardando o primeiro rastreio noturno</div>';
+    lista.innerHTML = '';
+    return;
+  }
+  const b0 = dados.banca_inicial || 1000, tot = est.reduce((s, e) => s + (e.banca || 0), 0);
+  const hoje = est.reduce((s, e) => s + (e.lucro_hoje || 0), 0);
+  resumo.innerHTML = `<div class="tr-kpis">
+    <div class="tr-kpi"><b>${fmtBRL(tot)}</b><span>Carteira</span></div>
+    <div class="tr-kpi"><b class="${cl(tot - b0 * est.length)}">${rs(tot - b0 * est.length)}</b><span>Resultado</span></div>
+    <div class="tr-kpi"><b class="${cl(hoje)}">${rs(hoje)}</b><span>Último pregão</span></div>
+    <div class="tr-kpi"><b>${est.length}</b><span>Estratégias</span></div></div>`;
+  const spark = c => {
+    const pts = [[dados.inicio, b0], ...(c || [])].map(x => x[1]);
+    if (pts.length < 2) return '';
+    const mn = Math.min(...pts), mx = Math.max(...pts), w = 300, h = 46, d = (mx - mn) || 1;
+    const xy = pts.map((v, i) => `${(i / (pts.length - 1)) * w},${h - 4 - ((v - mn) / d) * (h - 8)}`).join(' ');
+    const cor = pts[pts.length - 1] >= b0 ? 'var(--green)' : 'var(--red)';
+    return `<svg class="tr-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${xy}" fill="none" stroke="${cor}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+  };
+  lista.innerHTML = est.map(e => {
+    const bt = e.backtest_ultimo_ano || {};
+    const pct = ((e.banca - b0) / b0) * 100;
+    const ops = (e.ultimas || []).map(o => `<tr><td>${fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
+      <td>${o.contratos}x</td><td class="${cl(o.rs)}">${rs(o.rs)}</td></tr>`).join('');
+    return `<div class="card">
+      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span class="tr-org">${_alEsc(e.origem || '')}</span></div>
+      <div class="tr-banca">${fmtBRL(e.banca || 0)} <span class="tr-var ${cl(pct)}">${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1).replace('.', ',')}%</span></div>
+      ${spark(e.curva)}
+      <div class="tr-kpis">
+        <div class="tr-kpi"><b class="${cl(e.lucro_hoje)}">${rs(e.lucro_hoje)}</b><span>Último pregão</span></div>
+        <div class="tr-kpi"><b class="${cl(e.lucro_mes)}">${rs(e.lucro_mes)}</b><span>Mês</span></div>
+        <div class="tr-kpi"><b>${e.ops || 0}</b><span>Operações</span></div>
+        <div class="tr-kpi"><b>${e.acerto == null ? '—' : Math.round(e.acerto * 100) + '%'}</b><span>Acerto</span></div>
+      </div>
+      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Backtest no último ano: ${bt.pts_op ?? '—'} pts por operação, acerto ${bt.acerto == null ? '—' : Math.round(bt.acerto * 100) + '%'}${e.pts_op == null ? '' : ' · ao vivo: ' + e.pts_op + ' pts por operação'}.</div>
+      ${ops ? `<table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table>` : '<div class="pj-data">Sem operações ainda</div>'}
+    </div>`;
+  }).join('');
 }
 
 // ──────────────────────────────────
@@ -5969,7 +6053,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
