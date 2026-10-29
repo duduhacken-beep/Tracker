@@ -1952,6 +1952,9 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .tr-nome{font-size:14px;font-weight:700;color:var(--text)}
 .tr-org{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);white-space:nowrap}
+.tr-selo{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid var(--green);color:var(--green);white-space:nowrap;margin-left:8px}
+.tr-selo.zerou{border-color:var(--red);color:var(--red)}
+.tr-rent{font-size:12px;color:var(--text2);margin-top:8px}
 .tr-banca{font-size:28px;font-weight:800;font-family:var(--f-mono);margin-top:8px;color:var(--text)}
 .tr-var{font-size:13px;font-weight:700;font-family:var(--f-mono)}
 .tr-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
@@ -3994,6 +3997,8 @@ function renderStatusProjetos() {
 // { atualizado, dados_ate, inicio, banca_inicial, estrategias: [{ id, nome, origem, descricao, alavancagem, banca,
 //   lucro_total, lucro_hoje, lucro_mes, ops, acerto, pts_op, backtest_ultimo_ano: {ops, pts_op, acerto},
 //   curva: [[dia, banca]], ultimas: [{dia, lado, entrada, saida, motivo, pts, contratos, rs}] }] }. Só leitura.
+//   29/10/2026: regua {cdi_aa, cdi_data, spread_aa, minimo_aa, min_dias, min_ops} e, por estratégia, inicio, quebrou,
+//   dias, rent_aa (null antes de 1 mês e 20 ops) e pronta (selo "Pronta": rentabilidade >= CDI + 10% a.a.).
 // ──────────────────────────────────
 function renderTrading() {
   const lista = $('tr-lista'), resumo = $('tr-resumo');
@@ -4029,10 +4034,18 @@ function renderTrading() {
     const pct = ((e.banca - b0) / b0) * 100;
     const ops = (e.ultimas || []).map(o => `<tr><td>${fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
       <td>${o.contratos}x</td><td class="${cl(o.rs)}">${rs(o.rs)}</td></tr>`).join('');
+    const rg = dados.regua || {}, pc = v => (v * 100).toFixed(1).replace('.', ',') + '%';
+    const selo = e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '';
+    const faltam = [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
+                    Math.max(0, (rg.min_ops || 20) - (e.ops || 0)) && `${Math.max(0, (rg.min_ops || 20) - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
+    const rent = e.quebrou ? `Zerou a banca em ${fmt(e.quebrou)}: reprovada.`
+      : e.rent_aa == null ? (rg.minimo_aa ? `Rentabilidade ao ano: calcula depois de mais ${faltam}. Mínimo pro selo: ${pc(rg.minimo_aa)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%).` : '')
+      : `Rentabilidade: <b class="${cl(e.rent_aa)}">${e.rent_aa >= 0 ? '+' : '−'}${pc(Math.abs(e.rent_aa))} ao ano</b> · mínimo ${pc(rg.minimo_aa)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%).`;
     return `<div class="card">
-      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span class="tr-org">${_alEsc(e.origem || '')}</span></div>
-      <div class="tr-banca">${fmtBRL(e.banca || 0)} <span class="tr-var ${cl(pct)}">${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1).replace('.', ',')}%</span></div>
+      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span><span class="tr-org">${_alEsc(e.origem || '')}</span>${selo}</span></div>
+      <div class="tr-banca">${e.banca < 0 ? '−' : ''}${fmtBRL(Math.abs(e.banca || 0))} <span class="tr-var ${cl(pct)}">${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1).replace('.', ',')}%</span></div>
       ${spark(e.curva)}
+      ${rent ? `<div class="tr-rent">${rent}</div>` : ''}
       <div class="tr-kpis">
         <div class="tr-kpi"><b class="${cl(e.lucro_hoje)}">${rs(e.lucro_hoje)}</b><span>Último pregão</span></div>
         <div class="tr-kpi"><b class="${cl(e.lucro_mes)}">${rs(e.lucro_mes)}</b><span>Mês</span></div>
