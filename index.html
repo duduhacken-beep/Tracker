@@ -1967,7 +1967,24 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-ops td,.tr-ops th{padding:4px 3px;border-bottom:1px solid var(--border);text-align:left;font-family:var(--f-mono)}
 .tr-ops th{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;font-family:inherit}
 .tr-pos{color:var(--green)}.tr-neg{color:var(--red)}
-@media(max-width:640px){.tr-kpis{grid-template-columns:repeat(2,1fr)}}
+.tr-meta{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--f-mono)}
+.tr-sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-top:14px}
+.tr-k3{grid-template-columns:repeat(3,1fr);margin-top:6px}
+.tr-evo{position:relative;height:170px;margin-top:6px}
+.tr-leg{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text2);margin-top:12px}
+.tr-leg span{display:flex;align-items:center;gap:6px}
+.tr-li{display:inline-block;width:14px;border-top:2px solid var(--blue)}
+.tr-li-reg{border-top:2px dashed var(--text3)}.tr-li-ini{border-top:1px solid var(--text3);opacity:.6}
+.tr-cmp td:first-child{font-family:inherit;color:var(--text2)}
+.tr-aviso{font-size:11.5px;color:var(--orange,#fb923c);margin-top:10px}
+.tr-hist{margin-top:12px}.tr-hist summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);padding:6px 0;min-height:32px}
+.tr-rrow{display:grid;grid-template-columns:minmax(0,2.4fr) repeat(4,minmax(0,1fr));gap:8px;width:100%;padding:9px 4px;border:0;border-bottom:1px solid var(--border);background:none;color:var(--text);font:inherit;font-size:12.5px;text-align:right;align-items:center;cursor:pointer;font-family:var(--f-mono)}
+.tr-rrow>span:first-child{text-align:left;font-family:var(--f-sans,inherit)}
+.tr-rrow:hover{background:var(--bg3)}
+.tr-rh{cursor:default;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);font-family:inherit}.tr-rh:hover{background:none}
+.tr-rnome{display:flex;align-items:center;gap:4px;min-width:0}.tr-rnome .tr-selo{margin-left:4px}
+.tr-card{scroll-margin-top:16px}
+@media(max-width:640px){.tr-kpis{grid-template-columns:repeat(2,1fr)}.tr-k3{grid-template-columns:repeat(3,1fr)}.tr-rrow{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))}.tr-ropt{display:none}}
 
 /* ── CORPO: alongamentos e alimentação ── */
 .al-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
@@ -2781,6 +2798,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
 <section class="page" id="page-trading">
   <h1>Trading</h1><p class="psub">As estratégias do mini índice rastreadas toda noite com os pregões reais, cada uma com capital separado de R$ 1.000. Sem ordem real: o modelo só treina com o passado.</p>
   <div class="card gap"><div class="sh"><h2>Carteira</h2><span class="pj-data" id="tr-data"></span></div><div id="tr-resumo"></div></div>
+  <div class="card gap"><div class="sh"><h2>Ranking</h2><span class="pj-data">Prontas primeiro, depois rentabilidade ao ano</span></div><div id="tr-rank"></div></div>
   <div class="tr-grid" id="tr-lista"></div>
 </section>
 
@@ -3999,63 +4017,117 @@ function renderStatusProjetos() {
 //   curva: [[dia, banca]], ultimas: [{dia, lado, entrada, saida, motivo, pts, contratos, rs}] }] }. Só leitura.
 //   29/10/2026: regua {cdi_aa, cdi_data, spread_aa, minimo_aa, min_dias, min_ops} e, por estratégia, inicio, quebrou,
 //   dias, rent_aa (null antes de 1 mês e 20 ops) e pronta (selo "Pronta": rentabilidade >= CDI + 10% a.a.).
+//   29/10/2026 (histórico congelado): pronta_desde, queda_max, banca_min, pior_seq, payoff, fator_lucro, ops_mes,
+//   curva: [[dia, banca, banca_da_regua]] (todo pregão), meses: [[AAAA-MM, rs, ops]], operacoes (todas), avisos.
 // ──────────────────────────────────
+let _trCharts = [];
 function renderTrading() {
-  const lista = $('tr-lista'), resumo = $('tr-resumo');
+  const lista = $('tr-lista'), resumo = $('tr-resumo'), rank = $('tr-rank');
   if (!lista) return;
   const dados = load('trading_estrategias', null) || {};
-  const est = Array.isArray(dados.estrategias) ? dados.estrategias : [];
+  const est = (Array.isArray(dados.estrategias) ? dados.estrategias : []).slice();
   const fmt = d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? d.slice(8, 10) + '/' + d.slice(5, 7) : '';
-  const rs = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtBRL(v || 0);
+  const rs = v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtBRL(Math.abs(v || 0));
+  const brl = v => (v < 0 ? '−' : '') + fmtBRL(Math.abs(v || 0));
   const cl = v => v > 0 ? 'tr-pos' : v < 0 ? 'tr-neg' : '';
+  const pc = v => (v < 0 ? '−' : v > 0 ? '+' : '') + Math.abs(v * 100).toFixed(1).replace('.', ',') + '%';
+  const num = (v, n = 2) => v == null ? '—' : Number(v).toFixed(n).replace('.', ',');
+  const pct = v => v == null ? '—' : Math.round(v * 100) + '%';
+  _trCharts.forEach(c => c.destroy()); _trCharts = [];
   $('tr-data').textContent = dados.dados_ate ? 'pregões até ' + fmt(dados.dados_ate) + ' · desde ' + fmt(dados.inicio) : '';
   if (!est.length) {
     resumo.innerHTML = '<div class="empty"><div class="ei">📈</div>Aguardando o primeiro rastreio noturno</div>';
-    lista.innerHTML = '';
+    lista.innerHTML = ''; if (rank) rank.innerHTML = '';
     return;
   }
-  const b0 = dados.banca_inicial || 1000, tot = est.reduce((s, e) => s + (e.banca || 0), 0);
-  const hoje = est.reduce((s, e) => s + (e.lucro_hoje || 0), 0);
+  const rg = dados.regua || {}, b0 = dados.banca_inicial || 1000;
+  const regua = rg.minimo_aa ? `${pc(rg.minimo_aa).slice(1)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%)` : '';
+  // ordem: Prontas, depois rentabilidade ao ano (sem cálculo depois), Zerou por último
+  const peso = e => e.quebrou ? 2 : e.pronta ? 0 : 1;
+  est.sort((a, b) => peso(a) - peso(b) || (b.rent_aa ?? -1e9) - (a.rent_aa ?? -1e9) || (b.banca || 0) - (a.banca || 0));
+  const tot = est.reduce((s, e) => s + (e.banca || 0), 0), hoje = est.reduce((s, e) => s + (e.lucro_hoje || 0), 0);
   resumo.innerHTML = `<div class="tr-kpis">
-    <div class="tr-kpi"><b>${fmtBRL(tot)}</b><span>Carteira</span></div>
+    <div class="tr-kpi"><b>${brl(tot)}</b><span>Carteira</span></div>
     <div class="tr-kpi"><b class="${cl(tot - b0 * est.length)}">${rs(tot - b0 * est.length)}</b><span>Resultado</span></div>
     <div class="tr-kpi"><b class="${cl(hoje)}">${rs(hoje)}</b><span>Último pregão</span></div>
-    <div class="tr-kpi"><b>${est.length}</b><span>Estratégias</span></div></div>`;
-  const spark = c => {
-    const pts = [[dados.inicio, b0], ...(c || [])].map(x => x[1]);
-    if (pts.length < 2) return '';
-    const mn = Math.min(...pts), mx = Math.max(...pts), w = 300, h = 46, d = (mx - mn) || 1;
-    const xy = pts.map((v, i) => `${(i / (pts.length - 1)) * w},${h - 4 - ((v - mn) / d) * (h - 8)}`).join(' ');
-    const cor = pts[pts.length - 1] >= b0 ? 'var(--green)' : 'var(--red)';
-    return `<svg class="tr-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><polyline points="${xy}" fill="none" stroke="${cor}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
-  };
-  lista.innerHTML = est.map(e => {
-    const bt = e.backtest_ultimo_ano || {};
-    const pct = ((e.banca - b0) / b0) * 100;
-    const ops = (e.ultimas || []).map(o => `<tr><td>${fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
-      <td>${o.contratos}x</td><td class="${cl(o.rs)}">${rs(o.rs)}</td></tr>`).join('');
-    const rg = dados.regua || {}, pc = v => (v * 100).toFixed(1).replace('.', ',') + '%';
-    const selo = e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '';
-    const faltam = [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
-                    Math.max(0, (rg.min_ops || 20) - (e.ops || 0)) && `${Math.max(0, (rg.min_ops || 20) - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
+    <div class="tr-kpi"><b>${est.filter(e => e.pronta).length}/${est.length}</b><span>Prontas</span></div></div>
+    ${regua ? `<div class="tr-rent">Régua do selo: ${regua}, CDI de ${_alEsc(rg.cdi_data || '')}.</div>` : ''}`;
+  const selo = e => e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '';
+  const faltam = e => [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
+                       Math.max(0, (rg.min_ops || 20) - (e.ops || 0)) && `${Math.max(0, (rg.min_ops || 20) - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
+  if (rank) rank.innerHTML = `<div class="tr-rrow tr-rh"><span>Estratégia</span><span>Ao ano</span><span>Banca</span><span class="tr-ropt">Queda máx.</span><span class="tr-ropt">Ops</span></div>` +
+    est.map(e => `<button class="tr-rrow" type="button" onclick="document.getElementById('tr-card-${_alEsc(e.id)}').scrollIntoView({behavior:'smooth',block:'start'})">
+      <span class="tr-rnome">${_alEsc(e.nome || '')}${selo(e)}</span>
+      <span class="${e.rent_aa == null ? '' : cl(e.rent_aa)}">${e.quebrou ? '−100%' : e.rent_aa == null ? '—' : pc(e.rent_aa)}</span>
+      <span>${brl(e.banca)}</span><span class="tr-ropt">${brl(e.queda_max || 0)}</span><span class="tr-ropt">${e.ops || 0}</span></button>`).join('');
+  lista.innerHTML = est.map((e, i) => {
+    const bt = e.backtest_ultimo_ano || {}, pv = ((e.banca - b0) / b0) * 100;
     const rent = e.quebrou ? `Zerou a banca em ${fmt(e.quebrou)}: reprovada.`
-      : e.rent_aa == null ? (rg.minimo_aa ? `Rentabilidade ao ano: calcula depois de mais ${faltam}. Mínimo pro selo: ${pc(rg.minimo_aa)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%).` : '')
-      : `Rentabilidade: <b class="${cl(e.rent_aa)}">${e.rent_aa >= 0 ? '+' : '−'}${pc(Math.abs(e.rent_aa))} ao ano</b> · mínimo ${pc(rg.minimo_aa)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%).`;
-    return `<div class="card">
-      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span><span class="tr-org">${_alEsc(e.origem || '')}</span>${selo}</span></div>
-      <div class="tr-banca">${e.banca < 0 ? '−' : ''}${fmtBRL(Math.abs(e.banca || 0))} <span class="tr-var ${cl(pct)}">${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(1).replace('.', ',')}%</span></div>
-      ${spark(e.curva)}
+      : e.rent_aa == null ? (regua ? `Rentabilidade ao ano: calcula depois de mais ${faltam(e)}. Mínimo pro selo: ${regua}.` : '')
+      : `Rentabilidade: <b class="${cl(e.rent_aa)}">${pc(e.rent_aa)} ao ano</b> · mínimo ${regua}${e.pronta && e.pronta_desde ? ` · Pronta desde ${fmt(e.pronta_desde)}` : ''}.`;
+    const temCurva = (e.curva || []).length >= 2 && (e.curva[0] || []).length >= 3;
+    const meses = (e.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${cl(m[1])}">${rs(m[1])}</td></tr>`).join('');
+    const ops = (e.operacoes || e.ultimas || []).slice().reverse().map(o => `<tr><td>${fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
+      <td>${o.contratos}x</td><td class="${cl(o.rs)}">${rs(o.rs)}</td></tr>`).join('');
+    return `<div class="card tr-card" id="tr-card-${_alEsc(e.id)}">
+      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || '')}</span><span><span class="tr-org">${_alEsc(e.origem || '')}</span>${selo(e)}</span></div>
+      <div class="tr-meta">Na incubadora desde ${fmt(e.inicio)} · ${Math.max(0, e.dias || 0)} dias</div>
+      <div class="tr-banca">${brl(e.banca)} <span class="tr-var ${cl(pv)}">${pv >= 0 ? '+' : '−'}${Math.abs(pv).toFixed(1).replace('.', ',')}%</span></div>
       ${rent ? `<div class="tr-rent">${rent}</div>` : ''}
+      ${temCurva ? `<div class="tr-leg"><span><i class="tr-li"></i>Banca</span><span><i class="tr-li tr-li-reg"></i>Régua CDI + ${Math.round((rg.spread_aa || 0) * 100)}%</span><span><i class="tr-li tr-li-ini"></i>R$ 1.000 inicial</span></div>
+        <div class="tr-evo"><canvas id="tr-evo-${i}" role="img" aria-label="Evolução da banca de ${_alEsc(e.nome || '')} contra a régua do selo"></canvas></div>`
+        : '<div class="pj-data">O gráfico de evolução aparece depois do segundo pregão rastreado.</div>'}
       <div class="tr-kpis">
         <div class="tr-kpi"><b class="${cl(e.lucro_hoje)}">${rs(e.lucro_hoje)}</b><span>Último pregão</span></div>
         <div class="tr-kpi"><b class="${cl(e.lucro_mes)}">${rs(e.lucro_mes)}</b><span>Mês</span></div>
         <div class="tr-kpi"><b>${e.ops || 0}</b><span>Operações</span></div>
-        <div class="tr-kpi"><b>${e.acerto == null ? '—' : Math.round(e.acerto * 100) + '%'}</b><span>Acerto</span></div>
+        <div class="tr-kpi"><b>${pct(e.acerto)}</b><span>Acerto</span></div>
       </div>
-      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Backtest no último ano: ${bt.pts_op ?? '—'} pts por operação, acerto ${bt.acerto == null ? '—' : Math.round(bt.acerto * 100) + '%'}${e.pts_op == null ? '' : ' · ao vivo: ' + e.pts_op + ' pts por operação'}.</div>
-      ${ops ? `<table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table>` : '<div class="pj-data">Sem operações ainda</div>'}
+      <div class="tr-sec">Risco ao vivo</div>
+      <div class="tr-kpis tr-k3">
+        <div class="tr-kpi"><b>${brl(e.queda_max || 0)}</b><span>Queda máxima</span></div>
+        <div class="tr-kpi"><b>${brl(e.banca_min ?? b0)}</b><span>Menor banca</span></div>
+        <div class="tr-kpi"><b>${e.pior_seq || 0} ${(e.pior_seq || 0) === 1 ? 'perda' : 'perdas'}</b><span>Pior sequência</span></div>
+      </div>
+      <div class="tr-sec">Qualidade do ganho</div>
+      <div class="tr-kpis tr-k3">
+        <div class="tr-kpi"><b>${num(e.payoff)}</b><span>Ganho ÷ perda</span></div>
+        <div class="tr-kpi"><b>${num(e.fator_lucro)}</b><span>Fator de lucro</span></div>
+        <div class="tr-kpi"><b>${e.pts_op == null ? '—' : num(e.pts_op, 1)}</b><span>Pontos por op.</span></div>
+      </div>
+      <div class="tr-sec">Ao vivo × backtest do último ano</div>
+      <table class="tr-ops tr-cmp"><thead><tr><th>Medida</th><th>Ao vivo</th><th>Backtest</th></tr></thead><tbody>
+        <tr><td>Pontos por operação</td><td>${e.pts_op == null ? '—' : num(e.pts_op, 1)}</td><td>${bt.pts_op == null ? '—' : num(bt.pts_op, 1)}</td></tr>
+        <tr><td>Acerto</td><td>${pct(e.acerto)}</td><td>${pct(bt.acerto)}</td></tr>
+        <tr><td>Operações por mês</td><td>${num(e.ops_mes, 1)}</td><td>${bt.ops == null ? '—' : num(bt.ops / 12, 1)}</td></tr></tbody></table>
+      ${(e.avisos || []).length ? `<div class="tr-aviso">⚠ ${e.avisos.length} aviso(s) do histórico: ${_alEsc(e.avisos[e.avisos.length - 1])}</div>` : ''}
+      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}.</div>
+      <details class="tr-hist"><summary>Histórico completo (${(e.operacoes || e.ultimas || []).length} operações)</summary>
+        ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
+        ${ops ? `<table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table>` : '<div class="pj-data">Sem operações ainda</div>'}
+      </details>
     </div>`;
   }).join('');
+  if (typeof Chart === 'undefined') return;
+  const css = getComputedStyle(document.documentElement), cor = n => css.getPropertyValue(n).trim();
+  const azul = cor('--blue') || '#60a5fa', tinta = cor('--text3') || '#50586a', linha = cor('--border') || 'rgba(255,255,255,.08)';
+  est.forEach((e, i) => {
+    const cv = $('tr-evo-' + i);
+    if (!cv) return;
+    const c = e.curva;
+    _trCharts.push(new Chart(cv, {
+      type: 'line',
+      data: { labels: c.map(x => fmt(x[0])), datasets: [
+        { label: 'Banca', data: c.map(x => x[1]), borderColor: azul, backgroundColor: azul + '1a', fill: { target: { value: b0 } }, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: .15 },
+        { label: 'Régua', data: c.map(x => x[2]), borderColor: tinta, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0, fill: false },
+        { label: 'Inicial', data: c.map(() => b0), borderColor: linha, borderWidth: 1, pointRadius: 0, pointHoverRadius: 0, fill: false }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: { filter: t => t.datasetIndex < 2, bodyFont: { size: 11 }, titleFont: { size: 11 },
+          callbacks: { label: t => ' ' + t.dataset.label + ': ' + brl(t.parsed.y) } } },
+        scales: { x: { grid: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 6 } },
+                  y: { grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxTicksLimit: 5, callback: v => 'R$ ' + Math.round(v).toLocaleString('pt-BR') } } } }
+    }));
+  });
 }
 
 // ──────────────────────────────────
