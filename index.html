@@ -2804,7 +2804,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
 <!-- ════════════════ BACKUP ════════════════ -->
 <!-- ════════════════ TRADING ════════════════ -->
 <section class="page" id="page-trading">
-  <h1>Incubadora</h1><p class="psub">As estratégias do mini índice rastreadas toda noite com os pregões reais, cada uma com capital separado de R$ 1.000. Sem ordem real: o modelo só treina com o passado.</p>
+  <h1>Incubadora</h1><p class="psub">As estratégias do mini índice rastreadas toda noite com os pregões reais, cada uma com capital separado. Sem ordem real: o modelo só treina com o passado.</p>
   <div class="card gap"><div class="sh"><h2>Carteira</h2><span class="pj-data" id="tr-data"></span></div><div id="tr-resumo"></div></div>
   <div class="card gap"><div class="sh"><h2>Ranking</h2><span class="pj-data">Prontas primeiro, depois rentabilidade ao ano</span></div><div id="tr-rank"></div></div>
   <div class="tr-grid" id="tr-lista"></div>
@@ -4094,7 +4094,7 @@ function renderTrading() {
       <div class="tr-mini"><span>${e.ops || 0} ${(e.ops || 0) === 1 ? 'operação' : 'operações'} · acerto ${pct(e.acerto)} · queda máx. ${brl(e.queda_max || 0)}</span><span class="tr-abre">Detalhes</span></div>
       </summary>
       <div class="tr-corpo">
-      ${temCurva ? `<div class="tr-leg"><span><i class="tr-li"></i>Banca</span><span><i class="tr-li tr-li-reg"></i>Régua CDI + ${Math.round((rg.spread_aa || 0) * 100)}%</span><span><i class="tr-li tr-li-ini"></i>R$ 1.000 inicial</span></div>
+      ${temCurva ? `<div class="tr-leg"><span><i class="tr-li"></i>Banca</span><span><i class="tr-li tr-li-reg"></i>Régua CDI + ${Math.round((rg.spread_aa || 0) * 100)}%</span><span><i class="tr-li tr-li-ini"></i>${brl(b0)} inicial</span></div>
         <div class="tr-evo"><canvas id="tr-evo-${i}" role="img" aria-label="Evolução da banca de ${_alEsc(e.nome || '')} contra a régua do selo"></canvas></div>`
         : '<div class="pj-data">O gráfico de evolução aparece depois do segundo pregão rastreado.</div>'}
       <div class="tr-kpis">
