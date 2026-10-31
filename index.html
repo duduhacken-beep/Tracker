@@ -1969,7 +1969,21 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-bc span{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
 .tr-bc b{display:block;font-family:var(--f-mono);font-size:22px;margin:6px 0 3px;color:var(--text)}
 .tr-bc b.tr-pos{color:var(--green)}.tr-bc b.tr-neg{color:var(--red)}
-.tr-bc small{font-size:11px;color:var(--text2);font-family:var(--f-mono)}
+.tr-bc small{display:block;font-size:11px;line-height:1.5;color:var(--text2);font-family:var(--f-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr-medida:empty{min-height:0;margin:0}
+.tr-pcl{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin:-2px 0 6px}
+.tr-como{margin-top:6px}.tr-como summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--accent);min-height:32px;display:flex;align-items:center}
+.tr-trilho{flex:none;width:90px;height:8px;border-radius:4px;background:var(--bg3);overflow:hidden}
+.tr-trilho i{display:block;height:100%;border-radius:4px}.tr-trilho i.p{background:var(--green)}.tr-trilho i.n{background:var(--red)}
+.tr-bar b{flex:none;width:96px;text-align:right}
+.tr-li2{display:block;width:100%;text-align:left;padding:10px 0;border:0;border-bottom:1px solid var(--border);background:none;color:var(--text);font:inherit;cursor:pointer}
+.tr-li2:last-child{border-bottom:0}.tr-li2.tr-semclique{cursor:default}
+.tr-li2:not(.tr-semclique):hover{background:var(--bg3)}.tr-li2:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tr-l1{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px}
+.tr-l1>b,.tr-l1>span:last-child{font-family:var(--f-mono);white-space:nowrap}.tr-l1 small{font-size:11px;opacity:.8}
+.tr-l2{display:block;font-size:11.5px;color:var(--text3);margin-top:4px;line-height:1.5}.tr-l2 .tr-pc{margin-left:4px}
+.tr-li2.tr-atual .tr-l1>b{color:var(--accent)}
+@media(max-width:640px){.tr-curva{height:210px}.tr-leg{gap:10px;font-size:10.5px}.tr-trilho{width:56px}.tr-bar b{width:84px}}
 @media(max-width:640px){.tr-big{grid-template-columns:repeat(2,minmax(0,1fr))}.tr-bc b{font-size:18px}}
 .tr-curva{position:relative;height:240px;margin-top:8px;touch-action:pan-y}
 .tr-barras{position:relative;height:64px;margin-top:2px}
@@ -4103,6 +4117,7 @@ const _tr = {
   cor: n => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
   soma: a => a.reduce((s, v) => s + (v || 0), 0),
 };
+const _trMot = m => ({ horario: 'horário' })[m] || m || '';  // motivo da saída como vem do rastreio
 const _trSelo = e => (e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '')
   + (e.aviso ? `<span class="tr-selo regua" title="${_alEsc(e.aviso)}">Régua antiga</span>` : '');
 // percentil na faixa do esperado: amarelo abaixo do p25, vermelho abaixo do p5
@@ -4130,13 +4145,14 @@ function _trCurvaGrupo(est, b0, desde) {
 }
 const _trEixos = (fy, tinta, linha) => ({
   x: { grid: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 7 } },
-  y: { grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxTicksLimit: 5, callback: fy } } });
+  y: { grid: { color: linha }, border: { display: false }, afterFit: s => { s.width = 58; }, ticks: { color: tinta, font: { size: 10 }, maxTicksLimit: 5, callback: fy } } });
 const _trRsEixo = v => (v < 0 ? '−' : '') + 'R$ ' + Math.abs(Math.round(v)).toLocaleString('pt-BR');
 // curva do resultado ao vivo (serie começa em ['início', 0]) dentro da faixa do esperado (faixa[n-1] = depois de n pregões)
 function _trFaixaGrafico(cv, serie, faixa) {
   if (!cv || typeof Chart === 'undefined') return null;
   faixa = faixa || [];
-  const L = Math.max(serie.length, faixa.length + 1);
+  // à frente do hoje, só o tanto já vivido (mín. 5, máx. 20): com 2 pregões e 20 de faixa a linha ao vivo some no canto
+  const L = Math.max(serie.length, Math.min(faixa.length + 1, serie.length + Math.min(20, Math.max(5, serie.length - 1))));
   const lab = Array.from({ length: L }, (_, i) => i < serie.length ? serie[i][0] : '+' + (i - serie.length + 1));
   const f = j => Array.from({ length: L }, (_, i) => i === 0 ? 0 : (faixa[i - 1] || [])[j] ?? null);
   const azul = _tr.cor('--blue') || '#60a5fa', tinta = _tr.cor('--text3') || '#50586a', linha = _tr.cor('--border') || 'rgba(255,255,255,.08)';
@@ -4171,7 +4187,7 @@ function _trMedir(ch, serie, capital, saida) {
   ch.canvas.onpointermove = ev => { if (i0 != null) mostra(i0, idx(ev)); };
   ch.canvas.onpointerup = ch.canvas.onpointerleave = () => { i0 = null; };
 }
-const _trNotaFaixa = '<div class="tr-nota">A faixa vem do backtest do ano antes da incubadora (janelas de N pregões seguidos) e tende a ser otimista: toda estratégia só entrou porque deu lucro nesse período. Abaixo da mediana é normal; o alerta é ficar perto ou abaixo do p5 por tempo seguido. Arraste no gráfico pra medir um trecho.</div>';
+const _trNotaFaixa = '<details class="tr-como"><summary>Como ler a faixa</summary><div class="tr-nota">A faixa vem do backtest do ano antes da incubadora (janelas de N pregões seguidos) e tende a ser otimista: toda estratégia só entrou porque deu lucro nesse período. Abaixo da mediana é normal; o alerta é ficar perto ou abaixo do p5 por tempo seguido. Arraste no gráfico pra medir um trecho.</div></details>';
 
 function renderTrading() {
   const corpo = $('tr-corpo');
@@ -4217,12 +4233,13 @@ function _trVisao(corpo, c) {
   serie.forEach(x => { pico = Math.max(pico, x[1]); queda = Math.max(queda, pico - x[1]); });
   const dv = diario.map(d => d[1]), melhor = dv.length ? Math.max(...dv) : 0, pior = dv.length ? Math.min(...dv) : 0;
   const rsOps = ops.map(o => o.rs);
+  // listas em vez de tabelas: no celular a rolagem lateral escondia justamente o R$ e a faixa
   const linhaGrupo = Object.entries(c.grupos).map(([nome, gg]) => {
     const m = c.todas.filter(e => (gg.ids || []).includes(e.id)), s = _trStats(m.flatMap(e => e.operacoes || []));
     const r = _tr.soma(m.map(e => e.banca - b0));
-    return `<tr data-g="${_alEsc(nome)}" tabindex="0"${nome === _trUI.grupo ? ' class="tr-atual"' : ''}><td>${_alEsc(nome)}</td><td>${_tr.fmt(gg.inicio)}</td>
-      <td>${gg.n_pregoes ?? '—'}</td><td>${m.length}</td><td class="${_tr.cl(r)}">${_tr.rs(r)}</td><td class="${_tr.cl(r)}">${m.length ? _tr.pc(r / (b0 * m.length)) : '—'}</td>
-      <td>${s.ops}</td><td>${_tr.pct(s.acerto)}</td><td>${_tr.num(s.fator)}</td><td>${_trPc(gg.percentil)}</td></tr>`;
+    return `<button type="button" class="tr-li2${nome === _trUI.grupo ? ' tr-atual' : ''}" data-g="${_alEsc(nome)}">
+      <span class="tr-l1"><b>${_alEsc(nome)}</b><span class="${_tr.cl(r)}">${_tr.rs(r)} <small>${m.length ? _tr.pc(r / (b0 * m.length)) : ''}</small></span></span>
+      <span class="tr-l2">desde ${_tr.fmt(gg.inicio)} · ${gg.n_pregoes ?? 0} ${gg.n_pregoes === 1 ? 'pregão' : 'pregões'} · ${m.length} estratégias · ${s.ops} ops · acerto ${_tr.pct(s.acerto)} · F. lucro ${_tr.num(s.fator)} ${_trPc(gg.percentil)}</span></button>`;
   }).join('');
   const ult = ops.slice().sort((a, b) => (b.dia + b.entrada).localeCompare(a.dia + a.entrada)).slice(0, 10);
   const porEst = est.map(e => [e, e.banca - b0]).sort((a, b) => b[1] - a[1]);
@@ -4230,13 +4247,14 @@ function _trVisao(corpo, c) {
   const mx = Math.max(1, ...porEst.map(x => Math.abs(x[1])));
   corpo.innerHTML = `
     <div class="tr-big">
-      <div class="tr-bc"><span>Resultado</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'} sobre ${_tr.brl(cap)}</small></div>
-      <div class="tr-bc"><span>Operações</span><b>${st.ops}</b><small>acerto ${_tr.pct(st.acerto)} · ${est.length} estratégias</small></div>
-      <div class="tr-bc"><span>Fator de lucro</span><b>${_tr.num(st.fator)}</b><small>payoff ${_tr.num(st.payoff)} · ${st.rsOp == null ? '—' : _tr.rs(st.rsOp)}/op.</small></div>
-      <div class="tr-bc"><span>Queda máxima</span><b class="${queda ? 'tr-neg' : ''}">${queda ? '−' + fmtBRL(queda) : fmtBRL(0)}</b><small>${cap ? _tr.pc(-queda / cap) : '—'} do capital</small></div>
+      <div class="tr-bc"><span>Resultado</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'}</small><small>sobre ${_tr.brl(cap)}</small></div>
+      <div class="tr-bc"><span>Operações</span><b>${st.ops}</b><small>acerto ${_tr.pct(st.acerto)}</small><small>${est.length} estratégias</small></div>
+      <div class="tr-bc"><span>Fator de lucro</span><b>${_tr.num(st.fator)}</b><small>payoff ${_tr.num(st.payoff)}</small><small>${st.rsOp == null ? '—' : _tr.rs(st.rsOp)} por op.</small></div>
+      <div class="tr-bc"><span>Queda máxima</span><b class="${queda ? 'tr-neg' : ''}">${queda ? '−' + fmtBRL(queda) : fmtBRL(0)}</b><small>${cap ? _tr.pc(-queda / cap) : '—'}</small><small>do capital</small></div>
     </div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Curva do grupo</h2><span class="pj-data">${g.percentil == null ? 'percentil depois do 1º pregão' : `percentil ${Math.round(g.percentil * 100)}: ${_trLeitura(g.percentil)}`}</span></div>
-      <div class="tr-leg"><span><i class="tr-li" style="border-color:var(--accent)"></i>Ao vivo</span><span><i class="tr-li tr-li-reg"></i>Mediana esperada</span><span><i class="tr-faixa1"></i>p25–p75</span><span><i class="tr-faixa2"></i>p5–p95</span></div>
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Curva do grupo</h2></div>
+      <div class="tr-pcl">${g.percentil == null ? '<span class="tr-nota">Percentil na faixa depois do 1º pregão</span>' : `${_trPc(g.percentil)}<span>${_trLeitura(g.percentil)}</span>`}</div>
+      <div class="tr-leg"><span><i class="tr-li" style="border-color:var(--accent)"></i>Ao vivo</span><span><i class="tr-li tr-li-reg"></i>Mediana</span><span><i class="tr-faixa1"></i>p25–p75</span><span><i class="tr-faixa2"></i>p5–p95</span></div>
       <div class="tr-curva"><canvas id="tr-cv-grupo" role="img" aria-label="Resultado somado do grupo dentro da faixa do esperado"></canvas></div>
       <div class="tr-barras"><canvas id="tr-cv-dias" role="img" aria-label="Resultado do grupo por pregão"></canvas></div>
       <div class="tr-medida" id="tr-medida"></div>${_trNotaFaixa}</div>
@@ -4250,23 +4268,25 @@ function _trVisao(corpo, c) {
         <tr><td>Maior ganho</td><td class="tr-pos">${rsOps.length ? _tr.rs(Math.max(0, ...rsOps)) : '—'}</td></tr>
         <tr><td>Maior perda</td><td class="tr-neg">${rsOps.length ? _tr.rs(Math.min(0, ...rsOps)) : '—'}</td></tr></tbody></table></div>
       <div class="card gap"><div class="sh"><h2>Resultado por estratégia</h2></div>
-        ${mostra.map(x => x ? `<div class="tr-bar"><span class="tr-bn">${_alEsc(x[0].nome)}</span><i style="width:${Math.max(2, Math.abs(x[1]) / mx * 90)}px;background:var(${x[1] >= 0 ? '--green' : '--red'})"></i><b class="${_tr.cl(x[1])}">${_tr.rs(x[1])}</b></div>` : '<div class="tr-nota">⋯</div>').join('')}</div>
+        ${mostra.map(x => x ? `<div class="tr-bar"><span class="tr-bn">${_alEsc(x[0].nome)}</span><span class="tr-trilho"><i class="${x[1] >= 0 ? 'p' : 'n'}" style="width:${Math.abs(x[1]) / mx * 100}%"></i></span><b class="${_tr.cl(x[1])}">${_tr.rs(x[1])}</b></div>` : '<div class="tr-nota">⋯</div>').join('')}</div>
     </div>
-    <div class="card gap"><div class="sh"><h2>Grupo a grupo</h2><span class="pj-data">toque pra filtrar</span></div>
-      <div class="tr-wrap"><table class="tr-tab" id="tr-tab-grupos"><thead><tr><th>Grupo</th><th>Início</th><th>Pregões</th><th>Estrat.</th><th>Resultado</th><th>%</th><th>Ops</th><th>Acerto</th><th>F. lucro</th><th>Faixa</th></tr></thead><tbody>${linhaGrupo}</tbody></table></div></div>
+    <div class="card gap"><div class="sh"><h2>Grupo a grupo</h2><span class="pj-data">toque pra filtrar</span></div><div id="tr-grupos-lista">${linhaGrupo}</div></div>
     <div class="card gap"><div class="sh"><h2>Últimas operações</h2></div>
-      ${ult.length ? `<div class="tr-wrap"><table class="tr-tab"><thead><tr><th>Dia</th><th>Estratégia</th><th>Operação</th><th>Motivo</th><th>R$</th></tr></thead><tbody>${ult.map(o => `<tr class="tr-semclique"><td>${_tr.fmt(o.dia)}</td><td class="tr-tn">${_alEsc(o.nome)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td><td>${_alEsc(o.motivo || '')}</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="pj-data">Sem operações ainda</div>'}</div>`;
-  $('tr-tab-grupos').onclick = ev => { const r = ev.target.closest('[data-g]'); if (r) _trSet('grupo', r.dataset.g); };
+      ${ult.length ? ult.map(o => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(o.nome)}</span><b class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</b></span>
+        <span class="tr-l2">${_tr.fmt(o.dia)} · ${o.lado === 'compra' ? 'compra' : 'venda'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)} · ${_alEsc(_trMot(o.motivo))}</span></div>`).join('') : '<div class="pj-data">Sem operações ainda</div>'}</div>`;
+  $('tr-grupos-lista').onclick = ev => { const r = ev.target.closest('[data-g]'); if (r) _trSet('grupo', r.dataset.g); };
   const ch = _trFaixaGrafico($('tr-cv-grupo'), serie, g.faixa);
   _trMedir(ch, serie, cap, $('tr-medida'));
-  if (typeof Chart !== 'undefined' && diario.length) {
-    const tinta = _tr.cor('--text3'), linha = _tr.cor('--border');
+  if (ch && diario.length) {  // barras por pregão nas mesmas colunas e com o mesmo eixo da curva de cima
+    const tinta = _tr.cor('--text3'), linha = _tr.cor('--border'), lab = ch.data.labels;
+    const barras = lab.map((_, i) => i && i <= dv.length ? dv[i - 1] : null);
     _trCharts.push(new Chart($('tr-cv-dias'), { type: 'bar',
-      data: { labels: ['início', ...diario.map(d => _tr.fmt(d[0]))], datasets: [{ data: [null, ...dv], borderRadius: 2,
-        backgroundColor: [null, ...dv].map(v => v >= 0 ? (_tr.cor('--green') || '#4ade80') : (_tr.cor('--red') || '#f87171')) }] },
+      data: { labels: lab, datasets: [{ data: barras, borderRadius: 2, categoryPercentage: .7,
+        backgroundColor: barras.map(v => v >= 0 ? (_tr.cor('--green') || '#4ade80') : (_tr.cor('--red') || '#f87171')) }] },
       options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false },
-        tooltip: { callbacks: { label: t => ' ' + _tr.rs(t.parsed.y) } } },
-        scales: { x: { display: false }, y: { grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 9 }, maxTicksLimit: 3, callback: _trRsEixo } } } } }));
+        tooltip: { filter: t => t.parsed.y != null, callbacks: { label: t => ' ' + _tr.rs(t.parsed.y) } } },
+        scales: { x: { display: false, offset: false }, y: { grid: { color: linha }, border: { display: false }, afterFit: s => { s.width = 58; },
+          ticks: { color: tinta, font: { size: 9 }, maxTicksLimit: 3, callback: _trRsEixo } } } } }));
   }
 }
 
@@ -4320,7 +4340,7 @@ function _trFicha(corpo, c, e) {
   const pts = v => v == null ? '—' : _tr.num(v, 1), rsf = v => v == null ? '—' : _tr.rs(v), brl = v => v == null ? '—' : _tr.brl(v);
   const meses = (e.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${_tr.cl(m[1])}">${_tr.rs(m[1])}</td></tr>`).join('');
   const ops = (e.operacoes || e.ultimas || []).slice().reverse().map(o => `<tr><td>${_tr.fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
-    <td>${_alEsc(o.motivo || '')}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('');
+    <td>${_alEsc(_trMot(o.motivo))}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('');
   corpo.innerHTML = `<button type="button" class="tr-voltar" id="tr-voltar">← Estratégias</button>
     <div class="card gap">
       <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || e.id)}</span><span><span class="tr-org">${_alEsc(e.grupo || 'Avulsas')} · ${_alEsc(e.ativo || 'WIN')}</span>${_trSelo(e)}</span></div>
@@ -4428,9 +4448,9 @@ function _trTrades(corpo, c) {
   ops.forEach(o => (dias[o.dia] = dias[o.dia] || []).push(o));
   const hist = Object.keys(dias).sort().reverse().map(d => { const l = dias[d].sort((a, b) => b.entrada.localeCompare(a.entrada)), t = _tr.soma(l.map(o => o.rs));
     return `<div class="tr-dia"><h3><span>${_tr.fmt(d)} · ${l.length} ${l.length === 1 ? 'operação' : 'operações'}</span><span class="${_tr.cl(t)}">${_tr.rs(t)}</span></h3>
-      <div class="tr-wrap"><table class="tr-tab"><tbody>${l.map(o => `<tr class="tr-semclique"><td>${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td><td class="tr-tn">${_alEsc(o.nome)}</td><td>${o.lado}</td><td>${_alEsc(o.motivo || '')}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('')}</tbody></table></div></div>`; }).join('');
+      <div class="tr-wrap"><table class="tr-tab"><tbody>${l.map(o => `<tr class="tr-semclique"><td>${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td><td class="tr-tn">${_alEsc(o.nome)}</td><td>${o.lado}</td><td>${_alEsc(_trMot(o.motivo))}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('')}</tbody></table></div></div>`; }).join('');
   corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Mapa das operações</h2><span class="pj-data">${ops.length} de ${todos.length}</span></div>
-    <div class="tr-filtros" id="tr-filtros">${sel('est', 'Estratégia', c.est.map(e => [e.id, e.nome || e.id]))}${sel('lado', 'Lado', [['compra', 'compra'], ['venda', 'venda']])}${sel('motivo', 'Saída', motivos.map(m => [m, m]))}${ativos.length > 1 ? sel('ativo', 'Ativo', ativos.map(a => [a, a])) : ''}</div>
+    <div class="tr-filtros" id="tr-filtros">${sel('est', 'Estratégia', c.est.map(e => [e.id, e.nome || e.id]))}${sel('lado', 'Lado', [['compra', 'compra'], ['venda', 'venda']])}${sel('motivo', 'Saída', motivos.map(m => [m, _trMot(m)]))}${ativos.length > 1 ? sel('ativo', 'Ativo', ativos.map(a => [a, a])) : ''}</div>
     ${ops.length ? `<div class="tr-mapa"><canvas id="tr-cv-mapa" role="img" aria-label="Cada ponto é uma operação: dia no eixo horizontal, hora da entrada no vertical"></canvas></div>
     <div class="tr-leg"><span><i class="tr-bola p"></i>ganho</span><span><i class="tr-bola n"></i>perda</span><span><i class="tr-bola anel"></i>venda (anel)</span><span>tamanho = R$</span></div>` : '<div class="pj-data">Nenhuma operação com esses filtros</div>'}</div>
     <div class="card gap"><div class="sh"><h2>Histórico por dia</h2></div>${hist || '<div class="pj-data">Sem operações</div>'}</div>`;
@@ -4445,7 +4465,7 @@ function _trTrades(corpo, c) {
       backgroundColor: pts.map(p => p.o.lado === 'venda' ? 'transparent' : (p.o.rs >= 0 ? verde : verm) + 'b0'),
       borderColor: pts.map(p => p.o.rs >= 0 ? verde : verm) }] },
     options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false },
-      tooltip: { callbacks: { label: t => { const o = t.raw.o; return ` ${o.nome} · ${o.lado} ${o.entrada}→${o.saida} · ${o.motivo} · ${_tr.rs(o.rs)}`; } } } },
+      tooltip: { callbacks: { label: t => { const o = t.raw.o; return ` ${o.nome} · ${o.lado} ${o.entrada}→${o.saida} · ${_trMot(o.motivo)} · ${_tr.rs(o.rs)}`; } } } },
       scales: { x: { min: -0.5, max: ds.length - 0.5, grid: { display: false }, afterBuildTicks: ax => { ax.ticks = ds.map((_, i) => ({ value: i })); },
                      ticks: { color: tinta, font: { size: 10 }, autoSkip: true, maxRotation: 0, callback: v => _tr.fmt(ds[v]) || '' } },
                 y: { min: 9, max: 18, reverse: true, grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 10 }, stepSize: 1, callback: v => v + 'h' } } } } }));
