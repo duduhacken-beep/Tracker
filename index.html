@@ -1954,6 +1954,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-org{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);white-space:nowrap}
 .tr-selo{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid var(--green);color:var(--green);white-space:nowrap;margin-left:8px}
 .tr-selo.zerou{border-color:var(--red);color:var(--red)}
+.tr-selo.regua{border-color:var(--orange);color:var(--orange)}
 .tr-rent{font-size:12px;color:var(--text2);margin-top:8px}
 .tr-banca{font-size:28px;font-weight:800;font-family:var(--f-mono);margin-top:8px;color:var(--text)}
 .tr-var{font-size:13px;font-weight:700;font-family:var(--f-mono)}
@@ -4068,7 +4069,8 @@ function renderTrading() {
     <div class="tr-kpi"><b class="${cl(hoje)}">${rs(hoje)}</b><span>Último pregão</span></div>
     <div class="tr-kpi"><b>${est.filter(e => e.pronta).length}/${est.length}</b><span>Prontas</span></div></div>
     ${regua ? `<div class="tr-rent">Régua do selo: ${regua}, CDI de ${_alEsc(rg.cdi_data || '')}.</div>` : ''}`;
-  const selo = e => e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '';
+  const selo = e => (e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '')
+    + (e.aviso ? `<span class="tr-selo regua" title="${_alEsc(e.aviso)}">Régua antiga</span>` : '');
   const faltam = e => [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
                        Math.max(0, (rg.min_ops || 20) - (e.ops || 0)) && `${Math.max(0, (rg.min_ops || 20) - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
   if (rank) rank.innerHTML = `<div class="tr-rrow tr-rh"><span>Estratégia</span><span>Ao ano</span><span>Banca</span><span class="tr-ropt">Queda máx.</span><span class="tr-ropt">Ops</span></div>` +
@@ -4121,6 +4123,7 @@ function renderTrading() {
         <tr><td>Acerto</td><td>${pct(e.acerto)}</td><td>${pct(bt.acerto)}</td></tr>
         <tr><td>Operações por mês</td><td>${num(e.ops_mes, 1)}</td><td>${bt.ops == null ? '—' : num(bt.ops / 12, 1)}</td></tr></tbody></table>
       ${(e.avisos || []).length ? `<div class="tr-aviso">⚠ ${e.avisos.length} aviso(s) do histórico: ${_alEsc(e.avisos[e.avisos.length - 1])}</div>` : ''}
+      ${e.aviso ? `<div class="tr-aviso">⚠ ${_alEsc(e.aviso)}</div>` : ''}
       <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Origem: ${_alEsc(e.origem || '')}.</div>
       <details class="tr-hist"><summary>Histórico completo (${(e.operacoes || e.ultimas || []).length} operações)</summary>
         ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
