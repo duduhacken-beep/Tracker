@@ -1954,6 +1954,9 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-selo{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 9px;border-radius:999px;border:1px solid var(--green);color:var(--green);white-space:nowrap;margin-left:8px}
 .tr-selo.zerou{border-color:var(--red);color:var(--red)}
 .tr-selo.regua{border-color:var(--orange);color:var(--orange)}
+.tr-selo.carteira{border-color:var(--blue);color:var(--blue)}
+.tr-selo.piora{border-color:var(--red);color:var(--red)}
+.tr-selo.neutra{border-color:var(--text2);color:var(--text2)}
 /* Incubadora estilo AlgoMaker (31/10/2026): cabeçalho, pílulas, cartões grandes, tabelas densas */
 .tr-head{display:flex;align-items:center;margin:-6px 0 12px;font-size:11.5px;color:var(--text3);font-family:var(--f-mono);min-height:16px}
 .tr-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);display:inline-block;margin-right:7px}
@@ -4089,7 +4092,7 @@ function renderStatusProjetos() {
 //   lucro_total, lucro_hoje, lucro_mes, ops, acerto, pts_op, backtest_ultimo_ano: {ops, pts_op, acerto},
 //   curva: [[dia, banca]], ultimas: [{dia, lado, entrada, saida, motivo, pts, contratos, rs}] }] }. Só leitura.
 //   29/10/2026: regua {cdi_aa, cdi_data, spread_aa, minimo_aa, min_dias, min_ops} e, por estratégia, inicio, quebrou,
-//   dias, rent_aa (null antes de 1 mês e 20 ops) e pronta (selo "Pronta": rentabilidade >= CDI + 10% a.a.).
+//   dias, rent_aa (null antes de 1 mês e 30 ops) e pronta (selo "Pronta": rentabilidade >= CDI + 10% a.a.).
 //   29/10/2026 (histórico congelado): pronta_desde, queda_max, banca_min, pior_seq, payoff, fator_lucro, ops_mes,
 //   curva: [[dia, banca, banca_da_regua]] (todo pregão), meses: [[AAAA-MM, rs, ops]], operacoes (todas), avisos.
 // ──────────────────────────────────
@@ -4118,7 +4121,21 @@ const _tr = {
   soma: a => a.reduce((s, v) => s + (v || 0), 0),
 };
 const _trMot = m => ({ horario: 'horário' })[m] || m || '';  // motivo da saída como vem do rastreio
+// checagem de entrada na carteira (Mandato R33): a "Pronta" fora da carteira melhora ou piora a % de janelas de 12 meses no prejuízo da soma?
+const _trEntSelo = { melhora: ['Melhora a carteira', ''], piora: ['Piora a carteira', 'piora'], neutra: ['Neutra na carteira', 'neutra'], primeira: ['Primeira da carteira', 'neutra'] };
+const _trEntTxt = en => {
+  if (!en) return '';
+  if (en.selo === 'sem_base') return `Checagem de entrada: poucos dados em comum (${en.depois.janelas} janelas de 12 meses, mínimo 12) pra dizer se melhora a carteira.`;
+  const a = en.antes, d = en.depois, p = v => _tr.pct(v);
+  const neg = a ? `${p(a.neg)} → <b>${p(d.neg)}</b>` : `<b>${p(d.neg)}</b> (carteira ainda vazia)`;
+  const qd = a ? `${_tr.rs(a.queda_max)} → ${_tr.rs(d.queda_max)}` : _tr.rs(d.queda_max);
+  return `Checagem de entrada (backtest desde ${_tr.fmt(en.desde)}, ${d.janelas} janelas de 12 meses): janelas no prejuízo ${neg} · queda máxima ${qd}`
+    + (en.corr_soma == null ? '' : ` · correlação com a carteira ${_tr.num(en.corr_soma)} (${en.dias_juntas} dias juntas)`)
+    + `. Backtest escolhido no mesmo histórico: tende a ser otimista.`;
+};
 const _trSelo = e => (e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '')
+  + (e.alocada ? '<span class="tr-selo carteira">Na carteira</span>' : '')
+  + (e.entrada && _trEntSelo[e.entrada.selo] ? `<span class="tr-selo ${_trEntSelo[e.entrada.selo][1]}" title="${_alEsc(_trEntTxt(e.entrada).replace(/<[^>]+>/g, ''))}">${_trEntSelo[e.entrada.selo][0]}</span>` : '')
   + (e.aviso ? `<span class="tr-selo regua" title="${_alEsc(e.aviso)}">Régua antiga</span>` : '');
 // percentil na faixa do esperado: amarelo abaixo do p25, vermelho abaixo do p5
 const _trPc = p => p == null ? '<span class="tr-pc">—</span>'
@@ -4347,6 +4364,7 @@ function _trFicha(corpo, c, e) {
       <div class="tr-meta">Na incubadora desde ${_tr.fmt(e.inicio)} · ${Math.max(0, e.dias || 0)} dias · ${e.n_pregoes ?? '—'} pregões</div>
       <div class="tr-banca">${_tr.brl(e.banca)} <span class="tr-var ${_tr.cl(pv)}">${_tr.pc(pv)}</span></div>
       ${rent ? `<div class="tr-rent">${rent}</div>` : ''}
+      ${e.entrada ? `<div class="tr-rent">${_trEntTxt(e.entrada)}</div>` : ''}
       ${e.aviso ? `<div class="tr-aviso">⚠ ${_alEsc(e.aviso)}</div>` : ''}
       <div class="tr-sec">Resultado dentro da faixa do esperado · ${e.percentil == null ? 'percentil depois do 1º pregão' : `percentil ${Math.round(e.percentil * 100)}: ${_trLeitura(e.percentil)}`}</div>
       <div class="tr-curva"><canvas id="tr-cv-ficha" role="img" aria-label="Resultado de ${_alEsc(e.nome || '')} dentro da faixa do esperado"></canvas></div>
