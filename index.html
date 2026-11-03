@@ -4405,7 +4405,7 @@ function _trFicha(corpo, c, e) {
         ${lin('Queda máxima', e.queda_max, x.queda_max, brl)}
         ${lin('Pior sequência', e.pior_seq, x.pior_seq, v => v == null ? '—' : v)}</tbody></table></div>
       ${(e.avisos || []).length ? `<div class="tr-aviso">⚠ ${e.avisos.length} aviso(s) do histórico: ${_alEsc(e.avisos[e.avisos.length - 1])}</div>` : ''}
-      <div class="tr-desc">${_alEsc(e.descricao || '')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Origem: ${_alEsc(e.origem || '')}.</div>
+      <div class="tr-desc">${_alEsc(e.descricao || '').replace(/\n/g, '<br>')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Origem: ${_alEsc(e.origem || '')}.</div>
       <details class="tr-hist"><summary>Histórico completo (${(e.operacoes || e.ultimas || []).length} operações)</summary>
         ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
         ${ops ? `<div class="tr-wrap"><table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Motivo</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table></div>` : '<div class="pj-data">Sem operações ainda</div>'}
@@ -4596,7 +4596,8 @@ function _caHtml(c, cap) {
       <div class="tr-nota">Semáforos em cinza: os limites de alerta e pausa (R34) saem da simulação quando houver alocadas. Freq. = operações vividas ÷ esperadas; CUSUM = quanto pior que o esperado, acumulado.</div></div>
     <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Resultado por estratégia</h2></div>
       ${est.map(e => `<div class="tr-bar"><span class="tr-bn">${_alEsc(e.nome)}</span><span class="tr-trilho"><i class="${e.resultado >= 0 ? 'p' : 'n'}" style="width:${Math.abs(e.resultado) / mx * 100}%"></i></span><b class="${_tr.cl(e.resultado)}">${_tr.rs(e.resultado)}</b></div>
-        <div class="tr-nota">${e.fatia == null ? 'fatia —' : 'fatia ' + Math.round(e.fatia * 100) + '%'} · mês ${_tr.rs(e.mes)} · hoje ${_tr.rs(e.hoje)} · ${e.ops} ops</div>`).join('')}</div>
+        <div class="tr-nota">${e.fatia == null ? 'fatia —' : 'fatia ' + Math.round(e.fatia * 100) + '%'} · mês ${_tr.rs(e.mes)} · hoje ${_tr.rs(e.hoje)} · ${e.ops} ops</div>
+        ${e.descricao ? `<details class="tr-hist"><summary>Como opera</summary><div class="tr-desc">${_alEsc(e.descricao).replace(/\n/g, '<br>')}</div></details>` : ''}`).join('')}</div>
     <div class="ca-ex">* Exposição em tempo real pelo celular: fica para depois (precisa do executor da demo e do mecanismo de exposição simultânea).</div>`;
 }
 
