@@ -2031,7 +2031,13 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-ev{display:grid;grid-template-columns:52px 92px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:12.5px;align-items:start}
 .tr-evd{font-family:var(--f-mono);color:var(--text3);padding-top:2px}
 .tr-tipo{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:999px;border:1px solid;justify-self:start}
-.tr-tipo.entrou{color:var(--green)}.tr-tipo.saiu{color:var(--red)}.tr-tipo.marcacao{color:var(--orange)}
+.tr-tipo.entrou{color:var(--green)}.tr-tipo.saiu{color:var(--red)}.tr-tipo.marcacao{color:var(--orange)}.tr-tipo.alocada{color:var(--blue)}
+/* aba Carteira (03/11/2026, Mandato R35) */
+.ca-gauge{height:10px;border-radius:5px;background:var(--bg3);overflow:hidden;margin-top:8px}.ca-gauge i{display:block;height:100%;border-radius:5px;background:var(--green)}
+.ca-gauge i.alto{background:var(--orange)}.ca-gauge i.max{background:var(--red)}
+.ca-sems{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:11.5px;color:var(--text2)}
+.ca-sem{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-mono)}.ca-sem i{width:9px;height:9px;border-radius:50%;background:var(--text3);flex:none}
+.ca-ex{font-size:11.5px;color:var(--text3);margin-top:14px;line-height:1.45}
 .tr-ev p{margin:3px 0 0;color:var(--text2);font-size:12px;line-height:1.45;white-space:normal}
 .tr-ev .tr-org{margin-left:6px}
 .tr-voltar{min-height:40px;padding:8px 14px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg3);color:var(--accent);font:inherit;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:12px}
@@ -2148,6 +2154,8 @@ body:has(.overlay.on) .sidebar{z-index:0}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Investir</span></button>
   <button class="nb" onclick="go('trading')" id="n-trading">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><rect x="4" y="8" width="4" height="7"/><line x1="12" y1="3" x2="12" y2="18"/><rect x="10" y="6" width="4" height="8"/><line x1="18" y1="6" x2="18" y2="21"/><rect x="16" y="10" width="4" height="7"/></svg><span>Incubadora</span></button>
+  <button class="nb" onclick="go('carteira')" id="n-carteira">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="3" y1="13" x2="21" y2="13"/></svg><span>Carteira</span></button>
   <button class="nb" onclick="go('backup')" id="n-backup">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Backup</span></button>
   <button class="nb" id="n-mais" onclick="abrirNavConfig()" style="position:relative">
@@ -2878,6 +2886,12 @@ body:has(.overlay.on) .sidebar{z-index:0}
   <div id="tr-corpo"></div>
 </section>
 
+<section class="page" id="page-carteira">
+  <h1>Carteira</h1><p class="psub">As estratégias que você alocou, somadas. Só acompanhamento: quem entra e quem sai é decidido fora daqui.</p>
+  <div class="tr-head" id="ca-data"></div>
+  <div id="ca-corpo"></div>
+</section>
+
 <section class="page" id="page-backup">
   <h1>Backup & Sync</h1><p class="psub">Sincronização em tempo real e backup manual</p>
 
@@ -3455,6 +3469,7 @@ function renderAba(p) {
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'trading')  { safeCall(renderTrading, 'renderTrading'); }
+  if (p === 'carteira') { safeCall(renderCarteira, 'renderCarteira'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
 }
 
@@ -4529,12 +4544,79 @@ function _trGeometria(corpo, c) {
 
 function _trLinha(corpo, c) {
   const nome = id => (c.todas.find(e => e.id === id) || {}).nome || id;
-  const rot = { entrou: 'Entrou', saiu: 'Saiu', marcacao: 'Marcação' };
+  const rot = { entrou: 'Entrou', saiu: 'Saiu', marcacao: 'Marcação', alocada: 'Alocada' };
   const ev = (c.dados.eventos || []).filter(x => _trUI.grupo === 'Tudo' || x.grupo === _trUI.grupo).slice().reverse();
   corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Linha do tempo</h2><span class="pj-data">quem entrou, saiu ou ganhou marcação, e por quê</span></div>
     ${ev.length ? ev.map(x => `<div class="tr-ev"><span class="tr-evd">${_tr.fmt(x.data)}</span><span class="tr-tipo ${_alEsc(x.tipo)}">${rot[x.tipo] || _alEsc(x.tipo)}</span>
       <div><b>${_alEsc(nome(x.id))}</b>${x.grupo ? ` <span class="tr-org">${_alEsc(x.grupo)}</span>` : ''}<p>${_alEsc(x.motivo || '')}</p></div></div>`).join('')
       : '<div class="pj-data">Nenhum evento registrado neste grupo</div>'}</div>`;
+}
+
+// ──────────────────────────────────
+// CARTEIRA (03/11/2026, Mandato R35): campo `carteira` de 'trading_estrategias' (backtest/carteira_aba.py). Só leitura.
+// { vazia, teto } ou { vazia:false, desde, n_pregoes, teto, resultado, hoje_rs, mes_rs, folga_teto, teto_atingido,
+//   curva:[[dia, acumulado]], faixa, percentil, stats:{ops, acerto, payoff, fator_lucro, melhor_dia, pior_dia, queda_max, ops_mes},
+//   meses:[[AAAA-MM, rs, ops]], operacoes:[{dia, lado, entrada, saida, motivo, contratos, rs, nome}],
+//   estrategias:[{id, nome, desde, resultado, mes, hoje, fatia, ops, saude:{estado, frequencia:{vivo, esperado, razao}, percentil, cusum}}] }
+// ──────────────────────────────────
+function _caHtml(c, cap) {
+  const s = c.stats || {}, perda = Math.max(0, -c.resultado), uso = c.teto ? Math.min(1, perda / c.teto) : 0;
+  const est = (c.estrategias || []).slice().sort((a, b) => b.resultado - a.resultado), mx = Math.max(1, ...est.map(e => Math.abs(e.resultado)));
+  const ops = (c.operacoes || []).slice(0, 300);
+  const meses = (c.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${_tr.cl(m[1])}">${_tr.rs(m[1])}</td></tr>`).join('');
+  const sem = (rot, txt) => `<span class="ca-sem"><i></i>${rot} ${txt}</span>`;
+  return `
+    <div class="tr-big">
+      <div class="tr-bc"><span>Resultado</span><b class="${_tr.cl(c.resultado)}">${_tr.rs(c.resultado)}</b><small>${cap ? _tr.pc(c.resultado / cap) : '—'}</small><small>desde ${_tr.fmt(c.desde)}</small></div>
+      <div class="tr-bc"><span>Hoje · mês</span><b class="${_tr.cl(c.hoje_rs)}">${_tr.rs(c.hoje_rs)}</b><small>mês ${_tr.rs(c.mes_rs)}</small><small>${c.n_pregoes} ${c.n_pregoes === 1 ? 'pregão' : 'pregões'}</small></div>
+      <div class="tr-bc"><span>Folga até o teto</span><b class="${c.teto_atingido ? 'tr-neg' : ''}">${_tr.brl(c.folga_teto)}</b><small>${c.teto_atingido ? 'TETO ATINGIDO' : 'de ' + _tr.brl(c.teto)}</small><small>desde a alocação</small></div>
+      <div class="tr-bc"><span>Operações</span><b>${s.ops ?? 0}</b><small>acerto ${_tr.pct(s.acerto)}</small><small>${(c.estrategias || []).length} estratégias</small></div>
+    </div>
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Perda até o teto</h2><span class="pj-data">${_tr.brl(perda)} de ${_tr.brl(c.teto)}</span></div>
+      <div class="ca-gauge" role="img" aria-label="Perda acumulada em relação ao teto"><i class="${uso >= 1 ? 'max' : uso >= .6 ? 'alto' : ''}" style="width:${(uso * 100).toFixed(1)}%"></i></div>
+      <div class="tr-nota">O teto vale desde a alocação (não desde o pico): lucro acumulado é colchão. Passou dele, a carteira desliga até você revisar.</div></div>
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Curva da carteira</h2></div>
+      <div class="tr-pcl">${c.percentil == null ? '<span class="tr-nota">Percentil na faixa depois do 1º pregão</span>' : `${_trPc(c.percentil)}<span>${_trLeitura(c.percentil)}</span>`}</div>
+      <div class="tr-leg"><span><i class="tr-li" style="border-color:var(--accent)"></i>Ao vivo</span><span><i class="tr-li tr-li-reg"></i>Mediana</span><span><i class="tr-faixa1"></i>p25–p75</span><span><i class="tr-faixa2"></i>p5–p95</span></div>
+      <div class="tr-curva"><canvas id="ca-cv" role="img" aria-label="Resultado somado da carteira dentro da faixa do esperado"></canvas></div>
+      <div class="tr-medida" id="ca-medida"></div>${_trNotaFaixa}
+      <details class="tr-hist"><summary>Dados gerais e operações · ${s.ops ?? 0} operações · acerto ${_tr.pct(s.acerto)} · ${_tr.rs(c.resultado)}</summary>
+        <table class="tr-ops tr-cmp"><tbody>
+          <tr><td>Acerto</td><td>${_tr.pct(s.acerto)}</td></tr><tr><td>Payoff</td><td>${_tr.num(s.payoff)}</td></tr><tr><td>Fator de lucro</td><td>${_tr.num(s.fator_lucro)}</td></tr>
+          <tr><td>Melhor pregão</td><td class="${_tr.cl(s.melhor_dia)}">${s.melhor_dia == null ? '—' : _tr.rs(s.melhor_dia)}</td></tr><tr><td>Pior pregão</td><td class="${_tr.cl(s.pior_dia)}">${s.pior_dia == null ? '—' : _tr.rs(s.pior_dia)}</td></tr>
+          <tr><td>Queda máxima</td><td class="${s.queda_max ? 'tr-neg' : ''}">${_tr.brl(s.queda_max || 0)}</td></tr><tr><td>Operações por mês</td><td>${_tr.num(s.ops_mes, 1)}</td></tr></tbody></table>
+        ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
+        ${ops.length ? ops.map(o => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(o.nome)}</span><b class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</b></span>
+          <span class="tr-l2">${_tr.fmt(o.dia)} · ${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)} · ${_alEsc(_trMot(o.motivo))} · ${o.contratos}x</span></div>`).join('')
+          : '<div class="pj-data">Sem operações ainda</div>'}</details></div>
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Saúde das estratégias</h2><span class="pj-data">toque pra abrir a ficha</span></div>
+      ${est.map(e => { const h = e.saude || {}, f = h.frequencia || {};
+        return `<button type="button" class="tr-li2" data-id="${_alEsc(e.id)}"><span class="tr-l1"><b>${_alEsc(e.nome)}</b><span class="tr-selo">${h.estado === 'pausada' ? 'Pausada' : h.estado === 'alerta' ? 'Alerta' : 'Ativa'}</span></span>
+          <span class="ca-sems">${sem('Freq.', f.razao == null ? '—' : _tr.num(f.razao) + '×')}${sem('Perc.', h.percentil == null ? '—' : 'p' + Math.round(h.percentil * 100))}${sem('CUSUM', h.cusum == null ? '—' : _tr.num(h.cusum))}</span></button>`; }).join('')}
+      <div class="tr-nota">Semáforos em cinza: os limites de alerta e pausa (R34) saem da simulação quando houver alocadas. Freq. = operações vividas ÷ esperadas; CUSUM = quanto pior que o esperado, acumulado.</div></div>
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Resultado por estratégia</h2></div>
+      ${est.map(e => `<div class="tr-bar"><span class="tr-bn">${_alEsc(e.nome)}</span><span class="tr-trilho"><i class="${e.resultado >= 0 ? 'p' : 'n'}" style="width:${Math.abs(e.resultado) / mx * 100}%"></i></span><b class="${_tr.cl(e.resultado)}">${_tr.rs(e.resultado)}</b></div>
+        <div class="tr-nota">${e.fatia == null ? 'fatia —' : 'fatia ' + Math.round(e.fatia * 100) + '%'} · mês ${_tr.rs(e.mes)} · hoje ${_tr.rs(e.hoje)} · ${e.ops} ops</div>`).join('')}</div>
+    <div class="ca-ex">* Exposição em tempo real pelo celular: fica para depois (precisa do executor da demo e do mecanismo de exposição simultânea).</div>`;
+}
+
+function renderCarteira() {
+  const corpo = $('ca-corpo');
+  if (!corpo) return;
+  const dados = load('trading_estrategias', null) || {}, c = dados.carteira;
+  _trCharts.forEach(x => x.destroy()); _trCharts = [];
+  $('ca-data').innerHTML = dados.dados_ate ? `<i class="tr-dot${dados.atualizado === today() ? ' on' : ''}"></i>rastreio de ${_tr.fmt(dados.atualizado)} · pregões até ${_tr.fmt(dados.dados_ate)}` : '';
+  if (!c || c.vazia) {
+    corpo.innerHTML = `<div class="card"><div class="empty"><div class="ei">💼</div>Nenhuma estratégia alocada ainda</div>
+      <div class="tr-nota" style="text-align:center">A carteira é a soma das estratégias que você aloca. Olhe o selo "Pronta" e a checagem de entrada na Incubadora e peça a alocação ao Claude.</div></div>
+      <div class="ca-ex">* Exposição em tempo real pelo celular: fica para depois.</div>`;
+    return;
+  }
+  const cap = (dados.banca_inicial || 1500) * (c.estrategias || []).length;
+  corpo.innerHTML = _caHtml(c, cap);
+  const serie = [['início', 0], ...(c.curva || []).map(x => [_tr.fmt(x[0]), x[1]])];
+  _trMedir(_trFaixaGrafico($('ca-cv'), serie, c.faixa), serie, cap, $('ca-medida'));
+  corpo.onclick = ev => { const b = ev.target.closest('button[data-id]'); if (b) { go('trading'); _trAbrir(b.dataset.id); } };
 }
 
 // ──────────────────────────────────
