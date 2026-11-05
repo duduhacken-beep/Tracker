@@ -1911,7 +1911,7 @@ body.dens-compact .gap{margin-bottom:14px}
 .sk-anim .sk-no{animation:sk-entra .5s calc(var(--c,0) * 120ms) var(--ease-out) both}
 @keyframes sk-entra{from{opacity:0}}
 
-/* Baralho (Card Stack / Card Fan): os 5 de Receitas e Leitura em leque; arrastar ou ‹ › troca a carta */
+/* Baralho (Card Stack / Card Fan): os 5 de Leitura em leque; arrastar ou ‹ › troca a carta */
 .deck{grid-column:1/-1;display:grid;justify-content:center;padding:4px var(--deck-passo,26px) 22px 0;outline:none;touch-action:pan-y;user-select:none;--deck-passo:26px}
 .deck:focus-visible .deck-carta.frente .rc-card{outline:2px solid var(--accent);outline-offset:3px}
 .deck-carta{grid-area:1/1;width:min(320px,72vw);transform-origin:50% 100%;
@@ -2144,8 +2144,6 @@ body:has(.overlay.on) .sidebar{z-index:0}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l-2 4m2-4l2 4m-7-9a4 4 0 018 0"/></svg><span>Corpo</span></button>
   <button class="nb" onclick="go('evolucao')" id="n-evolucao">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg><span>Evolução</span></button>
-  <button class="nb" onclick="go('receitas')" id="n-receitas">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg><span>Receitas</span></button>
   <button class="nb" onclick="go('leitura')" id="n-leitura">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2z"/><path d="M22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg><span>Leitura</span></button>
   <button class="nb" onclick="go('financas')" id="n-financas">
@@ -2609,24 +2607,6 @@ body:has(.overlay.on) .sidebar{z-index:0}
     <div class="modal rc-modal" role="dialog" aria-modal="true" aria-labelledby="lv-det-nome"><div id="lv-detalhe"></div></div>
   </div>
 </section>
-
-<!-- ════════════════ RECEITAS ════════════════ -->
-<section class="page" id="page-receitas">
-  <h1>Receitas</h1><p class="psub">Cinco receitas da Maria para você praticar. Toda manhã, às 7h, ela troca as que você já fez.</p>
-
-  <div class="rc-grid gap" id="lista-receitas"></div>
-
-  <details class="card rc-hist">
-    <summary><h2>Já feitas <span id="rc-feitas-n"></span></h2></summary>
-    <div id="lista-receitas-feitas"></div>
-  </details>
-
-  <div class="overlay" id="modal-receita" onclick="if (event.target === this) fecharReceita()">
-    <div class="modal rc-modal" role="dialog" aria-modal="true" aria-labelledby="rc-det-nome"><div id="rc-detalhe"></div></div>
-  </div>
-  <input type="file" id="rc-foto-inp" accept="image/*" hidden onchange="rcFoto(event)">
-</section>
-
 
 <!-- ════════════════ FINANÇAS ════════════════ -->
 <section class="page" id="page-financas">
@@ -3244,7 +3224,6 @@ function reRenderAll() {
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderMapaHome, 'renderMapaHome');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
-  safeCall(renderReceitas, 'renderReceitas');
   safeCall(renderLeitura, 'renderLeitura');
   safeCall(renderFinancas, 'renderFinancas');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
@@ -3464,7 +3443,6 @@ function renderAba(p) {
   if (p === 'agenda')   { _gcalSilentFail = 0; safeCall(renderAgenda, 'renderAgenda'); safeCall(gcalPullAndMerge, 'gcalPullAndMerge'); }
   if (p === 'corpo')    { safeCall(loadCorpoDiario,'loadCorpoDiario'); safeCall(renderMuralTreinador,'renderMuralTreinador'); safeCall(renderMuralAlongamento,'renderMuralAlongamento'); safeCall(renderComida,'renderComida'); safeCall(renderTreinoSemana,'renderTreinoSemana'); }
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
-  if (p === 'receitas') { safeCall(renderReceitas, 'renderReceitas'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
   if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
@@ -5322,7 +5300,7 @@ function delMetaAnual(id) { save('metas_a', load('metas_a', []).filter(m => m.id
 // MODO CAVERNA (21/10–31/12/2026) — progresso ao vivo + gamificação
 // ──────────────────────────────────
 // Conta direto do que o Eduardo marca no app: eventos dos agentes (marca na descrição do Calendar,
-// que o app guarda em `notas` e mantém mesmo depois que o agente apaga o evento), receitas e livros.
+// que o app guarda em `notas` e mantém mesmo depois que o agente apaga o evento) e livros.
 // Os agentes continuam atualizando `contadores` em metas_a e marcando a meta como concluída;
 // o alvo vem de lá (assim, se o Eduardo mudar o alvo, a seção acompanha).
 // Gamificação (05/10/2026): classe (maior atributo), título (nível), conquistas, cerimônia de nível,
@@ -5370,7 +5348,7 @@ function _cvDatas() {
 }
 
 // ── Visual (10/10/2026: saiu a pixel art, entrou o visual esportivo — anéis, números grandes, cor por atributo) ──
-const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Cozinha: 'var(--c-cozinha)', Idioma: 'var(--c-idioma)' };
+const CV_COR = { Corpo: 'var(--c-corpo)', Flexibilidade: 'var(--c-flex)', Mente: 'var(--c-mente)', Sabedoria: 'var(--c-sab)', Estilo: 'var(--c-estilo)', Idioma: 'var(--c-idioma)' };
 const _cvCorClasse = classe => CV_COR[Object.keys(CV_CLASSES).find(k => CV_CLASSES[k] === classe)] || 'var(--c-neutro)';
 // arco de progresso: círculo com pathLength 100, o traço é a fração
 const _cvArco = (r, frac, cor, i = 0) => `<circle class="trilho" cx="50%" cy="50%" r="${r}"${cor ? ` style="stroke:color-mix(in srgb,${cor} 16%,transparent)"` : ''}/>` +
@@ -5405,8 +5383,6 @@ const NPCS = {
     falas: { antes: 'Dia 21 começa. Até lá, dorme cedo e chega inteiro.', frente: 'Tá voando. Mantém a técnica, não só o volume.', ritmo: 'No ritmo. É assim que se constrói.', atras: 'Ficou pra trás, mas dá pra tirar. Amanhã, sem desculpa.', feito: 'Meta batida. Agora é manter.' } },
   'Mônica': { papel: 'Escriba',
     falas: { antes: 'Sua agenda nova já começa em 21/10. Eu cuido dos horários.', frente: 'Adiantado. Vou anotar isso com orgulho.', ritmo: 'Tudo em dia na agenda.', atras: 'Reorganizei a semana. Só aparece no horário.', feito: 'Meta concluída, já registrei.' } },
-  Maria: { papel: 'Cozinheira',
-    falas: { antes: 'Separa o avental, dia 21 a gente começa.', frente: 'Tá cozinhando mais que eu, menino!', ritmo: 'Do jeitinho que eu gosto.', atras: 'A panela tá fria... bora uma receita fácil hoje?', feito: 'Trinta receitas! Já pode me substituir.' } },
   Friday: { papel: 'Professora de inglês',
     falas: { antes: 'Nossas aulas começam dia 26. Já separa o fone.', frente: 'You are on fire! Keep it up.', ritmo: 'Right on track. Little by little.', atras: 'Missed a few, no stress. Let us talk today?', feito: 'All lessons done. Proud of you!' } },
   Mosley: { papel: 'Monge bibliotecário',
@@ -5438,7 +5414,7 @@ function _cvMedalha(c, w = 34) {
 
 // ── Regras do jogo ──
 const CV_XP_NIVEL = 250;
-const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Nobre', Cozinha: 'Chef', Idioma: 'Poliglota' };
+const CV_CLASSES = { Corpo: 'Guerreiro', Flexibilidade: 'Acrobata', Mente: 'Monge', Sabedoria: 'Sábio', Estilo: 'Nobre', Idioma: 'Poliglota' };
 const CV_TITULOS = [[1, 'Recruta'], [3, 'Aprendiz'], [5, 'Disciplinado'], [8, 'Implacável'], [11, 'Homem da Caverna'], [13, 'Lenda']];
 const _cvTitulo = n => (CV_TITULOS.filter(([lv]) => n >= lv).pop() || CV_TITULOS[0])[1];
 const CV_CONQUISTAS = [
@@ -5453,8 +5429,6 @@ const CV_CONQUISTAS = [
   ['elastico', 'Elástico', 'Meta de alongamento batida', 'ouro', st => st.ok.alongamento],
   ['primeiro-livro', 'Primeiro livro', '1 livro lido', 'bronze', st => st.n.leitura >= 1],
   ['biblioteca', 'Rato de biblioteca', 'Meta de leitura batida', 'ouro', st => st.ok.leitura],
-  ['fogao', 'Fogão aceso', 'Primeira receita feita', 'bronze', st => st.n.cozinhar >= 1],
-  ['chef', 'Chef de casa', 'Meta de receitas batida', 'ouro', st => st.ok.cozinhar],
   ['primeira-aula', 'Hello, world', 'Primeira aula de inglês feita', 'bronze', st => st.n.ingles >= 1],
   ['ingles-10', 'Fala que eu entendo', '10 aulas de inglês feitas', 'prata', st => st.n.ingles >= 10],
   ['poliglota', 'Poliglota em formação', 'Meta de aulas de inglês batida', 'ouro', st => st.ok.ingles],
@@ -5521,7 +5495,6 @@ const CV_METAS = [
   { chave: 'leitura', id: 1791158400002, nome: 'Leitura', attr: 'Sabedoria', npc: 'Mosley', quem: 'Mosley · horário: Mônica', un: 'livros', alvo: 4, xp: 100, dias: () => _cvItens(['leitura', 'leitura_lidos'], 'lido', 'lidoEm') },
   { chave: 'aparencia', id: 1791158400008, nome: 'Aparência', attr: 'Estilo', npc: 'Mônica', un: 'skincare', alvo: 120, xp: 5, dias: () => _cvEventos('Aparência (Mônica)', /skincare/i),
     extra: { chave: 'cortes', un: 'cortes', alvo: 3, xp: 20, dias: () => _cvEventos('Aparência (Mônica)', /corte/i) } },
-  { chave: 'cozinhar', id: 1791158400009, nome: 'Cozinhar', attr: 'Cozinha', npc: 'Maria', un: 'receitas', alvo: 30, xp: 30, dias: () => _cvItens(['receitas', 'receitas_feitas'], 'feita', 'feitaEm') },
   // Inglês (23/10/2026): 46 aulas de 9h–10h30 em dia útil, de 26/10 a 31/12 (sem 02/11, 20/11 e 25/12). `ini` = o ritmo conta a partir daí.
   { chave: 'ingles', id: 1774241501988, nome: 'Inglês', attr: 'Idioma', npc: 'Friday', un: 'aulas', alvo: 46, xp: 10, ini: '2026-10-26', dias: () => _cvEventos('Inglês (Friday)') },
 ];
@@ -5676,7 +5649,7 @@ function renderCaverna() {
       ${npc}
     </div>`;
   }).join('') + `
-    <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, aula de inglês 10, skincare 5, corte 20, receita 30, livro 100, kg perdido 50</div>`;
+    <div class="cv-leg" style="grid-column:1/-1"><i class="cv-d"></i> nada <i class="cv-d l1"></i> parcial <i class="cv-d l2"></i> feito <i class="cv-d fut"></i> ainda não chegou · XP: sessão 10, aula de inglês 10, skincare 5, corte 20, livro 100, kg perdido 50</div>`;
 
   const nOk = st.conquistas.filter(c => c.ok).length;
   conqEl.innerHTML = `<h2>Conquistas <span style="color:var(--text3);font-size:.8em">${nOk}/${st.conquistas.length}</span></h2>
@@ -5746,7 +5719,7 @@ function _cvCerimonia(st) {
   const subiu = st.nivel > visto.nivel;
   if (!subiu && !novas.length) return;
   const tituloNovo = subiu && _cvTitulo(st.nivel) !== _cvTitulo(visto.nivel) ? _cvTitulo(st.nivel) : '';
-  const npc = ['Jefrey', 'Mônica', 'Maria', 'Mosley', 'Friday'][st.nivel % 5];
+  const npc = ['Jefrey', 'Mônica', 'Mosley', 'Friday'][st.nivel % 4];
   const fala = subiu ? `Nível ${st.nivel}! ${tituloNovo ? `Agora é ${tituloNovo}.` : 'Segue assim.'}` : 'Mais uma pra coleção. Bem feito.';
   const corCls = _cvCorClasse(st.classe);
   $('cv-cer').innerHTML = `${_cvConfete()}
@@ -5965,18 +5938,13 @@ function renderGames() {
 }
 
 // ──────────────────────────────────
-// RECEITAS
+// AUXILIARES DE DATA/FOTO (usados por Leitura e Modo Caverna)
 // ──────────────────────────────────
-// Receitas são escritas pela Maria (Routines, todo dia 7h): chave `receitas` = as 5 ativas,
-// `receitas_feitas` = histórico. O app só marca feita/desmarca e anexa a foto do Eduardo.
-const RC_CAT_COR = { 'Almoço/Jantar':'ta', 'Café da manhã':'to', 'Lanche':'tb', 'Sobremesa':'tp' };
-let _rcAberta = null;
 const _rcUrl = u => /^(https:\/\/|data:image\/)/.test(u || '') ? u : '';
 const _rcData = d => d ? d.split('-').reverse().join('/') : '';
-const _rcKcal = r => r.kcal ? `≈ ${r.kcal} kcal/${r.kcalPor || 'porção'}` : '';   // estimativa da Maria (TACO)
 
 // ──────────────────────────────────
-// BARALHO (21st.dev "Card Stack / Card Fan"): os 5 de Receitas e Leitura como cartas em leque
+// BARALHO (21st.dev "Card Stack / Card Fan"): os 5 de Leitura como cartas em leque
 // ──────────────────────────────────
 // Arrastar a carta da frente pro lado, ‹ › ou as setas do teclado trocam a carta; tocar nela abre o detalhe como antes.
 const _deckIdx = {};
@@ -6033,117 +6001,6 @@ function _deckIr(chave, passo) {
   const n = deck.querySelectorAll('.deck-carta').length;
   _deckIdx[chave] = ((_deckIdx[chave] || 0) + passo + n) % n;
   _deckAplicar(deck);
-}
-
-function _rcFotoHtml(r) {
-  const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
-  return src ? `<img src="${_escH(src)}" alt="" loading="lazy">` : `<span class="rc-sem-foto">${_escH((r.nome || '?')[0])}</span>`;
-}
-
-function renderReceitas() {
-  const cont = $('lista-receitas');
-  if (!cont) return;
-  const ativas = load('receitas', []);
-  if (ativas.length) _deck(cont, 'receitas', ativas.map(r => `
-    <button class="rc-card${r.feita ? ' feita' : ''}" onclick="abrirReceita(${_eid(r.id)})">
-      <div class="rc-foto">${_rcFotoHtml(r)}${r.feita ? '<span class="rc-selo">Feita</span>' : ''}</div>
-      <div class="rc-corpo">
-        <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
-        <h3 class="rc-nome">${_escH(r.nome)}</h3>
-        <div class="rc-meta">${[r.tempo, r.porcoes, _rcKcal(r), r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
-      </div>
-    </button>`));
-  else cont.innerHTML = '<div class="card empty" style="grid-column:1/-1"><div class="ei">🍳</div>A Maria deixa 5 receitas aqui toda manhã, às 7h.</div>';
-
-  const feitas = load('receitas_feitas', []);
-  $('rc-feitas-n').textContent = feitas.length ? `(${feitas.length})` : '';
-  $('lista-receitas-feitas').innerHTML = feitas.length ? feitas.slice().reverse().map(r => `
-    <button class="rc-hist-row" onclick="abrirReceita(${_eid(r.id)})">
-      <div class="rc-hist-foto">${_rcFotoHtml(r)}</div>
-      <div><div class="rc-hist-nome">${_escH(r.nome)}</div><div class="rc-meta">${_escH(r.categoria || '')}${r.feitaEm ? ' · feita em ' + _rcData(r.feitaEm) : ''}</div></div>
-    </button>`).join('')
-    : '<p class="rc-meta" style="margin:0">Quando você marcar uma receita como feita, ela vem pra cá na manhã seguinte.</p>';
-
-  if (_rcAberta != null && $('modal-receita').classList.contains('on')) abrirReceita(_rcAberta);
-}
-
-// procura nas 5 ativas e depois no histórico (lá a receita só abre pra ler e trocar a foto)
-function _rcAchar(id) {
-  for (const chave of ['receitas', 'receitas_feitas']) {
-    const list = load(chave, []), r = list.find(x => x.id === id);
-    if (r) return { chave, list, r };
-  }
-  return {};
-}
-
-function abrirReceita(id) {
-  const { r, chave } = _rcAchar(id);
-  if (!r) return fecharReceita();
-  _rcAberta = id;
-  const src = _rcUrl(r.minhaFoto) || _rcUrl(r.foto);
-  $('rc-detalhe').innerHTML = `
-    <button class="ib rc-fechar" onclick="fecharReceita()" aria-label="Fechar">×</button>
-    ${src ? `<div class="rc-det-foto"><img src="${_escH(src)}" alt="${_escH(r.nome)}"></div>` : ''}
-    ${src && !_rcUrl(r.minhaFoto) && r.fotoCredito ? `<div class="rc-credito">Foto: ${_escH(r.fotoCredito)}</div>` : ''}
-    <div class="rc-det-corpo">
-      <span class="tag ${RC_CAT_COR[r.categoria] || 'ta'}">${_escH(r.categoria || 'Receita')}</span>
-      <h2 id="rc-det-nome">${_escH(r.nome)}</h2>
-      ${r.descricao ? `<p class="rc-desc">${_escH(r.descricao)}</p>` : ''}
-      <div class="rc-meta">${[r.tempo, r.porcoes, _rcKcal(r), r.dificuldade].filter(Boolean).map(_escH).join(' · ')}</div>
-
-      <h3>Ingredientes</h3>
-      <ul class="rc-ingr">${(r.ingredientes || []).map(i => `<li><label><input type="checkbox"><span>${_escH(i)}</span></label></li>`).join('')}</ul>
-
-      <h3>Modo de preparo</h3>
-      <ol class="rc-passos">${(r.passos || []).map(p => `<li>${_escH(p)}</li>`).join('')}</ol>
-
-      ${r.dica ? `<div class="rc-dica"><strong>${String(r.id).startsWith('maria-') ? 'Dica da Maria' : 'Anotação'}:</strong> ${_escH(r.dica)}</div>` : ''}
-
-      <div class="mfooter rc-acoes">
-        <button class="btn btn-g" onclick="$('rc-foto-inp').click()">${r.minhaFoto ? 'Trocar minha foto' : 'Adicionar minha foto'}</button>
-        ${chave === 'receitas' ? `<button class="btn ${r.feita ? 'btn-g' : 'btn-p'}" onclick="toggleReceitaFeita(${_eid(r.id)})">${r.feita ? 'Desmarcar' : 'Marcar como feita'}</button>` : ''}
-      </div>
-    </div>`;
-  $('modal-receita').classList.add('on');
-}
-
-function fecharReceita() { _rcAberta = null; $('modal-receita').classList.remove('on'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && _rcAberta != null) fecharReceita(); });
-
-function toggleReceitaFeita(id) {
-  const list = load('receitas', []);
-  const r = list.find(x => x.id === id);
-  if (!r) return;
-  r.feita = !r.feita;
-  r.feitaEm = r.feita ? today() : null;
-  save('receitas', list);
-  renderReceitas();
-}
-
-// Foto do Eduardo: reduzida pra 900px/JPEG antes de salvar
-// ponytail: vai dentro do blob `receitas`/`receitas_feitas` (~80-120KB cada); se o histórico crescer muito, mover pro Supabase Storage
-function rcFoto(ev) {
-  const file = ev.target.files[0];
-  ev.target.value = '';
-  if (!file || _rcAberta == null) return;
-  const id = _rcAberta;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, 900 / Math.max(img.width, img.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width * scale; canvas.height = img.height * scale;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      const { r, chave, list } = _rcAchar(id);
-      if (!r) return;
-      r.minhaFoto = canvas.toDataURL('image/jpeg', 0.72);
-      save(chave, list);
-      renderReceitas();
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
 }
 
 // ──────────────────────────────────
@@ -8598,7 +8455,6 @@ const ALL_PAGES = [
   { id:'agenda',   label:'Agenda',    icon:'📅' },
   { id:'corpo',    label:'Corpo',     icon:'💪' },
   { id:'evolucao', label:'Evolução',  icon:'📈' },
-  { id:'receitas', label:'Receitas',  icon:'🍽️' },
   { id:'leitura',  label:'Leitura',   icon:'📚' },
   { id:'financas', label:'Finanças',  icon:'💰' },
   { id:'investimentos', label:'Investimentos', icon:'📈' },
@@ -8607,9 +8463,9 @@ const ALL_PAGES = [
 
 function getNavFavs() {
   const favs = load('nav_favs', null);
-  if (!favs) return ['home','agenda','corpo','financas','investimentos','receitas','leitura','backup'];
+  if (!favs) return ['home','agenda','corpo','financas','investimentos','leitura','backup'];
   // Abas que entraram depois (04/10/2026) aparecem uma vez para quem já tinha favoritos salvos
-  [['investimentos', 'nav_inv_visto'], ['receitas', 'nav_rc_visto'], ['leitura', 'nav_lv_visto']].forEach(([aba, flag]) => {
+  [['investimentos', 'nav_inv_visto'], ['leitura', 'nav_lv_visto']].forEach(([aba, flag]) => {
     if (load(flag, false)) return;
     if (!favs.includes(aba)) { favs.push(aba); save('nav_favs', favs); }
     save(flag, true);
@@ -10065,7 +9921,6 @@ function _lpTema(html) {
   safeCall(renderTreinoSemana, 'renderTreinoSemana');
   safeCall(renderHumor, 'renderHumor');
   safeCall(renderMetasAnuais, 'renderMetasAnuais');
-  safeCall(renderReceitas, 'renderReceitas');
   safeCall(renderLeitura, 'renderLeitura');
   safeCall(renderFinancas, 'renderFinancas');
   // Automações no início
