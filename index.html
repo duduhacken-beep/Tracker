@@ -4122,17 +4122,22 @@ const _trLeitura = p => p == null ? 'sem pregão ainda' : p < 0.05 ? 'bem abaixo
 const _trCabeca = (id, dados) => { $(id).innerHTML = dados.dados_ate ? `<i class="tr-dot${dados.atualizado === today() ? ' on' : ''}"></i>rastreio de ${_tr.fmt(dados.atualizado)} · pregões até ${_tr.fmt(dados.dados_ate)}` : ''; };
 const _trNotaMaquina = '<div class="tr-nota">Gráficos, ficha de cada estratégia e operações: na Máquina da Fábrica, no PC.</div>';
 
-function _trBloco(b) {
+// Um cartão por bloco (07/11/2026): fase + os números ao vivo só das estratégias daquele bloco (campo `grupo` = nome do bloco)
+function _trBloco(b, est = [], b0 = 1500, g = {}) {
   if (!b) return '';
+  const res = _tr.soma(est.map(e => e.banca - b0)), ops = _tr.soma(est.map(e => e.ops));
+  const vivo = est.length ? `<div class="tr-l2" style="margin-top:6px">Ao vivo: <b class="${_tr.cl(res)}">${_tr.rs(res)}</b> (${_tr.pc(res / (b0 * est.length))}) · ${est.length} na incubadora · ${ops} operações · ${_trLeitura(g.percentil)}</div>` : '';
   const c = b.contagem || {}, dias = b.veredito_em ? Math.max(0, Math.ceil((new Date(b.veredito_em + 'T12:00') - new Date()) / 864e5)) : null;
   const fase = { minerando: 'minerando', incubando: 'na incubadora', aprovado: 'aprovado', reprovado: 'reprovado' }[b.fase] || b.fase || '';
   const txt = b.fase === 'minerando' ? `${b.aprovadas} de ${b.meta ?? '—'} aprovadas no portão B. Fecha ao bater a meta.`
     : b.fase === 'incubando' ? `Fechado com ${b.aprovadas} estratégias. Veredito em ${_tr.fmt(b.veredito_em)} (faltam ${dias} dias).`
     : b.fase === 'aprovado' ? `${c.prontas || 0} prontas, ${c.maturacao || 0} aguardando maturação, ${c.descartada || 0} descartadas.` : 'Bloco reprovado no teste de aderência.';
-  const fr = b.fase === 'minerando' ? (b.meta ? Math.min(1, b.aprovadas / b.meta) : 0) : 1;
+  const t0 = b.inicio_oficial && new Date(b.inicio_oficial + 'T12:00'), t1 = b.veredito_em && new Date(b.veredito_em + 'T12:00');
+  const fr = b.fase === 'minerando' ? (b.meta ? Math.min(1, b.aprovadas / b.meta) : 0)
+    : b.fase === 'incubando' && t0 && t1 ? Math.min(1, Math.max(0, (Date.now() - t0) / (t1 - t0))) : 1;  // incubando: tempo até o veredito
   return `<div class="card gap"><div class="sh"><h2>${_alEsc(b.nome)}</h2><span class="pj-data">${fase}</span></div>
     <div class="tr-prog" role="progressbar" aria-valuenow="${Math.round(fr * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${(fr * 100).toFixed(1)}%"></i></div>
-    <div class="pj-data">${txt}</div></div>`;
+    <div class="pj-data">${txt}</div>${vivo}</div>`;
 }
 
 function renderTrading() {
@@ -4141,21 +4146,22 @@ function renderTrading() {
   const dados = load('trading_estrategias', null) || {}, rz = load('trading_resumo', null) || {};
   _trCabeca('tr-data', dados);
   const todas = Array.isArray(dados.estrategias) ? dados.estrategias : [], b0 = dados.banca_inicial || 1500;
-  const bloco = (rz.blocos || []).find(b => b.nome === rz.bloco_atual) || (rz.blocos || []).slice(-1)[0];
-  if (!todas.length && !bloco) {
+  // o bloco minerando primeiro, depois os outros do mais novo ao mais velho (Bloco 2 na mineração, Bloco 1 na incubadora...)
+  const blocos = (rz.blocos || []).slice().sort((a, b) => (b.nome === rz.bloco_atual) - (a.nome === rz.bloco_atual) || b.nome.localeCompare(a.nome, 'pt', { numeric: true }));
+  if (!todas.length && !blocos.length) {
     corpo.innerHTML = '<div class="card"><div class="empty"><div class="ei">📈</div>Aguardando o primeiro rastreio noturno</div></div>';
     return;
   }
   const res = _tr.soma(todas.map(e => e.banca - b0)), cap = b0 * todas.length, ops = _tr.soma(todas.map(e => e.ops));
   const acerto = ops ? _tr.soma(todas.map(e => (e.acerto || 0) * (e.ops || 0))) / ops : null;
-  const g = (dados.grupos || {}).Tudo || {}, s = rz.sorte || {};
+  const grupos = dados.grupos || {}, g = grupos.Tudo || {}, s = rz.sorte || {};
   const por = todas.map(e => [e, e.banca - b0]).sort((a, b) => b[1] - a[1]);
   const dest = por.length > 6 ? [...por.slice(0, 3), null, ...por.slice(-3)] : por;
-  corpo.innerHTML = `${_trBloco(bloco)}
+  corpo.innerHTML = `${blocos.map(b => _trBloco(b, todas.filter(e => e.grupo === b.nome), b0, grupos[b.nome] || {})).join('')}
     <div class="tr-big" style="margin-top:14px">
-      <div class="tr-bc"><span>Resultado ao vivo</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'}</small><small>${todas.length} estratégias</small></div>
+      <div class="tr-bc"><span>Total ao vivo</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'}</small><small>${todas.length} estratégias</small></div>
       <div class="tr-bc"><span>Operações</span><b>${ops}</b><small>acerto ${_tr.pct(acerto)}</small><small>${g.n_pregoes ?? 0} pregões</small></div>
-      <div class="tr-bc"><span>Situação</span><b style="font-size:15px">${_trLeitura(g.percentil)}</b><small>contra o backtest</small></div>
+      <div class="tr-bc"><span>Situação</span><b style="font-size:15px">${_trLeitura(g.percentil)}</b><small>todos os blocos</small></div>
       <div class="tr-bc"><span>Podem ser sorte</span><b>${s.aprovadas ? '~' + _tr.num(s.sorte_aprovadas) : '—'}</b><small>de ${s.aprovadas ?? 0} aprovadas</small><small>~${_tr.num(s.sorte_validadas)} de ${s.validadas ?? 0} validadas</small></div>
     </div>
     <div class="card gap" style="margin-top:14px"><div class="sh"><h2>${por.length > 6 ? 'Melhores e piores' : 'Estratégias'}</h2></div>
@@ -4189,7 +4195,7 @@ function renderCarteira() {
         ${est.map(e => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(e.nome)}</span><b class="${_tr.cl(e.mes)}">${_tr.rs(e.mes)}</b></span><span class="tr-l2">no mês · ${e.ops} operações</span></div>`).join('')}</div>`;
   } else {
     topo = `<div class="card"><div class="empty"><div class="ei">💼</div>${cs.ativa ? 'Carteira ' + cs.ativa + ' ligada, sem operação ainda' : 'Nenhuma carteira ligada'}</div>
-      <div class="tr-nota" style="text-align:center">${ensaio ? 'Modo ensaio: ainda não há estratégias Prontas. As carteiras abaixo usam as estratégias da incubadora só para testar.' : 'Ligue uma das carteiras na Máquina da Fábrica.'}</div></div>`;
+      <div class="tr-nota" style="text-align:center">${ensaio ? 'Ainda não há estratégias Prontas. As carteiras A, B e C começam quando chegar a primeira.' : 'Ligue uma das carteiras na Máquina da Fábrica.'}</div></div>`;
   }
   // 08/11/2026 (Eduardo: "muito comprimido"): uma faixa comprida por carteira; tocar abre o detalhe
   const item = x => {
@@ -4209,8 +4215,8 @@ function renderCarteira() {
       </div></details>`;
   };
   corpo.innerHTML = `${topo}
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Carteiras A, B e C</h2><span class="pj-data">banca virtual de ${_tr.int(cs.banca || 3000)} cada${ensaio ? ' · ensaio' : ''}</span></div>
-      ${['A', 'B', 'C'].map(item).join('')}
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Carteiras A, B e C</h2><span class="pj-data">banca virtual de ${_tr.int(cs.banca || 3000)} cada</span></div>
+      ${Object.keys(por).length ? ['A', 'B', 'C'].map(item).join('') : '<div class="pj-data" style="padding:8px 0">Aguardando a primeira estratégia Pronta. Na rodada da noite seguinte, a fábrica monta as três carteiras e a banca virtual de cada uma começa a contar.</div>'}
       <div class="tr-nota">A agressiva busca lucro, a moderada retorno sobre a queda e a conservadora previsibilidade. Drawdown e chance de prejuízo vêm do backtest, que tende a sair otimista: o que vale é a banca virtual.</div>
       ${_trNotaMaquina}</div>`;
 }
