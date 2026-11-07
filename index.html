@@ -1990,17 +1990,25 @@ body:has(.overlay.on) .sidebar{z-index:0}
 @media(max-width:640px){.tr-big{grid-template-columns:repeat(2,minmax(0,1fr))}.tr-bc b{font-size:18px}}
 /* Incubadora e Carteira básicas (07/11/2026) */
 .tr-prog{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:10px 0 8px}.tr-prog i{display:block;height:100%;background:var(--accent)}
-.ca-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
-.ca-col{min-width:0;border:1px solid var(--border);border-top:3px solid var(--cc);border-radius:10px;padding:10px 8px}
-.ca-col.on{box-shadow:0 0 0 1px var(--cc) inset}
-.ca-col .ca-x{display:block;font-size:16px;color:var(--text)}
-.ca-col .ca-n{display:block;font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ca-col .ca-banca{display:block;font-family:var(--f-mono);font-size:15px;margin:8px 0 1px;color:var(--text);white-space:nowrap}
-.ca-col .ca-res{display:block;font-family:var(--f-mono);font-size:12px;color:var(--text2);margin-bottom:6px}
-.ca-col .ca-res.tr-pos,.ca-lin b.tr-pos{color:var(--green)}.ca-col .ca-res.tr-neg,.ca-lin b.tr-neg{color:var(--red)}
-.ca-lin{padding:5px 0;border-top:1px solid var(--border)}
-.ca-lin span{display:block;font-size:10px;line-height:1.3;color:var(--text3)}
-.ca-lin b{display:block;font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--text);white-space:nowrap}
+.ca-item{border:1px solid var(--border);border-left:4px solid var(--cc);border-radius:10px;margin-top:10px}
+.ca-item.on{box-shadow:0 0 0 1px var(--cc)}
+.ca-sum{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;min-height:56px;cursor:pointer;list-style:none}
+.ca-sum::-webkit-details-marker{display:none}
+.ca-sum::after{content:'›';font-size:20px;line-height:1;color:var(--text3);transition:transform .2s}
+details[open]>.ca-sum::after{transform:rotate(90deg)}
+.ca-tit{flex:1;min-width:0}.ca-tit b{display:block;font-size:15px;color:var(--text)}
+.ca-tit span{display:block;font-size:12px;color:var(--text2);margin-top:2px}
+.ca-val{text-align:right;white-space:nowrap}.ca-val b{display:block;font-family:var(--f-mono);font-size:16px;color:var(--text)}
+.ca-val span{display:block;font-family:var(--f-mono);font-size:12px;color:var(--text2)}
+.ca-val span.tr-pos,.ca-lin b.tr-pos{color:var(--green)}.ca-val span.tr-neg,.ca-lin b.tr-neg{color:var(--red)}
+.ca-det{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px;padding:0 14px 12px}
+.ca-obj{grid-column:1/-1;font-size:12px;color:var(--text2);padding-bottom:6px}
+.ca-lin{padding:7px 0;border-top:1px solid var(--border);min-width:0}
+.ca-lin span{display:block;font-size:11px;line-height:1.3;color:var(--text3)}
+.ca-lin b{display:block;font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--text)}
+.ca-est{grid-column:1/-1;padding-top:7px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)}
+.ca-est span{display:block;font-size:11px;color:var(--text3);margin-bottom:2px}
+@media(prefers-reduced-motion:reduce){.ca-sum::after{transition:none}}
 .tr-curva{position:relative;height:240px;margin-top:8px;touch-action:pan-y}
 .tr-barras{position:relative;height:64px;margin-top:2px}
 .tr-medida{font-size:12px;color:var(--text2);font-family:var(--f-mono);min-height:18px;margin-top:6px}
@@ -2878,7 +2886,7 @@ body:has(.overlay.on) .sidebar{z-index:0}
 </section>
 
 <section class="page" id="page-carteira">
-  <h1>Carteira</h1><p class="psub">A carteira ligada e as três carteiras montadas pela fábrica, lado a lado. Só acompanhamento.</p>
+  <h1>Carteira</h1><p class="psub">A carteira ligada e as três carteiras montadas pela fábrica. Toque numa carteira para ver o detalhe.</p>
   <div class="tr-head" id="ca-data"></div>
   <div id="ca-corpo"></div>
 </section>
@@ -4183,19 +4191,26 @@ function renderCarteira() {
     topo = `<div class="card"><div class="empty"><div class="ei">💼</div>${cs.ativa ? 'Carteira ' + cs.ativa + ' ligada, sem operação ainda' : 'Nenhuma carteira ligada'}</div>
       <div class="tr-nota" style="text-align:center">${ensaio ? 'Modo ensaio: ainda não há estratégias Prontas. As carteiras abaixo usam as estratégias da incubadora só para testar.' : 'Ligue uma das carteiras na Máquina da Fábrica.'}</div></div>`;
   }
-  const col = x => {
+  // 08/11/2026 (Eduardo: "muito comprimido"): uma faixa comprida por carteira; tocar abre o detalhe
+  const item = x => {
     const k = por[x];
-    if (!k) return `<div class="ca-col" style="--cc:${_CA_COR[x]}"><b class="ca-x">${x}</b><span class="ca-n">sem dados</span></div>`;
+    if (!k) return `<div class="ca-item" style="--cc:${_CA_COR[x]}"><div class="ca-sum"><span class="ca-tit"><b>Carteira ${x}</b><span>sem dados</span></span></div></div>`;
     const lin = (r, v, cl = '') => `<div class="ca-lin"><span>${r}</span><b class="${cl}">${v}</b></div>`;
-    return `<div class="ca-col${cs.ativa === x ? ' on' : ''}" style="--cc:${_CA_COR[x]}">
-      <b class="ca-x">${x}</b><span class="ca-n">${_alEsc(k.nome || '')}${cs.ativa === x ? ' · ligada' : ''}</span>
-      <b class="ca-banca">${_tr.int(k.banca)}</b><span class="ca-res ${_tr.cl(k.lucro)}">${_tr.irs(k.lucro)}</span>
-      ${lin('Hoje', _tr.irs(k.hoje), _tr.cl(k.hoje))}${lin('Mês', _tr.irs(k.mes), _tr.cl(k.mes))}${lin('Estratégias', (k.estrategias || []).length)}
-      ${lin('Drawdown (backtest)', _tr.pct(k.dd_bt))}${lin('Prejuízo em 12 meses', _tr.pct(k.prejuizo_12m))}</div>`;
+    const est = k.estrategias || [];
+    return `<details class="ca-item${cs.ativa === x ? ' on' : ''}" style="--cc:${_CA_COR[x]}">
+      <summary class="ca-sum"><span class="ca-tit"><b>Carteira ${x} · ${_alEsc(k.nome || '')}</b><span>${cs.ativa === x ? 'ligada · ' : ''}${est.length} ${est.length === 1 ? 'estratégia' : 'estratégias'}</span></span>
+        <span class="ca-val"><b>${_tr.brl(k.banca)}</b><span class="${_tr.cl(k.lucro)}">${_tr.rs(k.lucro)}</span></span></summary>
+      <div class="ca-det">
+        <div class="ca-obj">${_alEsc(k.objetivo || '')}</div>
+        ${lin('Hoje', _tr.rs(k.hoje), _tr.cl(k.hoje))}${lin('No mês', _tr.rs(k.mes), _tr.cl(k.mes))}
+        ${lin('Pregões ao vivo', k.pregoes ?? 0)}${lin('Lucro por ano (backtest)', k.lucro_ano_bt == null ? '—' : _tr.brl(k.lucro_ano_bt))}
+        ${lin('Drawdown (backtest)', _tr.pct(k.dd_bt))}${lin('Chance de prejuízo em 12 meses', _tr.pct(k.prejuizo_12m))}
+        <div class="ca-est"><span>Estratégias</span>${est.length ? est.map(n => `<div>${_alEsc(n)}</div>`).join('') : '<div>nenhuma passou nos limites desta carteira</div>'}</div>
+      </div></details>`;
   };
   corpo.innerHTML = `${topo}
     <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Carteiras A, B e C</h2><span class="pj-data">banca virtual de ${_tr.int(cs.banca || 3000)} cada${ensaio ? ' · ensaio' : ''}</span></div>
-      <div class="ca-3">${['A', 'B', 'C'].map(col).join('')}</div>
+      ${['A', 'B', 'C'].map(item).join('')}
       <div class="tr-nota">A agressiva busca lucro, a moderada retorno sobre a queda e a conservadora previsibilidade. Drawdown e chance de prejuízo vêm do backtest, que tende a sair otimista: o que vale é a banca virtual.</div>
       ${_trNotaMaquina}</div>`;
 }
