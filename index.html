@@ -1988,6 +1988,19 @@ body:has(.overlay.on) .sidebar{z-index:0}
 .tr-li2.tr-atual .tr-l1>b{color:var(--accent)}
 @media(max-width:640px){.tr-curva{height:210px}.tr-leg{gap:10px;font-size:10.5px}.tr-trilho{width:56px}.tr-bar b{width:84px}}
 @media(max-width:640px){.tr-big{grid-template-columns:repeat(2,minmax(0,1fr))}.tr-bc b{font-size:18px}}
+/* Incubadora e Carteira básicas (07/11/2026) */
+.tr-prog{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:10px 0 8px}.tr-prog i{display:block;height:100%;background:var(--accent)}
+.ca-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.ca-col{min-width:0;border:1px solid var(--border);border-top:3px solid var(--cc);border-radius:10px;padding:10px 8px}
+.ca-col.on{box-shadow:0 0 0 1px var(--cc) inset}
+.ca-col .ca-x{display:block;font-size:16px;color:var(--text)}
+.ca-col .ca-n{display:block;font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ca-col .ca-banca{display:block;font-family:var(--f-mono);font-size:15px;margin:8px 0 1px;color:var(--text);white-space:nowrap}
+.ca-col .ca-res{display:block;font-family:var(--f-mono);font-size:12px;color:var(--text2);margin-bottom:6px}
+.ca-col .ca-res.tr-pos,.ca-lin b.tr-pos{color:var(--green)}.ca-col .ca-res.tr-neg,.ca-lin b.tr-neg{color:var(--red)}
+.ca-lin{padding:5px 0;border-top:1px solid var(--border)}
+.ca-lin span{display:block;font-size:10px;line-height:1.3;color:var(--text3)}
+.ca-lin b{display:block;font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--text);white-space:nowrap}
 .tr-curva{position:relative;height:240px;margin-top:8px;touch-action:pan-y}
 .tr-barras{position:relative;height:64px;margin-top:2px}
 .tr-medida{font-size:12px;color:var(--text2);font-family:var(--f-mono);min-height:18px;margin-top:6px}
@@ -2859,15 +2872,13 @@ body:has(.overlay.on) .sidebar{z-index:0}
 <!-- ════════════════ BACKUP ════════════════ -->
 <!-- ════════════════ TRADING ════════════════ -->
 <section class="page" id="page-trading">
-  <h1>Incubadora</h1><p class="psub">As estratégias do mini índice rastreadas toda noite com os pregões reais, cada uma com capital separado. Sem ordem real: o modelo só treina com o passado.</p>
+  <h1>Incubadora</h1><p class="psub">O resumo das estratégias do mini índice acompanhadas toda noite com os pregões reais. Sem ordem real.</p>
   <div class="tr-head" id="tr-data"></div>
-  <div class="tr-pills" id="tr-grupos" role="tablist" aria-label="Grupo de estratégias"></div>
-  <div class="tr-pills tr-abas" id="tr-abas" role="tablist" aria-label="Seção da Incubadora"></div>
   <div id="tr-corpo"></div>
 </section>
 
 <section class="page" id="page-carteira">
-  <h1>Carteira</h1><p class="psub">As estratégias que você alocou, somadas. Só acompanhamento: quem entra e quem sai é decidido fora daqui.</p>
+  <h1>Carteira</h1><p class="psub">A carteira ligada e as três carteiras montadas pela fábrica, lado a lado. Só acompanhamento.</p>
   <div class="tr-head" id="ca-data"></div>
   <div id="ca-corpo"></div>
 </section>
@@ -3186,7 +3197,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -4080,522 +4091,113 @@ function renderStatusProjetos() {
 }
 
 // ──────────────────────────────────
-// TRADING (28/10/2026) — chave 'trading_estrategias', escrita toda noite pelo rastreio (backtest/incubadora.py):
-// { atualizado, dados_ate, inicio, banca_inicial, estrategias: [{ id, nome, origem, descricao, alavancagem, banca,
-//   lucro_total, lucro_hoje, lucro_mes, ops, acerto, pts_op, backtest_ultimo_ano: {ops, pts_op, acerto},
-//   curva: [[dia, banca]], ultimas: [{dia, lado, entrada, saida, motivo, pts, contratos, rs}] }] }. Só leitura.
-//   29/10/2026: regua {cdi_aa, cdi_data, spread_aa, minimo_aa, min_dias, min_ops} e, por estratégia, inicio, quebrou,
-//   dias, rent_aa (null antes de 1 mês e 30 ops) e pronta (selo "Pronta": rentabilidade >= CDI + 10% a.a.).
-//   29/10/2026 (histórico congelado): pronta_desde, queda_max, banca_min, pior_seq, payoff, fator_lucro, ops_mes,
-//   curva: [[dia, banca, banca_da_regua]] (todo pregão), meses: [[AAAA-MM, rs, ops]], operacoes (todas), avisos.
-// ──────────────────────────────────
-// 31/10/2026 (Incubadora estilo AlgoMaker; Desenho no projeto Trading): por estratégia aviso, ativo, grupo, n_pregoes,
-//   esperado {ops, ops_mes, acerto, pts_op, rs_op, queda_max, banca_min, pior_seq, payoff, fator_lucro} (backtest do ano
-//   antes da incubadora), faixa [[n, p5, p25, p50, p75, p95]] e percentil; no topo grupos {nome: {inicio, n_pregoes, ids,
-//   faixa, percentil}} e eventos [{data, tipo, id, grupo, motivo}]. A aba é um painel com 7 sub-abas + a ficha da estratégia.
-let _trCharts = [];
-const TR_ABAS = [['visao', 'Visão geral'], ['estrategias', 'Estratégias'], ['aderencia', 'Aderência'], ['ativos', 'Ativos'],
-                 ['trades', 'Trades'], ['geometria', 'Geometria'], ['linha', 'Linha do tempo']];
-const _TR_PADRAO = { grupo: 'Tudo', aba: 'visao', busca: '', ordem: 'banca', dir: -1, filtro: {} };
-const _trUI = (() => { try { return { ..._TR_PADRAO, ...JSON.parse(localStorage.getItem('tr_ui') || '{}') }; } catch { return { ..._TR_PADRAO }; } })();
-let _trFichaId = null;
-function _trSalvar() { try { localStorage.setItem('tr_ui', JSON.stringify(_trUI)); } catch {} }
-function _trSet(k, v) { _trUI[k] = v; _trFichaId = null; _trSalvar(); renderTrading(); }
-function _trAbrir(id) { _trFichaId = id; renderTrading(); const p = $('page-trading'); if (p) p.scrollIntoView({ block: 'start' }); }
+// TRADING (28/10/2026) — chaves 'trading_estrategias' (backtest/incubadora.py) e 'trading_resumo' (backtest/resumo_tracker.py),
+// escritas toda noite pela rodada das 19h do projeto Trading. Só leitura.
+// 07/11/2026 (pedido do Eduardo): Incubadora e Carteira ficaram só com o básico. O painel detalhado (7 sub-abas, ficha, faixa,
+// saúde, operações) vive congelado na Máquina da Fábrica (projeto Trading, maquina/tracker_abas.js).
+// trading_resumo: { atualizado, dados_ate, protocolo, bloco_atual, blocos: [{nome, fase, aprovadas, meta, veredito_em, contagem}],
+//   sorte: {validadas, sorte_validadas, aprovadas, sorte_aprovadas, prontas, sorte_prontas, avaliadas},
+//   carteiras: {modo, ativa, banca, por: {A|B|C: {nome, objetivo, banca, lucro, hoje, mes, pregoes, estrategias, dd_bt, lucro_ano_bt, prejuizo_12m}}} }
 const _tr = {
   fmt: d => /^\d{4}-\d{2}-\d{2}/.test(d || '') ? d.slice(8, 10) + '/' + d.slice(5, 7) : '',
   rs: v => (v > 0 ? '+' : v < 0 ? '−' : '') + fmtBRL(Math.abs(v || 0)),
   brl: v => (v < 0 ? '−' : '') + fmtBRL(Math.abs(v || 0)),
   cl: v => v > 0 ? 'tr-pos' : v < 0 ? 'tr-neg' : '',
-  pc: v => (v < 0 ? '−' : v > 0 ? '+' : '') + Math.abs(v * 100).toFixed(1).replace('.', ',') + '%',
-  num: (v, n = 2) => v == null ? '—' : Number(v).toFixed(n).replace('.', ','),
+  pc: v => Math.abs(v) < 0.0005 ? '0,0%' : (v < 0 ? '−' : '+') + Math.abs(v * 100).toFixed(1).replace('.', ',') + '%',
+  int: v => v == null ? '—' : (v < 0 ? '−' : '') + 'R$ ' + Math.round(Math.abs(v)).toLocaleString('pt-BR'),  // sem centavos: cabe nas 3 colunas do celular
+  irs: v => v == null ? '—' : (v > 0 ? '+' : '') + _tr.int(v),
+  num: (v, n = 1) => v == null ? '—' : Number(v).toFixed(n).replace('.', ','),
   pct: v => v == null ? '—' : Math.round(v * 100) + '%',
-  cor: n => getComputedStyle(document.documentElement).getPropertyValue(n).trim(),
   soma: a => a.reduce((s, v) => s + (v || 0), 0),
 };
-const _trMot = m => ({ horario: 'horário' })[m] || m || '';  // motivo da saída como vem do rastreio
-// checagem de entrada na carteira (Mandato R33): a "Pronta" fora da carteira melhora ou piora a % de janelas de 12 meses no prejuízo da soma?
-const _trEntSelo = { melhora: ['Melhora a carteira', ''], piora: ['Piora a carteira', 'piora'], neutra: ['Neutra na carteira', 'neutra'], primeira: ['Primeira da carteira', 'neutra'] };
-const _trEntTxt = en => {
-  if (!en) return '';
-  if (en.selo === 'sem_base') return `Checagem de entrada: poucos dados em comum (${en.depois.janelas} janelas de 12 meses, mínimo 12) pra dizer se melhora a carteira.`;
-  const a = en.antes, d = en.depois, p = v => _tr.pct(v);
-  const neg = a ? `${p(a.neg)} → <b>${p(d.neg)}</b>` : `<b>${p(d.neg)}</b> (carteira ainda vazia)`;
-  const qd = a ? `${_tr.rs(a.queda_max)} → ${_tr.rs(d.queda_max)}` : _tr.rs(d.queda_max);
-  return `Checagem de entrada (backtest desde ${_tr.fmt(en.desde)}, ${d.janelas} janelas de 12 meses): janelas no prejuízo ${neg} · queda máxima ${qd}`
-    + (en.corr_soma == null ? '' : ` · correlação com a carteira ${_tr.num(en.corr_soma)} (${en.dias_juntas} dias juntas)`)
-    + `. Backtest escolhido no mesmo histórico: tende a ser otimista.`;
-};
-const _trSelo = e => (e.quebrou ? '<span class="tr-selo zerou">Zerou</span>' : e.pronta ? '<span class="tr-selo">Pronta</span>' : '')
-  + (e.alocada ? '<span class="tr-selo carteira">Na carteira</span>' : '')
-  + (e.entrada && _trEntSelo[e.entrada.selo] ? `<span class="tr-selo ${_trEntSelo[e.entrada.selo][1]}" title="${_alEsc(_trEntTxt(e.entrada).replace(/<[^>]+>/g, ''))}">${_trEntSelo[e.entrada.selo][0]}</span>` : '')
-  + (e.aviso ? `<span class="tr-selo regua" title="${_alEsc(e.aviso)}">Régua antiga</span>` : '');
-// percentil na faixa do esperado: amarelo abaixo do p25, vermelho abaixo do p5
-const _trPc = p => p == null ? '<span class="tr-pc">—</span>'
-  : `<span class="tr-pc${p < 0.05 ? ' verm' : p < 0.25 ? ' amar' : ''}">p${Math.round(p * 100)}</span>`;
-const _trLeitura = p => { if (p == null) return ''; const q = Math.round(p * 100);  // a leitura segue o número mostrado
-  return q < 5 ? 'abaixo do p5: atenção' : q < 25 ? 'abaixo do p25: pior que 3 em 4 janelas' : q <= 75 ? 'dentro do normal' : 'acima do p75'; };
-const _trDesvio = (vivo, esp) => vivo == null || esp == null || !esp ? '—' : _tr.pc((vivo - esp) / Math.abs(esp));
-function _trStats(ops) {
-  const rs = ops.map(o => o.rs), g = rs.filter(v => v > 0), p = rs.filter(v => v < 0).map(v => -v);
-  return { ops: rs.length, res: _tr.soma(rs), acerto: rs.length ? g.length / rs.length : null,
-    payoff: g.length && p.length ? (_tr.soma(g) / g.length) / (_tr.soma(p) / p.length) : null,
-    fator: p.length ? _tr.soma(g) / _tr.soma(p) : null, rsOp: rs.length ? _tr.soma(rs) / rs.length : null };
+const _trLeitura = p => p == null ? 'sem pregão ainda' : p < 0.05 ? 'bem abaixo do esperado' : p < 0.25 ? 'abaixo do esperado' : p <= 0.75 ? 'dentro do esperado' : 'acima do esperado';
+const _trCabeca = (id, dados) => { $(id).innerHTML = dados.dados_ate ? `<i class="tr-dot${dados.atualizado === today() ? ' on' : ''}"></i>rastreio de ${_tr.fmt(dados.atualizado)} · pregões até ${_tr.fmt(dados.dados_ate)}` : ''; };
+const _trNotaMaquina = '<div class="tr-nota">Gráficos, ficha de cada estratégia e operações: na Máquina da Fábrica, no PC.</div>';
+
+function _trBloco(b) {
+  if (!b) return '';
+  const c = b.contagem || {}, dias = b.veredito_em ? Math.max(0, Math.ceil((new Date(b.veredito_em + 'T12:00') - new Date()) / 864e5)) : null;
+  const fase = { minerando: 'minerando', incubando: 'na incubadora', aprovado: 'aprovado', reprovado: 'reprovado' }[b.fase] || b.fase || '';
+  const txt = b.fase === 'minerando' ? `${b.aprovadas} de ${b.meta ?? '—'} aprovadas no portão B. Fecha ao bater a meta.`
+    : b.fase === 'incubando' ? `Fechado com ${b.aprovadas} estratégias. Veredito em ${_tr.fmt(b.veredito_em)} (faltam ${dias} dias).`
+    : b.fase === 'aprovado' ? `${c.prontas || 0} prontas, ${c.maturacao || 0} aguardando maturação, ${c.descartada || 0} descartadas.` : 'Bloco reprovado no teste de aderência.';
+  const fr = b.fase === 'minerando' ? (b.meta ? Math.min(1, b.aprovadas / b.meta) : 0) : 1;
+  return `<div class="card gap"><div class="sh"><h2>${_alEsc(b.nome)}</h2><span class="pj-data">${fase}</span></div>
+    <div class="tr-prog" role="progressbar" aria-valuenow="${Math.round(fr * 100)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${(fr * 100).toFixed(1)}%"></i></div>
+    <div class="pj-data">${txt}</div></div>`;
 }
-const _trSeguidas = ops => { let n = 0; for (let i = ops.length - 1; i >= 0 && ops[i].rs < 0; i--) n++; return n; };
-// resultado somado por pregão: cada estratégia conta a banca do fim do dia; antes de entrar, 0
-function _trCurvaGrupo(est, b0, desde) {
-  const datas = [...new Set(est.flatMap(e => (e.curva || []).map(c => c[0])))].filter(d => !desde || d >= desde).sort();
-  const pos = est.map(() => -1);
-  return datas.map(d => [d, est.reduce((s, e, k) => {
-    const c = e.curva || [];
-    while (pos[k] + 1 < c.length && c[pos[k] + 1][0] <= d) pos[k]++;
-    return s + (pos[k] >= 0 ? c[pos[k]][1] - b0 : 0);
-  }, 0)]);
-}
-const _trEixos = (fy, tinta, linha) => ({
-  x: { grid: { display: false }, ticks: { color: tinta, font: { size: 10 }, maxRotation: 0, maxTicksLimit: 7 } },
-  y: { grid: { color: linha }, border: { display: false }, afterFit: s => { s.width = 58; }, ticks: { color: tinta, font: { size: 10 }, maxTicksLimit: 5, callback: fy } } });
-const _trRsEixo = v => (v < 0 ? '−' : '') + 'R$ ' + Math.abs(Math.round(v)).toLocaleString('pt-BR');
-// curva do resultado ao vivo (serie começa em ['início', 0]) dentro da faixa do esperado (faixa[n-1] = depois de n pregões)
-function _trFaixaGrafico(cv, serie, faixa) {
-  if (!cv || typeof Chart === 'undefined') return null;
-  faixa = faixa || [];
-  // à frente do hoje, só o tanto já vivido (mín. 5, máx. 20): com 2 pregões e 20 de faixa a linha ao vivo some no canto
-  const L = Math.max(serie.length, Math.min(faixa.length + 1, serie.length + Math.min(20, Math.max(5, serie.length - 1))));
-  const lab = Array.from({ length: L }, (_, i) => i < serie.length ? serie[i][0] : '+' + (i - serie.length + 1));
-  const f = j => Array.from({ length: L }, (_, i) => i === 0 ? 0 : (faixa[i - 1] || [])[j] ?? null);
-  const azul = _tr.cor('--blue') || '#60a5fa', tinta = _tr.cor('--text3') || '#50586a', linha = _tr.cor('--border') || 'rgba(255,255,255,.08)';
-  const sem = { borderWidth: 0, pointRadius: 0, pointHoverRadius: 0, fill: false };
-  const ds = faixa.length ? [
-    { label: 'p5', data: f(1), ...sem }, { label: 'p95', data: f(5), ...sem, backgroundColor: azul + '18', fill: '-1' },
-    { label: 'p25', data: f(2), ...sem }, { label: 'p75', data: f(4), ...sem, backgroundColor: azul + '30', fill: '-1' },
-    { label: 'Mediana', data: f(3), borderColor: tinta, borderDash: [4, 4], borderWidth: 1.2, pointRadius: 0, pointHoverRadius: 0, fill: false }] : [];
-  ds.push({ label: 'Ao vivo', data: serie.map(x => x[1]), borderColor: _tr.cor('--accent') || '#22d3a0', borderWidth: 2,
-    pointRadius: serie.length < 4 ? 3 : 0, pointHoverRadius: 4, tension: .15, fill: false });
-  const ch = new Chart(cv, { type: 'line', data: { labels: lab, datasets: ds },
-    options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { display: false }, tooltip: { filter: t => ['Ao vivo', 'Mediana', 'p5', 'p95'].includes(t.dataset.label) && t.parsed.y != null,
-        bodyFont: { size: 11 }, titleFont: { size: 11 }, callbacks: { label: t => ' ' + t.dataset.label + ': ' + _tr.rs(t.parsed.y) } } },
-      scales: _trEixos(_trRsEixo, tinta, linha) } });
-  _trCharts.push(ch);
-  return ch;
-}
-// arrastar no gráfico mede o trecho (R$ e % do capital no começo do trecho)
-function _trMedir(ch, serie, capital, saida) {
-  if (!ch || !saida) return;
-  let i0 = null;
-  const idx = ev => { const p = ch.getElementsAtEventForMode(ev, 'index', { intersect: false }, false); return p.length ? p[0].index : null; };
-  const mostra = (a, b) => {
-    if (a == null || b == null) return;
-    const [x, y] = a <= b ? [a, b] : [b, a];
-    if (y >= serie.length || x === y) return;
-    const d = serie[y][1] - serie[x][1], base = capital + serie[x][1];
-    saida.innerHTML = `Trecho ${serie[x][0]} → ${serie[y][0]}: <b class="${_tr.cl(d)}">${_tr.rs(d)}</b> (${base ? _tr.pc(d / base) : '—'})`;
-  };
-  ch.canvas.onpointerdown = ev => { i0 = idx(ev); };
-  ch.canvas.onpointermove = ev => { if (i0 != null) mostra(i0, idx(ev)); };
-  ch.canvas.onpointerup = ch.canvas.onpointerleave = () => { i0 = null; };
-}
-const _trNotaFaixa = '<details class="tr-como"><summary>Como ler a faixa</summary><div class="tr-nota">A faixa vem do backtest do ano antes da incubadora (janelas de N pregões seguidos) e tende a ser otimista: toda estratégia só entrou porque deu lucro nesse período. Abaixo da mediana é normal; o alerta é ficar perto ou abaixo do p5 por tempo seguido. Arraste no gráfico pra medir um trecho.</div></details>';
 
 function renderTrading() {
   const corpo = $('tr-corpo');
   if (!corpo) return;
-  const dados = load('trading_estrategias', null) || {};
-  _trCharts.forEach(c => c.destroy()); _trCharts = [];
-  const todas = Array.isArray(dados.estrategias) ? dados.estrategias : [];
-  $('tr-data').innerHTML = dados.dados_ate ? `<i class="tr-dot${dados.atualizado === today() ? ' on' : ''}"></i>rastreio de ${_tr.fmt(dados.atualizado)} · pregões até ${_tr.fmt(dados.dados_ate)}` : '';
-  if (!todas.length) {
-    $('tr-grupos').innerHTML = $('tr-abas').innerHTML = '';
+  const dados = load('trading_estrategias', null) || {}, rz = load('trading_resumo', null) || {};
+  _trCabeca('tr-data', dados);
+  const todas = Array.isArray(dados.estrategias) ? dados.estrategias : [], b0 = dados.banca_inicial || 1500;
+  const bloco = (rz.blocos || []).find(b => b.nome === rz.bloco_atual) || (rz.blocos || []).slice(-1)[0];
+  if (!todas.length && !bloco) {
     corpo.innerHTML = '<div class="card"><div class="empty"><div class="ei">📈</div>Aguardando o primeiro rastreio noturno</div></div>';
     return;
   }
-  const grupos = dados.grupos && Object.keys(dados.grupos).length ? dados.grupos : { Tudo: { ids: todas.map(e => e.id) } };
-  if (!grupos[_trUI.grupo]) _trUI.grupo = 'Tudo';
-  if (!TR_ABAS.some(a => a[0] === _trUI.aba)) _trUI.aba = 'visao';
-  const pilulas = (alvo, itens, atual, k) => {
-    $(alvo).innerHTML = itens.map(([v, n]) => `<button type="button" class="tr-pill${v === atual ? ' on' : ''}" data-v="${_alEsc(v)}" role="tab" aria-selected="${v === atual}">${_alEsc(n)}</button>`).join('');
-    $(alvo).onclick = ev => { const b = ev.target.closest('[data-v]'); if (b) _trSet(k, b.dataset.v); };
-  };
-  pilulas('tr-grupos', Object.entries(grupos).map(([g, v]) => [g, `${g} · ${(v.ids || []).length}`]), _trUI.grupo, 'grupo');
-  pilulas('tr-abas', TR_ABAS, _trFichaId ? 'estrategias' : _trUI.aba, 'aba');
-  const g = grupos[_trUI.grupo], ids = new Set(g.ids || todas.map(e => e.id));
-  const c = { dados, todas, grupos, g, est: todas.filter(e => ids.has(e.id)), b0: dados.banca_inicial || 1500, rg: dados.regua || {} };
-  c.min = c.rg.min_ops || 20;
-  if (_trFichaId) {
-    const e = todas.find(x => x.id === _trFichaId);
-    if (e) return _trFicha(corpo, c, e);
-    _trFichaId = null;
-  }
-  ({ visao: _trVisao, estrategias: _trEstrategias, aderencia: _trAderencia, ativos: _trAtivos, trades: _trTrades,
-     geometria: _trGeometria, linha: _trLinha }[_trUI.aba])(corpo, c);
-}
-
-function _trVisao(corpo, c) {
-  const { est, b0, g } = c;
-  const ops = est.flatMap(e => (e.operacoes || []).map(o => ({ ...o, nome: e.nome })));
-  const st = _trStats(ops), cap = b0 * est.length, res = _tr.soma(est.map(e => e.banca - b0));
-  const curva = _trCurvaGrupo(est, b0, g.inicio);
-  const serie = [['início', 0], ...curva.map(x => [_tr.fmt(x[0]), x[1]])];
-  const diario = curva.map((x, i) => [x[0], x[1] - (i ? curva[i - 1][1] : 0)]);
-  let pico = 0, queda = 0;
-  serie.forEach(x => { pico = Math.max(pico, x[1]); queda = Math.max(queda, pico - x[1]); });
-  const dv = diario.map(d => d[1]), melhor = dv.length ? Math.max(...dv) : 0, pior = dv.length ? Math.min(...dv) : 0;
-  const rsOps = ops.map(o => o.rs);
-  // listas em vez de tabelas: no celular a rolagem lateral escondia justamente o R$ e a faixa
-  const linhaGrupo = Object.entries(c.grupos).map(([nome, gg]) => {
-    const m = c.todas.filter(e => (gg.ids || []).includes(e.id)), s = _trStats(m.flatMap(e => e.operacoes || []));
-    const r = _tr.soma(m.map(e => e.banca - b0));
-    return `<button type="button" class="tr-li2${nome === _trUI.grupo ? ' tr-atual' : ''}" data-g="${_alEsc(nome)}">
-      <span class="tr-l1"><b>${_alEsc(nome)}</b><span class="${_tr.cl(r)}">${_tr.rs(r)} <small>${m.length ? _tr.pc(r / (b0 * m.length)) : ''}</small></span></span>
-      <span class="tr-l2">desde ${_tr.fmt(gg.inicio)} · ${gg.n_pregoes ?? 0} ${gg.n_pregoes === 1 ? 'pregão' : 'pregões'} · ${m.length} estratégias · ${s.ops} ops · acerto ${_tr.pct(s.acerto)} · F. lucro ${_tr.num(s.fator)} ${_trPc(gg.percentil)}</span></button>`;
-  }).join('');
-  const ult = ops.slice().sort((a, b) => (b.dia + b.entrada).localeCompare(a.dia + a.entrada)).slice(0, 10);
-  const porEst = est.map(e => [e, e.banca - b0]).sort((a, b) => b[1] - a[1]);
-  const mostra = porEst.length > 10 ? [...porEst.slice(0, 5), null, ...porEst.slice(-5)] : porEst;
-  const mx = Math.max(1, ...porEst.map(x => Math.abs(x[1])));
-  corpo.innerHTML = `
-    <div class="tr-big">
-      <div class="tr-bc"><span>Resultado</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'}</small><small>sobre ${_tr.brl(cap)}</small></div>
-      <div class="tr-bc"><span>Operações</span><b>${st.ops}</b><small>acerto ${_tr.pct(st.acerto)}</small><small>${est.length} estratégias</small></div>
-      <div class="tr-bc"><span>Fator de lucro</span><b>${_tr.num(st.fator)}</b><small>payoff ${_tr.num(st.payoff)}</small><small>${st.rsOp == null ? '—' : _tr.rs(st.rsOp)} por op.</small></div>
-      <div class="tr-bc"><span>Queda máxima</span><b class="${queda ? 'tr-neg' : ''}">${queda ? '−' + fmtBRL(queda) : fmtBRL(0)}</b><small>${cap ? _tr.pc(-queda / cap) : '—'}</small><small>do capital</small></div>
+  const res = _tr.soma(todas.map(e => e.banca - b0)), cap = b0 * todas.length, ops = _tr.soma(todas.map(e => e.ops));
+  const acerto = ops ? _tr.soma(todas.map(e => (e.acerto || 0) * (e.ops || 0))) / ops : null;
+  const g = (dados.grupos || {}).Tudo || {}, s = rz.sorte || {};
+  const por = todas.map(e => [e, e.banca - b0]).sort((a, b) => b[1] - a[1]);
+  const dest = por.length > 6 ? [...por.slice(0, 3), null, ...por.slice(-3)] : por;
+  corpo.innerHTML = `${_trBloco(bloco)}
+    <div class="tr-big" style="margin-top:14px">
+      <div class="tr-bc"><span>Resultado ao vivo</span><b class="${_tr.cl(res)}">${_tr.rs(res)}</b><small>${cap ? _tr.pc(res / cap) : '—'}</small><small>${todas.length} estratégias</small></div>
+      <div class="tr-bc"><span>Operações</span><b>${ops}</b><small>acerto ${_tr.pct(acerto)}</small><small>${g.n_pregoes ?? 0} pregões</small></div>
+      <div class="tr-bc"><span>Situação</span><b style="font-size:15px">${_trLeitura(g.percentil)}</b><small>contra o backtest</small></div>
+      <div class="tr-bc"><span>Podem ser sorte</span><b>${s.aprovadas ? '~' + _tr.num(s.sorte_aprovadas) : '—'}</b><small>de ${s.aprovadas ?? 0} aprovadas</small><small>~${_tr.num(s.sorte_validadas)} de ${s.validadas ?? 0} validadas</small></div>
     </div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Curva do grupo</h2></div>
-      <div class="tr-pcl">${g.percentil == null ? '<span class="tr-nota">Percentil na faixa depois do 1º pregão</span>' : `${_trPc(g.percentil)}<span>${_trLeitura(g.percentil)}</span>`}</div>
-      <div class="tr-leg"><span><i class="tr-li" style="border-color:var(--accent)"></i>Ao vivo</span><span><i class="tr-li tr-li-reg"></i>Mediana</span><span><i class="tr-faixa1"></i>p25–p75</span><span><i class="tr-faixa2"></i>p5–p95</span></div>
-      <div class="tr-curva"><canvas id="tr-cv-grupo" role="img" aria-label="Resultado somado do grupo dentro da faixa do esperado"></canvas></div>
-      <div class="tr-barras"><canvas id="tr-cv-dias" role="img" aria-label="Resultado do grupo por pregão"></canvas></div>
-      <div class="tr-medida" id="tr-medida"></div>${_trNotaFaixa}</div>
-    <div class="tr-2col">
-      <div class="card gap"><div class="sh"><h2>Números do período</h2></div><table class="tr-ops tr-cmp"><tbody>
-        <tr><td>Resultado por pregão</td><td class="${_tr.cl(res)}">${diario.length ? _tr.rs(res / diario.length) : '—'}</td></tr>
-        <tr><td>Pregões no lucro</td><td>${dv.filter(v => v > 0).length} de ${dv.length}</td></tr>
-        <tr><td>Ganhos × perdas</td><td>${rsOps.filter(v => v > 0).length} × ${rsOps.filter(v => v < 0).length}</td></tr>
-        <tr><td>Melhor pregão</td><td class="${_tr.cl(melhor)}">${_tr.rs(melhor)}</td></tr>
-        <tr><td>Pior pregão</td><td class="${_tr.cl(pior)}">${_tr.rs(pior)}</td></tr>
-        <tr><td>Maior ganho</td><td class="tr-pos">${rsOps.length ? _tr.rs(Math.max(0, ...rsOps)) : '—'}</td></tr>
-        <tr><td>Maior perda</td><td class="tr-neg">${rsOps.length ? _tr.rs(Math.min(0, ...rsOps)) : '—'}</td></tr></tbody></table></div>
-      <div class="card gap"><div class="sh"><h2>Resultado por estratégia</h2></div>
-        ${mostra.map(x => x ? `<div class="tr-bar"><span class="tr-bn">${_alEsc(x[0].nome)}</span><span class="tr-trilho"><i class="${x[1] >= 0 ? 'p' : 'n'}" style="width:${Math.abs(x[1]) / mx * 100}%"></i></span><b class="${_tr.cl(x[1])}">${_tr.rs(x[1])}</b></div>` : '<div class="tr-nota">⋯</div>').join('')}</div>
-    </div>
-    <div class="card gap"><div class="sh"><h2>Grupo a grupo</h2><span class="pj-data">toque pra filtrar</span></div><div id="tr-grupos-lista">${linhaGrupo}</div></div>
-    <div class="card gap"><div class="sh"><h2>Últimas operações</h2></div>
-      ${ult.length ? ult.map(o => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(o.nome)}</span><b class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</b></span>
-        <span class="tr-l2">${_tr.fmt(o.dia)} · ${o.lado === 'compra' ? 'compra' : 'venda'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)} · ${_alEsc(_trMot(o.motivo))}</span></div>`).join('') : '<div class="pj-data">Sem operações ainda</div>'}</div>`;
-  $('tr-grupos-lista').onclick = ev => { const r = ev.target.closest('[data-g]'); if (r) _trSet('grupo', r.dataset.g); };
-  const ch = _trFaixaGrafico($('tr-cv-grupo'), serie, g.faixa);
-  _trMedir(ch, serie, cap, $('tr-medida'));
-  if (ch && diario.length) {  // barras por pregão nas mesmas colunas e com o mesmo eixo da curva de cima
-    const tinta = _tr.cor('--text3'), linha = _tr.cor('--border'), lab = ch.data.labels;
-    const barras = lab.map((_, i) => i && i <= dv.length ? dv[i - 1] : null);
-    _trCharts.push(new Chart($('tr-cv-dias'), { type: 'bar',
-      data: { labels: lab, datasets: [{ data: barras, borderRadius: 2, categoryPercentage: .7,
-        backgroundColor: barras.map(v => v >= 0 ? (_tr.cor('--green') || '#4ade80') : (_tr.cor('--red') || '#f87171')) }] },
-      options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false },
-        tooltip: { filter: t => t.parsed.y != null, callbacks: { label: t => ' ' + _tr.rs(t.parsed.y) } } },
-        scales: { x: { display: false, offset: false }, y: { grid: { color: linha }, border: { display: false }, afterFit: s => { s.width = 58; },
-          ticks: { color: tinta, font: { size: 9 }, maxTicksLimit: 3, callback: _trRsEixo } } } } }));
-  }
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>${por.length > 6 ? 'Melhores e piores' : 'Estratégias'}</h2></div>
+      ${dest.map(x => x ? `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(x[0].nome)}</span><b class="${_tr.cl(x[1])}">${_tr.rs(x[1])}</b></span>
+        <span class="tr-l2">${x[0].ops || 0} operações · desde ${_tr.fmt(x[0].inicio)}</span></div>` : '<div class="tr-nota">⋯</div>').join('') || '<div class="pj-data">Sem estratégias na incubadora</div>'}
+      ${_trNotaMaquina}</div>`;
 }
 
-function _trEstrategias(corpo, c) {
-  corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Estratégias</h2><span class="pj-data">${c.est.length} no grupo · toque pra abrir a ficha</span></div>
-    <input class="tr-busca" id="tr-busca" type="search" placeholder="Buscar por nome ou chave" aria-label="Buscar estratégia" value="${_alEsc(_trUI.busca || '')}">
-    <div class="tr-wrap"><table class="tr-tab" id="tr-tab"></table></div>
-    <div class="tr-nota">Ao vivo / esperado (backtest do ano antes da incubadora). Números ao vivo ficam apagados antes de ${c.min} operações.</div></div>`;
-  const cols = [['nome', 'Estratégia'], ['grupo', 'Grupo'], ['banca', 'Banca'], ['var', '%'], ['ops', 'Ops'], ['acerto', 'Acerto'],
-                ['fator', 'F. lucro'], ['queda', 'Queda'], ['percentil', 'Faixa']];
-  const val = (e, k) => ({ nome: e.nome || '', grupo: e.grupo || 'Avulsas', banca: e.banca, var: e.banca - c.b0, ops: e.ops || 0,
-    acerto: e.acerto ?? -1, fator: e.fator_lucro ?? -1, queda: e.queda_max || 0, percentil: e.percentil ?? -1 })[k];
-  const pouco = e => (e.ops || 0) < c.min ? ' class="tr-poucas"' : '';
-  const desenha = () => {
-    const q = (_trUI.busca || '').trim().toLowerCase();
-    const lin = c.est.filter(e => !q || ((e.nome || '') + ' ' + e.id).toLowerCase().includes(q)).sort((a, b) => {
-      const x = val(a, _trUI.ordem), y = val(b, _trUI.ordem);
-      return (typeof x === 'string' ? x.localeCompare(y) : x - y) * _trUI.dir;
-    });
-    $('tr-tab').innerHTML = `<thead><tr>${cols.map(([k, n]) => `<th data-o="${k}" aria-sort="${_trUI.ordem === k ? (_trUI.dir > 0 ? 'ascending' : 'descending') : 'none'}">${n}${_trUI.ordem === k ? (_trUI.dir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>` +
-      (lin.length ? lin.map(e => { const x = e.esperado || {}; return `<tr data-id="${_alEsc(e.id)}" tabindex="0">
-        <td class="tr-tn">${_alEsc(e.nome || e.id)}${_trSelo(e)}</td><td>${_alEsc(e.grupo || 'Avulsas')}</td><td>${_tr.brl(e.banca)}</td>
-        <td class="${_tr.cl(e.banca - c.b0)}">${_tr.pc((e.banca - c.b0) / c.b0)}</td><td>${e.ops || 0}</td>
-        <td><span${pouco(e)}>${_tr.pct(e.acerto)}</span> / ${_tr.pct(x.acerto)}</td>
-        <td><span${pouco(e)}>${_tr.num(e.fator_lucro)}</span> / ${_tr.num(x.fator_lucro)}</td>
-        <td>${_tr.brl(e.queda_max || 0)}</td><td>${_trPc(e.percentil)}</td></tr>`; }).join('')
-        : `<tr class="tr-semclique"><td colspan="${cols.length}">Nenhuma estratégia com "${_alEsc(q)}"</td></tr>`) + '</tbody>';
-  };
-  desenha();
-  $('tr-busca').oninput = ev => { _trUI.busca = ev.target.value; _trSalvar(); desenha(); };
-  const tab = $('tr-tab');
-  tab.onclick = ev => {
-    const th = ev.target.closest('th[data-o]');
-    if (th) { _trUI.dir = _trUI.ordem === th.dataset.o ? -_trUI.dir : (th.dataset.o === 'nome' || th.dataset.o === 'grupo' ? 1 : -1); _trUI.ordem = th.dataset.o; _trSalvar(); return desenha(); }
-    const tr = ev.target.closest('tr[data-id]');
-    if (tr) _trAbrir(tr.dataset.id);
-  };
-  tab.onkeydown = ev => { const tr = ev.target.closest('tr[data-id]'); if (tr && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); _trAbrir(tr.dataset.id); } };
-}
-
-function _trFicha(corpo, c, e) {
-  const b0 = c.b0, rg = c.rg, x = e.esperado || {}, pv = (e.banca - b0) / b0;
-  const regua = rg.minimo_aa ? `${_tr.pc(rg.minimo_aa).slice(1)} (CDI + ${Math.round((rg.spread_aa || 0) * 100)}%)` : '';
-  const faltam = [Math.max(0, (rg.min_dias || 30) - (e.dias || 0)) && `${Math.max(0, (rg.min_dias || 30) - (e.dias || 0))} dias`,
-                  Math.max(0, c.min - (e.ops || 0)) && `${Math.max(0, c.min - (e.ops || 0))} operações`].filter(Boolean).join(' e ');
-  const rent = e.quebrou ? `Zerou a banca em ${_tr.fmt(e.quebrou)}: reprovada.`
-    : e.rent_aa == null ? (regua ? `Rentabilidade ao ano: calcula depois de mais ${faltam}. Mínimo pro selo: ${regua}.` : '')
-    : `Rentabilidade: <b class="${_tr.cl(e.rent_aa)}">${_tr.pc(e.rent_aa)} ao ano</b> · mínimo ${regua}${e.pronta && e.pronta_desde ? ` · Pronta desde ${_tr.fmt(e.pronta_desde)}` : ''}.`;
-  const serie = [['início', 0], ...(e.curva || []).map(k => [_tr.fmt(k[0]), k[1] - b0])];
-  const lin = (n, vivo, esp, f) => `<tr><td>${n}</td><td>${f(vivo)}</td><td>${f(esp)}</td><td>${_trDesvio(vivo, esp)}</td></tr>`;
-  const pts = v => v == null ? '—' : _tr.num(v, 1), rsf = v => v == null ? '—' : _tr.rs(v), brl = v => v == null ? '—' : _tr.brl(v);
-  const meses = (e.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${_tr.cl(m[1])}">${_tr.rs(m[1])}</td></tr>`).join('');
-  const ops = (e.operacoes || e.ultimas || []).slice().reverse().map(o => `<tr><td>${_tr.fmt(o.dia)}</td><td>${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td>
-    <td>${_alEsc(_trMot(o.motivo))}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('');
-  corpo.innerHTML = `<button type="button" class="tr-voltar" id="tr-voltar">← Estratégias</button>
-    <div class="card gap">
-      <div class="tr-top"><span class="tr-nome">${_alEsc(e.nome || e.id)}</span><span><span class="tr-org">${_alEsc(e.grupo || 'Avulsas')} · ${_alEsc(e.ativo || 'WIN')}</span>${_trSelo(e)}</span></div>
-      <div class="tr-meta">Na incubadora desde ${_tr.fmt(e.inicio)} · ${Math.max(0, e.dias || 0)} dias · ${e.n_pregoes ?? '—'} pregões</div>
-      <div class="tr-banca">${_tr.brl(e.banca)} <span class="tr-var ${_tr.cl(pv)}">${_tr.pc(pv)}</span></div>
-      ${rent ? `<div class="tr-rent">${rent}</div>` : ''}
-      ${e.entrada ? `<div class="tr-rent">${_trEntTxt(e.entrada)}</div>` : ''}
-      ${e.aviso ? `<div class="tr-aviso">⚠ ${_alEsc(e.aviso)}</div>` : ''}
-      <div class="tr-sec">Resultado dentro da faixa do esperado · ${e.percentil == null ? 'percentil depois do 1º pregão' : `percentil ${Math.round(e.percentil * 100)}: ${_trLeitura(e.percentil)}`}</div>
-      <div class="tr-curva"><canvas id="tr-cv-ficha" role="img" aria-label="Resultado de ${_alEsc(e.nome || '')} dentro da faixa do esperado"></canvas></div>
-      <div class="tr-medida" id="tr-medida"></div>${_trNotaFaixa}
-      <div class="tr-kpis">
-        <div class="tr-kpi"><b class="${_tr.cl(e.lucro_hoje)}">${_tr.rs(e.lucro_hoje)}</b><span>Último pregão</span></div>
-        <div class="tr-kpi"><b class="${_tr.cl(e.lucro_mes)}">${_tr.rs(e.lucro_mes)}</b><span>Mês</span></div>
-        <div class="tr-kpi"><b>${e.ops || 0}</b><span>Operações</span></div>
-        <div class="tr-kpi"><b>${_tr.pct(e.acerto)}</b><span>Acerto</span></div></div>
-      <div class="tr-sec">Risco ao vivo</div>
-      <div class="tr-kpis tr-k3">
-        <div class="tr-kpi"><b>${_tr.brl(e.queda_max || 0)}</b><span>Queda máxima</span></div>
-        <div class="tr-kpi"><b>${_tr.brl(e.banca_min ?? b0)}</b><span>Menor banca</span></div>
-        <div class="tr-kpi"><b>${e.pior_seq || 0} ${(e.pior_seq || 0) === 1 ? 'perda' : 'perdas'}</b><span>Pior sequência</span></div></div>
-      <div class="tr-sec">Ao vivo × esperado${(e.ops || 0) < c.min ? ` (ao vivo ainda com menos de ${c.min} operações)` : ''}</div>
-      <div class="tr-wrap"><table class="tr-ops tr-cmp"><thead><tr><th>Medida</th><th>Ao vivo</th><th>Esperado</th><th>Desvio</th></tr></thead><tbody>
-        ${lin('Operações por mês', (e.dias || 0) >= (rg.min_dias || 30) ? e.ops_mes : null, x.ops_mes, v => _tr.num(v, 1))}
-        ${lin('Acerto', e.acerto, x.acerto, _tr.pct)}
-        ${lin('Pontos por operação', e.pts_op, x.pts_op, pts)}
-        ${lin('R$ por operação', e.ops ? (e.banca - b0) / e.ops : null, x.rs_op, rsf)}
-        ${lin('Ganho ÷ perda (payoff)', e.payoff, x.payoff, v => _tr.num(v))}
-        ${lin('Fator de lucro', e.fator_lucro, x.fator_lucro, v => _tr.num(v))}
-        ${lin('Queda máxima', e.queda_max, x.queda_max, brl)}
-        ${lin('Pior sequência', e.pior_seq, x.pior_seq, v => v == null ? '—' : v)}</tbody></table></div>
-      ${(e.avisos || []).length ? `<div class="tr-aviso">⚠ ${e.avisos.length} aviso(s) do histórico: ${_alEsc(e.avisos[e.avisos.length - 1])}</div>` : ''}
-      <div class="tr-desc">${_alEsc(e.descricao || '').replace(/\n/g, '<br>')}<br>Contratos: ${_alEsc(e.alavancagem || '')}. Origem: ${_alEsc(e.origem || '')}.</div>
-      <details class="tr-hist"><summary>Histórico completo (${(e.operacoes || e.ultimas || []).length} operações)</summary>
-        ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
-        ${ops ? `<div class="tr-wrap"><table class="tr-ops"><thead><tr><th>Dia</th><th>Operação</th><th>Motivo</th><th>Ctr</th><th>R$</th></tr></thead><tbody>${ops}</tbody></table></div>` : '<div class="pj-data">Sem operações ainda</div>'}
-      </details></div>`;
-  $('tr-voltar').onclick = () => { _trFichaId = null; _trUI.aba = 'estrategias'; _trSalvar(); renderTrading(); };
-  _trMedir(_trFaixaGrafico($('tr-cv-ficha'), serie, e.faixa), serie, b0, $('tr-medida'));
-}
-
-function _trAderencia(corpo, c) {
-  const E = c.est.map(e => e.esperado || {}), opsE = _tr.soma(E.map(x => x.ops));
-  const esp = { ops_mes: _tr.soma(E.map(x => x.ops_mes)), acerto: opsE ? _tr.soma(E.map(x => (x.acerto || 0) * (x.ops || 0))) / opsE : null,
-                rs_op: opsE ? _tr.soma(E.map(x => (x.rs_op || 0) * (x.ops || 0))) / opsE : null };
-  const st = _trStats(c.est.flatMap(e => e.operacoes || []));
-  // ritmo mensal com poucos dias engana (4 ops em 1 dia = 120/mês): só depois de min_dias
-  const vivoMes = c.est.every(e => (e.dias || 0) >= (c.rg.min_dias || 30)) ? _tr.soma(c.est.map(e => e.ops_mes)) : null;
-  const n = c.g.n_pregoes || 0, med = n && (c.g.faixa || [])[n - 1] ? c.g.faixa[n - 1][3] : null;
-  const pouco = st.ops < c.min ? ' class="tr-poucas"' : '';
-  const lin = (nome, v, x, f) => `<tr><td>${nome}</td><td>${f(x)}</td><td><span${pouco}>${f(v)}</span></td><td>${_trDesvio(v, x)}</td></tr>`;
-  const linhas = c.est.slice().sort((a, b) => (a.percentil ?? 2) - (b.percentil ?? 2)).map(e => {
-    const x = e.esperado || {}, dpp = e.acerto == null || x.acerto == null ? null : (e.acerto - x.acerto) * 100, seg = _trSeguidas(e.operacoes || []);
-    return `<div class="tr-ad${(e.ops || 0) < c.min ? ' tr-poucas' : ''}" data-id="${_alEsc(e.id)}" tabindex="0" role="button">
-      <div class="tr-adn"><span class="tr-bn">${_alEsc(e.nome || e.id)}</span>${_trPc(e.percentil)}</div>
-      <div class="tr-adb"><span>ao vivo</span><i style="width:${(e.acerto || 0) * 100}%"></i><b>${_tr.pct(e.acerto)}</b></div>
-      <div class="tr-adb esp"><span>esperado</span><i style="width:${(x.acerto || 0) * 100}%"></i><b>${_tr.pct(x.acerto)}</b></div>
-      <div class="tr-adm">${e.ops || 0} ops · ${seg} ${seg === 1 ? 'perda seguida' : 'perdas seguidas'} agora (pior no backtest: ${x.pior_seq ?? '—'}) · desvio ${dpp == null ? '—' : (dpp >= 0 ? '+' : '−') + Math.abs(dpp).toFixed(1).replace('.', ',') + ' p.p.'}</div></div>`;
-  }).join('');
-  corpo.innerHTML = `
-    <div class="tr-big">
-      <div class="tr-bc"><span>Operações</span><b>${st.ops}</b><small>${vivoMes == null ? `ritmo mensal depois de ${c.rg.min_dias || 30} dias` : _tr.num(vivoMes, 1) + '/mês'} · esperado ${_tr.num(esp.ops_mes, 1)}</small></div>
-      <div class="tr-bc"><span>Acerto</span><b${pouco}>${_tr.pct(st.acerto)}</b><small>esperado ${_tr.pct(esp.acerto)}</small></div>
-      <div class="tr-bc"><span>R$ por operação</span><b${pouco} class="${_tr.cl(st.rsOp)}">${st.rsOp == null ? '—' : _tr.rs(st.rsOp)}</b><small>esperado ${esp.rs_op == null ? '—' : _tr.rs(esp.rs_op)}</small></div>
-      <div class="tr-bc"><span>Faixa do grupo</span><b>${c.g.percentil == null ? '—' : 'p' + Math.round(c.g.percentil * 100)}</b><small>${_trLeitura(c.g.percentil) || 'depois do 1º pregão'}</small></div>
-    </div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Esperado → ao vivo</h2><span class="pj-data">grupo ${_alEsc(_trUI.grupo)}</span></div>
-      <div class="tr-wrap"><table class="tr-ops tr-cmp"><thead><tr><th>Medida</th><th>Esperado</th><th>Ao vivo</th><th>Desvio</th></tr></thead><tbody>
-        ${lin('Operações por mês', vivoMes, esp.ops_mes, v => _tr.num(v, 1))}
-        ${lin('Acerto', st.acerto, esp.acerto, _tr.pct)}
-        ${lin('R$ por operação', st.rsOp, esp.rs_op, v => v == null ? '—' : _tr.rs(v))}
-        ${lin(`Resultado em ${n} ${n === 1 ? 'pregão' : 'pregões'} (mediana)`, st.res, med, v => v == null ? '—' : _tr.rs(v))}</tbody></table></div>
-      <div class="tr-nota">No grupo, o esperado soma as operações por mês e pondera acerto e R$ por operação pelo número de operações de cada estratégia. Payoff, fator de lucro e queda ficam por estratégia (na ficha), porque não somam. Ao vivo apagado = menos de ${c.min} operações.</div></div>
-    <div class="card gap"><div class="sh"><h2>Por estratégia</h2><span class="pj-data">pior faixa primeiro · toque pra abrir</span></div><div id="tr-ads">${linhas}</div></div>`;
-  $('tr-ads').onclick = ev => { const d = ev.target.closest('[data-id]'); if (d) _trAbrir(d.dataset.id); };
-  $('tr-ads').onkeydown = ev => { const d = ev.target.closest('[data-id]'); if (d && ev.key === 'Enter') _trAbrir(d.dataset.id); };
-}
-
-const _trSpark = v => {
-  if (v.length < 2) return '<span class="tr-nota">—</span>';
-  const mn = Math.min(0, ...v), mx = Math.max(0, ...v), w = 120, h = 32;
-  const sy = y => (h - 2 - (mx === mn ? (h - 4) / 2 : (y - mn) / (mx - mn) * (h - 4))).toFixed(1);
-  return `<svg class="tr-sp" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline fill="none" stroke="currentColor" stroke-width="1.5" points="${v.map((y, i) => (i * w / (v.length - 1)).toFixed(1) + ',' + sy(y)).join(' ')}"/></svg>`;
-};
-function _trAtivos(corpo, c) {
-  const por = {};
-  c.est.forEach(e => (por[e.ativo || 'WIN'] = por[e.ativo || 'WIN'] || []).push(e));
-  const linhas = Object.entries(por).map(([at, m]) => {
-    const st = _trStats(m.flatMap(e => e.operacoes || [])), cur = _trCurvaGrupo(m, c.b0, c.g.inicio);
-    const dia = cur.map((x, i) => x[1] - (i ? cur[i - 1][1] : 0)).slice(-14), pre = Array(Math.max(0, 14 - dia.length)).fill(null);
-    return `<tr class="tr-semclique"><td><b>${_alEsc(at)}</b></td><td class="${_tr.cl(st.res)}">${_tr.rs(st.res)}</td><td>${st.ops}</td><td>${_tr.pct(st.acerto)}</td><td>${m.length}</td>
-      <td><span class="tr-sq" aria-label="últimos 14 pregões">${[...pre, ...dia].map(v => `<i class="${v == null ? '' : v > 0 ? 'p' : v < 0 ? 'n' : ''}"${v == null ? '' : ` title="${_tr.rs(v)}"`}></i>`).join('')}</span></td>
-      <td>${_trSpark([0, ...cur.map(x => x[1])])}</td></tr>`;
-  }).join('');
-  corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Ativos</h2><span class="pj-data">grupo ${_alEsc(_trUI.grupo)}</span></div>
-    <div class="tr-wrap"><table class="tr-tab"><thead><tr><th>Ativo</th><th>Resultado</th><th>Ops</th><th>Acerto</th><th>Estrat.</th><th>Últimos 14 pregões</th><th>Curva</th></tr></thead><tbody>${linhas}</tbody></table></div>
-    <div class="tr-nota">Hoje todas as estratégias operam o mini índice (WIN). O mini dólar (WDO) aparece aqui sozinho quando entrar uma estratégia com ativo WDO. Quadradinho verde = pregão no lucro, vermelho = no prejuízo, vazio = sem operação.</div></div>`;
-}
-
-function _trTrades(corpo, c) {
-  const f = _trUI.filtro || {}, todos = c.est.flatMap(e => (e.operacoes || []).map(o => ({ ...o, nome: e.nome, eid: e.id, ativo: e.ativo || 'WIN' })));
-  const ops = todos.filter(o => (!f.est || o.eid === f.est) && (!f.lado || o.lado === f.lado) && (!f.motivo || o.motivo === f.motivo) && (!f.ativo || o.ativo === f.ativo));
-  const sel = (k, rot, itens) => `<select data-f="${k}" aria-label="${rot}"><option value="">${rot}: todos</option>${itens.map(([v, n]) => `<option value="${_alEsc(v)}"${f[k] === v ? ' selected' : ''}>${_alEsc(n)}</option>`).join('')}</select>`;
-  const motivos = [...new Set(todos.map(o => o.motivo).filter(Boolean))].sort(), ativos = [...new Set(todos.map(o => o.ativo))];
-  const dias = {};
-  ops.forEach(o => (dias[o.dia] = dias[o.dia] || []).push(o));
-  const hist = Object.keys(dias).sort().reverse().map(d => { const l = dias[d].sort((a, b) => b.entrada.localeCompare(a.entrada)), t = _tr.soma(l.map(o => o.rs));
-    return `<div class="tr-dia"><h3><span>${_tr.fmt(d)} · ${l.length} ${l.length === 1 ? 'operação' : 'operações'}</span><span class="${_tr.cl(t)}">${_tr.rs(t)}</span></h3>
-      <div class="tr-wrap"><table class="tr-tab"><tbody>${l.map(o => `<tr class="tr-semclique"><td>${_alEsc(o.entrada)}→${_alEsc(o.saida)}</td><td class="tr-tn">${_alEsc(o.nome)}</td><td>${o.lado}</td><td>${_alEsc(_trMot(o.motivo))}</td><td>${o.contratos}x</td><td class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</td></tr>`).join('')}</tbody></table></div></div>`; }).join('');
-  corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Mapa das operações</h2><span class="pj-data">${ops.length} de ${todos.length}</span></div>
-    <div class="tr-filtros" id="tr-filtros">${sel('est', 'Estratégia', c.est.map(e => [e.id, e.nome || e.id]))}${sel('lado', 'Lado', [['compra', 'compra'], ['venda', 'venda']])}${sel('motivo', 'Saída', motivos.map(m => [m, _trMot(m)]))}${ativos.length > 1 ? sel('ativo', 'Ativo', ativos.map(a => [a, a])) : ''}</div>
-    ${ops.length ? `<div class="tr-mapa"><canvas id="tr-cv-mapa" role="img" aria-label="Cada ponto é uma operação: dia no eixo horizontal, hora da entrada no vertical"></canvas></div>
-    <div class="tr-leg"><span><i class="tr-bola p"></i>ganho</span><span><i class="tr-bola n"></i>perda</span><span><i class="tr-bola anel"></i>venda (anel)</span><span>tamanho = R$</span></div>` : '<div class="pj-data">Nenhuma operação com esses filtros</div>'}</div>
-    <div class="card gap"><div class="sh"><h2>Histórico por dia</h2></div>${hist || '<div class="pj-data">Sem operações</div>'}</div>`;
-  $('tr-filtros').onchange = ev => { const s = ev.target.closest('[data-f]'); if (!s) return; _trUI.filtro = { ...f, [s.dataset.f]: s.value }; _trSalvar(); renderTrading(); };
-  if (!ops.length || typeof Chart === 'undefined') return;
-  const ds = [...new Set(ops.map(o => o.dia))].sort(), mx = Math.max(1, ...ops.map(o => Math.abs(o.rs)));
-  const verde = _tr.cor('--green') || '#4ade80', verm = _tr.cor('--red') || '#f87171', tinta = _tr.cor('--text3'), linha = _tr.cor('--border');
-  const hora = h => +h.slice(0, 2) + h.slice(3, 5) / 60;
-  const pts = ops.map(o => ({ x: ds.indexOf(o.dia), y: hora(o.entrada), r: 3 + 9 * Math.sqrt(Math.abs(o.rs) / mx), o }));
-  _trCharts.push(new Chart($('tr-cv-mapa'), { type: 'bubble',
-    data: { datasets: [{ data: pts, borderWidth: 2,
-      backgroundColor: pts.map(p => p.o.lado === 'venda' ? 'transparent' : (p.o.rs >= 0 ? verde : verm) + 'b0'),
-      borderColor: pts.map(p => p.o.rs >= 0 ? verde : verm) }] },
-    options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false },
-      tooltip: { callbacks: { label: t => { const o = t.raw.o; return ` ${o.nome} · ${o.lado} ${o.entrada}→${o.saida} · ${_trMot(o.motivo)} · ${_tr.rs(o.rs)}`; } } } },
-      scales: { x: { min: -0.5, max: ds.length - 0.5, grid: { display: false }, afterBuildTicks: ax => { ax.ticks = ds.map((_, i) => ({ value: i })); },
-                     ticks: { color: tinta, font: { size: 10 }, autoSkip: true, maxRotation: 0, callback: v => _tr.fmt(ds[v]) || '' } },
-                y: { min: 9, max: 18, reverse: true, grid: { color: linha }, border: { display: false }, ticks: { color: tinta, font: { size: 10 }, stepSize: 1, callback: v => v + 'h' } } } } }));
-}
-
-function _trGeometria(corpo, c) {
-  const margem = (a, p) => a == null || p == null ? null : a * p - (1 - a);          // em R (perda média) por operação
-  const dist = (a, p) => a == null || p == null ? null : (a - 1 / (1 + p)) * 100;    // p.p. acima da linha de empate
-  const st = _trStats(c.est.flatMap(e => e.operacoes || []));
-  const fx = v => v == null ? '—' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2).replace('.', ',');
-  const leitura = st.ops >= c.min && st.payoff != null
-    ? `Grupo ao vivo: acerto ${_tr.pct(st.acerto)} com payoff ${_tr.num(st.payoff)}, margem de ${fx(margem(st.acerto, st.payoff))} R por operação, ${fx(dist(st.acerto, st.payoff))} p.p. ${dist(st.acerto, st.payoff) >= 0 ? 'acima' : 'abaixo'} da linha de empate.`
-    : `Grupo ao vivo: ${st.ops} ${st.ops === 1 ? 'operação' : 'operações'}; a leitura ao vivo só vale com ${c.min} ou mais. Os pontos vazados (esperado) já dizem onde cada estratégia deveria ficar.`;
-  const linhas = c.est.slice().sort((a, b) => (margem(b.esperado?.acerto, b.esperado?.payoff) ?? -9) - (margem(a.esperado?.acerto, a.esperado?.payoff) ?? -9)).map(e => {
-    const x = e.esperado || {}, pouco = (e.ops || 0) < c.min ? ' class="tr-poucas"' : '';
-    return `<tr data-id="${_alEsc(e.id)}" tabindex="0"><td class="tr-tn">${_alEsc(e.nome || e.id)}</td><td>${_tr.pct(x.acerto)} · ${_tr.num(x.payoff)}</td><td>${fx(margem(x.acerto, x.payoff))}</td><td>${fx(dist(x.acerto, x.payoff))}</td>
-      <td><span${pouco}>${_tr.pct(e.acerto)} · ${_tr.num(e.payoff)}</span></td><td><span${pouco}>${fx(margem(e.acerto, e.payoff))}</span></td></tr>`;
-  }).join('');
-  corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Payoff × acerto</h2><span class="pj-data">acima da linha = ganha no longo prazo</span></div>
-    <div class="tr-geo"><canvas id="tr-cv-geo" role="img" aria-label="Plano payoff por acerto com a linha de empate e um ponto por estratégia"></canvas></div>
-    <div class="tr-leg"><span><i class="tr-li tr-li-reg"></i>Linha de empate (acerto = 1 ÷ (1 + payoff))</span><span><i class="tr-bola anel"></i>esperado</span><span><i class="tr-bola cheia"></i>ao vivo (apagado antes de ${c.min} ops)</span></div>
-    <div class="tr-rent">${leitura}</div></div>
-    <div class="card gap"><div class="sh"><h2>De onde vem cada ponto</h2><span class="pj-data">maior margem esperada primeiro</span></div>
-      <div class="tr-wrap"><table class="tr-tab" id="tr-tab-geo"><thead><tr><th>Estratégia</th><th>Esperado (acerto · payoff)</th><th>Margem R/op</th><th>p.p. da linha</th><th>Ao vivo</th><th>Margem R/op</th></tr></thead><tbody>${linhas}</tbody></table></div></div>`;
-  $('tr-tab-geo').onclick = ev => { const r = ev.target.closest('tr[data-id]'); if (r) _trAbrir(r.dataset.id); };
-  if (typeof Chart === 'undefined') return;
-  const azul = _tr.cor('--blue') || '#60a5fa', acc = _tr.cor('--accent') || '#22d3a0', tinta = _tr.cor('--text3'), linha = _tr.cor('--border');
-  const pE = c.est.filter(e => e.esperado?.payoff != null).map(e => ({ x: e.esperado.payoff, y: e.esperado.acerto, n: e.nome }));
-  const pV = c.est.filter(e => e.payoff != null && e.acerto != null).map(e => ({ x: e.payoff, y: e.acerto, n: e.nome, poucas: (e.ops || 0) < c.min }));
-  const xmax = Math.max(3, ...pE.map(p => p.x), ...pV.map(p => p.x)) * 1.1;
-  const emp = Array.from({ length: 60 }, (_, i) => { const x = 0.1 + i * (xmax - 0.1) / 59; return { x, y: 1 / (1 + x) }; });
-  _trCharts.push(new Chart($('tr-cv-geo'), { type: 'scatter',
-    data: { datasets: [
-      { label: 'Empate', data: emp, showLine: true, borderColor: tinta, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0, pointHoverRadius: 0 },
-      { label: 'Esperado', data: pE, pointRadius: 5, pointHoverRadius: 7, borderColor: azul, borderWidth: 2, backgroundColor: 'transparent' },
-      { label: 'Ao vivo', data: pV, pointRadius: 5, pointHoverRadius: 7, borderWidth: 0, backgroundColor: pV.map(p => acc + (p.poucas ? '55' : 'ff')) },
-      ...(st.ops && st.payoff != null ? [{ label: 'Grupo', data: [{ x: st.payoff, y: st.acerto, n: 'Grupo ' + _trUI.grupo }], pointStyle: 'rectRot', pointRadius: 8, backgroundColor: acc + (st.ops < c.min ? '55' : 'ff'), borderWidth: 0 }] : [])] },
-    options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false },
-      tooltip: { filter: t => t.datasetIndex > 0, callbacks: { label: t => ` ${t.raw.n} (${t.dataset.label}): acerto ${_tr.pct(t.raw.y)}, payoff ${_tr.num(t.raw.x)}` } } },
-      scales: { x: { min: 0, max: xmax, title: { display: true, text: 'payoff (ganho médio ÷ perda média)', color: tinta, font: { size: 10 } }, grid: { color: linha }, ticks: { color: tinta, font: { size: 10 } } },
-                y: { min: 0, max: 1, title: { display: true, text: 'acerto', color: tinta, font: { size: 10 } }, grid: { color: linha }, ticks: { color: tinta, font: { size: 10 }, callback: v => Math.round(v * 100) + '%' } } } } }));
-}
-
-function _trLinha(corpo, c) {
-  const nome = id => (c.todas.find(e => e.id === id) || {}).nome || id;
-  const rot = { entrou: 'Entrou', saiu: 'Saiu', marcacao: 'Marcação', alocada: 'Alocada' };
-  const ev = (c.dados.eventos || []).filter(x => _trUI.grupo === 'Tudo' || x.grupo === _trUI.grupo).slice().reverse();
-  corpo.innerHTML = `<div class="card gap"><div class="sh"><h2>Linha do tempo</h2><span class="pj-data">quem entrou, saiu ou ganhou marcação, e por quê</span></div>
-    ${ev.length ? ev.map(x => `<div class="tr-ev"><span class="tr-evd">${_tr.fmt(x.data)}</span><span class="tr-tipo ${_alEsc(x.tipo)}">${rot[x.tipo] || _alEsc(x.tipo)}</span>
-      <div><b>${_alEsc(nome(x.id))}</b>${x.grupo ? ` <span class="tr-org">${_alEsc(x.grupo)}</span>` : ''}<p>${_alEsc(x.motivo || '')}</p></div></div>`).join('')
-      : '<div class="pj-data">Nenhum evento registrado neste grupo</div>'}</div>`;
-}
-
-// ──────────────────────────────────
-// CARTEIRA (03/11/2026, Mandato R35): campo `carteira` de 'trading_estrategias' (backtest/carteira_aba.py). Só leitura.
-// { vazia, teto } ou { vazia:false, desde, n_pregoes, teto, resultado, hoje_rs, mes_rs, folga_teto, teto_atingido,
-//   curva:[[dia, acumulado]], faixa, percentil, stats:{ops, acerto, payoff, fator_lucro, melhor_dia, pior_dia, queda_max, ops_mes},
-//   meses:[[AAAA-MM, rs, ops]], operacoes:[{dia, lado, entrada, saida, motivo, contratos, rs, nome}],
-//   estrategias:[{id, nome, desde, resultado, mes, hoje, fatia, ops, saude:{estado, frequencia:{vivo, esperado, razao}, percentil, cusum}}] }
-// ──────────────────────────────────
-function _caHtml(c, cap) {
-  const s = c.stats || {}, perda = Math.max(0, -c.resultado), uso = c.teto ? Math.min(1, perda / c.teto) : 0;
-  const est = (c.estrategias || []).slice().sort((a, b) => b.resultado - a.resultado), mx = Math.max(1, ...est.map(e => Math.abs(e.resultado)));
-  const ops = (c.operacoes || []).slice(0, 300);
-  const meses = (c.meses || []).slice().reverse().map(m => `<tr><td>${m[0].slice(5, 7)}/${m[0].slice(0, 4)}</td><td>${m[2]}</td><td class="${_tr.cl(m[1])}">${_tr.rs(m[1])}</td></tr>`).join('');
-  const sem = (rot, txt) => `<span class="ca-sem"><i></i>${rot} ${txt}</span>`;
-  return `
-    <div class="tr-big">
-      <div class="tr-bc"><span>Resultado</span><b class="${_tr.cl(c.resultado)}">${_tr.rs(c.resultado)}</b><small>${cap ? _tr.pc(c.resultado / cap) : '—'}</small><small>desde ${_tr.fmt(c.desde)}</small></div>
-      <div class="tr-bc"><span>Hoje · mês</span><b class="${_tr.cl(c.hoje_rs)}">${_tr.rs(c.hoje_rs)}</b><small>mês ${_tr.rs(c.mes_rs)}</small><small>${c.n_pregoes} ${c.n_pregoes === 1 ? 'pregão' : 'pregões'}</small></div>
-      <div class="tr-bc"><span>Folga até o teto</span><b class="${c.teto_atingido ? 'tr-neg' : ''}">${_tr.brl(c.folga_teto)}</b><small>${c.teto_atingido ? 'TETO ATINGIDO' : 'de ' + _tr.brl(c.teto)}</small><small>desde a alocação</small></div>
-      <div class="tr-bc"><span>Operações</span><b>${s.ops ?? 0}</b><small>acerto ${_tr.pct(s.acerto)}</small><small>${(c.estrategias || []).length} estratégias</small></div>
-    </div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Perda até o teto</h2><span class="pj-data">${_tr.brl(perda)} de ${_tr.brl(c.teto)}</span></div>
-      <div class="ca-gauge" role="img" aria-label="Perda acumulada em relação ao teto"><i class="${uso >= 1 ? 'max' : uso >= .6 ? 'alto' : ''}" style="width:${(uso * 100).toFixed(1)}%"></i></div>
-      <div class="tr-nota">O teto vale desde a alocação (não desde o pico): lucro acumulado é colchão. Passou dele, a carteira desliga até você revisar.</div></div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Curva da carteira</h2></div>
-      <div class="tr-pcl">${c.percentil == null ? '<span class="tr-nota">Percentil na faixa depois do 1º pregão</span>' : `${_trPc(c.percentil)}<span>${_trLeitura(c.percentil)}</span>`}</div>
-      <div class="tr-leg"><span><i class="tr-li" style="border-color:var(--accent)"></i>Ao vivo</span><span><i class="tr-li tr-li-reg"></i>Mediana</span><span><i class="tr-faixa1"></i>p25–p75</span><span><i class="tr-faixa2"></i>p5–p95</span></div>
-      <div class="tr-curva"><canvas id="ca-cv" role="img" aria-label="Resultado somado da carteira dentro da faixa do esperado"></canvas></div>
-      <div class="tr-medida" id="ca-medida"></div>${_trNotaFaixa}
-      <details class="tr-hist"><summary>Dados gerais e operações · ${s.ops ?? 0} operações · acerto ${_tr.pct(s.acerto)} · ${_tr.rs(c.resultado)}</summary>
-        <table class="tr-ops tr-cmp"><tbody>
-          <tr><td>Acerto</td><td>${_tr.pct(s.acerto)}</td></tr><tr><td>Payoff</td><td>${_tr.num(s.payoff)}</td></tr><tr><td>Fator de lucro</td><td>${_tr.num(s.fator_lucro)}</td></tr>
-          <tr><td>Melhor pregão</td><td class="${_tr.cl(s.melhor_dia)}">${s.melhor_dia == null ? '—' : _tr.rs(s.melhor_dia)}</td></tr><tr><td>Pior pregão</td><td class="${_tr.cl(s.pior_dia)}">${s.pior_dia == null ? '—' : _tr.rs(s.pior_dia)}</td></tr>
-          <tr><td>Queda máxima</td><td class="${s.queda_max ? 'tr-neg' : ''}">${_tr.brl(s.queda_max || 0)}</td></tr><tr><td>Operações por mês</td><td>${_tr.num(s.ops_mes, 1)}</td></tr></tbody></table>
-        ${meses ? `<table class="tr-ops"><thead><tr><th>Mês</th><th>Ops</th><th>R$</th></tr></thead><tbody>${meses}</tbody></table>` : ''}
-        ${ops.length ? ops.map(o => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(o.nome)}</span><b class="${_tr.cl(o.rs)}">${_tr.rs(o.rs)}</b></span>
-          <span class="tr-l2">${_tr.fmt(o.dia)} · ${o.lado === 'compra' ? 'C' : 'V'} ${_alEsc(o.entrada)}→${_alEsc(o.saida)} · ${_alEsc(_trMot(o.motivo))} · ${o.contratos}x</span></div>`).join('')
-          : '<div class="pj-data">Sem operações ainda</div>'}</details></div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Saúde das estratégias</h2><span class="pj-data">toque pra abrir a ficha</span></div>
-      ${est.map(e => { const h = e.saude || {}, f = h.frequencia || {};
-        return `<button type="button" class="tr-li2" data-id="${_alEsc(e.id)}"><span class="tr-l1"><b>${_alEsc(e.nome)}</b><span class="tr-selo">${h.estado === 'pausada' ? 'Pausada' : h.estado === 'alerta' ? 'Alerta' : 'Ativa'}</span></span>
-          <span class="ca-sems">${sem('Freq.', f.razao == null ? '—' : _tr.num(f.razao) + '×')}${sem('Perc.', h.percentil == null ? '—' : 'p' + Math.round(h.percentil * 100))}${sem('CUSUM', h.cusum == null ? '—' : _tr.num(h.cusum))}</span></button>`; }).join('')}
-      <div class="tr-nota">Semáforos em cinza: os limites de alerta e pausa (R34) saem da simulação quando houver alocadas. Freq. = operações vividas ÷ esperadas; CUSUM = quanto pior que o esperado, acumulado.</div></div>
-    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Resultado por estratégia</h2></div>
-      ${est.map(e => `<div class="tr-bar"><span class="tr-bn">${_alEsc(e.nome)}</span><span class="tr-trilho"><i class="${e.resultado >= 0 ? 'p' : 'n'}" style="width:${Math.abs(e.resultado) / mx * 100}%"></i></span><b class="${_tr.cl(e.resultado)}">${_tr.rs(e.resultado)}</b></div>
-        <div class="tr-nota">${e.fatia == null ? 'fatia —' : 'fatia ' + Math.round(e.fatia * 100) + '%'} · mês ${_tr.rs(e.mes)} · hoje ${_tr.rs(e.hoje)} · ${e.ops} ops</div>
-        ${e.descricao ? `<details class="tr-hist"><summary>Como opera</summary><div class="tr-desc">${_alEsc(e.descricao).replace(/\n/g, '<br>')}</div></details>` : ''}`).join('')}</div>
-    <div class="ca-ex">* Exposição em tempo real pelo celular: fica para depois (precisa do executor da demo e do mecanismo de exposição simultânea).</div>`;
-}
+// CARTEIRA (03/11/2026, Mandato R35; básico desde 07/11/2026): a carteira ligada (campo `carteira` de 'trading_estrategias') e as
+// três carteiras A, B e C lado a lado (campo `carteiras` de 'trading_resumo', banca virtual de R$ 3.000 cada).
+const _CA_COR = { A: '#3987e5', B: '#d95926', C: '#199e70' };
 
 function renderCarteira() {
   const corpo = $('ca-corpo');
   if (!corpo) return;
-  const dados = load('trading_estrategias', null) || {}, c = dados.carteira;
-  _trCharts.forEach(x => x.destroy()); _trCharts = [];
-  $('ca-data').innerHTML = dados.dados_ate ? `<i class="tr-dot${dados.atualizado === today() ? ' on' : ''}"></i>rastreio de ${_tr.fmt(dados.atualizado)} · pregões até ${_tr.fmt(dados.dados_ate)}` : '';
-  if (!c || c.vazia) {
-    corpo.innerHTML = `<div class="card"><div class="empty"><div class="ei">💼</div>Nenhuma estratégia alocada ainda</div>
-      <div class="tr-nota" style="text-align:center">A carteira é a soma das estratégias que você aloca. Olhe o selo "Pronta" e a checagem de entrada na Incubadora e peça a alocação ao Claude.</div></div>
-      <div class="ca-ex">* Exposição em tempo real pelo celular: fica para depois.</div>`;
-    return;
+  const dados = load('trading_estrategias', null) || {}, rz = load('trading_resumo', null) || {};
+  _trCabeca('ca-data', dados);
+  const c = dados.carteira || {}, cs = rz.carteiras || {}, ensaio = cs.modo !== 'oficial', por = cs.por || {};
+  let topo;
+  if (!c.vazia && c.estrategias) {
+    const perda = Math.max(0, -c.resultado), uso = c.teto ? Math.min(1, perda / c.teto) : 0;
+    const est = c.estrategias || [], alerta = est.filter(e => (e.saude || {}).estado === 'alerta').length, pausa = est.filter(e => (e.saude || {}).estado === 'pausada').length;
+    topo = `<div class="tr-big">
+        <div class="tr-bc"><span>${cs.ativa ? 'Carteira ' + cs.ativa : 'Carteira'}</span><b class="${_tr.cl(c.resultado)}">${_tr.rs(c.resultado)}</b><small>desde ${_tr.fmt(c.desde)}</small></div>
+        <div class="tr-bc"><span>Hoje · mês</span><b class="${_tr.cl(c.hoje_rs)}">${_tr.rs(c.hoje_rs)}</b><small>mês ${_tr.rs(c.mes_rs)}</small></div>
+        <div class="tr-bc"><span>Folga até o teto</span><b class="${c.teto_atingido ? 'tr-neg' : ''}">${_tr.brl(c.folga_teto)}</b><small>${c.teto_atingido ? 'TETO ATINGIDO' : 'de ' + _tr.brl(c.teto)}</small></div>
+        <div class="tr-bc"><span>Saúde</span><b style="font-size:15px">${pausa ? pausa + ' pausada(s)' : alerta ? alerta + ' em alerta' : 'tudo ok'}</b><small>${est.length} estratégias</small></div>
+      </div>
+      <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Perda até o teto</h2><span class="pj-data">${_tr.brl(perda)} de ${_tr.brl(c.teto)}</span></div>
+        <div class="ca-gauge" role="img" aria-label="Perda acumulada em relação ao teto"><i class="${uso >= 1 ? 'max' : uso >= .6 ? 'alto' : ''}" style="width:${(uso * 100).toFixed(1)}%"></i></div>
+        ${est.map(e => `<div class="tr-li2 tr-semclique"><span class="tr-l1"><span class="tr-bn">${_alEsc(e.nome)}</span><b class="${_tr.cl(e.mes)}">${_tr.rs(e.mes)}</b></span><span class="tr-l2">no mês · ${e.ops} operações</span></div>`).join('')}</div>`;
+  } else {
+    topo = `<div class="card"><div class="empty"><div class="ei">💼</div>${cs.ativa ? 'Carteira ' + cs.ativa + ' ligada, sem operação ainda' : 'Nenhuma carteira ligada'}</div>
+      <div class="tr-nota" style="text-align:center">${ensaio ? 'Modo ensaio: ainda não há estratégias Prontas. As carteiras abaixo usam as estratégias da incubadora só para testar.' : 'Ligue uma das carteiras na Máquina da Fábrica.'}</div></div>`;
   }
-  const cap = (dados.banca_inicial || 1500) * (c.estrategias || []).length;
-  corpo.innerHTML = _caHtml(c, cap);
-  const serie = [['início', 0], ...(c.curva || []).map(x => [_tr.fmt(x[0]), x[1]])];
-  _trMedir(_trFaixaGrafico($('ca-cv'), serie, c.faixa), serie, cap, $('ca-medida'));
-  corpo.onclick = ev => { const b = ev.target.closest('button[data-id]'); if (b) { go('trading'); _trAbrir(b.dataset.id); } };
+  const col = x => {
+    const k = por[x];
+    if (!k) return `<div class="ca-col" style="--cc:${_CA_COR[x]}"><b class="ca-x">${x}</b><span class="ca-n">sem dados</span></div>`;
+    const lin = (r, v, cl = '') => `<div class="ca-lin"><span>${r}</span><b class="${cl}">${v}</b></div>`;
+    return `<div class="ca-col${cs.ativa === x ? ' on' : ''}" style="--cc:${_CA_COR[x]}">
+      <b class="ca-x">${x}</b><span class="ca-n">${_alEsc(k.nome || '')}${cs.ativa === x ? ' · ligada' : ''}</span>
+      <b class="ca-banca">${_tr.int(k.banca)}</b><span class="ca-res ${_tr.cl(k.lucro)}">${_tr.irs(k.lucro)}</span>
+      ${lin('Hoje', _tr.irs(k.hoje), _tr.cl(k.hoje))}${lin('Mês', _tr.irs(k.mes), _tr.cl(k.mes))}${lin('Estratégias', (k.estrategias || []).length)}
+      ${lin('Drawdown (backtest)', _tr.pct(k.dd_bt))}${lin('Prejuízo em 12 meses', _tr.pct(k.prejuizo_12m))}</div>`;
+  };
+  corpo.innerHTML = `${topo}
+    <div class="card gap" style="margin-top:14px"><div class="sh"><h2>Carteiras A, B e C</h2><span class="pj-data">banca virtual de ${_tr.int(cs.banca || 3000)} cada${ensaio ? ' · ensaio' : ''}</span></div>
+      <div class="ca-3">${['A', 'B', 'C'].map(col).join('')}</div>
+      <div class="tr-nota">A agressiva busca lucro, a moderada retorno sobre a queda e a conservadora previsibilidade. Drawdown e chance de prejuízo vêm do backtest, que tende a sair otimista: o que vale é a banca virtual.</div>
+      ${_trNotaMaquina}</div>`;
 }
 
 // ──────────────────────────────────
@@ -6485,7 +6087,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
