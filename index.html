@@ -1866,6 +1866,7 @@ body.dens-compact .gap{margin-bottom:14px}
 .pt-row>span:nth-child(4){text-align:right;font-size:12px;font-family:'DM Mono',monospace}
 .pt-imp{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
 @media (max-width:640px){.pt-det-r{flex-direction:column;align-items:flex-end;gap:0}}
+.pt-auto{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid var(--accent);border-radius:4px;font-family:var(--f-sans);font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);vertical-align:1px}
 .inv-pools{margin-top:34px}
 .inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
 /* ══ Componentes inspirados no 21st.dev (10/10/2026) — reescritos em CSS/JS puro ══ */
@@ -3512,7 +3513,7 @@ function renderAba(p) {
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
-  if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(renderPatrimonio, 'renderPatrimonio'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
+  if (p === 'investimentos') { safeCall(_patAtualizarTaxas, '_patAtualizarTaxas'); safeCall(carregarPools, 'carregarPools'); safeCall(renderPatrimonio, 'renderPatrimonio'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'trading')  { safeCall(renderTrading, 'renderTrading'); }
   if (p === 'carteira') { safeCall(renderCarteira, 'renderCarteira'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -4354,10 +4355,63 @@ const _patTog = el => { if (el.open) _patAbertos.add(el.dataset.k); else _patAbe
 function _patPrecos() {
   try {
     const c = JSON.parse(localStorage.getItem('mov_cache') || 'null');
-    const precos = {};
-    ((c && c.data) || []).forEach(i => { if (i.type !== 'crypto' && Number.isFinite(i.price)) precos[i.ticker] = i.price; });
-    return { precos, ts: c && c.ts ? c.ts : null };
-  } catch (e) { return { precos: {}, ts: null }; }
+    const precos = {}, dy12 = {};
+    ((c && c.data) || []).forEach(i => {
+      if (i.type === 'crypto') return;
+      if (Number.isFinite(i.price)) precos[i.ticker] = i.price;
+      if (Number.isFinite(i.dy12)) dy12[i.ticker] = i.dy12;
+    });
+    return { precos, dy12, ts: c && c.ts ? c.ts : null };
+  } catch (e) { return { precos: {}, dy12: {}, ts: null }; }
+}
+
+const _patAuto = '<span class="pt-auto" title="Atualizado automaticamente">auto</span>';
+const _PAT_BCB = { selic: 432, cdi: 4389, ipca12: 13522, dolar: 1 };   // SGS: Selic meta, CDI anualizado, IPCA 12 meses, dólar PTAX (venda)
+
+// Fontes dos números automáticos, lidas dos caches (as buscas rodam na Movimentação, em _patAtualizarTaxas e no app de pools).
+function _patFontesAuto() {
+  const rd = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+  const tx = rd('pat_taxas') || {};
+  const v = k => (tx[k] && Number.isFinite(tx[k].v) ? tx[k].v : null);
+  return { selic: v('selic'), cdi: v('cdi'), ipca12: v('ipca12'), dolar: v('dolar'), taxas_ts: tx.ts || null, lp: rd('lp_resumo') };
+}
+
+const _patTaxasTxt = fa => {
+  const p = [];
+  if (fa.selic != null) p.push('Selic ' + fa.selic.toFixed(2).replace('.', ',') + '%');
+  if (fa.cdi != null) p.push('CDI ' + fa.cdi.toFixed(2).replace('.', ',') + '%');
+  if (fa.ipca12 != null) p.push('IPCA 12m ' + fa.ipca12.toFixed(2).replace('.', ',') + '%');
+  if (fa.dolar != null) p.push('dólar R$ ' + fa.dolar.toFixed(4).replace('.', ','));
+  return p.join(' · ');
+};
+
+const _patPoolsTxt = auto => {
+  if (!auto) return '';
+  const f = auto.fontes;
+  const quando = auto.lp_ts ? ' (' + new Date(auto.lp_ts).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) + ')' : '';
+  return (f.pools + f.pools_manuais ? `<div class="pt-sub">${f.pools} pool(s) atualizada(s) pelo app de pools${quando}; ${f.pools_manuais} com o valor digitado.</div>` : '')
+    + (auto.orfas.length ? `<div class="pt-aviso">No app de pools, sem linha na planilha: ${_alEsc(auto.orfas.join(', '))}.</div>` : '');
+};
+
+// Taxas do Banco Central (SGS): acesso direto do navegador. Cache de 6 h; se falhar, vale o cache (mesmo velho) e depois o valor digitado.
+async function _patAtualizarTaxas(force) {
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem('pat_taxas') || 'null'); } catch (e) {}
+  if (!force && cache && cache.ts && Date.now() - cache.ts < 6 * 3600e3) return;
+  const novo = {};
+  await Promise.all(Object.entries(_PAT_BCB).map(async ([k, cod]) => {
+    try {
+      // janela por data (até hoje): "ultimos/N" aceita só ~20 linhas e a série 432 traz ~30 dias futuros
+      const br = ms => new Date(ms).toLocaleDateString('pt-BR');
+      const r = await fetch(`https://api.bcb.gov.br/dados/serie/bcdata.sgs.${cod}/dados?formato=json&dataInicial=${br(Date.now() - 120 * 864e5)}&dataFinal=${br(Date.now())}`);
+      if (!r.ok) return;
+      const u = _patUltimaLinha(await r.json(), Date.now());
+      if (u) novo[k] = u;
+    } catch (e) { console.warn('[Patrimônio] BCB', k, e.message); }
+  }));
+  if (!Object.keys(novo).length) return;           // nada voltou: mantém o cache
+  localStorage.setItem('pat_taxas', JSON.stringify({ ...(cache || {}), ...novo, ts: Date.now() }));
+  safeCall(renderPatrimonio, 'renderPatrimonio');
 }
 
 function _patHero(r, ev, ts) {
@@ -4441,7 +4495,7 @@ function _patDistCard(r) {
   </div>`;
 }
 
-function _patRendaCard(r, d) {
+function _patRendaCard(r, d, fa) {
   const meta = d.meta || {}, alvo = meta.dy_alvo || 0;
   const prog = alvo ? Math.min(r.dy_consolidado / alvo, 1) * 100 : 0;
   return `<div class="card gap">
@@ -4451,6 +4505,7 @@ function _patRendaCard(r, d) {
     <div class="pt-kv"><span>Renda mensal (salário + dividendos)</span><b>${_tr.brl(r.renda_mensal)}</b></div>
     <div class="pt-kv"><span>Renda anual</span><b>${_tr.brl(r.renda_anual)}</b></div>
     <div class="pt-kv"><span>DY consolidado</span><b>${_patPc2(r.dy_consolidado)}</b></div>
+    ${_patTaxasTxt(fa) ? `<div class="pt-kv"><span>Taxas (Banco Central)</span><b>${_patTaxasTxt(fa)}</b></div>` : ''}
     ${alvo ? `<div class="pt-meta"><div class="pt-meta-bar"><i style="width:${prog.toFixed(1)}%"></i></div>
       <div class="pt-sub">Meta: DY ${_patPc2(alvo)} até ${_alEsc(String(meta.ate || ''))} · ${r.dy_consolidado >= alvo ? '✓ acima da meta' : 'ainda abaixo da meta'}</div></div>` : ''}
   </div>`;
@@ -4467,18 +4522,18 @@ function _patLinhaB3(i) {
   const luc = i.lucro == null ? '<span class="pt-sub">sem cotação</span>'
     : `<span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span>`;
   return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ticker)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
-    <span class="pt-sub">${i.qtd} × ${_tr.brl(i.pm)} · ${i.preco == null ? 'sem cotação' : 'preço ' + _tr.brl(i.preco)} · DY ${_patPc2(i.dy)}</span>${luc}</li>`;
+    <span class="pt-sub">${i.qtd} × ${_tr.brl(i.pm)} · ${i.preco == null ? 'sem cotação' : 'preço ' + _tr.brl(i.preco)} · DY ${_patPc2(i.dy)}${i.dy_auto ? _patAuto : ''}</span>${luc}</li>`;
 }
 
 function _patLinhaRF(i) {
   return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ativo)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
-    <span class="pt-sub">aplicado ${_tr.brl(i.investido)} · DY ${_patPc2(i.dy)}</span>
+    <span class="pt-sub">aplicado ${_tr.brl(i.investido)} · DY ${_patPc2(i.dy)}${i.dy_auto ? _patAuto : ''}</span>
     <span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span></li>`;
 }
 
-function _patCriptoCorpo(r, d) {
+function _patCriptoCorpo(r, d, auto) {
   const c = d.cripto || {}, cr = r.classes.cripto;
-  const pools = (c.pools_abertas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.usd)}</span><span class="pt-sub">DY mensal ${_patPc2(p.dy_mensal)}${p.bear_ready ? ' · bear ready' : ''}${p.pm != null ? ' · PM ' + Number(p.pm).toLocaleString('pt-BR') : ''}</span><span></span></li>`).join('');
+  const pools = (c.pools_abertas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.usd)}${p.usd_auto ? _patAuto : ''}</span><span class="pt-sub">DY mensal ${_patPc2(p.dy_mensal)}${p.dy_auto ? _patAuto : ''}${p.bear_ready ? ' · bear ready' : ''}${p.pm != null ? ' · PM ' + Number(p.pm).toLocaleString('pt-BR') : ''}</span><span></span></li>`).join('');
   const cust = (c.custodia || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.ativo)}</span><span class="pt-v">${_patUsd(p.usd)}</span><span class="pt-sub">${p.risk != null ? 'risk factor ' + String(p.risk).replace('.', ',') : ''}</span><span></span></li>`).join('');
   const fech = (c.pools_fechadas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.hoje_usd)}</span><span class="pt-sub">investido ${_patUsd(p.investido_usd)} · ${p.qty} · PM ${Number(p.pm).toLocaleString('pt-BR')}</span><span></span></li>`).join('');
   const rend = (c.rendimentos_2025 || []).map(x => `<tr><td>${_alEsc(x.mes)}</td><td>${_patUsd(x.usd)}</td><td>${_tr.brl(x.brl)}</td></tr>`).join('');
@@ -4487,23 +4542,24 @@ function _patCriptoCorpo(r, d) {
     <h3 class="pt-h3">Reserva em custódia · ${_patUsd(cr.custodia_usd)}</h3><ul class="pt-lista">${cust}</ul>
     ${fech ? `<h3 class="pt-h3">Pools fechadas (fora do total)</h3><ul class="pt-lista">${fech}</ul>` : ''}
     ${rend ? `<details class="pt-tab"><summary>Rendimentos mensais de 2025</summary><table><thead><tr><th>Mês</th><th>USD</th><th>R$</th></tr></thead><tbody>${rend}</tbody></table></details>` : ''}
+    ${_patPoolsTxt(auto)}
     <div class="pt-sub">Valores em dólar a R$ ${String(d.dolar).replace('.', ',')}. As posições ao vivo estão em Pools de liquidez, mais abaixo.</div>`;
 }
 
-function _patPosicoes(r, d) {
+function _patPosicoes(r, d, auto) {
   const c = r.classes, im = r.imposto, ct = r.contas, reservasDy = (d.contas || {}).reservas_dy;
   const imp = im.itens.length ? `<div class="pt-imp"><b>Imposto a pagar ${_tr.brl(im.imposto)}</b>
     <div class="pt-sub">15% sobre lucro de ${_tr.brl(im.lucro)} nas vendas${im.validade ? ' · validade ' + _alEsc(im.validade) : ''}</div>
     <ul class="pt-lista">${im.itens.map(v => `<li class="pt-row"><span class="pt-tk">${_alEsc(v.ticker)}</span><span class="pt-v ${_tr.cl(v.lucro)}">${_tr.rs(v.lucro)}</span><span class="pt-sub">${v.qtd} × PM ${_tr.brl(v.pm)} → venda ${_tr.brl(v.venda)}</span><span></span></li>`).join('')}</ul></div>` : '';
   const contas = `<div class="pt-kv"><span>Contas correntes</span><b>${_tr.brl(ct.correntes)}</b></div>
-    <div class="pt-kv"><span>Reservas${reservasDy ? ' · rende ' + _patPc2(reservasDy) + ' ao ano' : ''}</span><b>${_tr.brl(ct.reservas)}</b></div>
+    <div class="pt-kv"><span>Reservas${reservasDy ? ' · rende ' + _patPc2(reservasDy) + ' ao ano' + (ct.dy_auto ? _patAuto : '') : ''}</span><b>${_tr.brl(ct.reservas)}</b></div>
     <div class="pt-kv"><span>FGTS</span><b>${_tr.brl(ct.fgts)}</b></div>`;
   const lista = (cl, linha) => `<ul class="pt-lista">${cl.itens.map(linha).join('')}</ul>`;
   return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + lista(c.acoes, _patLinhaB3))
     + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + lista(c.bdrs, _patLinhaB3) + imp)
     + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + lista(c.fiis, _patLinhaB3))
     + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF))
-    + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d))
+    + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d, auto))
     + _patDet('contas', 'Contas, reservas e FGTS', `<b>${_tr.brl(r.liquidez)}</b>`, contas);
 }
 
@@ -4515,13 +4571,16 @@ function renderPatrimonio() {
     cont.innerHTML = '<div class="card gap"><div class="mov-msg">Ainda não há dados de patrimônio no servidor (chave <code>patrimonio</code>).</div></div>';
     return;
   }
-  const { precos, ts } = _patPrecos();
-  const r = calcPatrimonio(dados, precos);
+  const { precos, dy12, ts } = _patPrecos();
+  const fa = _patFontesAuto();
+  const auto = aplicarAutomaticos(dados, { ...fa, dy12 }, Date.now());
+  const d2 = auto.dados;
+  const r = calcPatrimonio(d2, precos);
   const d = new Date();
   const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
   const ev = calcEvolucao(load('patrimonio_hist', null), r.patrimonio, hoje);
   if (!_patEvoSel) _patEvoSel = hoje.slice(0, 4);
-  cont.innerHTML = _patHero(r, ev, ts) + _patEvoCard(ev) + _patDistCard(r) + _patRendaCard(r, dados) + _patPosicoes(r, dados);
+  cont.innerHTML = _patHero(r, ev, ts) + _patEvoCard(ev) + _patDistCard(r) + _patRendaCard(r, d2, fa) + _patPosicoes(r, d2, auto);
   _patDesenharEvo(ev);
 }
 // ──────────────────────────────────
