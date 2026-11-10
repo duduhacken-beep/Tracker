@@ -4099,6 +4099,198 @@ function renderStatusProjetos() {
 }
 
 // ──────────────────────────────────
+// PATRIMÔNIO (10/11/2026) — chaves 'patrimonio' (estado atual) e 'patrimonio_hist' ({mensal, anual}), só leitura nesta etapa.
+// Desenho: Projetos/Tracker/Desenho — Aba Patrimônio (10-11-2026).md. O cálculo é puro (sem DOM) e fica entre os marcadores
+// abaixo para o teste em Node (Projetos/Tracker/Patrimônio/teste_patrimonio.js) extrair e rodar. Não renomear os marcadores.
+// ──────────────────────────────────
+// PATRIMONIO-CALC-INICIO
+const _patR2 = v => Math.round((v + Number.EPSILON) * 100) / 100;
+const _patSoma = (a, f) => (a || []).reduce((s, x) => s + f(x), 0);
+
+// Ações, BDRs e FIIs: itens = [{ticker, qtd, pm, dy, seg}]; precos = {ticker: preço}. Sem preço: a custo, lucro nulo.
+function _patB3(itens, precos) {
+  const semCotacao = [];
+  let investido = 0, atual = 0, lucro = 0, baseCotada = 0, retorno = 0;
+  const rows = (itens || []).map(p => {
+    const inv = _patR2(p.qtd * p.pm);
+    const preco = precos && Number.isFinite(precos[p.ticker]) ? precos[p.ticker] : null;
+    const at = preco == null ? inv : _patR2(p.qtd * preco);
+    const luc = preco == null ? null : _patR2(at - inv);
+    const ret = _patR2(at * (p.dy || 0));
+    if (preco == null) semCotacao.push(p.ticker); else { lucro += luc; baseCotada += inv; }
+    investido += inv; atual += at; retorno += ret;
+    return { ticker: p.ticker, qtd: p.qtd, pm: p.pm, preco, investido: inv, atual: at, lucro: luc,
+             rent: luc == null || !inv ? null : luc / inv, dy: p.dy || 0, retorno: ret, seg: p.seg || null, dy_auto: !!p.dy_auto };
+  });
+  return { itens: rows, investido: _patR2(investido), atual: _patR2(atual), lucro: _patR2(lucro),
+           rent: baseCotada ? lucro / baseCotada : null, retorno: _patR2(retorno), semCotacao };
+}
+
+function _patRF(itens) {
+  let investido = 0, atual = 0, retorno = 0;
+  const rows = (itens || []).map(a => {
+    const ret = _patR2(a.atual * (a.dy || 0));
+    investido += a.aplicado; atual += a.atual; retorno += ret;
+    return { ativo: a.ativo, investido: a.aplicado, atual: a.atual, lucro: _patR2(a.atual - a.aplicado),
+             rent: a.aplicado ? (a.atual - a.aplicado) / a.aplicado : null, dy: a.dy || 0, retorno: ret,
+             seg: a.seg || a.ativo, foco: a.foco || 'dividendos', dy_auto: !!a.dy_auto };
+  });
+  return { itens: rows, investido: _patR2(investido), atual: _patR2(atual), lucro: _patR2(atual - investido),
+           rent: investido ? (atual - investido) / investido : null, retorno: _patR2(retorno) };
+}
+
+// Cripto digitada em USD (pools abertas + custódia) × dólar. Pools fechadas ficam fora do total.
+const _patSegCripto = nome => /BTC|BITCOIN/i.test(nome) ? 'Bitcoin' : 'Pools / Altcoins';
+function _patCripto(c, dolar) {
+  const pools = c.pools_abertas || [], cust = c.custodia || [];
+  const poolsUsd = _patSoma(pools, p => p.usd), custUsd = _patSoma(cust, p => p.usd);
+  const atual = _patR2((poolsUsd + custUsd) * dolar);
+  const inv = c.aplicado_brl || 0;
+  const retornoUsd = _patSoma(pools, p => p.usd * (p.dy_mensal || 0) * 12);
+  return { investido: inv, atual, lucro: _patR2(atual - inv), rent: inv ? (atual - inv) / inv : null,
+           retorno: _patR2(retornoUsd * dolar), usd: _patR2(poolsUsd + custUsd),
+           pools_usd: _patR2(poolsUsd), custodia_usd: _patR2(custUsd) };
+}
+
+// Vendas de BDRs: `venda` é o preço unitário. Imposto de 15% sobre o lucro (sem isenção, como na planilha).
+function _patImposto(vendas, validade) {
+  const itens = (vendas || []).map(v => ({ ...v, lucro: _patR2((v.venda - v.pm) * v.qtd) }));
+  const lucro = _patR2(_patSoma(itens, v => v.lucro));
+  return { itens, lucro, imposto: _patR2(Math.max(lucro, 0) * 0.15), validade: validade || null };
+}
+
+function calcPatrimonio(d, precos) {
+  d = d || {};
+  const dolar = d.dolar || 0, pos = d.posicoes || {}, ct = d.contas || {};
+  const acoes = _patB3(pos.acoes, precos), bdrs = _patB3(pos.bdrs, precos), fiis = _patB3(pos.fiis, precos);
+  const rf = _patRF(d.renda_fixa), cripto = _patCripto(d.cripto || {}, dolar);
+  const correntes = ct.correntes || 0, reservas = ct.reservas || 0, fgts = ct.fgts || 0;
+  const retornoReservas = _patR2(reservas * (ct.reservas_dy || 0));
+  const investidoTotal = _patR2(acoes.atual + bdrs.atual + fiis.atual + rf.atual + cripto.atual);
+  const liquidez = _patR2(correntes + reservas + fgts);
+  const patrimonio = _patR2(investidoTotal + liquidez);
+  const dolarizado = _patR2(bdrs.atual + cripto.atual);
+  const retornoAnual = _patR2(acoes.retorno + bdrs.retorno + fiis.retorno + rf.retorno + cripto.retorno + retornoReservas);
+  const rendaMensal = _patR2((d.salario || 0) + retornoAnual / 12);
+  const pct = v => patrimonio ? v / patrimonio : 0;
+  const distribuicao = [
+    ['acoes', 'Ações BR', acoes.atual, acoes.retorno], ['bdrs', 'Stocks / BDRs', bdrs.atual, bdrs.retorno],
+    ['fiis', 'FIIs', fiis.atual, fiis.retorno], ['renda_fixa', 'Renda Fixa', rf.atual, rf.retorno],
+    ['cripto', 'Cripto', cripto.atual, cripto.retorno], ['correntes', 'Contas correntes', correntes, 0],
+    ['reservas', 'Reservas', reservas, retornoReservas], ['fgts', 'FGTS', fgts, 0]
+  ].map(([chave, label, valor, retorno]) => ({ chave, label, valor, pct: pct(valor), retorno, dy: valor ? retorno / valor : 0 }));
+  const seg = {};
+  const somaSeg = (nome, v) => { const k = nome || 'Sem segmento'; seg[k] = (seg[k] || 0) + v; };
+  [...acoes.itens, ...bdrs.itens, ...fiis.itens, ...rf.itens].forEach(i => somaSeg(i.seg, i.atual));
+  ((d.cripto || {}).pools_abertas || []).forEach(p => somaSeg(_patSegCripto(p.pool), p.usd * dolar));
+  ((d.cripto || {}).custodia || []).forEach(p => somaSeg(_patSegCripto(p.ativo), p.usd * dolar));
+  const segmentos = Object.entries(seg).map(([nome, valor]) => ({ nome, valor: _patR2(valor) })).sort((a, b) => b.valor - a.valor);
+  const rfFoco = f => _patSoma(rf.itens.filter(i => i.foco === f), i => i.atual);
+  const dividendos = _patR2(acoes.atual + fiis.atual + rfFoco('dividendos'));
+  const crescimento = _patR2(bdrs.atual + cripto.atual + rfFoco('crescimento'));
+  return {
+    classes: { acoes, bdrs, fiis, renda_fixa: rf, cripto },
+    contas: { correntes, reservas, fgts, total: liquidez, retorno_reservas: retornoReservas, dy: ct.reservas_dy || 0, dy_auto: !!ct.reservas_dy_auto },
+    investido_total: investidoTotal, liquidez, patrimonio, patrimonio_usd: dolar ? _patR2(patrimonio / dolar) : null,
+    dolarizado, nao_dolarizado: _patR2(investidoTotal - dolarizado), dolarizado_pct: pct(dolarizado),
+    retorno_anual: retornoAnual, renda_mensal: rendaMensal, renda_anual: _patR2(rendaMensal * 12), dy_consolidado: pct(retornoAnual),
+    distribuicao, segmentos,
+    foco: { dividendos, crescimento, pct_dividendos: investidoTotal ? dividendos / investidoTotal : 0 },
+    imposto: _patImposto(d.vendas, d.imposto_validade),
+    sem_cotacao: [...acoes.semCotacao, ...bdrs.semCotacao, ...fiis.semCotacao]
+  };
+}
+
+// hist = {mensal:[{mes:'AAAA-MM', total}], anual:[{ano, total}]}; hoje = 'AAAA-MM'.
+// Variação: janeiro compara com o total anual do ano anterior (como a planilha); os demais meses, com o mês anterior.
+function calcEvolucao(hist, totalVivo, hoje) {
+  hist = hist || {};
+  const anual = (hist.anual || []).map(a => ({ ...a })).sort((a, b) => a.ano - b.ano);
+  const base = (hist.mensal || []).map(p => ({ ...p })).sort((a, b) => (a.mes < b.mes ? -1 : 1));
+  const mensal = base.some(p => p.mes === hoje) ? base : base.concat([{ mes: hoje, total: totalVivo, vivo: true }]);
+  mensal.forEach((p, i) => {
+    const anoAnt = anual.find(a => a.ano === Number(p.mes.slice(0, 4)) - 1);
+    const ref = p.mes.endsWith('-01') && anoAnt ? anoAnt.total : (i ? mensal[i - 1].total : null);
+    p.var = ref ? p.total / ref - 1 : null;
+  });
+  const anoAtual = Number(hoje.slice(0, 4));
+  const anuais = anual.some(a => a.ano === anoAtual) ? anual : anual.concat([{ ano: anoAtual, total: totalVivo, vivo: true }]);
+  anuais.forEach((a, i) => { a.var = i ? a.total / anuais[i - 1].total - 1 : null; });
+  return { mensal, anual: anuais };
+}
+
+// ── Números automáticos (pedido do Eduardo em 10/11/2026) ──
+// Série do BCB (SGS): [{data:'DD/MM/AAAA', valor:'13.75'}]. Devolve a última linha com data até hoje (a série 432 traz uma linha futura).
+function _patUltimaLinha(linhas, hojeMs) {
+  const ok = (linhas || []).map(l => {
+    const [d, m, a] = String(l.data).split('/').map(Number);
+    return { t: new Date(a, m - 1, d).getTime(), v: parseFloat(l.valor), data: l.data };
+  }).filter(x => Number.isFinite(x.t) && Number.isFinite(x.v) && x.t <= hojeMs).sort((x, y) => x.t - y.t);
+  return ok.length ? { v: ok[ok.length - 1].v, data: ok[ok.length - 1].data } : null;
+}
+
+// DY de 12 meses = proventos pagos entre (hoje − 365 dias) e hoje ÷ preço. Sem dados de proventos: null (vale o DY digitado).
+function _patDy12(proventos, preco, hojeMs) {
+  if (!Array.isArray(proventos) || !proventos.length || !(preco > 0)) return null;
+  const ini = hojeMs - 365 * 864e5;
+  const soma = proventos.reduce((s, p) => {
+    const t = Date.parse(p.paymentDate || p.lastDatePrior || '');
+    return Number.isFinite(t) && t > ini && t <= hojeMs && Number.isFinite(p.rate) ? s + p.rate : s;
+  }, 0);
+  return soma / preco;
+}
+
+const _PAT_SYM = { WETH: 'ETH', WBTC: 'BTC', CBBTC: 'BTC', TBTC: 'BTC', 'USDC.E': 'USDC', USDBC: 'USDC' };
+const _patNormSym = s => { const u = String(s || '').toUpperCase(); return _PAT_SYM[u] || u; };
+
+// Casa uma pool da planilha (regra `match`: {chain?, par:[A,B], faixa?:[min,max]}) com UMA posição do app de pools.
+// Posição: {chain, protocol, a, b, value, fees, apy, faixa:[min,max]|null}. Zero ou várias candidatas: null (vale o valor digitado).
+function _patCasarPool(regra, posicoes) {
+  if (!regra || !Array.isArray(regra.par)) return null;
+  const par = regra.par.map(_patNormSym).sort().join('/');
+  let cand = (posicoes || []).filter(p => (!regra.chain || p.chain === regra.chain) && [_patNormSym(p.a), _patNormSym(p.b)].sort().join('/') === par);
+  if (cand.length > 1 && regra.faixa) {
+    const perto = (x, y) => Math.abs(x - y) <= 0.02 * Math.max(Math.abs(y), 1e-9);
+    // a faixa pode vir invertida (preço do token1 em token0)
+    const naFaixa = p => p.faixa && (
+      (perto(p.faixa[0], regra.faixa[0]) && perto(p.faixa[1], regra.faixa[1])) ||
+      (perto(1 / p.faixa[1], regra.faixa[0]) && perto(1 / p.faixa[0], regra.faixa[1])));
+    cand = cand.filter(naFaixa);
+  }
+  return cand.length === 1 ? cand[0] : null;
+}
+
+// auto = { selic, cdi, ipca12 (em %), dolar, dy12: {ticker: fração}, lp: {ts, posicoes} | null }.
+// Devolve uma CÓPIA dos dados com os números automáticos aplicados (e marcados) mais as fontes usadas.
+function aplicarAutomaticos(dados, auto, hojeMs) {
+  const d = JSON.parse(JSON.stringify(dados || {}));
+  auto = auto || {};
+  const fontes = { dolar: false, selic: false, cdi: false, ipca12: auto.ipca12 != null, dy: 0, pools: 0, pools_manuais: 0 };
+  if (Number.isFinite(auto.dolar) && auto.dolar > 0) { d.dolar = auto.dolar; fontes.dolar = true; }
+  (d.renda_fixa || []).forEach(a => {
+    if (a.indexador === 'selic' && Number.isFinite(auto.selic)) { a.dy = auto.selic / 100; a.dy_auto = true; fontes.selic = true; }
+  });
+  const ct = d.contas || {};
+  if (ct.reservas_indexador === 'cdi' && Number.isFinite(auto.cdi)) { ct.reservas_dy = auto.cdi / 100; ct.reservas_dy_auto = true; fontes.cdi = true; }
+  const dy12 = auto.dy12 || {};
+  ['acoes', 'bdrs', 'fiis'].forEach(k => ((d.posicoes || {})[k] || []).forEach(p => {
+    if (Number.isFinite(dy12[p.ticker])) { p.dy = dy12[p.ticker]; p.dy_auto = true; fontes.dy++; }
+  }));
+  const lp = auto.lp && Array.isArray(auto.lp.posicoes) && auto.lp.ts && hojeMs - auto.lp.ts <= 3 * 864e5 ? auto.lp : null;
+  const usadas = new Set();
+  ((d.cripto || {}).pools_abertas || []).forEach(p => {
+    const pos = lp ? _patCasarPool(p.match, lp.posicoes.filter(x => !usadas.has(x))) : null;
+    if (!pos) { fontes.pools_manuais++; return; }
+    usadas.add(pos);
+    p.usd = _patR2((pos.value || 0) + (pos.fees || 0)); p.usd_auto = true;
+    if (Number.isFinite(pos.apy) && pos.apy > 0) { p.dy_mensal = pos.apy / 100 / 12; p.dy_auto = true; }
+    fontes.pools++;
+  });
+  const orfas = lp ? lp.posicoes.filter(x => !usadas.has(x)).map(x => `${_patNormSym(x.a)}/${_patNormSym(x.b)} (${x.chain})`) : [];
+  return { dados: d, fontes, orfas, lp_ts: lp ? lp.ts : null };
+}
+// PATRIMONIO-CALC-FIM
+// ──────────────────────────────────
 // TRADING (28/10/2026) — chaves 'trading_estrategias' (backtest/incubadora.py) e 'trading_resumo' (backtest/resumo_tracker.py),
 // escritas toda noite pela rodada das 19h do projeto Trading. Só leitura.
 // 07/11/2026 (pedido do Eduardo): Incubadora e Carteira ficaram só com o básico. O painel detalhado (7 sub-abas, ficha, faixa,
