@@ -1812,6 +1812,60 @@ body.dens-compact .gap{margin-bottom:14px}
 .mov-vazio p{margin:0 0 10px}
 .mov-vazio strong{color:var(--text)}
 .mov-vazio ol{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+/* PATRIMÔNIO (10/11/2026) */
+#pat-content.reveal{opacity:1;transform:none;transition:none;will-change:auto} /* wrapper alto demais p/ o scroll reveal (threshold 12%); os cards já têm slideUp */
+.pt-lbl{font-size:11.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+.pt-total{font-family:'DM Mono',monospace;font-size:clamp(28px,8vw,40px);font-weight:700;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.pt-usd,.pt-sub{font-size:12px;color:var(--text3);line-height:1.5}
+.pt-var{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;font-weight:600;margin:8px 0 14px}
+.pt-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pt-mini>div{background:var(--bg2);border-radius:8px;padding:10px;min-width:0}
+.pt-mini b{display:block;font-family:'DM Mono',monospace;font-size:13px;margin-top:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.pt-aviso{font-size:12px;color:var(--orange);margin-top:12px;line-height:1.5}
+.pt-seg{display:flex;gap:6px;flex-wrap:wrap}
+.pt-seg .btn{min-height:44px}
+.pt-seg .btn.on{border-color:var(--accent);color:var(--accent)}
+.pt-chart{position:relative;height:220px;margin-top:14px}
+.pt-tab summary{cursor:pointer;font-size:12px;color:var(--text2);min-height:44px;display:flex;align-items:center}
+.pt-tab table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.pt-tab th,.pt-tab td{padding:6px 4px;border-bottom:1px solid var(--border);text-align:right}
+.pt-tab th:first-child,.pt-tab td:first-child{text-align:left}
+.pt-barra{display:flex;gap:2px;height:14px;border-radius:7px;overflow:hidden;margin:12px 0}
+.pt-barra span{min-width:2px}
+.pt-lista{list-style:none;margin:0;padding:0}
+.pt-dist-row{display:grid;grid-template-columns:10px 1fr auto 52px;gap:2px 10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pt-dist-row i{width:10px;height:10px;border-radius:50%;align-self:center}
+.pt-dist-row b,.pt-dist-row em,.pt-seg-row b,.pt-v,.pt-kv b{font-family:'DM Mono',monospace;font-style:normal;font-variant-numeric:tabular-nums}
+.pt-dist-row em{text-align:right;color:var(--text2)}
+.pt-dist-row small{grid-column:2 / -1;font-size:11px;color:var(--text3)}
+.pt-h3{font-family:var(--f-sans);text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--text2);margin:20px 0 6px}
+.pt-kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pt-kv span{color:var(--text2)}
+.pt-kv b{text-align:right}
+.pt-seg-row{display:grid;grid-template-columns:minmax(90px,1fr) 1.2fr auto;gap:10px;align-items:center;padding:6px 0;font-size:13px}
+.pt-seg-bar{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.pt-seg-bar i{display:block;height:100%;background:var(--accent)}
+.pt-meta{margin-top:12px}
+.pt-meta-bar{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.pt-meta-bar i{display:block;height:100%;background:var(--green)}
+.pt-det{padding:0}
+.pt-det>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:12px 16px;cursor:pointer;list-style:none}
+.pt-det>summary::-webkit-details-marker{display:none}
+.pt-det>summary::after{content:'▸';color:var(--text3)}
+.pt-det[open]>summary::after{content:'▾'}
+.pt-det>:not(summary){margin-left:16px;margin-right:16px}
+.pt-det>:last-child{margin-bottom:16px}
+.pt-det-t{font-weight:600;font-size:14px}
+.pt-det-r{font-size:12.5px;display:flex;gap:8px;align-items:baseline;margin-left:auto;font-variant-numeric:tabular-nums}
+.pt-cab{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;font-size:11.5px;color:var(--text3);margin-bottom:8px}
+.pt-cab b{display:block;font-family:'DM Mono',monospace;font-size:13px;color:var(--text);margin-top:2px}
+.pt-row{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:9px 0;border-bottom:1px solid var(--border);align-items:baseline}
+.pt-row:last-child{border-bottom:none}
+.pt-tk{font-size:13px;font-weight:600}
+.pt-v{font-size:13px;text-align:right}
+.pt-row>span:nth-child(4){text-align:right;font-size:12px;font-family:'DM Mono',monospace}
+.pt-imp{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+@media (max-width:640px){.pt-det-r{flex-direction:column;align-items:flex-end;gap:0}}
 .inv-pools{margin-top:34px}
 .inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
 /* ══ Componentes inspirados no 21st.dev (10/10/2026) — reescritos em CSS/JS puro ══ */
@@ -2820,6 +2874,8 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
 <section class="page" id="page-investimentos">
   <h1>Investimentos</h1><p class="psub">Como seus ativos andaram nos últimos 30 dias e suas posições em pools de liquidez.</p>
 
+  <div id="pat-content"></div>
+
   <div class="card gap" id="mov-card">
     <div class="inv-h">
       <div>
@@ -3246,7 +3302,7 @@ function reRenderAll() {
   safeCall(renderLeitura, 'renderLeitura');
   safeCall(renderFinancas, 'renderFinancas');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
-  safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
+  safeCall(renderPatrimonio, 'renderPatrimonio'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
 }
 
 // ──────────────────────────────────
@@ -3464,7 +3520,7 @@ function renderAba(p) {
   if (p === 'evolucao') { safeCall(renderMetasAnuais,'renderMetasAnuais'); }
   if (p === 'leitura')  { safeCall(renderLeitura, 'renderLeitura'); }
   if (p === 'financas') { safeCall(renderFinancas, 'renderFinancas'); }
-  if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
+  if (p === 'investimentos') { safeCall(carregarPools, 'carregarPools'); safeCall(renderPatrimonio, 'renderPatrimonio'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao'); }
   if (p === 'trading')  { safeCall(renderTrading, 'renderTrading'); }
   if (p === 'carteira') { safeCall(renderCarteira, 'renderCarteira'); }
   if (p === 'backup')   { safeCall(bkStats, 'bkStats'); }
@@ -4290,6 +4346,192 @@ function aplicarAutomaticos(dados, auto, hojeMs) {
   return { dados: d, fontes, orfas, lp_ts: lp ? lp.ts : null };
 }
 // PATRIMONIO-CALC-FIM
+
+// ── Tela da aba Patrimônio (10/11/2026) ──
+const _PAT_MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+const _PT_CORES = ['#4ade80', '#60a5fa', '#f59e0b', '#a78bfa', '#22d3a0', '#94a3b8', '#e879f9', '#fb923c'];
+let _patChart = null, _patEvoSel = null;
+const _patAbertos = new Set();
+const _patUsd = v => (v < 0 ? '−' : '') + 'US$ ' + Math.abs(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const _patPc2 = v => v == null ? '—' : (v * 100).toFixed(2).replace('.', ',') + '%';
+const _patPc1 = v => (v * 100).toFixed(1).replace('.', ',') + '%';
+const _patSeta = v => v == null ? '' : (v >= 0 ? '▲ ' : '▼ ') + _tr.pc(v);
+const _patTog = el => { if (el.open) _patAbertos.add(el.dataset.k); else _patAbertos.delete(el.dataset.k); };
+
+// Os preços vêm do cache da Movimentação (a mesma busca na brapi), para não consultar duas vezes.
+function _patPrecos() {
+  try {
+    const c = JSON.parse(localStorage.getItem('mov_cache') || 'null');
+    const precos = {};
+    ((c && c.data) || []).forEach(i => { if (i.type !== 'crypto' && Number.isFinite(i.price)) precos[i.ticker] = i.price; });
+    return { precos, ts: c && c.ts ? c.ts : null };
+  } catch (e) { return { precos: {}, ts: null }; }
+}
+
+function _patHero(r, ev, ts) {
+  const m = ev.mensal[ev.mensal.length - 1], a = ev.anual[ev.anual.length - 1];
+  const quando = ts ? new Date(ts).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+  const aviso = !ts ? 'Sem cotações: ativos a preço de custo. Cole o token da brapi em Movimentação → Configurar.'
+    : r.sem_cotacao.length ? `${r.sem_cotacao.length} ativo(s) sem cotação, a preço de custo: ${r.sem_cotacao.join(', ')}.` : '';
+  return `<div class="card gap pt-hero">
+    <div class="pt-lbl">Patrimônio total${quando ? ' · preços de ' + quando : ''}</div>
+    <div class="pt-total">${_tr.brl(r.patrimonio)}</div>
+    <div class="pt-usd">${_patUsd(r.patrimonio_usd)}</div>
+    <div class="pt-var"><span class="${_tr.cl(m.var)}">${_patSeta(m.var) || '—'} no mês</span><span class="${_tr.cl(a.var)}">${_patSeta(a.var) || '—'} no ano</span></div>
+    <div class="pt-mini">
+      <div><span class="pt-lbl">Investido</span><b>${_tr.brl(r.investido_total)}</b></div>
+      <div><span class="pt-lbl">Liquidez</span><b>${_tr.brl(r.liquidez)}</b></div>
+      <div><span class="pt-lbl">Dolarizado</span><b>${_patPc1(r.dolarizado_pct)}</b></div>
+    </div>
+    ${aviso ? `<div class="pt-aviso">${_alEsc(aviso)}</div>` : ''}
+  </div>`;
+}
+
+function _patEvoPontos(ev) {
+  return _patEvoSel === 'anual'
+    ? ev.anual.map(a => ({ l: String(a.ano), v: a.total, var: a.var }))
+    : ev.mensal.filter(p => p.mes.startsWith(_patEvoSel)).map(p => ({ l: _PAT_MESES[Number(p.mes.slice(5)) - 1], v: p.total, var: p.var }));
+}
+
+function _patEvoCard(ev) {
+  const anos = [...new Set(ev.mensal.map(p => p.mes.slice(0, 4)))];
+  const botoes = anos.map(y => [y, y + ' mensal']).concat([['anual', 'Anual']])
+    .map(([k, t]) => `<button class="btn btn-g btn-sm${_patEvoSel === k ? ' on' : ''}" aria-pressed="${_patEvoSel === k}" onclick="_patTrocarEvo('${k}')">${t}</button>`).join('');
+  const linhas = _patEvoPontos(ev).map(p => `<tr><td>${p.l}</td><td>${_tr.brl(p.v)}</td><td class="${_tr.cl(p.var)}">${p.var == null ? '—' : _tr.pc(p.var)}</td></tr>`).join('');
+  return `<div class="card gap">
+    <div class="inv-h"><div><h2>Evolução</h2><div class="inv-sub">Patrimônio total ao longo do tempo</div></div><div class="pt-seg">${botoes}</div></div>
+    <div class="pt-chart"><canvas id="pt-evo" role="img" aria-label="Gráfico da evolução do patrimônio"></canvas></div>
+    <details class="pt-tab"><summary>Ver tabela</summary><table><thead><tr><th>Período</th><th>Patrimônio</th><th>Variação</th></tr></thead><tbody>${linhas}</tbody></table></details>
+  </div>`;
+}
+
+function _patTrocarEvo(k) { _patEvoSel = k; renderPatrimonio(); }
+
+function _patDesenharEvo(ev) {
+  const canvas = $('pt-evo');
+  if (!canvas || typeof Chart === 'undefined') return;
+  if (_patChart) { _patChart.destroy(); _patChart = null; }
+  const pts = _patEvoPontos(ev);
+  _patChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels: pts.map(p => p.l), datasets: [{ data: pts.map(p => p.v), borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,.10)', fill: true, tension: .35, pointRadius: 4, borderWidth: 2 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + _tr.brl(ctx.parsed.y) } } },
+      scales: {
+        x: { ticks: { color: '#8892a4', font: { size: 10 } }, grid: { color: 'rgba(46,50,80,.4)' } },
+        y: { ticks: { color: '#8892a4', font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR', { notation: 'compact' }) }, grid: { color: 'rgba(46,50,80,.3)' } }
+      }
+    }
+  });
+}
+
+function _patDistCard(r) {
+  const itens = r.distribuicao.map((x, i) => ({ ...x, cor: _PT_CORES[i] }));
+  const barra = itens.filter(x => x.valor > 0).map(x => `<span style="flex:${x.valor};background:${x.cor}" title="${_alEsc(x.label)} ${_patPc1(x.pct)}"></span>`).join('');
+  const lista = itens.map(x => `<li class="pt-dist-row"><i style="background:${x.cor}"></i><span>${_alEsc(x.label)}</span><b>${_tr.brl(x.valor)}</b><em>${_patPc1(x.pct)}</em>${x.retorno ? `<small>DY ${_patPc2(x.dy)}</small>` : ''}</li>`).join('');
+  const maxSeg = r.segmentos.length ? r.segmentos[0].valor : 1;
+  const segs = r.segmentos.map(s => `<li class="pt-seg-row"><span>${_alEsc(s.nome)}</span><span class="pt-seg-bar"><i style="width:${(s.valor / maxSeg * 100).toFixed(1)}%"></i></span><b>${_tr.brl(s.valor)}</b></li>`).join('');
+  const f = r.foco;
+  return `<div class="card gap">
+    <div class="inv-h"><div><h2>Distribuição</h2><div class="inv-sub">Onde está cada real do patrimônio</div></div></div>
+    <div class="pt-barra" role="img" aria-label="Distribuição do patrimônio por classe">${barra}</div>
+    <ul class="pt-lista">${lista}</ul>
+    <h3 class="pt-h3">Dolarização</h3>
+    <div class="pt-kv"><span>Dolarizado (BDRs + cripto)</span><b>${_tr.brl(r.dolarizado)} · ${_patPc1(r.dolarizado_pct)} do patrimônio</b></div>
+    <div class="pt-kv"><span>Não dolarizado (investido)</span><b>${_tr.brl(r.nao_dolarizado)}</b></div>
+    <h3 class="pt-h3">Dividendos x crescimento</h3>
+    <div class="pt-barra" role="img" aria-label="Dividendos contra crescimento"><span style="flex:${f.dividendos};background:#4ade80"></span><span style="flex:${f.crescimento};background:#60a5fa"></span></div>
+    <div class="pt-kv"><span>Dividendos</span><b>${_tr.brl(f.dividendos)} · ${_patPc1(f.pct_dividendos)}</b></div>
+    <div class="pt-kv"><span>Crescimento</span><b>${_tr.brl(f.crescimento)} · ${_patPc1(1 - f.pct_dividendos)}</b></div>
+    <h3 class="pt-h3">Segmentos</h3>
+    <ul class="pt-lista">${segs}</ul>
+  </div>`;
+}
+
+function _patRendaCard(r, d) {
+  const meta = d.meta || {}, alvo = meta.dy_alvo || 0;
+  const prog = alvo ? Math.min(r.dy_consolidado / alvo, 1) * 100 : 0;
+  return `<div class="card gap">
+    <div class="inv-h"><div><h2>Renda</h2><div class="inv-sub">Salário mais dividendos e rendimentos</div></div></div>
+    <div class="pt-kv"><span>Salário</span><b>${_tr.brl(d.salario || 0)}</b></div>
+    <div class="pt-kv"><span>Dividendos e rendimentos por ano</span><b>${_tr.brl(r.retorno_anual)}</b></div>
+    <div class="pt-kv"><span>Renda mensal (salário + dividendos)</span><b>${_tr.brl(r.renda_mensal)}</b></div>
+    <div class="pt-kv"><span>Renda anual</span><b>${_tr.brl(r.renda_anual)}</b></div>
+    <div class="pt-kv"><span>DY consolidado</span><b>${_patPc2(r.dy_consolidado)}</b></div>
+    ${alvo ? `<div class="pt-meta"><div class="pt-meta-bar"><i style="width:${prog.toFixed(1)}%"></i></div>
+      <div class="pt-sub">Meta: DY ${_patPc2(alvo)} até ${_alEsc(String(meta.ate || ''))} · ${r.dy_consolidado >= alvo ? '✓ acima da meta' : 'ainda abaixo da meta'}</div></div>` : ''}
+  </div>`;
+}
+
+function _patDet(k, titulo, resumo, corpo) {
+  return `<details class="card gap pt-det" data-k="${k}" ontoggle="_patTog(this)"${_patAbertos.has(k) ? ' open' : ''}>
+    <summary><span class="pt-det-t">${titulo}</span><span class="pt-det-r">${resumo}</span></summary>${corpo}</details>`;
+}
+const _patResumo = c => `<b>${_tr.brl(c.atual)}</b>${c.rent == null ? '' : ` <span class="${_tr.cl(c.lucro)}">${_patSeta(c.rent)}</span>`}`;
+const _patCab = c => `<div class="pt-cab"><span>Investido <b>${_tr.brl(c.investido)}</b></span><span>Atual <b>${_tr.brl(c.atual)}</b></span><span>Lucro <b class="${_tr.cl(c.lucro)}">${_tr.rs(c.lucro)}</b></span><span>Dividendos/ano <b>${_tr.brl(c.retorno)}</b></span></div>`;
+
+function _patLinhaB3(i) {
+  const luc = i.lucro == null ? '<span class="pt-sub">sem cotação</span>'
+    : `<span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span>`;
+  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ticker)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
+    <span class="pt-sub">${i.qtd} × ${_tr.brl(i.pm)} · ${i.preco == null ? 'sem cotação' : 'preço ' + _tr.brl(i.preco)} · DY ${_patPc2(i.dy)}</span>${luc}</li>`;
+}
+
+function _patLinhaRF(i) {
+  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ativo)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
+    <span class="pt-sub">aplicado ${_tr.brl(i.investido)} · DY ${_patPc2(i.dy)}</span>
+    <span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span></li>`;
+}
+
+function _patCriptoCorpo(r, d) {
+  const c = d.cripto || {}, cr = r.classes.cripto;
+  const pools = (c.pools_abertas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.usd)}</span><span class="pt-sub">DY mensal ${_patPc2(p.dy_mensal)}${p.bear_ready ? ' · bear ready' : ''}${p.pm != null ? ' · PM ' + Number(p.pm).toLocaleString('pt-BR') : ''}</span><span></span></li>`).join('');
+  const cust = (c.custodia || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.ativo)}</span><span class="pt-v">${_patUsd(p.usd)}</span><span class="pt-sub">${p.risk != null ? 'risk factor ' + String(p.risk).replace('.', ',') : ''}</span><span></span></li>`).join('');
+  const fech = (c.pools_fechadas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.hoje_usd)}</span><span class="pt-sub">investido ${_patUsd(p.investido_usd)} · ${p.qty} · PM ${Number(p.pm).toLocaleString('pt-BR')}</span><span></span></li>`).join('');
+  const rend = (c.rendimentos_2025 || []).map(x => `<tr><td>${_alEsc(x.mes)}</td><td>${_patUsd(x.usd)}</td><td>${_tr.brl(x.brl)}</td></tr>`).join('');
+  return `${_patCab(cr)}
+    <h3 class="pt-h3">Pools abertas · ${_patUsd(cr.pools_usd)}</h3><ul class="pt-lista">${pools}</ul>
+    <h3 class="pt-h3">Reserva em custódia · ${_patUsd(cr.custodia_usd)}</h3><ul class="pt-lista">${cust}</ul>
+    ${fech ? `<h3 class="pt-h3">Pools fechadas (fora do total)</h3><ul class="pt-lista">${fech}</ul>` : ''}
+    ${rend ? `<details class="pt-tab"><summary>Rendimentos mensais de 2025</summary><table><thead><tr><th>Mês</th><th>USD</th><th>R$</th></tr></thead><tbody>${rend}</tbody></table></details>` : ''}
+    <div class="pt-sub">Valores em dólar a R$ ${String(d.dolar).replace('.', ',')}. As posições ao vivo estão em Pools de liquidez, mais abaixo.</div>`;
+}
+
+function _patPosicoes(r, d) {
+  const c = r.classes, im = r.imposto, ct = r.contas, reservasDy = (d.contas || {}).reservas_dy;
+  const imp = im.itens.length ? `<div class="pt-imp"><b>Imposto a pagar ${_tr.brl(im.imposto)}</b>
+    <div class="pt-sub">15% sobre lucro de ${_tr.brl(im.lucro)} nas vendas${im.validade ? ' · validade ' + _alEsc(im.validade) : ''}</div>
+    <ul class="pt-lista">${im.itens.map(v => `<li class="pt-row"><span class="pt-tk">${_alEsc(v.ticker)}</span><span class="pt-v ${_tr.cl(v.lucro)}">${_tr.rs(v.lucro)}</span><span class="pt-sub">${v.qtd} × PM ${_tr.brl(v.pm)} → venda ${_tr.brl(v.venda)}</span><span></span></li>`).join('')}</ul></div>` : '';
+  const contas = `<div class="pt-kv"><span>Contas correntes</span><b>${_tr.brl(ct.correntes)}</b></div>
+    <div class="pt-kv"><span>Reservas${reservasDy ? ' · rende ' + _patPc2(reservasDy) + ' ao ano' : ''}</span><b>${_tr.brl(ct.reservas)}</b></div>
+    <div class="pt-kv"><span>FGTS</span><b>${_tr.brl(ct.fgts)}</b></div>`;
+  const lista = (cl, linha) => `<ul class="pt-lista">${cl.itens.map(linha).join('')}</ul>`;
+  return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + lista(c.acoes, _patLinhaB3))
+    + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + lista(c.bdrs, _patLinhaB3) + imp)
+    + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + lista(c.fiis, _patLinhaB3))
+    + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF))
+    + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d))
+    + _patDet('contas', 'Contas, reservas e FGTS', `<b>${_tr.brl(r.liquidez)}</b>`, contas);
+}
+
+function renderPatrimonio() {
+  const cont = $('pat-content');
+  if (!cont) return;
+  const dados = load('patrimonio', null);
+  if (!dados || !dados.posicoes) {
+    cont.innerHTML = '<div class="card gap"><div class="mov-msg">Ainda não há dados de patrimônio no servidor (chave <code>patrimonio</code>).</div></div>';
+    return;
+  }
+  const { precos, ts } = _patPrecos();
+  const r = calcPatrimonio(dados, precos);
+  const d = new Date();
+  const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  const ev = calcEvolucao(load('patrimonio_hist', null), r.patrimonio, hoje);
+  if (!_patEvoSel) _patEvoSel = hoje.slice(0, 4);
+  cont.innerHTML = _patHero(r, ev, ts) + _patEvoCard(ev) + _patDistCard(r) + _patRendaCard(r, dados) + _patPosicoes(r, dados);
+  _patDesenharEvo(ev);
+}
 // ──────────────────────────────────
 // TRADING (28/10/2026) — chaves 'trading_estrategias' (backtest/incubadora.py) e 'trading_resumo' (backtest/resumo_tracker.py),
 // escritas toda noite pela rodada das 19h do projeto Trading. Só leitura.
@@ -9747,7 +9989,7 @@ function _lpTema(html) {
   safeCall(verificarAlertaDescanso, 'verificarAlertaDescanso');
   safeCall(renderGratDiaria, 'renderGratDiaria');
   safeCall(renderAnexosRelatorio, 'renderAnexosRelatorio');
-  safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
+  safeCall(renderPatrimonio, 'renderPatrimonio'); safeCall(() => atualizarMovimentacao(false), 'atualizarMovimentacao');
   // Link direto pra uma aba: .../Tracker/#leitura (usado no atalho do painel do app do Claude)
   const abaInicial = location.hash.slice(1);
   if (abaInicial && $('page-' + abaInicial)) safeCall(() => go(abaInicial), 'abaInicial');
