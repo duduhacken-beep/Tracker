@@ -2224,7 +2224,7 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
   <button class="nb" onclick="go('financas')" id="n-financas">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finanças</span></button>
   <button class="nb" onclick="go('investimentos')" id="n-investimentos">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Investir</span></button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg><span>Patrimônio</span></button>
   <button class="nb" onclick="go('trading')" id="n-trading">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><rect x="4" y="8" width="4" height="7"/><line x1="12" y1="3" x2="12" y2="18"/><rect x="10" y="6" width="4" height="8"/><line x1="18" y1="6" x2="18" y2="21"/><rect x="16" y="10" width="4" height="7"/></svg><span>Incubadora</span></button>
   <button class="nb" onclick="go('carteira')" id="n-carteira">
@@ -2872,7 +2872,7 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
 
 <!-- ════════════════ INVESTIMENTOS ════════════════ -->
 <section class="page" id="page-investimentos">
-  <h1>Investimentos</h1><p class="psub">Como seus ativos andaram nos últimos 30 dias e suas posições em pools de liquidez.</p>
+  <h1>Patrimônio</h1><p class="psub">Tudo o que você tem: investimentos, contas, reservas, FGTS, renda e evolução, mais a variação do mês e os pools de liquidez.</p>
 
   <div id="pat-content"></div>
 
@@ -3261,7 +3261,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -6542,7 +6542,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
@@ -8513,7 +8513,7 @@ const ALL_PAGES = [
   { id:'evolucao', label:'Evolução',  icon:'📈' },
   { id:'leitura',  label:'Leitura',   icon:'📚' },
   { id:'financas', label:'Finanças',  icon:'💰' },
-  { id:'investimentos', label:'Investimentos', icon:'📈' },
+  { id:'investimentos', label:'Patrimônio', icon:'📈' },
   { id:'backup',   label:'Backup',    icon:'☁️' },
 ];
 
