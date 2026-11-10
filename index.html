@@ -2880,7 +2880,7 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
     <div class="inv-h">
       <div>
         <h2>Movimentação do mês</h2>
-        <div class="inv-sub" id="mov-updated">Variação dos ativos da sua planilha</div>
+        <div class="inv-sub" id="mov-updated">Variação dos ativos da sua carteira</div>
       </div>
       <div class="inv-acoes">
         <button class="btn btn-g btn-sm" onclick="abrirConfigMov()">Configurar</button>
@@ -2905,7 +2905,7 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
       <h2>Configurar movimentação</h2>
 
       <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
-        Os tickers são lidos automaticamente das abas <strong>Ações BR</strong>, <strong>Stocks (BDRs)</strong>, <strong>FIIs</strong> e <strong>Cripto</strong> da sua planilha. A variação dos últimos 30 dias vem da brapi.dev.
+        Os tickers vêm da sua carteira (ações, BDRs, FIIs e cripto do Patrimônio). Os preços atuais e a variação dos últimos 30 dias vêm da brapi.dev.
       </p>
 
       <div class="fg">
@@ -2913,14 +2913,6 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
         <input id="mov-token" type="text" placeholder="Cole seu token aqui">
         <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
           Cadastro grátis em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--accent);font-weight:600">brapi.dev/dashboard</a> (login com Google). Copie a chave em "Chaves de API".
-        </div>
-      </div>
-
-      <div class="fg">
-        <label>ID da planilha</label>
-        <input id="mov-sheet-id" type="text" placeholder="ID do Google Sheets">
-        <div style="font-size:11px;color:var(--text3);margin-top:5px;line-height:1.55">
-          ID extraído da URL <code style="background:var(--bg);padding:1px 4px;border-radius:3px">docs.google.com/spreadsheets/d/<strong>{ID}</strong>/...</code>. A planilha precisa estar pública ("qualquer pessoa com link pode visualizar").
         </div>
       </div>
 
@@ -9451,11 +9443,9 @@ function renderFilmes() {
 
 // ══════════════════════════════════════════
 // MOVIMENTAÇÃO DO MÊS — top 3 altas e quedas
-// Lê tickers das abas da planilha (Ações BR + Stocks BDRs + FIIs + Cripto).
+// Lê os tickers da chave 'patrimonio' (Ações BR + Stocks BDRs + FIIs + Cripto); desde 10/11/2026 não lê mais a planilha.
 // Variação dos últimos ~30 dias vem da brapi.dev.
 // ══════════════════════════════════════════
-const MOV_SHEET_DEFAULT_ID = '1U3WRo-dCT1GiWJ5z0q1nemZxpCaTabIW';
-const MOV_ABAS = ['Ações BR', 'Stocks (BDRs)', 'FIIs', 'Cripto'];
 // Cripto: nomes longos da planilha → símbolo brapi
 const MOV_CRYPTO_NAME_MAP = {
   BITCOIN:'BTC', BTC:'BTC',
@@ -9474,36 +9464,17 @@ const MOV_CRYPTO_NAME_MAP = {
 
 function abrirConfigMov() {
   $('mov-token').value = localStorage.getItem('mov_token') || '';
-  $('mov-sheet-id').value = localStorage.getItem('mov_sheet_id') || MOV_SHEET_DEFAULT_ID;
   $('modal-mov-config').classList.add('on');
 }
 
 function salvarConfigMov() {
   const token = $('mov-token').value.trim();
-  const sheetId = $('mov-sheet-id').value.trim() || MOV_SHEET_DEFAULT_ID;
   if (token) localStorage.setItem('mov_token', token);
   else localStorage.removeItem('mov_token');
-  localStorage.setItem('mov_sheet_id', sheetId);
+  localStorage.removeItem('mov_div_off');   // salvar o token de novo religa os dividendos
   localStorage.removeItem('mov_cache');
   $('modal-mov-config').classList.remove('on');
   atualizarMovimentacao(true);
-}
-
-// Parser ingênuo de CSV — só o suficiente pra pegar a coluna 1 (nome/ticker)
-function _movParseCsvLine(line) {
-  const cells = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"') {
-      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if (c === ',' && !inQ) {
-      cells.push(cur); cur = '';
-    } else cur += c;
-  }
-  cells.push(cur);
-  return cells;
 }
 
 // Log de debug — guardado em memória pra exibir no painel
@@ -9519,81 +9490,6 @@ function mostrarDebugMov() {
   alert('🐛 DEBUG MOVIMENTAÇÃO\n\n' + txt);
 }
 
-// Tenta uma URL primeiro direto, depois via cadeia de proxies CORS
-async function _movFetchComProxy(url, abaName) {
-  // 1) Direto
-  try {
-    const res = await fetch(url);
-    if (res.ok) {
-      const t = await res.text();
-      if (!t.startsWith('<')) {
-        _movDbg(`✅ ${abaName}: fetch direto OK (${t.length}b)`);
-        return t;
-      }
-      _movDbg(`⚠️ ${abaName}: direto retornou HTML`);
-    } else {
-      _movDbg(`⚠️ ${abaName}: direto HTTP ${res.status}`);
-    }
-  } catch (e) {
-    _movDbg(`⚠️ ${abaName}: direto falhou (${e.message})`);
-  }
-
-  // 2) Cadeia de proxies — testa cada um
-  const proxies = [
-    { name: 'allorigins', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` },
-    { name: 'corsproxy.io', build: u => `https://corsproxy.io/?${encodeURIComponent(u)}` },
-    { name: 'cors.eu.org', build: u => `https://cors.eu.org/${u}` },
-    { name: 'allorigins-retry', build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` }
-  ];
-
-  for (const p of proxies) {
-    try {
-      const proxyUrl = p.build(url);
-      const res = await fetch(proxyUrl);
-      if (!res.ok) {
-        _movDbg(`⚠️ ${abaName}/${p.name}: HTTP ${res.status}`);
-        continue;
-      }
-      const t = await res.text();
-      if (t.startsWith('<')) {
-        _movDbg(`⚠️ ${abaName}/${p.name}: retornou HTML`);
-        continue;
-      }
-      _movDbg(`✅ ${abaName}: via ${p.name} OK (${t.length}b)`);
-      return t;
-    } catch (e) {
-      _movDbg(`⚠️ ${abaName}/${p.name} falhou: ${e.message}`);
-    }
-    await new Promise(r => setTimeout(r, 200));
-  }
-
-  _movDbg(`❌ ${abaName}: TODOS os proxies falharam`);
-  _movDbg(`   URL alvo: ${url}`);
-  return null;
-}
-
-async function _movFetchAba(sheetId, aba) {
-  const baseUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(aba)}`;
-  const text = await _movFetchComProxy(baseUrl, aba);
-  if (!text) return [];
-
-  const lines = text.split('\n').filter(l => l.trim());
-  const out = [];
-  for (const line of lines) {
-    const cells = _movParseCsvLine(line);
-    const c1 = (cells[1] || '').trim().replace(/^"|"$/g, '');
-    if (!c1) continue;
-    out.push(c1);
-  }
-  _movDbg(`   ${aba}: ${lines.length} linhas, ${out.length} valores extraídos`);
-  return out;
-}
-
-// Aceita: VALE3 (4L+1D), AAPL34/MXRF11 (4L+2D), A1MT34 (BDR letra+dígito+2L+2D)
-function _movEhTickerBr(s) {
-  return /^([A-Z]{4}|[A-Z][0-9][A-Z]{2})[0-9]{1,2}[BR]?$/.test(s);
-}
-
 // Da aba Cripto, extrai primeira palavra-chave (ex: "BITCOIN (Aave - ARB)" → "BITCOIN")
 function _movExtraiCripto(s) {
   const m = s.match(/^([A-Z]{2,12})\b/);
@@ -9601,51 +9497,16 @@ function _movExtraiCripto(s) {
   return MOV_CRYPTO_NAME_MAP[m[1]] || null;
 }
 
-async function _movFetchTickersDaPlanilha(sheetId) {
-  _movDbg(`▶️ Buscando tickers da planilha ${sheetId}`);
-  const resultados = await Promise.all(MOV_ABAS.map(aba => _movFetchAba(sheetId, aba)));
-  const acoesBr = new Set();
-  const bdrs = new Set();
-  const fiis = new Set();
+// Tickers da carteira, lidos da chave 'patrimonio'. Cripto: símbolo achado no nome da pool ou da custódia.
+function _movTickersDoPatrimonio() {
+  const d = load('patrimonio', null) || {}, p = d.posicoes || {}, cr = d.cripto || {};
+  const t = a => (a || []).map(x => x.ticker);
   const cryptos = new Set();
-  for (let i = 0; i < MOV_ABAS.length; i++) {
-    const aba = MOV_ABAS[i];
-    const linhas = resultados[i];
-    let achadosAba = 0;
-    if (aba === 'Cripto') {
-      for (const l of linhas) {
-        const sym = _movExtraiCripto(l);
-        if (sym) { cryptos.add(sym); achadosAba++; }
-      }
-    } else if (aba === 'FIIs') {
-      for (const l of linhas) {
-        const t = l.toUpperCase().trim();
-        if (_movEhTickerBr(t)) { fiis.add(t); achadosAba++; }
-      }
-    } else if (aba === 'Stocks (BDRs)') {
-      for (const l of linhas) {
-        const t = l.toUpperCase().trim();
-        if (_movEhTickerBr(t)) { bdrs.add(t); achadosAba++; }
-      }
-    } else {
-      // Ações BR
-      for (const l of linhas) {
-        const t = l.toUpperCase().trim();
-        if (_movEhTickerBr(t)) { acoesBr.add(t); achadosAba++; }
-      }
-    }
-    _movDbg(`   📋 ${aba}: ${achadosAba} tickers válidos`);
-  }
-  const acoesBrArr = [...acoesBr];
-  const bdrsArr = [...bdrs];
-  const fiisArr = [...fiis];
-  const cryptosArr = [...cryptos];
-  _movDbg(`✅ Total: ${acoesBrArr.length} ações BR + ${bdrsArr.length} bdrs + ${fiisArr.length} fiis + ${cryptosArr.length} cryptos`);
-  if (acoesBrArr.length) _movDbg(`   ações BR: ${acoesBrArr.join(',')}`);
-  if (bdrsArr.length)    _movDbg(`   bdrs: ${bdrsArr.slice(0,15).join(',')}${bdrsArr.length>15?'...':''}`);
-  if (fiisArr.length)   _movDbg(`   fiis: ${fiisArr.join(',')}`);
-  if (cryptosArr.length) _movDbg(`   cryptos: ${cryptosArr.join(',')}`);
-  return { acoesBr: acoesBrArr, bdrs: bdrsArr, fiis: fiisArr, cryptos: cryptosArr };
+  [...(cr.custodia || []).map(x => x.ativo), ...(cr.pools_abertas || []).map(x => x.pool)].forEach(n => {
+    const sym = _movExtraiCripto(String(n).toUpperCase());
+    if (sym) cryptos.add(sym);
+  });
+  return { acoesBr: t(p.acoes), bdrs: t(p.bdrs), fiis: t(p.fiis), cryptos: [...cryptos] };
 }
 
 // Mapa para CoinGecko (id de URL, usado em /coins/markets)
@@ -9665,8 +9526,15 @@ async function _movFetchStocks(tickers, token, onProgress) {
     count++;
     if (onProgress) onProgress(count, tickers.length);
     try {
-      const url = `https://brapi.dev/api/quote/${t}?range=1mo&interval=1d&token=${encodeURIComponent(token)}`;
-      const res = await fetch(url);
+      // dividends=true traz o histórico de proventos na mesma chamada (alimenta o DY de 12 meses do Patrimônio).
+      // Se o plano da brapi não incluir dividendos, desliga (mov_div_off) e refaz a chamada sem o parâmetro.
+      const comDiv = localStorage.getItem('mov_div_off') !== '1';
+      const base = `https://brapi.dev/api/quote/${t}?range=1mo&interval=1d`;
+      let res = await fetch(`${base}${comDiv ? '&dividends=true' : ''}&token=${encodeURIComponent(token)}`);
+      if (!res.ok && comDiv && [400, 402, 403].includes(res.status)) {
+        localStorage.setItem('mov_div_off', '1');
+        res = await fetch(`${base}&token=${encodeURIComponent(token)}`);
+      }
       if (!res.ok) {
         if (res.status === 402 || res.status === 429) {
           console.warn('[Mov]', t, 'HTTP', res.status, '(limite atingido?)');
@@ -9699,6 +9567,7 @@ async function _movFetchStocks(tickers, token, onProgress) {
         name: item.shortName || item.longName || item.symbol,
         price: endPrice,
         variation,
+        dy12: _patDy12((item.dividendsData || {}).cashDividends, endPrice, Date.now()),   // fração; null se a brapi não trouxer proventos
         type: 'stock'
       });
     } catch (e) {
@@ -9739,12 +9608,11 @@ async function atualizarMovimentacao(force = false) {
   if (force) _movLog.length = 0; // limpa logs em refresh manual
 
   const token = localStorage.getItem('mov_token') || '';
-  const sheetId = localStorage.getItem('mov_sheet_id') || MOV_SHEET_DEFAULT_ID;
 
   // Sem token → passo a passo para obter
   if (!token) {
     cont.innerHTML = `<div class="mov-vazio">
-      <p><strong>Falta o token da brapi.dev</strong> para buscar a variação dos ativos da sua planilha.</p>
+      <p><strong>Falta o token da brapi.dev</strong> para buscar os preços e a variação dos ativos da sua carteira.</p>
       <ol>
         <li>Entre em <a href="https://brapi.dev/dashboard" target="_blank" rel="noopener">brapi.dev/dashboard</a> com sua conta Google.</li>
         <li>Em <strong>Chaves de API</strong>, copie o token.</li>
@@ -9761,16 +9629,14 @@ async function atualizarMovimentacao(force = false) {
   if (!force && cacheRaw) {
     try {
       const cache = JSON.parse(cacheRaw);
-      if (cache.v === 3 && cache.ts && (Date.now() - cache.ts) < 3 * 60 * 60 * 1000) {
+      if (cache.v === 4 && cache.ts && (Date.now() - cache.ts) < 3 * 60 * 60 * 1000) {
         _movRender(cache.data, cache.ts);
         return;
       }
     } catch(e) {}
   }
 
-  cont.innerHTML = '<div class="mov-msg">Lendo a planilha…</div>';
-
-  const { acoesBr, bdrs, fiis, cryptos } = await _movFetchTickersDaPlanilha(sheetId);
+  const { acoesBr, bdrs, fiis, cryptos } = _movTickersDoPatrimonio();
   const allStocksLikes = [...acoesBr, ...bdrs, ...fiis]; // brapi trata todos como ticker comum
   const acoesBrSet = new Set(acoesBr);
   const bdrsSet = new Set(bdrs);
@@ -9778,7 +9644,7 @@ async function atualizarMovimentacao(force = false) {
   const totalTickers = allStocksLikes.length + cryptos.length;
 
   if (!totalTickers) {
-    cont.innerHTML = `<div class="mov-msg">Nenhum ativo encontrado nas abas da planilha. <a href="#" onclick="abrirConfigMov();return false">Conferir o ID da planilha</a></div>`;
+    cont.innerHTML = '<div class="mov-msg">Nenhum ativo na carteira ainda (a chave <code>patrimonio</code> está vazia).</div>';
     return;
   }
 
@@ -9807,9 +9673,10 @@ async function atualizarMovimentacao(force = false) {
     return;
   }
 
-  const cache = { v: 3, ts: Date.now(), data: all };
+  const cache = { v: 4, ts: Date.now(), data: all };
   localStorage.setItem('mov_cache', JSON.stringify(cache));
   _movRender(all, cache.ts);
+  safeCall(renderPatrimonio, 'renderPatrimonio');   // preços novos: recalcula o Patrimônio
 }
 
 function _movRender(data, ts) {
