@@ -1864,7 +1864,6 @@ body.dens-compact .gap{margin-bottom:14px}
 .pt-tk{font-size:13px;font-weight:600}
 .pt-v{font-size:13px;text-align:right}
 .pt-row>span:nth-child(4){text-align:right;font-size:12px;font-family:'DM Mono',monospace}
-.pt-imp{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
 @media (max-width:640px){.pt-det-r{flex-direction:column;align-items:flex-end;gap:0}}
 .pt-auto{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid var(--accent);border-radius:4px;font-family:var(--f-sans);font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);vertical-align:1px}
 .inv-pools{margin-top:34px}
@@ -3254,7 +3253,7 @@ async function pushAllToSupabase() {
   if (btn) { btn.textContent = '⏳ Enviando...'; btn.disabled = true; }
   setSyncStatus('syncing');
   try {
-    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
+    const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','relatorios_carteira','treino_templates','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','patrimonio_auto','comida_d','comida_cfg','comida_custom','grat_diaria','nav_favs','tema_cor','relatorios_noticias','relatorios_anexos','livros_lidos','filmes_assistidos'];
     const rows = BK_KEYS.map(k => {
       const raw = localStorage.getItem('eh2_' + k);
       return raw !== null ? { key: k, value: JSON.parse(raw), updated_at: new Date().toISOString() } : null;
@@ -4365,7 +4364,7 @@ function _patFontesAuto() {
   const rd = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
   const tx = rd('pat_taxas') || {};
   const v = k => (tx[k] && Number.isFinite(tx[k].v) ? tx[k].v : null);
-  return { selic: v('selic'), cdi: v('cdi'), ipca12: v('ipca12'), dolar: v('dolar'), taxas_ts: tx.ts || null, lp: rd('lp_resumo') };
+  return { selic: v('selic'), cdi: v('cdi'), ipca12: v('ipca12'), dolar: v('dolar'), taxas_ts: tx.ts || null, lp: rd('lp_resumo'), radar: load('patrimonio_auto', null) };
 }
 
 const _patTaxasTxt = fa => {
@@ -4498,6 +4497,7 @@ function _patRendaCard(r, d, fa) {
     <div class="pt-kv"><span>Renda anual</span><b>${_tr.brl(r.renda_anual)}</b></div>
     <div class="pt-kv"><span>DY consolidado</span><b>${_patPc2(r.dy_consolidado)}</b></div>
     ${_patTaxasTxt(fa) ? `<div class="pt-kv"><span>Taxas (Banco Central)</span><b>${_patTaxasTxt(fa)}</b></div>` : ''}
+    ${fa.radar && fa.radar.atualizado ? `<div class="pt-kv"><span>DY dos ativos (Radar, Yahoo)</span><b>atualizado em ${fa.radar.atualizado.slice(8, 10)}/${fa.radar.atualizado.slice(5, 7)}</b></div>` : ''}
     ${alvo ? `<div class="pt-meta"><div class="pt-meta-bar"><i style="width:${prog.toFixed(1)}%"></i></div>
       <div class="pt-sub">Meta: DY ${_patPc2(alvo)} até ${_alEsc(String(meta.ate || ''))} · ${r.dy_consolidado >= alvo ? '✓ acima da meta' : 'ainda abaixo da meta'}</div></div>` : ''}
   </div>`;
@@ -4560,8 +4560,9 @@ function renderPatrimonio() {
     cont.innerHTML = '<div class="card gap"><div class="mov-msg">Ainda não há dados de patrimônio no servidor (chave <code>patrimonio</code>).</div></div>';
     return;
   }
-  const { precos, dy12, ts } = _patPrecos();
+  const { precos, dy12: dyBrapi, ts } = _patPrecos();
   const fa = _patFontesAuto();
+  const dy12 = { ...((fa.radar || {}).dy12 || {}), ...dyBrapi };   // a brapi (se o plano der dividendos) vale mais que o Radar
   const auto = aplicarAutomaticos(dados, { ...fa, dy12 }, Date.now());
   const d2 = auto.dados;
   const r = calcPatrimonio(d2, precos);
@@ -6582,7 +6583,7 @@ function renderDespesas() {
 // ──────────────────────────────────
 // BACKUP
 // ──────────────────────────────────
-const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
+const BK_KEYS = ['habitos','rot_checks','eventos','tarefas','corpo_d','agua','agua_meta','exercicios','jj','jj_videos','mente','metas_a','metas_t','conquistas','games','cursos','receitas','receitas_feitas','leitura','leitura_lidos','cv_visto','npc_falas','agentes_status','compras','despesas','fin_cfg','treino_semana','treino_mural','projetos_status','trading_estrategias','trading_resumo','patrimonio','patrimonio_hist','patrimonio_auto','comida_d','comida_cfg','comida_custom','livros_lidos','filmes_assistidos'];
 
 const BK_RESUMO = { eventos:'Eventos', exercicios:'Treinos', metas_a:'Metas', receitas:'Receitas', despesas:'Despesas', conquistas:'Conquistas' };
 // contagem por chave — usada pelo card do Backup
