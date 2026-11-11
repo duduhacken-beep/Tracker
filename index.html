@@ -4201,13 +4201,6 @@ function _patCripto(c, dolar) {
            pools_usd: _patR2(poolsUsd), custodia_usd: _patR2(custUsd) };
 }
 
-// Vendas de BDRs: `venda` é o preço unitário. Imposto de 15% sobre o lucro (sem isenção, como na planilha).
-function _patImposto(vendas, validade) {
-  const itens = (vendas || []).map(v => ({ ...v, lucro: _patR2((v.venda - v.pm) * v.qtd) }));
-  const lucro = _patR2(_patSoma(itens, v => v.lucro));
-  return { itens, lucro, imposto: _patR2(Math.max(lucro, 0) * 0.15), validade: validade || null };
-}
-
 function calcPatrimonio(d, precos) {
   d = d || {};
   const dolar = d.dolar || 0, pos = d.posicoes || {}, ct = d.contas || {};
@@ -4245,7 +4238,6 @@ function calcPatrimonio(d, precos) {
     retorno_anual: retornoAnual, renda_mensal: rendaMensal, renda_anual: _patR2(rendaMensal * 12), dy_consolidado: pct(retornoAnual),
     distribuicao, segmentos,
     foco: { dividendos, crescimento, pct_dividendos: investidoTotal ? dividendos / investidoTotal : 0 },
-    imposto: _patImposto(d.vendas, d.imposto_validade),
     sem_cotacao: [...acoes.semCotacao, ...bdrs.semCotacao, ...fiis.semCotacao]
   };
 }
@@ -4547,16 +4539,13 @@ function _patCriptoCorpo(r, d, auto) {
 }
 
 function _patPosicoes(r, d, auto) {
-  const c = r.classes, im = r.imposto, ct = r.contas, reservasDy = (d.contas || {}).reservas_dy;
-  const imp = im.itens.length ? `<div class="pt-imp"><b>Imposto a pagar ${_tr.brl(im.imposto)}</b>
-    <div class="pt-sub">15% sobre lucro de ${_tr.brl(im.lucro)} nas vendas${im.validade ? ' · validade ' + _alEsc(im.validade) : ''}</div>
-    <ul class="pt-lista">${im.itens.map(v => `<li class="pt-row"><span class="pt-tk">${_alEsc(v.ticker)}</span><span class="pt-v ${_tr.cl(v.lucro)}">${_tr.rs(v.lucro)}</span><span class="pt-sub">${v.qtd} × PM ${_tr.brl(v.pm)} → venda ${_tr.brl(v.venda)}</span><span></span></li>`).join('')}</ul></div>` : '';
+  const c = r.classes, ct = r.contas, reservasDy = (d.contas || {}).reservas_dy;
   const contas = `<div class="pt-kv"><span>Contas correntes</span><b>${_tr.brl(ct.correntes)}</b></div>
     <div class="pt-kv"><span>Reservas${reservasDy ? ' · rende ' + _patPc2(reservasDy) + ' ao ano' + (ct.dy_auto ? _patAuto : '') : ''}</span><b>${_tr.brl(ct.reservas)}</b></div>
     <div class="pt-kv"><span>FGTS</span><b>${_tr.brl(ct.fgts)}</b></div>`;
   const lista = (cl, linha) => `<ul class="pt-lista">${cl.itens.map(linha).join('')}</ul>`;
   return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + lista(c.acoes, _patLinhaB3))
-    + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + lista(c.bdrs, _patLinhaB3) + imp)
+    + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + lista(c.bdrs, _patLinhaB3))
     + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + lista(c.fiis, _patLinhaB3))
     + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF))
     + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d, auto))
