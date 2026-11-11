@@ -4266,7 +4266,8 @@ function calcEvolucao(hist, totalVivo, hoje) {
   hist = hist || {};
   const anual = (hist.anual || []).map(a => ({ ...a })).sort((a, b) => a.ano - b.ano);
   const base = (hist.mensal || []).map(p => ({ ...p })).sort((a, b) => (a.mes < b.mes ? -1 : 1));
-  const mensal = base.some(p => p.mes === hoje) ? base : base.concat([{ mes: hoje, total: totalVivo, vivo: true }]);
+  // o mês corrente usa sempre o total ao vivo (mesmo que já exista um ponto gravado para ele)
+  const mensal = base.some(p => p.mes === hoje) ? base.map(p => (p.mes === hoje ? { ...p, total: totalVivo, vivo: true } : p)) : base.concat([{ mes: hoje, total: totalVivo, vivo: true }]);
   mensal.forEach((p, i) => {
     const anoAnt = anual.find(a => a.ano === Number(p.mes.slice(0, 4)) - 1);
     const ref = p.mes.endsWith('-01') && anoAnt ? anoAnt.total : (i ? mensal[i - 1].total : null);
@@ -4384,6 +4385,16 @@ function patTrocarItem(dados, caminho, i, novo) {
   else if (i >= 0) lista[i] = novo;
   else lista.push(novo);
   return d;
+}
+// Histórico com o ponto de `mes` ('AAAA-MM') trocado ou adicionado; null se nada muda (sem histórico, total inválido ou igual ao gravado).
+function patPontoMes(hist, total, mes) {
+  if (!hist || !Array.isArray(hist.mensal) || !(total > 0)) return null;
+  const t = _patR2(total), i = hist.mensal.findIndex(p => p.mes === mes);
+  if (i >= 0 && Math.abs(hist.mensal[i].total - t) < 0.01) return null;
+  const mensal = hist.mensal.map(p => ({ ...p }));
+  if (i >= 0) mensal[i].total = t; else mensal.push({ mes, total: t });
+  mensal.sort((a, b) => (a.mes < b.mes ? -1 : 1));
+  return { ...hist, mensal };
 }
 // PATRIMONIO-CALC-FIM
 
@@ -4845,6 +4856,11 @@ function renderPatrimonio() {
   const d = new Date();
   const hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
   const ev = calcEvolucao(load('patrimonio_hist', null), r.patrimonio, hoje);
+  // grava o total do mês corrente (no máximo 1 vez por hora, só com todas as cotações): o mês fecha sozinho com o último valor visto
+  if (ts && !r.sem_cotacao.length && Date.now() - Number(localStorage.getItem('pat_hist_ts') || 0) > 3600e3) {
+    const novo = patPontoMes(load('patrimonio_hist', null), r.patrimonio, hoje);
+    if (novo) { localStorage.setItem('pat_hist_ts', String(Date.now())); save('patrimonio_hist', novo); }
+  }
   if (!_patEvoSel) _patEvoSel = hoje.slice(0, 4);
   cont.innerHTML = _patHero(r, ev, ts) + _patEvoCard(ev) + _patDistCard(r) + _patRendaCard(r, d2, fa) + _patPosicoes(r, d2, auto);
   _patDesenharEvo(ev);
