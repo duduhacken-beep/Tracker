@@ -1869,6 +1869,7 @@ body.dens-compact .gap{margin-bottom:14px}
 .pt-ed:hover,.pt-ed:focus-visible{color:var(--accent);background:var(--bg2)}
 .pt-ed svg{width:15px;height:15px}
 .pt-novo{margin-top:10px}
+#pe-campos input[type=checkbox]{width:auto;flex:none}
 .pt-auto{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid var(--accent);border-radius:4px;font-family:var(--f-sans);font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);vertical-align:1px}
 .inv-pools{margin-top:34px}
 .inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
@@ -4543,7 +4544,7 @@ function _patRendaCard(r, d, fa) {
   const meta = d.meta || {}, alvo = meta.dy_alvo || 0;
   const prog = alvo ? Math.min(r.dy_consolidado / alvo, 1) * 100 : 0;
   return `<div class="card gap">
-    <div class="inv-h"><div><h2>Renda</h2><div class="inv-sub">Salário mais dividendos e rendimentos</div></div></div>
+    <div class="inv-h"><div><h2>Renda</h2><div class="inv-sub">Salário mais dividendos e rendimentos</div></div><button class="btn btn-g btn-sm" onclick="_patEditarRenda()">Editar</button></div>
     <div class="pt-kv"><span>Salário</span><b>${_tr.brl(d.salario || 0)}</b></div>
     <div class="pt-kv"><span>Dividendos e rendimentos por ano</span><b>${_tr.brl(r.retorno_anual)}</b></div>
     <div class="pt-kv"><span>Renda mensal (salário + dividendos)</span><b>${_tr.brl(r.renda_mensal)}</b></div>
@@ -4570,22 +4571,26 @@ function _patLinhaB3(i, classe) {
     <span class="pt-sub">${i.qtd} × ${_tr.brl(i.pm)} · ${i.preco == null ? 'sem cotação' : 'preço ' + _tr.brl(i.preco)} · DY ${_patPc2(i.dy)}${i.dy_auto ? _patAuto : ''}</span>${luc}</li>`;
 }
 
-function _patLinhaRF(i) {
-  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ativo)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
+function _patLinhaRF(i, k) {
+  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ativo)}${_patBtnEd(`_patEditarRF(${k})`)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
     <span class="pt-sub">aplicado ${_tr.brl(i.investido)} · DY ${_patPc2(i.dy)}${i.dy_auto ? _patAuto : ''}</span>
     <span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span></li>`;
 }
 
 function _patCriptoCorpo(r, d, auto) {
   const c = d.cripto || {}, cr = r.classes.cripto;
-  const pools = (c.pools_abertas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.usd)}${p.usd_auto ? _patAuto : ''}</span><span class="pt-sub">DY mensal ${_patPc2(p.dy_mensal)}${p.dy_auto ? _patAuto : ''}${p.bear_ready ? ' · bear ready' : ''}${p.pm != null ? ' · PM ' + Number(p.pm).toLocaleString('pt-BR') : ''}</span><span></span></li>`).join('');
-  const cust = (c.custodia || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.ativo)}</span><span class="pt-v">${_patUsd(p.usd)}</span><span class="pt-sub">${p.risk != null ? 'risk factor ' + String(p.risk).replace('.', ',') : ''}</span><span></span></li>`).join('');
-  const fech = (c.pools_fechadas || []).map(p => `<li class="pt-row"><span class="pt-tk">${_alEsc(p.pool)}</span><span class="pt-v">${_patUsd(p.hoje_usd)}</span><span class="pt-sub">investido ${_patUsd(p.investido_usd)} · ${p.qty} · PM ${Number(p.pm).toLocaleString('pt-BR')}</span><span></span></li>`).join('');
+  const linha = (nome, dir, sub, ed) => `<li class="pt-row"><span class="pt-tk">${_alEsc(nome)}${_patBtnEd(ed)}</span><span class="pt-v">${dir}</span><span class="pt-sub">${sub}</span><span></span></li>`;
+  const novo = (js, t) => `<div class="pt-novo"><button class="btn btn-g btn-sm" onclick="${js}">${t}</button></div>`;
+  const pools = (c.pools_abertas || []).map((p, k) => linha(p.pool, `${_patUsd(p.usd)}${p.usd_auto ? _patAuto : ''}`,
+    `DY mensal ${_patPc2(p.dy_mensal)}${p.dy_auto ? _patAuto : ''}${p.bear_ready ? ' · bear ready' : ''}${p.pm != null ? ' · PM ' + Number(p.pm).toLocaleString('pt-BR') : ''}`, `_patEditarPool(${k})`)).join('');
+  const cust = (c.custodia || []).map((p, k) => linha(p.ativo, _patUsd(p.usd), p.risk != null ? 'risk factor ' + String(p.risk).replace('.', ',') : '', `_patEditarCust(${k})`)).join('');
+  const fech = (c.pools_fechadas || []).map((p, k) => linha(p.pool, _patUsd(p.hoje_usd), `investido ${_patUsd(p.investido_usd)} · ${p.qty} · PM ${Number(p.pm).toLocaleString('pt-BR')}`, `_patEditarPoolFech(${k})`)).join('');
   const rend = (c.rendimentos_2025 || []).map(x => `<tr><td>${_alEsc(x.mes)}</td><td>${_patUsd(x.usd)}</td><td>${_tr.brl(x.brl)}</td></tr>`).join('');
   return `${_patCab(cr)}
-    <h3 class="pt-h3">Pools abertas · ${_patUsd(cr.pools_usd)}</h3><ul class="pt-lista">${pools}</ul>
-    <h3 class="pt-h3">Reserva em custódia · ${_patUsd(cr.custodia_usd)}</h3><ul class="pt-lista">${cust}</ul>
-    ${fech ? `<h3 class="pt-h3">Pools fechadas (fora do total)</h3><ul class="pt-lista">${fech}</ul>` : ''}
+    ${novo('_patEditarCripto()', 'Editar valor aplicado')}
+    <h3 class="pt-h3">Pools abertas · ${_patUsd(cr.pools_usd)}</h3><ul class="pt-lista">${pools}</ul>${novo('_patEditarPool(-1)', '+ Nova pool')}
+    <h3 class="pt-h3">Reserva em custódia · ${_patUsd(cr.custodia_usd)}</h3><ul class="pt-lista">${cust}</ul>${novo('_patEditarCust(-1)', '+ Nova reserva')}
+    <h3 class="pt-h3">Pools fechadas (fora do total)</h3><ul class="pt-lista">${fech}</ul>${novo('_patEditarPoolFech(-1)', '+ Nova pool fechada')}
     ${rend ? `<details class="pt-tab"><summary>Rendimentos mensais de 2025</summary><table><thead><tr><th>Mês</th><th>USD</th><th>R$</th></tr></thead><tbody>${rend}</tbody></table></details>` : ''}
     ${_patPoolsTxt(auto)}
     <div class="pt-sub">Valores em dólar a R$ ${String(d.dolar).replace('.', ',')}. As posições ao vivo estão em Pools de liquidez, mais abaixo.</div>`;
@@ -4601,9 +4606,9 @@ function _patPosicoes(r, d, auto) {
   return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + b3('acoes'))
     + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + b3('bdrs'))
     + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + b3('fiis'))
-    + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF))
+    + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF) + '<div class="pt-novo"><button class="btn btn-g btn-sm" onclick="_patEditarRF(-1)">+ Novo título</button></div>')
     + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d, auto))
-    + _patDet('contas', 'Contas, reservas e FGTS', `<b>${_tr.brl(r.liquidez)}</b>`, contas);
+    + _patDet('contas', 'Contas, reservas e FGTS', `<b>${_tr.brl(r.liquidez)}</b>`, contas + '<div class="pt-novo"><button class="btn btn-g btn-sm" onclick="_patEditarContas()">Editar saldos</button></div>');
 }
 
 // ── Editor de valores do Patrimônio (10/11/2026) ──
@@ -4733,6 +4738,92 @@ function _patNovoAtivo(classe) {
       if (!(v.pm > 0)) return { erro: 'Informe o preço médio.' };
       return { dados: patTrocarItem(dados, 'posicoes.' + classe, -1, { ticker: tk, qtd: v.qtd, pm: v.pm, dy: Number.isFinite(v.dy) ? v.dy : 0, seg: v.seg || 'Sem segmento' }), msg: `${tk} adicionado` };
     } }] });
+}
+
+// ── Editores dos demais blocos: renda fixa, contas, renda e cripto (10/11/2026) ──
+function _patEditarRF(i) {
+  const d = load('patrimonio', {}), a = i >= 0 ? (d.renda_fixa || [])[i] : { ativo: '', seg: '', foco: 'dividendos', aplicado: null, atual: null, dy: null };
+  if (!a) return;
+  _patAbrirEditor({ titulo: i >= 0 ? a.ativo : 'Novo título de renda fixa', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'ativo', rotulo: 'Título', tipo: 'txt', valor: a.ativo }, { id: 'aplicado', rotulo: 'Aplicado (R$)', tipo: 'num', valor: a.aplicado },
+      { id: 'atual', rotulo: 'Valor atual (R$)', tipo: 'num', valor: a.atual },
+      { id: 'dy', rotulo: 'Rendimento ao ano digitado (%)', tipo: 'pct', valor: a.dy, dica: a.indexador === 'selic' ? 'Este título segue a Selic: o Banco Central atualiza sozinho.' : '' },
+      { id: 'seg', rotulo: 'Segmento', tipo: 'txt', valor: a.seg, lista: _patSegmentos(d) },
+      { id: 'foco', rotulo: 'Conta como', tipo: 'sel', valor: a.foco, lista: [['dividendos', 'Dividendos'], ['crescimento', 'Crescimento']] }],
+    aplicar: v => !v.ativo ? { erro: 'Informe o nome do título.' } : !(v.aplicado >= 0 && v.atual >= 0) ? { erro: 'Informe os valores aplicado e atual (pode ser 0).' }
+      : { dados: patTrocarItem(d, 'renda_fixa', i, { ...a, ativo: v.ativo, aplicado: v.aplicado, atual: v.atual, dy: Number.isFinite(v.dy) ? v.dy : 0, seg: v.seg || v.ativo, foco: v.foco }), msg: 'Renda fixa salva' },
+    remover: i >= 0 ? dd => patTrocarItem(dd, 'renda_fixa', i, null) : null, removerMsg: `Remover ${a.ativo} da renda fixa?` }] });
+}
+
+function _patEditarContas() {
+  const d = load('patrimonio', {}), c = d.contas || {};
+  _patAbrirEditor({ titulo: 'Contas, reservas e FGTS', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'correntes', rotulo: 'Contas correntes (R$)', tipo: 'num', valor: c.correntes }, { id: 'reservas', rotulo: 'Reservas (R$)', tipo: 'num', valor: c.reservas },
+      { id: 'fgts', rotulo: 'FGTS (R$)', tipo: 'num', valor: c.fgts }, { id: 'dy', rotulo: 'Rendimento das reservas ao ano (%)', tipo: 'pct', valor: c.reservas_dy },
+      { id: 'cdi', rotulo: 'Seguir o CDI automaticamente', tipo: 'chk', valor: c.reservas_indexador === 'cdi' }],
+    aplicar: v => [v.correntes, v.reservas, v.fgts].some(x => !(x >= 0)) ? { erro: 'Informe os três saldos (pode ser 0).' }
+      : { dados: { ...d, contas: { ...c, correntes: v.correntes, reservas: v.reservas, fgts: v.fgts, reservas_dy: Number.isFinite(v.dy) ? v.dy : 0, reservas_indexador: v.cdi ? 'cdi' : null } }, msg: 'Contas salvas' } }] });
+}
+
+function _patEditarRenda() {
+  const d = load('patrimonio', {}), m = d.meta || {};
+  _patAbrirEditor({ titulo: 'Renda, dólar e meta', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'salario', rotulo: 'Salário mensal (R$)', tipo: 'num', valor: d.salario },
+      { id: 'dolar', rotulo: 'Dólar (R$)', tipo: 'num', valor: d.dolar, dica: 'Usado só se o Banco Central não responder.' },
+      { id: 'dyalvo', rotulo: 'Meta de DY ao ano (%)', tipo: 'pct', valor: m.dy_alvo }, { id: 'ate', rotulo: 'Meta até o ano', tipo: 'num', valor: m.ate }],
+    aplicar: v => !(v.salario >= 0) ? { erro: 'Informe o salário (pode ser 0).' }
+      : { dados: { ...d, salario: v.salario, dolar: v.dolar > 0 ? v.dolar : d.dolar, meta: { ...m, dy_alvo: Number.isFinite(v.dyalvo) ? v.dyalvo : m.dy_alvo, ate: Number.isFinite(v.ate) ? v.ate : m.ate } }, msg: 'Renda salva' } }] });
+}
+
+function _patEditarCripto() {
+  const d = load('patrimonio', {}), c = d.cripto || {};
+  _patAbrirEditor({ titulo: 'Cripto: valor aplicado', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'aplicado', rotulo: 'Total aplicado (R$)', tipo: 'num', valor: c.aplicado_brl }],
+    aplicar: v => !(v.aplicado >= 0) ? { erro: 'Informe o valor aplicado.' } : { dados: { ...d, cripto: { ...c, aplicado_brl: v.aplicado } }, msg: 'Cripto salva' } }] });
+}
+
+function _patEditarCust(i) {
+  const d = load('patrimonio', {}), a = i >= 0 ? ((d.cripto || {}).custodia || [])[i] : { ativo: '', usd: null };
+  if (!a) return;
+  _patAbrirEditor({ titulo: i >= 0 ? a.ativo : 'Nova reserva em custódia', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'ativo', rotulo: 'Ativo', tipo: 'txt', valor: a.ativo }, { id: 'usd', rotulo: 'Valor (US$)', tipo: 'num', valor: a.usd },
+      { id: 'risk', rotulo: 'Risk factor (opcional)', tipo: 'num', valor: a.risk }],
+    aplicar: v => !v.ativo ? { erro: 'Informe o ativo.' } : !(v.usd >= 0) ? { erro: 'Informe o valor em dólar.' }
+      : { dados: patTrocarItem(d, 'cripto.custodia', i, { ...a, ativo: v.ativo, usd: v.usd, risk: Number.isFinite(v.risk) ? v.risk : undefined }), msg: 'Custódia salva' },
+    remover: i >= 0 ? dd => patTrocarItem(dd, 'cripto.custodia', i, null) : null, removerMsg: `Remover ${a.ativo}?` }] });
+}
+
+function _patEditarPool(i) {
+  const d = load('patrimonio', {}), a = i >= 0 ? ((d.cripto || {}).pools_abertas || [])[i] : { pool: '', usd: null, dy_mensal: null, bear_ready: false, pm: null, match: {} };
+  if (!a) return;
+  const mt = a.match || {};
+  _patAbrirEditor({ titulo: i >= 0 ? a.pool : 'Nova pool aberta', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'pool', rotulo: 'Nome', tipo: 'txt', valor: a.pool },
+      { id: 'usd', rotulo: 'Valor (US$)', tipo: 'num', valor: a.usd, dica: 'Vale quando o app de pools não trouxer esta posição.' },
+      { id: 'dy', rotulo: 'DY mensal digitado (%)', tipo: 'pct', valor: a.dy_mensal, dica: 'Idem: o app de pools usa o APY da DeFiLlama ÷ 12 quando casa a posição.' },
+      { id: 'pm', rotulo: 'PM (opcional)', tipo: 'num', valor: a.pm }, { id: 'bear', rotulo: 'Bear ready', tipo: 'chk', valor: !!a.bear_ready },
+      { id: 'chain', rotulo: 'Rede (para casar com o app de pools)', tipo: 'sel', valor: mt.chain || '', lista: [['', 'Qualquer'], ['base', 'Base'], ['polygon', 'Polygon'], ['arbitrum', 'Arbitrum'], ['solana', 'Solana'], ['ethereum', 'Ethereum']] },
+      { id: 'par', rotulo: 'Par (ex.: ETH / USDC)', tipo: 'txt', valor: (mt.par || []).join(' / ') }],
+    aplicar: v => {
+      if (!v.pool) return { erro: 'Informe o nome da pool.' };
+      if (!(v.usd >= 0)) return { erro: 'Informe o valor em dólar.' };
+      const par = v.par.split('/').map(s => s.trim().toUpperCase()).filter(Boolean);
+      const match = { ...mt }; if (v.chain) match.chain = v.chain; else delete match.chain; if (par.length === 2) match.par = par;
+      const item = { ...a, pool: v.pool, usd: v.usd, dy_mensal: Number.isFinite(v.dy) ? v.dy : 0, bear_ready: v.bear, pm: Number.isFinite(v.pm) ? v.pm : undefined, match };
+      return { dados: patTrocarItem(d, 'cripto.pools_abertas', i, item), msg: 'Pool salva' };
+    },
+    remover: i >= 0 ? dd => patTrocarItem(dd, 'cripto.pools_abertas', i, null) : null, removerMsg: `Remover a pool ${a.pool}?` }] });
+}
+
+function _patEditarPoolFech(i) {
+  const d = load('patrimonio', {}), a = i >= 0 ? ((d.cripto || {}).pools_fechadas || [])[i] : { pool: '', investido_usd: null, hoje_usd: null, qty: null, pm: null };
+  if (!a) return;
+  _patAbrirEditor({ titulo: i >= 0 ? a.pool : 'Nova pool fechada', modos: [{ id: 'ed', rotulo: 'Editar',
+    campos: [{ id: 'pool', rotulo: 'Nome', tipo: 'txt', valor: a.pool }, { id: 'inv', rotulo: 'Investido (US$)', tipo: 'num', valor: a.investido_usd },
+      { id: 'hoje', rotulo: 'Valor hoje (US$)', tipo: 'num', valor: a.hoje_usd }, { id: 'qty', rotulo: 'Quantidade', tipo: 'num', valor: a.qty }, { id: 'pm', rotulo: 'PM', tipo: 'num', valor: a.pm }],
+    aplicar: v => !v.pool ? { erro: 'Informe o nome da pool.' } : !(v.hoje >= 0) ? { erro: 'Informe o valor de hoje em dólar.' }
+      : { dados: patTrocarItem(d, 'cripto.pools_fechadas', i, { ...a, pool: v.pool, investido_usd: Number.isFinite(v.inv) ? v.inv : 0, hoje_usd: v.hoje, qty: Number.isFinite(v.qty) ? v.qty : a.qty, pm: Number.isFinite(v.pm) ? v.pm : a.pm }), msg: 'Pool fechada salva' },
+    remover: i >= 0 ? dd => patTrocarItem(dd, 'cripto.pools_fechadas', i, null) : null, removerMsg: `Remover a pool ${a.pool}?` }] });
 }
 
 function renderPatrimonio() {
