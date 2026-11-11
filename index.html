@@ -1865,6 +1865,10 @@ body.dens-compact .gap{margin-bottom:14px}
 .pt-v{font-size:13px;text-align:right}
 .pt-row>span:nth-child(4){text-align:right;font-size:12px;font-family:'DM Mono',monospace}
 @media (max-width:640px){.pt-det-r{flex-direction:column;align-items:flex-end;gap:0}}
+.pt-ed{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-12px 0 -12px 2px;padding:0;background:none;border:0;border-radius:8px;color:var(--text3);cursor:pointer;vertical-align:middle}
+.pt-ed:hover,.pt-ed:focus-visible{color:var(--accent);background:var(--bg2)}
+.pt-ed svg{width:15px;height:15px}
+.pt-novo{margin-top:10px}
 .pt-auto{display:inline-block;margin-left:6px;padding:0 5px;border:1px solid var(--accent);border-radius:4px;font-family:var(--f-sans);font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);vertical-align:1px}
 .inv-pools{margin-top:34px}
 .inv-pools-frame{display:block;width:100%;height:clamp(620px,calc(100dvh - 140px),1100px);border:1px solid var(--border);border-radius:var(--r);background:var(--bg)}
@@ -2898,6 +2902,20 @@ details[open]>.ca-sum::after{transform:rotate(90deg)}
       </div>
     </div>
     <iframe id="lp-iframe" class="inv-pools-frame" title="Pools de liquidez" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe>
+  </div>
+
+  <div class="overlay" id="modal-pat-edit">
+    <div class="modal" style="width:460px;max-width:calc(100vw - 24px)">
+      <h2 id="pe-titulo">Editar</h2>
+      <div class="pt-seg" id="pe-modos" style="margin-bottom:14px"></div>
+      <div id="pe-campos"></div>
+      <div class="pt-sub" id="pe-previa" style="min-height:18px;margin:2px 0 10px"></div>
+      <div class="mfooter">
+        <button class="btn btn-perigo btn-sm" id="pe-remover" style="margin-right:auto;display:none" onclick="_patRemoverEditor()">Remover</button>
+        <button class="btn btn-g" onclick="_patFecharEditor()">Cancelar</button>
+        <button class="btn btn-p" onclick="_patSalvarEditor()">Salvar</button>
+      </div>
+    </div>
   </div>
 
   <div class="overlay" id="modal-mov-config">
@@ -4329,6 +4347,41 @@ function aplicarAutomaticos(dados, auto, hojeMs) {
   const orfas = lp ? lp.posicoes.filter(x => !usadas.has(x)).map(x => `${_patNormSym(x.a)}/${_patNormSym(x.b)} (${x.chain})`) : [];
   return { dados: d, fontes, orfas, lp_ts: lp ? lp.ts : null };
 }
+// ── Edição (puras) ──
+// Número digitado no formato brasileiro ou com ponto: "22,04", "1.234,56", "22.04". Inválido: NaN.
+function patLerNum(s) {
+  const t = String(s == null ? '' : s).trim().replace(/\s/g, '');
+  if (!t) return NaN;
+  const n = t.includes(',') ? Number(t.replace(/\./g, '').replace(',', '.')) : Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+const _patR4 = v => Math.round((v + Number.EPSILON) * 1e4) / 1e4;
+
+// Compra de `qtd` a `preco`: soma a quantidade e recalcula o preço médio (média ponderada).
+function patCompra(p, qtd, preco) {
+  const q = p.qtd + qtd;
+  return { ...p, qtd: q, pm: _patR4((p.qtd * p.pm + qtd * preco) / q) };
+}
+
+// Venda de `qtd`: diminui a quantidade e mantém o preço médio. Zerou: null (a posição sai da lista).
+function patVenda(p, qtd) {
+  return qtd >= p.qtd ? null : { ...p, qtd: p.qtd - qtd };
+}
+
+// Cópia de `dados` com o item `i` da lista em `caminho` ('posicoes.acoes', 'cripto.custodia'...) trocado por `novo`.
+// novo == null remove o item; i < 0 adiciona no fim; caminho que não existe é criado.
+function patTrocarItem(dados, caminho, i, novo) {
+  const d = JSON.parse(JSON.stringify(dados || {}));
+  const partes = caminho.split('.');
+  let o = d;
+  partes.slice(0, -1).forEach(k => { o = o[k] = o[k] || {}; });
+  const ult = partes[partes.length - 1];
+  const lista = (o[ult] = o[ult] || []);
+  if (novo == null) { if (i >= 0) lista.splice(i, 1); }
+  else if (i >= 0) lista[i] = novo;
+  else lista.push(novo);
+  return d;
+}
 // PATRIMONIO-CALC-FIM
 
 // ── Tela da aba Patrimônio (10/11/2026) ──
@@ -4510,10 +4563,10 @@ function _patDet(k, titulo, resumo, corpo) {
 const _patResumo = c => `<b>${_tr.brl(c.atual)}</b>${c.rent == null ? '' : ` <span class="${_tr.cl(c.lucro)}">${_patSeta(c.rent)}</span>`}`;
 const _patCab = c => `<div class="pt-cab"><span>Investido <b>${_tr.brl(c.investido)}</b></span><span>Atual <b>${_tr.brl(c.atual)}</b></span><span>Lucro <b class="${_tr.cl(c.lucro)}">${_tr.rs(c.lucro)}</b></span><span>Dividendos/ano <b>${_tr.brl(c.retorno)}</b></span></div>`;
 
-function _patLinhaB3(i) {
+function _patLinhaB3(i, classe) {
   const luc = i.lucro == null ? '<span class="pt-sub">sem cotação</span>'
     : `<span class="${_tr.cl(i.lucro)}">${i.lucro >= 0 ? '▲' : '▼'} ${_tr.rs(i.lucro)} (${_tr.pc(i.rent)})</span>`;
-  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ticker)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
+  return `<li class="pt-row"><span class="pt-tk">${_alEsc(i.ticker)}${_patBtnEd(`_patEditarPos('${classe}','${_alEsc(i.ticker)}')`)}</span><span class="pt-v">${_tr.brl(i.atual)}</span>
     <span class="pt-sub">${i.qtd} × ${_tr.brl(i.pm)} · ${i.preco == null ? 'sem cotação' : 'preço ' + _tr.brl(i.preco)} · DY ${_patPc2(i.dy)}${i.dy_auto ? _patAuto : ''}</span>${luc}</li>`;
 }
 
@@ -4544,12 +4597,142 @@ function _patPosicoes(r, d, auto) {
     <div class="pt-kv"><span>Reservas${reservasDy ? ' · rende ' + _patPc2(reservasDy) + ' ao ano' + (ct.dy_auto ? _patAuto : '') : ''}</span><b>${_tr.brl(ct.reservas)}</b></div>
     <div class="pt-kv"><span>FGTS</span><b>${_tr.brl(ct.fgts)}</b></div>`;
   const lista = (cl, linha) => `<ul class="pt-lista">${cl.itens.map(linha).join('')}</ul>`;
-  return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + lista(c.acoes, _patLinhaB3))
-    + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + lista(c.bdrs, _patLinhaB3))
-    + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + lista(c.fiis, _patLinhaB3))
+  const b3 = k => lista(c[k], x => _patLinhaB3(x, k)) + `<div class="pt-novo"><button class="btn btn-g btn-sm" onclick="_patNovoAtivo('${k}')">+ Novo ativo</button></div>`;
+  return _patDet('acoes', 'Ações BR', _patResumo(c.acoes), _patCab(c.acoes) + b3('acoes'))
+    + _patDet('bdrs', 'Stocks / BDRs', _patResumo(c.bdrs), _patCab(c.bdrs) + b3('bdrs'))
+    + _patDet('fiis', 'FIIs', _patResumo(c.fiis), _patCab(c.fiis) + b3('fiis'))
     + _patDet('rf', 'Renda Fixa', _patResumo(c.renda_fixa), _patCab(c.renda_fixa) + lista(c.renda_fixa, _patLinhaRF))
     + _patDet('cripto', 'Cripto', _patResumo(c.cripto), _patCriptoCorpo(r, d, auto))
     + _patDet('contas', 'Contas, reservas e FGTS', `<b>${_tr.brl(r.liquidez)}</b>`, contas);
+}
+
+// ── Editor de valores do Patrimônio (10/11/2026) ──
+// Um modal só para todas as edições (ver a descrição de `cfg` no plano). Sempre edita os dados GRAVADOS (load('patrimonio')).
+let _patEd = null;
+const _patNumTxt = v => (v == null || !Number.isFinite(v) ? '' : String(v).replace('.', ','));
+const _patLapis = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
+const _patBtnEd = js => `<button class="pt-ed" title="Editar" aria-label="Editar" onclick="${js}">${_patLapis}</button>`;
+
+function _patSegmentos(d) {
+  const s = new Set();
+  Object.values((d || {}).posicoes || {}).forEach(l => (l || []).forEach(p => p.seg && s.add(p.seg)));
+  ((d || {}).renda_fixa || []).forEach(a => a.seg && s.add(a.seg));
+  return [...s].sort();
+}
+
+function _patCampoHtml(c) {
+  const id = 'pe-f-' + c.id, dica = c.dica ? `<div class="pt-sub" style="margin-top:4px">${_alEsc(c.dica)}</div>` : '';
+  if (c.tipo === 'chk') return `<div class="fg"><label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="checkbox" id="${id}"${c.valor ? ' checked' : ''} onchange="_patPrevia()"> ${_alEsc(c.rotulo)}</label>${dica}</div>`;
+  if (c.tipo === 'sel') return `<div class="fg"><label for="${id}">${_alEsc(c.rotulo)}</label><select id="${id}" onchange="_patPrevia()">${c.lista.map(o => `<option value="${_alEsc(o[0])}"${o[0] === c.valor ? ' selected' : ''}>${_alEsc(o[1])}</option>`).join('')}</select>${dica}</div>`;
+  const v = c.tipo === 'pct' ? _patNumTxt(c.valor == null ? null : Math.round(c.valor * 1e6) / 1e4) : c.tipo === 'num' ? _patNumTxt(c.valor) : (c.valor == null ? '' : c.valor);
+  const dl = c.lista && c.tipo === 'txt' ? `<datalist id="${id}-l">${c.lista.map(s => `<option value="${_alEsc(s)}">`).join('')}</datalist>` : '';
+  return `<div class="fg"><label for="${id}">${_alEsc(c.rotulo)}</label><input id="${id}" type="text"${c.tipo === 'txt' ? '' : ' inputmode="decimal"'} autocomplete="off" value="${_alEsc(String(v))}" oninput="_patPrevia()"${dl ? ` list="${id}-l"` : ''}>${dl}${dica}</div>`;
+}
+
+function _patLerCampos(m) {
+  const o = {};
+  m.campos.forEach(c => {
+    const el = $('pe-f-' + c.id);
+    o[c.id] = c.tipo === 'chk' ? el.checked : c.tipo === 'sel' ? el.value : c.tipo === 'txt' ? el.value.trim()
+      : c.tipo === 'pct' ? patLerNum(el.value) / 100 : patLerNum(el.value);
+  });
+  return o;
+}
+
+const _patModoAtual = () => _patEd.cfg.modos.find(x => x.id === _patEd.modo);
+
+function _patAbrirEditor(cfg, modoId) {
+  _patEd = { cfg, modo: modoId || cfg.modos[0].id };
+  $('pe-titulo').textContent = cfg.titulo;
+  _patDesenharEditor();
+  $('modal-pat-edit').classList.add('on');
+}
+
+function _patDesenharEditor() {
+  const m = _patModoAtual();
+  $('pe-modos').innerHTML = _patEd.cfg.modos.length > 1
+    ? _patEd.cfg.modos.map(x => `<button class="btn btn-g btn-sm${x.id === _patEd.modo ? ' on' : ''}" aria-pressed="${x.id === _patEd.modo}" onclick="_patModoEditor('${x.id}')">${_alEsc(x.rotulo)}</button>`).join('') : '';
+  $('pe-campos').innerHTML = m.campos.map(_patCampoHtml).join('');
+  $('pe-remover').style.display = m.remover ? '' : 'none';
+  $('pe-remover').textContent = m.removerRotulo || 'Remover';
+  _patPrevia();
+}
+
+function _patModoEditor(id) { _patEd.modo = id; _patDesenharEditor(); }
+function _patFecharEditor() { $('modal-pat-edit').classList.remove('on'); _patEd = null; }
+
+function _patPrevia() {
+  if (!_patEd) return;
+  const m = _patModoAtual();
+  $('pe-previa').textContent = m.previa ? (m.previa(_patLerCampos(m), load('patrimonio', {})) || '') : '';
+}
+
+function _patSalvarEditor() {
+  if (!_patEd) return;
+  const m = _patModoAtual();
+  const res = m.aplicar(_patLerCampos(m), load('patrimonio', {}));
+  if (res.erro) { toast(res.erro, 'aviso'); return; }
+  _patGravar(res.dados, res.msg || 'Salvo');
+}
+
+async function _patRemoverEditor() {
+  if (!_patEd) return;
+  const m = _patModoAtual();
+  if (!(await confirmar(m.removerMsg || 'Remover este item?', { acao: m.removerRotulo || 'Remover' }))) return;
+  _patGravar(m.remover(load('patrimonio', {})), 'Removido');
+}
+
+function _patGravar(dados, msg) {
+  dados.atualizado = new Date().toISOString().slice(0, 10);
+  save('patrimonio', dados);
+  _patFecharEditor();
+  renderPatrimonio();
+  toast(msg, 'ok');
+}
+
+const _patInt = n => Number.isInteger(n) && n > 0;
+
+// Ação (classe = 'acoes' | 'bdrs' | 'fiis'): Comprei, Vendi e Corrigir.
+function _patEditarPos(classe, ticker) {
+  const dados = load('patrimonio', {}), lista = (dados.posicoes || {})[classe] || [];
+  const i = lista.findIndex(x => x.ticker === ticker);
+  if (i < 0) return;
+  const p = lista[i], preco = (_patPrecos().precos || {})[ticker];
+  _patAbrirEditor({ titulo: ticker, modos: [
+    { id: 'compra', rotulo: 'Comprei',
+      campos: [{ id: 'qtd', rotulo: 'Quantidade comprada', tipo: 'num' }, { id: 'preco', rotulo: 'Preço pago (R$)', tipo: 'num', valor: preco }],
+      previa: v => { if (!(_patInt(v.qtd) && v.preco > 0)) return ''; const n = patCompra(p, v.qtd, v.preco); return `Fica com ${n.qtd} a preço médio de ${_tr.brl(n.pm)}`; },
+      aplicar: v => !_patInt(v.qtd) ? { erro: 'Informe a quantidade comprada (número inteiro).' } : !(v.preco > 0) ? { erro: 'Informe o preço pago.' }
+        : { dados: patTrocarItem(dados, 'posicoes.' + classe, i, patCompra(p, v.qtd, v.preco)), msg: `Compra de ${v.qtd} ${ticker} registrada` } },
+    { id: 'venda', rotulo: 'Vendi',
+      campos: [{ id: 'qtd', rotulo: 'Quantidade vendida', tipo: 'num', dica: `Você tem ${p.qtd}.` }],
+      previa: v => !_patInt(v.qtd) ? '' : v.qtd > p.qtd ? `Você tem só ${p.qtd}.` : v.qtd === p.qtd ? 'Zera a posição e tira da lista.' : `Fica com ${p.qtd - v.qtd}, preço médio igual (${_tr.brl(p.pm)}).`,
+      aplicar: v => !_patInt(v.qtd) ? { erro: 'Informe a quantidade vendida (número inteiro).' } : v.qtd > p.qtd ? { erro: `Você tem só ${p.qtd}.` }
+        : { dados: patTrocarItem(dados, 'posicoes.' + classe, i, patVenda(p, v.qtd)), msg: v.qtd === p.qtd ? `${ticker} encerrado` : `Venda de ${v.qtd} ${ticker} registrada` } },
+    { id: 'corrigir', rotulo: 'Corrigir',
+      campos: [{ id: 'qtd', rotulo: 'Quantidade', tipo: 'num', valor: p.qtd }, { id: 'pm', rotulo: 'Preço médio (R$)', tipo: 'num', valor: p.pm },
+        { id: 'dy', rotulo: 'DY ao ano digitado (%)', tipo: 'pct', valor: p.dy, dica: 'Vale quando não houver DY automático (o Radar atualiza sozinho todo mês).' },
+        { id: 'seg', rotulo: 'Segmento', tipo: 'txt', valor: p.seg, lista: _patSegmentos(dados) }],
+      aplicar: v => !_patInt(v.qtd) ? { erro: 'Informe a quantidade (número inteiro).' } : !(v.pm > 0) ? { erro: 'Informe o preço médio.' }
+        : { dados: patTrocarItem(dados, 'posicoes.' + classe, i, { ...p, qtd: v.qtd, pm: v.pm, dy: Number.isFinite(v.dy) ? v.dy : 0, seg: v.seg || p.seg }), msg: `${ticker} corrigido` },
+      remover: d => patTrocarItem(d, 'posicoes.' + classe, i, null), removerRotulo: 'Remover ativo', removerMsg: `Remover ${ticker} da carteira?` }
+  ] });
+}
+
+function _patNovoAtivo(classe) {
+  const dados = load('patrimonio', {});
+  const titulo = { acoes: 'Nova ação', bdrs: 'Novo BDR', fiis: 'Novo FII' }[classe] || 'Novo ativo';
+  _patAbrirEditor({ titulo, modos: [{ id: 'novo', rotulo: 'Novo',
+    campos: [{ id: 'ticker', rotulo: 'Ticker', tipo: 'txt' }, { id: 'qtd', rotulo: 'Quantidade', tipo: 'num' }, { id: 'pm', rotulo: 'Preço médio (R$)', tipo: 'num' },
+      { id: 'seg', rotulo: 'Segmento', tipo: 'txt', lista: _patSegmentos(dados) }, { id: 'dy', rotulo: 'DY ao ano digitado (%, opcional)', tipo: 'pct', dica: 'O Radar preenche o DY automático no próximo mês.' }],
+    aplicar: v => {
+      const tk = v.ticker.toUpperCase();
+      if (!/^[A-Z0-9]{4,7}$/.test(tk)) return { erro: 'Ticker inválido (ex.: ABCB4, AAPL34, HGLG11).' };
+      if (Object.values(dados.posicoes || {}).some(l => (l || []).some(p => p.ticker === tk))) return { erro: `${tk} já está na carteira: use Comprei.` };
+      if (!_patInt(v.qtd)) return { erro: 'Informe a quantidade (número inteiro).' };
+      if (!(v.pm > 0)) return { erro: 'Informe o preço médio.' };
+      return { dados: patTrocarItem(dados, 'posicoes.' + classe, -1, { ticker: tk, qtd: v.qtd, pm: v.pm, dy: Number.isFinite(v.dy) ? v.dy : 0, seg: v.seg || 'Sem segmento' }), msg: `${tk} adicionado` };
+    } }] });
 }
 
 function renderPatrimonio() {
