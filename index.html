@@ -5004,7 +5004,7 @@ function renderMuralAlongamento() {
   if (!cont) return;
   const hoje = today(), desde = localDateStr(_alSegunda());
   const evs = load('eventos', [])
-    .filter(e => /Alongamento \(Jefrey\)/.test(e.notas || '') && (e.dt || '').slice(0, 10) >= desde)
+    .filter(e => _cvDoAgente(e, 'Alongamento (Jefrey)') && (e.dt || '').slice(0, 10) >= desde)
     .sort((a, b) => a.dt.localeCompare(b.dt));
   if (!evs.length) { cont.innerHTML = '<div class="empty"><div class="ei">🧘</div>Nenhum alongamento marcado pra esta semana</div>'; return; }
   cont.innerHTML = evs.map(e => {
@@ -5702,10 +5702,13 @@ const CV_INI = '2026-10-21', CV_FIM = '2026-12-31', CV_TELA_FINAL = '2026-12-30'
 const _cvDia = d => d.slice(0, 10);
 const _cvNaJanela = d => d && d >= CV_INI && d <= CV_FIM && d <= today();   // evento futuro marcado por engano não conta
 
+// Desde 16/11/2026 os eventos dos agentes não têm descrição: reconhece pela marca na descrição OU pelo título.
+const _CV_TITULO = { 'Alongamento (Jefrey)': /^alongamento/i, 'Meditação (Mônica)': /^medita[cç]ão/i, 'Aparência (Mônica)': /^(skincare|corte de cabelo)/i, 'Inglês (Friday)': /^inglês/i };
+const _cvDoAgente = (e, marca) => (e.notas || '').includes(marca) || (_CV_TITULO[marca] || /$^/).test(e.nome || '');
 function _cvEventos(marca, filtroNome) {
   const vistos = new Set(), dias = [];
   load('eventos', []).forEach(e => {
-    if (!e.done || !(e.notas || '').includes(marca)) return;
+    if (!e.done || !_cvDoAgente(e, marca)) return;
     if (filtroNome && !filtroNome.test(e.nome || '')) return;
     const d = _cvDia(e.dt || '');
     const chave = (e.dt || '') + '|' + (e.nome || '');   // o mesmo evento pode existir com e sem googleId
@@ -6077,7 +6080,7 @@ function renderIngles() {
   const hoje = today(), porChave = {};
   load('eventos', []).forEach(e => {
     const d = _cvDia(e.dt || ''), mod = _ingMod(e.nome || '');
-    if (!(e.notas || '').includes('Inglês (Friday)') || !mod || d < '2026-10-26') return;
+    if (!_cvDoAgente(e, 'Inglês (Friday)') || !mod || d < '2026-10-26') return;
     const k = (e.dt || '') + '|' + (e.nome || '');   // o mesmo evento pode existir com e sem googleId
     porChave[k] = { d, mod, done: !!(porChave[k]?.done || e.done) };
   });
