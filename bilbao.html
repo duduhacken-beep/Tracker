@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bilbao</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bilbao">
+<meta name="theme-color" content="#162528">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23162528'/><path d='M28 62 L33 54 L33 36 L50 24 L67 36 L67 54 L72 62 Z' fill='none' stroke='%2393e9ba' stroke-width='5' stroke-linejoin='round'/><path d='M42 66 a8 8 0 0 0 16 0' fill='none' stroke='%2393e9ba' stroke-width='5'/></svg>">
+<script>
+  const _icon = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='#162528'/><path d='M28 62 L33 54 L33 36 L50 24 L67 36 L67 54 L72 62 Z' fill='none' stroke='#93e9ba' stroke-width='5' stroke-linejoin='round'/><path d='M42 66 a8 8 0 0 0 16 0' fill='none' stroke='#93e9ba' stroke-width='5'/></svg>`);
+  const _m = { name: 'Bilbao', short_name: 'Bilbao', start_url: location.pathname, scope: location.pathname.replace(/[^/]*$/, ''),
+    display: 'standalone', background_color: '#162528', theme_color: '#162528',
+    icons: [192, 512, 180].map(s => ({ src: _icon, sizes: s + 'x' + s, type: 'image/svg+xml', purpose: 'any' })) };
+  const _l = document.createElement('link'); _l.rel = 'manifest';
+  _l.href = URL.createObjectURL(new Blob([JSON.stringify(_m)], { type: 'application/manifest+json' }));
+  document.head.appendChild(_l);
+</script>
+<style>
+  :root { --bg:#162528; --tile:#213538; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --red:#ff8a7a; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
+    padding:max(20px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)); min-height:100vh; }
+  h1 { font-size:15px; font-weight:600; color:var(--soft); letter-spacing:.04em; margin-bottom:14px; }
+  .card { background:var(--tile); border-radius:16px; padding:16px 18px; margin-bottom:12px; }
+  .card small { display:block; color:var(--soft); font-size:13px; margin-bottom:4px; }
+  .big { font-size:38px; font-weight:700; line-height:1.1; }
+  .sub { color:var(--soft); font-size:13px; margin-top:6px; }
+  .ok { color:var(--mint); } .warn { color:var(--gold); } .bad { color:var(--red); }
+  #status { color:var(--soft); font-size:12px; text-align:center; margin-top:8px; }
+  #status.old { color:var(--gold); }
+</style>
+</head>
+<body>
+<h1>BILBAO</h1>
+<div class="card"><small id="hfOnde">Fator de saúde (HF)</small><div class="big" id="hf">…</div><div class="sub" id="hfSub"></div></div>
+<div class="card"><small>Taxas das últimas 24 h</small><div class="big ok" id="taxas">…</div><div class="sub" id="taxasSub"></div></div>
+<div id="status">Conectando…</div>
+<script>
+// Mesma configuração do Tracker (localStorage sb_url / sb_key). Nada de chave no código: o repositório é público.
+let URL_ = localStorage.getItem('sb_url') || '', KEY = localStorage.getItem('sb_key') || '';
+if (!URL_ || !KEY) {
+  URL_ = (prompt('Cole a URL do Supabase (a mesma do Tracker):') || '').trim().replace(/\/$/, '');
+  KEY = (prompt('Cole a chave anon do Supabase (a mesma do Tracker):') || '').trim();
+  if (URL_ && KEY) { localStorage.setItem('sb_url', URL_); localStorage.setItem('sb_key', KEY); }
+}
+const $ = id => document.getElementById(id);
+const fmt = (v, p) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+async function carregar() {
+  try {
+    const r = await fetch(URL_ + '/rest/v1/tracker_data?key=eq.bilbao_celular&select=value',
+      { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY }, cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const v = ((await r.json())[0] || {}).value;
+    if (!v) throw new Error('sem dados');
+    const hf = v.hf;
+    if (hf) {
+      $('hf').textContent = fmt(hf.valor);
+      $('hf').className = 'big ' + (hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok');
+      $('hfOnde').textContent = 'Fator de saúde (HF) · ' + hf.onde;
+      $('hfSub').textContent = hf.antigo ? 'Leitura antiga: a coleta não atualizou.' : '';
+    } else { $('hf').textContent = '—'; $('hfSub').textContent = 'Sem dívida lida na Aave.'; }
+    $('taxas').textContent = 'US$ ' + fmt(v.taxas_usd);
+    $('taxasSub').textContent = (v.taxas_brl != null ? 'R$ ' + fmt(v.taxas_brl) + ' · ' : '') + v.lidas + ' de ' + v.pools + ' pools lidas'
+      + (v.janela_h < 23 ? ' · menor janela: ' + Math.round(v.janela_h) + ' h' : '');
+    const idade = (Date.now() - Date.parse(v.em)) / 3600000;
+    const quando = new Date(v.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    $('status').textContent = (idade > 3 ? 'Dados antigos (PC desligado?) · coleta de ' : 'Coleta de ') + quando;
+    $('status').className = idade > 3 ? 'old' : '';
+  } catch (e) {
+    $('status').textContent = 'Sem conexão. Tentando de novo em 1 min.'; $('status').className = 'old';
+  }
+}
+carregar();
+setInterval(carregar, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) carregar(); });
+</script>
+</body>
+</html>
