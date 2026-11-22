@@ -396,7 +396,7 @@ function garimpo() {
     const a = mes.atual, max = Math.max(...mes.meses.map(x => x.usd), 1);
     f.push(h('h2', {}, 'Taxas no mês'));
     f.push(h('div', { class: 'card' }, h('small', {}, a.nome), h('div', { class: 'big ok' }, dinNum(a.usd, a.brl)),
-      h('div', { class: 'sub' }, `${a.dias} de ${a.decorridos} dias · média ${din(a.media_usd, a.media_usd * (a.brl / (a.usd || 1)))} por dia`),
+      h('div', { class: 'sub' }, `On-chain até ${a.ate} · média ${din(a.media_usd, a.brl != null ? a.media_usd * a.brl / (a.usd || 1) : null)} por dia` + (a.conferidas < a.posicoes ? ` · ${a.conferidas} de ${a.posicoes} posições conferidas` : '')),
       h('div', { class: 'rot', style: 'margin:18px 0 12px;padding-top:14px;border-top:1px solid var(--linha)' }, 'Histórico'),
       mes.meses.map(x => {
         const i = h('i', {}), w = Math.round(100 * x.usd / max);
