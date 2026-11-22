@@ -337,8 +337,8 @@ function fabrica() {
   if (pcs) {
     const roda = s => s === 'rodando', n = [pcs.notebook, pcs.segundo].filter(roda).length;
     corpo.push(h('div', { class: 'pcs' },
-      h('span', { class: 'chip' + (roda(pcs.notebook) ? ' on' : '') }, h('i', {}), 'Notebook · ' + pcs.notebook),
-      h('span', { class: 'chip' + (roda(pcs.segundo) ? ' on' : '') }, h('i', {}), 'Segundo PC · ' + pcs.segundo),
+      h('span', { class: 'chip' + (roda(pcs.notebook) ? ' on' : '') }, h('i', {}), 'Notebook · ' + pcs.notebook + (pcs.tarefa && roda(pcs.notebook) ? ' (' + pcs.tarefa + ')' : '')),
+      h('span', { class: 'chip' + (roda(pcs.segundo) ? ' on' : '') }, h('i', {}), 'Segundo PC · ' + pcs.segundo + (pcs.tarefa && roda(pcs.segundo) ? ' (' + pcs.tarefa + ')' : '')),
       h('span', { class: 'qtd' }, `${n} de 2 PCs rodando`)));
   }
   (t.linhas || []).filter(l => !(pcs && /^Notebook ·/.test(l))).forEach(l => corpo.push(h('div', { class: 'linha' }, l)));
