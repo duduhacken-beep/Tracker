@@ -236,7 +236,7 @@ let lidas = new Set(JSON.parse(localStorage.getItem('bilbao_lidas') || 'null') |
 const salvarLidas = () => localStorage.setItem('bilbao_lidas', JSON.stringify([...lidas]));
 
 // ---------- Controle: comandos assinados para o PC (bilbao_comandos.py) ----------
-const pcOk = () => conexaoOk && !!E && (Date.now() - Date.parse(E.em)) / 60000 < 3;
+const pcOk = () => conexaoOk && !!E && E.controle_disponivel !== false && (Date.now() - Date.parse(E.em)) / 60000 < 3;
 const seg = () => localStorage.getItem('bilbao_seg') || '';
 const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 async function assinar(nonce, acao, alvo) {   // HMAC-SHA256 hex de "nonce|acao|alvo", igual ao PC
@@ -279,7 +279,7 @@ const fecharBtn = (rotulo = 'Fechar') => h('button', { class: 'btn cinza', oncli
 // Pede confirmação (folha inferior), assina e envia o comando, acompanha o resultado.
 function comandar({ acao, alvo = '', titulo, texto, aviso, rotulo = 'Confirmar', perigo = false, direto = false }) {
   if (!seg()) return pareamento('Pareie o celular primeiro: a senha é mostrada no PC (python bilbao_comandos.py parear).');
-  if (!pcOk()) return folha('PC sem resposta', h('div', { class: 'sub' }, 'O Bilbao do PC não atualiza há mais de 3 minutos (PC desligado ou Bilbao fechado). Ligue e tente de novo.'), [fecharBtn()]);
+  if (!pcOk()) return folha('Controle indisponível', h('div', { class: 'sub' }, 'Abra o Bilbao no PC e aguarde a próxima atualização para enviar comandos.'), [fecharBtn()]);
   const corpo = [texto ? h('div', { class: 'texto' }, texto) : null, aviso ? h('div', { class: 'aviso' }, aviso) : null];
   const go = () => { vibra(10); enviar(acao, alvo, titulo); };
   if (direto) return go();
