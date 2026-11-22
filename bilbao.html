@@ -9,92 +9,191 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bilbao">
 <meta name="theme-color" content="#162528">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23162528'/><path d='M28 62 L33 54 L33 36 L50 24 L67 36 L67 54 L72 62 Z' fill='none' stroke='%2393e9ba' stroke-width='5' stroke-linejoin='round'/><path d='M42 66 a8 8 0 0 0 16 0' fill='none' stroke='%2393e9ba' stroke-width='5'/></svg>">
 <script>
-  const _icon = "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='#162528'/><path d='M28 62 L33 54 L33 36 L50 24 L67 36 L67 54 L72 62 Z' fill='none' stroke='#93e9ba' stroke-width='5' stroke-linejoin='round'/><path d='M42 66 a8 8 0 0 0 16 0' fill='none' stroke='#93e9ba' stroke-width='5'/></svg>`);
-  const _m = { name: 'Bilbao', short_name: 'Bilbao', start_url: location.pathname, scope: location.pathname.replace(/[^/]*$/, ''),
-    display: 'standalone', background_color: '#162528', theme_color: '#162528',
-    icons: [192, 512, 180].map(s => ({ src: _icon, sizes: s + 'x' + s, type: 'image/svg+xml', purpose: 'any' })) };
-  const _l = document.createElement('link'); _l.rel = 'manifest';
-  _l.href = URL.createObjectURL(new Blob([JSON.stringify(_m)], { type: 'application/manifest+json' }));
-  document.head.appendChild(_l);
+  // Ícone do app = o dock do Bilbao do PC (barras, picareta e sino). Vira PNG para o iOS e o Android aceitarem.
+  const _svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#223a3d'/><stop offset='1' stop-color='#0f1c1e'/></linearGradient></defs><rect width='100' height='100' rx='22' fill='url(#g)'/><rect x='8' y='32' width='84' height='36' rx='18' fill='#213538'/><g fill='none' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(12.4 34.9) scale(.56)' stroke='#93e9ba' stroke-width='3.6'><path d='M17 35V28M24 35V21M31 35V25M38 35V15'/></g><g transform='translate(34.9 34.9) scale(.56)' stroke='#ffcc79'><path d='M19 37L32 20' stroke-width='4.4'/><path d='M20 16Q31 19 38 28' stroke-width='3.6'/></g><g transform='translate(57.4 34.9) scale(.56)' stroke='#a4c9ff' stroke-width='2.8'><path d='M17 33L20 29V19Q20 13 27 13Q34 13 34 19V29L37 33Z'/><path d='M23 35A4 4 0 0 0 31 35'/></g></g></svg>`;
+  const _svgUrl = 'data:image/svg+xml,' + encodeURIComponent(_svg);
+  function _manifesto(icones) {
+    const m = { name: 'Bilbao', short_name: 'Bilbao', start_url: location.pathname, scope: location.pathname.replace(/[^/]*$/, ''),
+      display: 'standalone', background_color: '#162528', theme_color: '#162528', icons: icones };
+    const l = document.createElement('link'); l.rel = 'manifest';
+    l.href = URL.createObjectURL(new Blob([JSON.stringify(m)], { type: 'application/manifest+json' }));
+    document.head.appendChild(l);
+  }
+  (function () {
+    const apple = document.createElement('link'); apple.rel = 'apple-touch-icon'; apple.href = _svgUrl; document.head.appendChild(apple);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const png = s => { const c = document.createElement('canvas'); c.width = c.height = s; c.getContext('2d').drawImage(img, 0, 0, s, s); return c.toDataURL('image/png'); };
+        apple.href = png(180);
+        _manifesto([192, 512].map(s => ({ src: png(s), sizes: s + 'x' + s, type: 'image/png', purpose: 'any' })));
+      } catch (e) { _manifesto([{ src: _svgUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]); }
+    };
+    img.onerror = () => _manifesto([{ src: _svgUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]);
+    img.src = _svgUrl;
+  })();
 </script>
 <style>
-  :root { --bg:#162528; --tile:#213538; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --blue:#a4c9ff; --red:#ff8a7a; }
-  * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--ink); font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
-    padding:max(16px,env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom)); min-height:100vh; }
-  header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
-  h1 { font-size:15px; font-weight:600; color:var(--soft); letter-spacing:.08em; }
-  #quando { font-size:12px; color:var(--soft); }
-  #quando.old { color:var(--gold); }
-  #aviso { background:#3a3320; color:var(--gold); border-radius:12px; padding:10px 14px; font-size:13px; margin-bottom:12px; display:none; }
-  .card { background:var(--tile); border-radius:16px; padding:14px 16px; margin-bottom:10px; }
-  .card small { display:block; color:var(--soft); font-size:12px; margin-bottom:3px; }
-  .big { font-size:30px; font-weight:700; line-height:1.15; }
-  .titulo { font-size:22px; font-weight:700; }
-  .sub { color:var(--soft); font-size:13px; margin-top:5px; white-space:pre-line; }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
-  .grid .card { margin:0; } .grid .big { font-size:22px; }
+  :root { --bg:#162528; --bg2:#0f1c1e; --tile:#213538; --tile2:#2a4346; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --blue:#a4c9ff; --red:#ff8a7a;
+    --linha:rgba(255,255,255,.06); --mola:cubic-bezier(.34,1.45,.5,1); --suave:cubic-bezier(.2,.8,.2,1); }
+  * { box-sizing:border-box; margin:0; -webkit-tap-highlight-color:transparent; }
+  html { background:var(--bg); }
+  body { color:var(--ink); font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; min-height:100dvh; overflow-x:hidden;
+    background:radial-gradient(120% 60% at 0% 0%,rgba(147,233,186,.10),transparent 55%),radial-gradient(90% 50% at 100% 12%,rgba(164,201,255,.07),transparent 60%),var(--bg);
+    background-attachment:fixed; padding:0 16px calc(118px + env(safe-area-inset-bottom)); font-variant-numeric:tabular-nums; }
+  button { font:inherit; color:inherit; cursor:pointer; }
+
+  /* topo */
+  header { position:sticky; top:0; z-index:5; margin:0 -16px 10px; padding:max(14px,env(safe-area-inset-top)) 18px 10px; display:flex; justify-content:space-between; align-items:center;
+    background:linear-gradient(180deg,rgba(22,37,40,.96),rgba(22,37,40,.78)); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+  h1 { font-size:15px; font-weight:700; letter-spacing:.14em; color:var(--ink); display:flex; align-items:center; gap:9px; }
+  h1 svg { width:26px; height:26px; }
+  .dir { display:flex; align-items:center; gap:10px; }
+  #quando { font-size:12px; color:var(--soft); display:flex; align-items:center; gap:6px; background:none; border:0; padding:6px 2px; min-height:32px; }
+  #quando i { width:7px; height:7px; border-radius:50%; background:var(--mint); box-shadow:0 0 0 0 rgba(147,233,186,.6); animation:vivo 2.4s infinite; }
+  #quando.old { color:var(--gold); } #quando.old i { background:var(--gold); animation:none; }
+  @keyframes vivo { 0% { box-shadow:0 0 0 0 rgba(147,233,186,.55) } 70%,100% { box-shadow:0 0 0 7px rgba(147,233,186,0) } }
+  #cfg { background:rgba(255,255,255,.04); border:1px solid #3a5558; color:var(--soft); border-radius:999px; font-size:12px; font-weight:600; padding:0 12px; min-height:34px; transition:background .2s,border-color .2s,transform .15s; }
+  #cfg.ok { color:var(--mint); border-color:rgba(147,233,186,.55); }
+  #cfg:active { transform:scale(.95); }
+  #aviso { background:#3a3320; color:var(--gold); border-radius:14px; padding:10px 14px; font-size:13px; margin-bottom:12px; display:none; }
+
+  /* cartões */
+  .card { background:linear-gradient(180deg,#243c3f,#1f3336); border:1px solid var(--linha); border-radius:22px; padding:16px 18px; margin-bottom:12px; box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.18); }
+  .card small, .rot { display:block; color:var(--soft); font-size:12px; font-weight:500; letter-spacing:.02em; margin-bottom:5px; }
+  .big { font-size:34px; font-weight:700; line-height:1.1; letter-spacing:-.02em; }
+  .titulo { font-size:23px; font-weight:700; line-height:1.2; letter-spacing:-.01em; }
+  .sub { color:var(--soft); font-size:13px; margin-top:6px; white-space:pre-line; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  .grid .card { margin:0; padding:14px 16px; } .grid .big { font-size:22px; }
   .ok { color:var(--mint); } .warn { color:var(--gold); } .bad { color:var(--red); } .blue { color:var(--blue); }
-  .barra { height:8px; background:#0f1c1e; border-radius:6px; overflow:hidden; margin-top:10px; }
-  .barra i { display:block; height:100%; background:var(--mint); }
-  .linha { color:var(--soft); font-size:14px; margin-top:8px; white-space:pre-line; }
-  h2 { font-size:12px; color:var(--soft); letter-spacing:.08em; text-transform:uppercase; margin:16px 2px 8px; }
-  .abas { display:flex; gap:8px; margin-bottom:12px; }
-  .abas button { flex:1; background:var(--tile); color:var(--soft); border:0; border-radius:12px; padding:9px; font:inherit; font-size:14px; }
-  .abas button.on { background:var(--mint); color:#102019; font-weight:600; }
-  .item { background:var(--tile); border-radius:14px; padding:12px 14px; margin-bottom:8px; }
-  .item .meta { font-size:11px; color:var(--mint); }
-  .item .t { font-weight:600; margin-top:2px; }
-  .item.lida .t { font-weight:400; color:var(--soft); }
-  .dia { font-size:12px; color:var(--soft); margin:14px 2px 6px; }
-  .voltar { background:none; border:0; color:var(--mint); font:inherit; font-size:15px; padding:4px 0 10px; }
+  .linha { color:var(--soft); font-size:14px; margin-top:10px; white-space:pre-line; }
+  h2 { font-size:11px; font-weight:700; color:var(--soft); letter-spacing:.12em; text-transform:uppercase; margin:20px 4px 10px; }
   .texto { white-space:pre-line; font-size:15px; }
-  nav { position:fixed; left:0; right:0; bottom:0; display:flex; background:#0f1c1e; border-top:1px solid #243a3d;
-    padding:8px 8px calc(8px + env(safe-area-inset-bottom)); }
-  nav button { flex:1; background:none; border:0; color:var(--soft); font:inherit; font-size:12px; padding:6px 0; position:relative; }
-  nav button b { display:block; font-size:20px; font-weight:400; }
-  nav button.on { color:var(--mint); }
-  nav .n { position:absolute; top:0; left:calc(50% + 6px); background:var(--blue); color:#102019; border-radius:9px; font-size:11px; font-weight:700; padding:0 6px; }
-  header .dir { display:flex; gap:12px; align-items:baseline; }
-  #cfg { background:none; border:1px solid #3a5558; color:var(--soft); border-radius:10px; font:inherit; font-size:12px; padding:4px 10px; min-height:32px; }
-  #cfg.ok { color:var(--mint); border-color:var(--mint); }
-  .acoes { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-  .btn { min-height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--mint); background:none; color:var(--mint); font:inherit; font-size:14px; font-weight:600; }
-  .btn.cheio { background:var(--mint); color:#102019; }
-  .btn.perigo { border-color:var(--red); color:var(--red); }
-  .btn.cinza { border-color:#3a5558; color:var(--soft); }
-  .btn:disabled { opacity:.4; }
-  .btn:active:not(:disabled) { transform:scale(.97); }
-  .btn:focus-visible, #cfg:focus-visible, input:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
-  .veu { position:fixed; inset:0; background:rgba(5,12,13,.72); display:none; align-items:flex-end; z-index:20; }
-  .veu.on { display:flex; }
-  .folha { width:100%; background:#1b2e31; border-radius:20px 20px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom)); max-height:85vh; overflow:auto; animation:sobe .18s ease-out; }
-  @keyframes sobe { from { transform:translateY(24px); opacity:0 } to { transform:none; opacity:1 } }
-  @media (prefers-reduced-motion:reduce) { .folha { animation:none } .btn:active { transform:none } }
-  .folha h3 { font-size:19px; margin-bottom:8px; }
-  .folha .aviso { background:#3a3320; color:var(--gold); border-radius:10px; padding:10px 12px; font-size:13px; margin:10px 0; }
-  .folha .estado { margin-top:12px; font-size:15px; white-space:pre-line; }
-  .folha input { width:100%; min-height:48px; background:#0f1c1e; border:1px solid #3a5558; border-radius:12px; color:var(--ink); font:inherit; font-size:16px; padding:0 12px; margin-top:10px; letter-spacing:.06em; }
-  .mes { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:9px 0; border-top:1px solid #2c4548; }
-  .mes:first-of-type { border-top:0; }
-  .mes b { white-space:nowrap; }
-  .mes .sub { margin:0; }
-  .mbar { height:6px; background:#0f1c1e; border-radius:4px; overflow:hidden; margin-top:6px; }
-  .mbar i { display:block; height:100%; background:var(--mint); }
+  .chip { display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:600; padding:5px 10px; border-radius:999px; background:rgba(255,255,255,.06); color:var(--soft); }
+  .chip i { width:8px; height:8px; border-radius:50%; background:#6c7f7c; }
+  .chip.on { color:var(--mint); background:rgba(147,233,186,.12); } .chip.on i { background:var(--mint); box-shadow:0 0 8px var(--mint); }
+  .topo-card { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; }
+
+  /* progresso */
+  .prog { margin-top:16px; }
+  .prog .l1 { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .prog .pct { font-size:26px; font-weight:700; letter-spacing:-.02em; }
+  .prog .qtd { color:var(--soft); font-size:13px; }
+  .barra { position:relative; height:12px; background:rgba(0,0,0,.32); border-radius:999px; overflow:hidden; margin-top:10px; box-shadow:0 1px 0 rgba(255,255,255,.05); }
+  .barra i { position:absolute; inset:0 auto 0 0; width:0; border-radius:inherit; background:linear-gradient(90deg,#5fd39a,var(--mint)); transition:width 1.1s var(--suave); }
+  .barra.ativo i::after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent); transform:translateX(-100%); animation:brilho 2.2s infinite; }
+  .barra.alerta i { background:linear-gradient(90deg,#d9a24a,var(--gold)); }
+  .barra.semtrans i { transition:none; }
+  @keyframes brilho { to { transform:translateX(100%) } }
+  .pcs { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; align-items:center; }
+  .pcs .qtd { color:var(--soft); font-size:13px; margin-left:auto; }
+
+  /* seletor de moeda */
+  .seg { position:relative; display:grid; grid-template-columns:1fr 1fr; background:var(--bg2); border:1px solid var(--linha); border-radius:16px; padding:4px; margin-bottom:12px; --p:0; }
+  .seg .thumb { position:absolute; top:4px; bottom:4px; left:4px; width:calc(50% - 4px); border-radius:12px; background:var(--tile2); box-shadow:0 2px 10px rgba(0,0,0,.35); transform:translateX(calc(var(--p)*100%)); transition:transform .42s var(--mola); }
+  .seg button { position:relative; background:none; border:0; min-height:42px; border-radius:12px; font-size:14px; font-weight:600; color:var(--soft); transition:color .25s; }
+  .seg button.on { color:var(--ink); }
+
+  /* botões */
+  .acoes { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+  .btn { min-height:46px; padding:0 18px; border-radius:14px; border:1px solid rgba(147,233,186,.6); background:none; color:var(--mint); font-size:14px; font-weight:600; transition:transform .15s,background .2s,opacity .2s; }
+  .btn.cheio { background:var(--mint); color:#102019; border-color:var(--mint); }
+  .btn.perigo { border-color:rgba(255,138,122,.7); color:var(--red); }
+  .btn.cinza { border-color:#3f5a5d; color:var(--soft); }
+  .btn:disabled { opacity:.38; }
+  .btn:active:not(:disabled) { transform:scale(.96); }
+  .btn:focus-visible, #cfg:focus-visible, input:focus-visible, .tab:focus-visible, .seg button:focus-visible, .item:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+
+  /* histórico por mês */
+  .mes { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:14px; padding-top:12px; }
+  .mes:first-child { padding-top:0; } .mes b { white-space:nowrap; font-weight:600; } .mes span { color:var(--soft); font-size:13px; }
+  .mbar { height:6px; background:rgba(0,0,0,.3); border-radius:99px; overflow:hidden; margin:7px 0 2px; }
+  .mbar i { display:block; height:100%; width:0; background:linear-gradient(90deg,#5fd39a,var(--mint)); border-radius:inherit; transition:width 1s var(--suave); }
+
+  /* fator de saúde */
+  .hf { position:relative; height:8px; border-radius:99px; margin-top:14px; background:linear-gradient(90deg,var(--red) 0 25%,var(--gold) 25% 50%,var(--mint) 50% 100%); opacity:.9; }
+  .hf i { position:absolute; top:-4px; width:4px; height:16px; border-radius:3px; background:#fff; box-shadow:0 0 0 3px rgba(0,0,0,.35); transform:translateX(-50%); transition:left 1s var(--suave); }
+
+  /* avisos */
+  .abas { display:grid; grid-template-columns:1fr 1fr; gap:6px; background:var(--bg2); border-radius:16px; padding:4px; margin-bottom:14px; }
+  .abas button { background:none; border:0; color:var(--soft); border-radius:12px; min-height:42px; font-size:14px; font-weight:600; transition:background .25s,color .25s; }
+  .abas button.on { background:var(--tile2); color:var(--ink); }
+  .item { position:relative; background:linear-gradient(180deg,#243c3f,#1f3336); border:1px solid var(--linha); border-radius:18px; padding:13px 16px 13px 20px; margin-bottom:10px; cursor:pointer; transition:transform .15s; overflow:hidden; }
+  .item:active { transform:scale(.985); }
+  .item::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--cor,var(--blue)); }
+  .item[data-o=Trading] { --cor:var(--mint); } .item[data-o=Garimpo] { --cor:var(--gold); }
+  .item .meta { font-size:11px; font-weight:600; letter-spacing:.04em; color:var(--cor,var(--blue)); text-transform:uppercase; }
+  .item .t { font-weight:600; margin-top:3px; } .item.lida .t { font-weight:400; color:var(--soft); }
+  .item .novo { position:absolute; right:14px; top:50%; width:9px; height:9px; margin-top:-4.5px; border-radius:50%; background:var(--blue); box-shadow:0 0 10px var(--blue); }
+  .dia { font-size:12px; font-weight:600; color:var(--soft); margin:18px 4px 8px; }
+  .voltar { display:inline-flex; align-items:center; gap:4px; background:none; border:0; color:var(--mint); font-size:15px; font-weight:600; min-height:44px; padding:0 8px 0 0; }
+  .voltar svg { width:20px; height:20px; }
+  .vazio { text-align:center; color:var(--soft); margin-top:32px; font-size:14px; }
+
+  /* esqueleto */
+  .sk { height:96px; border-radius:22px; margin-bottom:12px; background:linear-gradient(100deg,#1f3336 30%,#2a4346 50%,#1f3336 70%); background-size:200% 100%; animation:esq 1.3s infinite linear; }
+  @keyframes esq { to { background-position:-200% 0 } }
+
+  /* transição de tela */
+  #tela.d > *, #tela.e > * { animation:surge .55s var(--suave) both; animation-delay:calc(var(--i,0)*55ms); }
+  #tela.d { --dx:32px; } #tela.e { --dx:-32px; }
+  @keyframes surge { from { opacity:0; transform:translate3d(var(--dx),12px,0) scale(.985) } to { opacity:1; transform:none } }
+  #tela.f > * { animation:fundir .28s ease both; animation-delay:calc(var(--i,0)*25ms); }
+  @keyframes fundir { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:none } }
+
+  /* dock (igual ao do PC) */
+  nav { position:fixed; left:50%; bottom:max(16px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:6; display:flex; padding:6px; border-radius:32px; --idx:0;
+    background:linear-gradient(180deg,#14282b,#0f1c1e); border:1px solid #2c4548; box-shadow:0 14px 34px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.05) inset; }
+  nav .foco { position:absolute; left:6px; top:6px; width:92px; height:60px; border-radius:26px; background:var(--tile); box-shadow:0 0 0 1px rgba(255,255,255,.05) inset; transform:translateX(calc(var(--idx)*100%)); transition:transform .5s var(--mola); }
+  .tab { position:relative; width:92px; height:60px; background:none; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--soft); font-size:11px; font-weight:600; letter-spacing:.02em; transition:color .3s,transform .15s; }
+  .tab:active { transform:scale(.93); }
+  .tab svg { width:34px; height:34px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; opacity:.62; transition:opacity .3s,transform .4s var(--mola); }
+  .tab[data-aba=fabrica] { --c:var(--mint); } .tab[data-aba=garimpo] { --c:var(--gold); } .tab[data-aba=avisos] { --c:var(--blue); }
+  .tab svg { color:var(--c); }
+  .tab.on { color:var(--ink); } .tab.on svg { opacity:1; transform:translateY(-1px) scale(1.06); }
+  .tab .n { position:absolute; top:5px; left:calc(50% + 8px); background:var(--blue); color:#102019; border-radius:10px; font-size:11px; font-weight:800; padding:1px 6px; min-width:18px; text-align:center; animation:pop .4s var(--mola); }
+  @keyframes pop { from { transform:scale(0) } to { transform:none } }
+  .pica, .sino { transform-box:view-box; } .pica { transform-origin:27px 30px; } .sino { transform-origin:27px 13px; }
+  .b { transform-box:fill-box; transform-origin:50% 100%; }
+  .tab.tocar .b { animation:sobe .6s var(--mola) both; animation-delay:calc(var(--k)*70ms); }
+  .tab.tocar .pica { animation:balanca .7s ease-out; } .tab.tocar .sino { animation:toca .8s ease-out; }
+  @keyframes sobe { from { transform:scaleY(.1) } to { transform:none } }
+  @keyframes balanca { 0% { transform:rotate(0) } 30% { transform:rotate(-26deg) } 65% { transform:rotate(14deg) } 100% { transform:none } }
+  @keyframes toca { 0%,100% { transform:rotate(0) } 15% { transform:rotate(15deg) } 35% { transform:rotate(-12deg) } 55% { transform:rotate(8deg) } 75% { transform:rotate(-3deg) } }
+
+  /* folha de confirmação */
+  .veu { position:fixed; inset:0; background:rgba(5,12,13,.66); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); display:flex; align-items:flex-end; z-index:20; opacity:0; visibility:hidden; transition:opacity .25s,visibility 0s .45s; }
+  .veu.on { opacity:1; visibility:visible; transition:opacity .25s; }
+  .folha { width:100%; background:linear-gradient(180deg,#223a3d,#1a2e31); border-radius:28px 28px 0 0; padding:10px 20px calc(20px + env(safe-area-inset-bottom)); max-height:88dvh; overflow:auto; border-top:1px solid rgba(255,255,255,.08);
+    transform:translateY(100%); transition:transform .45s var(--suave); }
+  .veu.on .folha { transform:none; }
+  .alca { display:block; width:40px; height:5px; border-radius:9px; background:rgba(255,255,255,.2); margin:0 auto 16px; }
+  .folha h3 { font-size:20px; font-weight:700; margin-bottom:10px; letter-spacing:-.01em; }
+  .folha .aviso { background:rgba(255,204,121,.12); color:var(--gold); border-radius:12px; padding:11px 13px; font-size:13px; margin:12px 0; }
+  .folha .estado { margin-top:14px; font-size:15px; white-space:pre-line; }
+  .folha input { width:100%; min-height:50px; background:var(--bg2); border:1px solid #3f5a5d; border-radius:14px; color:var(--ink); font:inherit; font-size:16px; padding:0 14px; margin-top:12px; letter-spacing:.06em; }
+
+  @media (prefers-reduced-motion:reduce) {
+    *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
 </style>
 </head>
 <body>
-<header><h1>BILBAO</h1><span class="dir"><span id="quando">Conectando…</span><button id="cfg" type="button">Controle</button></span></header>
-<div id="aviso"></div>
+<header>
+  <h1><svg viewBox="0 0 54 54" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="1" width="52" height="52" rx="14" fill="#213538"/><path d="M14 36V30M20 36V24M26 36V28M32 36V18" stroke="#93e9ba" stroke-width="3"/><path d="M36 38L44 26" stroke="#ffcc79" stroke-width="3"/></svg>BILBAO</h1>
+  <span class="dir"><button id="quando" type="button" aria-label="Atualizar agora"><i></i><span>Conectando…</span></button><button id="cfg" type="button">Controle</button></span>
+</header>
+<div id="aviso" role="status"></div>
 <main id="tela"></main>
-<div class="veu" id="veu"><div class="folha" role="dialog" aria-modal="true" aria-labelledby="ftitulo"><h3 id="ftitulo"></h3><div id="fcorpo"></div><div class="estado" id="festado" role="status" aria-live="polite"></div><div class="acoes" id="fbotoes"></div></div></div>
-<nav>
-  <button data-aba="fabrica"><b>▮▮▮</b>Fábrica</button>
-  <button data-aba="garimpo"><b>◆</b>Garimpo</button>
-  <button data-aba="avisos"><b>●</b>Avisos</button>
+<nav aria-label="Seções">
+  <i class="foco"></i>
+  <button class="tab" data-aba="fabrica" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g stroke-width="3"><path class="b" style="--k:0" d="M17 35V28"/><path class="b" style="--k:1" d="M24 35V21"/><path class="b" style="--k:2" d="M31 35V25"/><path class="b" style="--k:3" d="M38 35V15"/></g></svg>Fábrica</button>
+  <button class="tab" data-aba="garimpo" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g class="pica"><path d="M19 37L32 20" stroke-width="4"/><path d="M20 16Q31 19 38 28" stroke-width="3"/></g></svg>Garimpo</button>
+  <button class="tab" data-aba="avisos" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g class="sino" stroke-width="2.2"><path d="M17 33L20 29V19Q20 13 27 13Q34 13 34 19V29L37 33Z"/><path d="M23 35A4 4 0 0 0 31 35"/></g></svg>Avisos</button>
 </nav>
+<div class="veu" id="veu"><div class="folha" role="dialog" aria-modal="true" aria-labelledby="ftitulo"><i class="alca"></i><h3 id="ftitulo"></h3><div id="fcorpo"></div><div class="estado" id="festado" role="status" aria-live="polite"></div><div class="acoes" id="fbotoes"></div></div></div>
 <script>
 // Mesma configuração do Tracker (localStorage sb_url / sb_key). Nada de chave no código: o repositório é público.
 let URL_ = localStorage.getItem('sb_url') || '', KEY = localStorage.getItem('sb_key') || '';
@@ -105,6 +204,8 @@ if (!URL_ || !KEY) {
 }
 const $ = s => document.querySelector(s);
 const fmt = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const reduz = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const vibra = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 // h('div', {class:'x'}, 'texto', filho...) monta DOM sem innerHTML: o texto das notificações nunca vira HTML.
 function h(tag, attrs, ...filhos) {
   const e = document.createElement(tag);
@@ -112,9 +213,22 @@ function h(tag, attrs, ...filhos) {
   for (const f of filhos.flat()) if (f != null && f !== false) e.append(f.nodeType ? f : document.createTextNode(f));
   return e;
 }
+// Número que "sobe" de 0 ao valor quando a tela entra (some com "reduzir movimento").
+const num = (v, f) => { const s = h('span', { class: 'num' }, f(v)); s._v = v; s._f = f; return s; };
+function contar() {
+  if (reduz) return;
+  document.querySelectorAll('#tela .num').forEach(s => {
+    const t0 = performance.now(), D = 850;
+    const passo = t => { const k = Math.min(1, (t - t0) / D); s.textContent = s._f(s._v * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(passo); };
+    requestAnimationFrame(passo);
+  });
+}
 const card = (rotulo, valor, sub, cls) => h('div', { class: 'card' }, h('small', {}, rotulo), h('div', { class: 'big ' + (cls || '') }, valor), sub ? h('div', { class: 'sub' }, sub) : null);
 
-let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = null, verLidas = false;
+const ORDEM = ['fabrica', 'garimpo', 'avisos'];
+let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = null, verLidas = false, animando = false;
+if (!ORDEM.includes(aba)) aba = 'fabrica';
+let moeda = localStorage.getItem('bilbao_moeda') === 'USD' ? 'USD' : 'BRL', moedaAnt = moeda;
 let lidas = new Set(JSON.parse(localStorage.getItem('bilbao_lidas') || 'null') || []);
 const salvarLidas = () => localStorage.setItem('bilbao_lidas', JSON.stringify([...lidas]));
 
@@ -147,9 +261,9 @@ function folha(titulo, corpo, botoes, estado) {
   $('#fbotoes').replaceChildren(...botoes);
   if (!$('#veu').classList.contains('on')) folhaFoco = document.activeElement;
   $('#veu').classList.add('on');
-  ($('#fcorpo input') || $('#fbotoes .cheio, #fbotoes button'))?.focus();
+  ($('#fcorpo input') || $('#fbotoes .cheio, #fbotoes button'))?.focus({ preventScroll: true });
 }
-function fechar() { if (folhaOcupada) return; $('#veu').classList.remove('on'); folhaFoco?.focus?.(); }
+function fechar() { if (folhaOcupada) return; $('#veu').classList.remove('on'); folhaFoco?.focus?.({ preventScroll: true }); }
 $('#veu').onclick = e => { if (e.target === $('#veu')) fechar(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
 const fecharBtn = (rotulo = 'Fechar') => h('button', { class: 'btn cinza', onclick: fechar }, rotulo);
@@ -159,7 +273,7 @@ function comandar({ acao, alvo = '', titulo, texto, aviso, rotulo = 'Confirmar',
   if (!seg()) return pareamento('Pareie o celular primeiro: a senha é mostrada no PC (python bilbao_comandos.py parear).');
   if (!pcOk()) return folha('PC sem resposta', h('div', { class: 'sub' }, 'O Bilbao do PC não atualiza há mais de 3 minutos (PC desligado ou Bilbao fechado). Ligue e tente de novo.'), [fecharBtn()]);
   const corpo = [texto ? h('div', { class: 'texto' }, texto) : null, aviso ? h('div', { class: 'aviso' }, aviso) : null];
-  const go = () => enviar(acao, alvo, titulo);
+  const go = () => { vibra(10); enviar(acao, alvo, titulo); };
   if (direto) return go();
   folha(titulo, corpo, [h('button', { class: 'btn ' + (perigo ? 'perigo' : 'cheio'), onclick: go }, rotulo), fecharBtn('Cancelar')]);
 }
@@ -200,15 +314,38 @@ $('#cfg').onclick = () => pareamento();
 const AVISO_CLAUDE = 'Abre o Claude Code no PC, que passa a mexer em arquivos do projeto.';
 const botao = (rotulo, cls, fn) => { const a = { class: 'btn ' + cls, onclick: fn }; if (!pcOk()) a.disabled = ''; return h('button', a, rotulo); };
 
+// ---------- telas ----------
+function barra(done, total, cls) {
+  const pct = total ? Math.min(100, 100 * done / total) : 0;
+  const i = h('i', {});
+  const b = h('div', { class: 'barra ' + (cls || '') + (animando ? '' : ' semtrans'), role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(Math.round(pct)) }, i);
+  if (animando) requestAnimationFrame(() => requestAnimationFrame(() => { i.style.width = pct + '%'; })); else i.style.width = pct + '%';
+  return { b, pct };
+}
+const pctTxt = p => (p > 0 && p < 10 ? p.toFixed(1) : Math.round(p)).toString().replace('.', ',') + '%';
+const inteiro = v => Math.round(v).toLocaleString('pt-BR');
+
 function fabrica() {
-  const t = E.trading || {}, p = t.progresso;
-  const filhos = [h('div', { class: 'card' }, h('small', {}, 'Máquina da Fábrica'), h('div', { class: 'titulo ' + (t.cor === 'ativo' ? 'ok' : '') }, t.estado || '—'),
-    p ? h('div', { class: 'sub' }, `${p[0]} de ${p[1]} ${p[2]}`) : null,
-    p ? h('div', { class: 'barra' }, h('i', { style: `width:${Math.min(100, 100 * p[0] / (p[1] || 1))}%` })) : null,
-    (t.linhas || []).map(l => h('div', { class: 'linha' }, l)),
-    t.bloco ? h('div', { class: 'acoes' },
-      botao('Parar mineração', 'perigo', () => comandar({ acao: 'mineracao.parar', titulo: 'Parar a mineração?', texto: 'Pede à Máquina que pare nos dois PCs. Cada um termina a candidata em andamento.', rotulo: 'Parar', perigo: true })),
-      botao('Continuar mineração', 'cheio', () => comandar({ acao: 'mineracao.continuar', titulo: 'Continuar a mineração?', texto: 'Pede à Máquina que retome a mineração nos dois PCs.', rotulo: 'Continuar' }))) : null)];
+  const t = E.trading || {}, p = t.progresso, pcs = t.pcs;
+  const cls = t.cor === 'ativo' ? 'ok' : t.cor === 'alerta' ? 'warn' : '';
+  const corpo = [h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Fábrica · mesa de trading')), h('div', { class: 'titulo ' + cls }, t.estado || '—')];
+  if (p) {
+    const { b, pct } = barra(p[0], p[1], t.cor);
+    corpo.push(h('div', { class: 'prog' },
+      h('div', { class: 'l1' }, h('span', { class: 'qtd' }, `${inteiro(p[0])} de ${inteiro(p[1])} ${p[2]}`), h('span', { class: 'pct ' + cls }, num(pct, pctTxt))), b));
+  }
+  if (pcs) {
+    const roda = s => s === 'rodando', n = [pcs.notebook, pcs.segundo].filter(roda).length;
+    corpo.push(h('div', { class: 'pcs' },
+      h('span', { class: 'chip' + (roda(pcs.notebook) ? ' on' : '') }, h('i', {}), 'Notebook · ' + pcs.notebook),
+      h('span', { class: 'chip' + (roda(pcs.segundo) ? ' on' : '') }, h('i', {}), 'Segundo PC · ' + pcs.segundo),
+      h('span', { class: 'qtd' }, `${n} de 2 PCs rodando`)));
+  }
+  (t.linhas || []).filter(l => !(pcs && /^Notebook ·/.test(l))).forEach(l => corpo.push(h('div', { class: 'linha' }, l)));
+  if (t.bloco) corpo.push(h('div', { class: 'acoes' },
+    botao('Parar mineração', 'perigo', () => comandar({ acao: 'mineracao.parar', titulo: 'Parar a mineração?', texto: 'Pede à Máquina que pare nos dois PCs. Cada um termina a candidata em andamento.', rotulo: 'Parar', perigo: true })),
+    botao('Continuar mineração', 'cheio', () => comandar({ acao: 'mineracao.continuar', titulo: 'Continuar a mineração?', texto: 'Pede à Máquina que retome a mineração nos dois PCs.', rotulo: 'Continuar' }))));
+  const filhos = [h('div', { class: 'card' }, corpo)];
   const dec = Object.entries(t.decisoes || {});
   if (dec.length) {
     filhos.push(h('h2', {}, 'Por decidir · ' + dec.length));
@@ -220,36 +357,55 @@ function fabrica() {
   return filhos;
 }
 
-function taxasMes(tx) {
-  const mes = tx && tx.mes;
-  if (!mes || !mes.atual) return [];
-  const a = mes.atual, max = Math.max(...mes.meses.map(m => m.usd), 1);
-  const d = s => s.slice(8, 10) + '/' + s.slice(5, 7);
-  const f = [card('Taxas em ' + a.nome, 'US$ ' + fmt(a.usd),
-    `R$ ${fmt(a.brl)} · ${a.dias} de ${a.decorridos} dias lidos · média US$ ${fmt(a.media_usd)}/dia\nContagem a partir de ${d(a.desde)}${mes.provisorio_hoje ? ' · inclui hoje (leitura de 24 h, provisória)' : ''}`, 'ok')];
-  if (mes.meses.length) {
-    f.push(h('h2', {}, 'Taxas por mês'));
-    f.push(h('div', { class: 'card' }, mes.meses.map(m => h('div', {}, h('div', { class: 'mes' }, h('span', {}, m.nome, h('div', { class: 'sub' }, `${m.dias} de ${m.no_mes} dias lidos`)), h('b', {}, `US$ ${fmt(m.usd)} · R$ ${fmt(m.brl)}`)),
-      h('div', { class: 'mbar' }, h('i', { style: `width:${Math.round(100 * m.usd / max)}%` })))),
-      h('div', { class: 'sub' }, 'Só há leitura desde o primeiro retrato diário de taxas; meses sem leitura não são estimados.')));
-  }
-  return f;
+// Moeda: o PC manda USD e BRL; o seletor só escolhe qual mostrar.
+const din = (usd, brl) => moeda === 'USD' ? (usd != null ? 'US$ ' + fmt(usd) : '—') : (brl != null ? 'R$ ' + fmt(brl) : '—');
+const dinNum = (usd, brl) => { const v = moeda === 'USD' ? usd : brl; const f = x => (moeda === 'USD' ? 'US$ ' : 'R$ ') + fmt(x); return v != null ? num(v, f) : '—'; };
+
+function seletorMoeda() {
+  const p0 = moedaAnt === 'USD' ? 1 : 0, p1 = moeda === 'USD' ? 1 : 0;
+  const w = h('div', { class: 'seg', role: 'group', 'aria-label': 'Moeda' }, h('i', { class: 'thumb' }),
+    [['BRL', 'R$  Real'], ['USD', 'US$  Dólar']].map(([m, r]) => h('button', { type: 'button', class: moeda === m ? 'on' : '', 'aria-pressed': String(moeda === m), onclick: () => {
+      if (moeda === m) return; moedaAnt = moeda; moeda = m; localStorage.setItem('bilbao_moeda', m); vibra(8); desenhar('f'); } }, r)));
+  w.style.setProperty('--p', p0);
+  requestAnimationFrame(() => requestAnimationFrame(() => w.style.setProperty('--p', p1)));
+  moedaAnt = moeda;
+  return w;
 }
 
 function garimpo() {
-  const g = E.garimpo || {}, m = g.metricas || {}, hf = m.hf, tx = E.taxas;
-  const f = [h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
+  const g = E.garimpo || {}, m = g.metricas || {}, hf = m.hf, tx = E.taxas, mes = tx && tx.mes;
+  const fx = m.fx;
+  const f = [seletorMoeda(), h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
+  // saldo e taxas a receber: o PC manda US$ e o câmbio; sem isso (leitura antiga) cai no texto em reais
+  const saldoOk = typeof m.saldo_usd === 'number' && fx;
+  f.push(h('div', { class: 'card' }, h('small', {}, 'Saldo total'), h('div', { class: 'big' }, saldoOk ? dinNum(m.saldo_usd, m.saldo_usd * fx) : (m.saldo || '—'))));
+  const pendOk = typeof m.pend_usd === 'number' && fx;
   f.push(h('div', { class: 'grid' },
-    card('Saldo total', m.saldo || '—'),
-    card('Taxas a recolher', m.taxas || '—', null, 'ok'),
-    card('Pools para recalibrar', String(m.fora ?? '—'), null, m.fora > 0 ? 'warn' : ''),
-    card('Pools dentro da faixa', String(m.dentro ?? '—'))));
-  if (hf) f.push(card('Fator de saúde (HF) · ' + hf.onde, fmt(hf.valor), hf.antigo ? 'Leitura antiga: a coleta não atualizou.' : '', hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok'));
-  if (tx) f.push(card('Taxas das últimas 24 h', 'US$ ' + fmt(tx.taxas_usd),
-    (tx.taxas_brl != null ? 'R$ ' + fmt(tx.taxas_brl) + ' · ' : '') + `${tx.lidas} de ${tx.pools} pools lidas` + (tx.janela_h < 23 ? ` · menor janela: ${Math.round(tx.janela_h)} h` : ''), 'ok'));
-  f.push(...taxasMes(tx));
-  if (m.horario) f.push(h('div', { class: 'sub' }, 'Carteira · ' + m.horario + (m.parcial ? ' · algumas fontes parciais ou da coleta anterior' : '')));
-  f.push(h('div', { class: 'acoes', style: 'margin-bottom:10px' }, botao('Atualizar carteira', 'cinza', () => comandar({ acao: 'carteira.atualizar', titulo: 'Atualizar a carteira?', texto: 'O PC consulta as fontes de novo. Pode levar vários minutos.', rotulo: 'Atualizar' }))));
+    card('Taxas a recolher', pendOk ? dinNum(m.pend_usd, m.pend_usd * fx) : (m.taxas || '—'), null, 'ok'),
+    tx ? card('Taxas · 24 h', dinNum(tx.taxas_usd, tx.taxas_brl), `${tx.lidas} de ${tx.pools} pools`, 'ok') : card('Taxas · 24 h', '—'),
+    card('Para recalibrar', String(m.fora ?? '—'), null, m.fora > 0 ? 'warn' : ''),
+    card('Dentro da faixa', String(m.dentro ?? '—'))));
+  if (hf) {
+    const c = hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok', pos = Math.max(2, Math.min(98, (hf.valor - 1) / 2 * 100));
+    const marca = h('i', {}); marca.style.left = animando ? '2%' : pos + '%';
+    if (animando) requestAnimationFrame(() => requestAnimationFrame(() => { marca.style.left = pos + '%'; }));
+    f.push(h('div', { class: 'card' }, h('small', {}, 'Fator de saúde (HF) · ' + hf.onde), h('div', { class: 'big ' + c }, num(hf.valor, fmt)),
+      h('div', { class: 'hf' }, marca), hf.antigo ? h('div', { class: 'sub' }, 'Leitura antiga: a coleta não atualizou.') : null));
+  }
+  if (mes && mes.atual) {
+    const a = mes.atual, max = Math.max(...mes.meses.map(x => x.usd), 1);
+    f.push(h('h2', {}, 'Taxas no mês'));
+    f.push(h('div', { class: 'card' }, h('small', {}, a.nome), h('div', { class: 'big ok' }, dinNum(a.usd, a.brl)),
+      h('div', { class: 'sub' }, `${a.dias} de ${a.decorridos} dias · média ${din(a.media_usd, a.media_usd * (a.brl / (a.usd || 1)))} por dia`),
+      h('div', { class: 'rot', style: 'margin:18px 0 12px;padding-top:14px;border-top:1px solid var(--linha)' }, 'Histórico'),
+      mes.meses.map(x => {
+        const i = h('i', {}), w = Math.round(100 * x.usd / max);
+        if (animando) requestAnimationFrame(() => requestAnimationFrame(() => { i.style.width = w + '%'; })); else { i.style.transition = 'none'; i.style.width = w + '%'; }
+        return h('div', {}, h('div', { class: 'mes' }, h('span', {}, x.nome), h('b', {}, din(x.usd, x.brl))), h('div', { class: 'mbar' }, i));
+      })));
+  }
+  f.push(h('div', { class: 'acoes', style: 'margin:2px 0 10px' }, botao('Atualizar carteira', 'cinza', () => comandar({ acao: 'carteira.atualizar', titulo: 'Atualizar a carteira?', texto: 'O PC consulta as fontes de novo. Pode levar vários minutos.', rotulo: 'Atualizar' }))));
+  if (m.horario) f.push(h('div', { class: 'sub' }, 'Carteira · ' + m.horario));
   const props = Object.entries(g.propostas || {}).filter(([, p]) => p.estado === 'aguardando' || p.estado === 'aprovada');
   if (props.length) {
     f.push(h('h2', {}, 'Propostas do Engenheiro'));
@@ -263,14 +419,15 @@ function garimpo() {
 }
 
 const hora = q => q.slice(11, 16), dia = q => q.slice(8, 10) + '/' + q.slice(5, 7) + '/' + q.slice(0, 4);
+const VOLTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
 function avisos() {
   const todas = E.noticias || [];
   if (aberta) {
     const n = todas.find(x => x.id === aberta);
     if (!n) { aberta = null; return avisos(); }
-    return [h('button', { class: 'voltar', onclick: () => { aberta = null; desenhar(); } }, '‹ Notificações'),
-      h('div', { class: 'item' }, h('div', { class: 'meta' }, `${n.origem} · ${dia(n.quando)} às ${hora(n.quando)}`),
-        h('div', { class: 't', style: 'font-size:19px;margin:6px 0 12px' }, n.titulo.replace('Bilhete da manhã · ', '')), h('div', { class: 'texto' }, n.texto),
+    const v = h('button', { class: 'voltar', onclick: () => { aberta = null; desenhar('e'); } }, 'Notificações'); v.insertAdjacentHTML('afterbegin', VOLTA);
+    return [v, h('div', { class: 'card' }, h('small', {}, `${n.origem} · ${dia(n.quando)} às ${hora(n.quando)}`),
+        h('div', { class: 'titulo', style: 'margin:6px 0 14px' }, n.titulo.replace('Bilhete da manhã · ', '')), h('div', { class: 'texto' }, n.texto),
       n.id.includes('/bilhete/') && /problema/i.test(n.titulo)
         ? h('div', { class: 'acoes' }, botao('Conferir', 'cheio', () => comandar({ acao: 'automacoes.conferir', titulo: 'Conferir as automações?', texto: 'O PC confere as automações agora.', aviso: 'Se ainda houver falhas, abre o Claude Code no PC para corrigir.', rotulo: 'Conferir' })))
         : null)];
@@ -278,31 +435,49 @@ function avisos() {
   const nao = todas.filter(n => !lidas.has(n.id));
   const lista = verLidas ? todas.filter(n => lidas.has(n.id)) : nao;
   const f = [h('div', { class: 'abas' },
-    h('button', { class: verLidas ? '' : 'on', onclick: () => { verLidas = false; desenhar(); } }, 'Por ler ' + nao.length),
-    h('button', { class: verLidas ? 'on' : '', onclick: () => { verLidas = true; desenhar(); } }, 'Lidas'))];
-  if (!lista.length) f.push(h('div', { class: 'sub', style: 'text-align:center;margin-top:24px' }, 'Nenhuma notificação nesta lista.'));
+    h('button', { class: verLidas ? '' : 'on', onclick: () => { verLidas = false; desenhar('f'); } }, 'Por ler ' + nao.length),
+    h('button', { class: verLidas ? 'on' : '', onclick: () => { verLidas = true; desenhar('f'); } }, 'Lidas'))];
+  if (!lista.length) f.push(h('div', { class: 'vazio' }, 'Nenhuma notificação nesta lista.'));
   let ult = '';
   const agora = new Date(), hoje = dia(`${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`);
   lista.forEach(n => {
     const d = dia(n.quando) === hoje ? 'Hoje' : dia(n.quando);
     if (d !== ult) { f.push(h('div', { class: 'dia' }, d)); ult = d; }
-    f.push(h('div', { class: 'item' + (lidas.has(n.id) ? ' lida' : ''), onclick: () => { aberta = n.id; lidas.add(n.id); salvarLidas(); desenhar(); } },
-      h('div', { class: 'meta' }, n.origem + ' · ' + hora(n.quando)), h('div', { class: 't' }, n.titulo.replace('Bilhete da manhã · ', ''))));
+    f.push(h('div', { class: 'item' + (lidas.has(n.id) ? ' lida' : ''), 'data-o': n.origem, tabindex: '0', role: 'button', onclick: () => { aberta = n.id; lidas.add(n.id); salvarLidas(); vibra(6); desenhar('d'); window.scrollTo(0, 0); } },
+      h('div', { class: 'meta' }, n.origem + ' · ' + hora(n.quando)), h('div', { class: 't' }, n.titulo.replace('Bilhete da manhã · ', '')), lidas.has(n.id) ? null : h('i', { class: 'novo' })));
   });
   return f;
 }
 
-function desenhar() {
-  const t = $('#tela'); t.replaceChildren();
-  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
-  const nb = document.querySelector('nav [data-aba=avisos]'); nb.querySelector('.n')?.remove();
-  if (!E) return;
+// modo: 'd'/'e' = troca de aba (desliza), 'f' = só esmaece, undefined = atualização de dados (sem animar)
+function desenhar(modo) {
+  const t = $('#tela');
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
+  const nav = $('nav'); nav.style.setProperty('--idx', ORDEM.indexOf(aba));
+  nav.querySelector('[data-aba=avisos] .n')?.remove();
+  if (!E) { t.className = ''; t.replaceChildren(h('div', { class: 'sk' }), h('div', { class: 'sk', style: 'height:150px' }), h('div', { class: 'sk' })); return; }
   const nao = (E.noticias || []).filter(n => !lidas.has(n.id)).length;
-  if (nao) nb.append(h('span', { class: 'n' }, String(nao)));
-  t.append(...(aba === 'fabrica' ? fabrica() : aba === 'garimpo' ? garimpo() : avisos()));
+  if (nao) nav.querySelector('[data-aba=avisos]').append(h('span', { class: 'n' }, String(nao)));
+  animando = !!modo;
+  t.className = modo || '';
+  const filhos = aba === 'fabrica' ? fabrica() : aba === 'garimpo' ? garimpo() : avisos();
+  t.replaceChildren(...filhos);
+  [...t.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 9)));
+  if (modo) contar();
+  animando = false;
+}
+function tocar(nome) {
+  const b = document.querySelector(`.tab[data-aba=${nome}]`); if (!b) return;
+  b.classList.remove('tocar'); void b.offsetWidth; b.classList.add('tocar'); setTimeout(() => b.classList.remove('tocar'), 1000);
+}
+function ir(nova) {
+  const mesma = nova === aba;
+  const modo = ORDEM.indexOf(nova) >= ORDEM.indexOf(aba) ? 'd' : 'e';
+  aba = nova; aberta = null; localStorage.setItem('bilbao_aba', aba);
+  vibra(8); tocar(nova); desenhar(mesma ? 'f' : modo); window.scrollTo({ top: 0, behavior: reduz ? 'auto' : 'smooth' });
 }
 
-async function carregar() {
+async function carregar(manual) {
   try {
     const r = await fetch(URL_ + '/rest/v1/tracker_data?key=eq.bilbao_estado&select=value', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY }, cache: 'no-store' });
     if (!r.ok) throw new Error(r.status);
@@ -313,18 +488,20 @@ async function carregar() {
       (v.noticias || []).forEach(n => { if (new Date(n.quando).getTime() < corte) lidas.add(n.id); });
       salvarLidas();
     }
+    const primeira = !E;
     E = v;
     const min = (Date.now() - Date.parse(v.em)) / 60000;
-    $('#quando').textContent = min < 2 ? 'Atualizado agora' : 'Atualizado há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h');
-    $('#quando').className = min > 3 ? 'old' : '';
+    const txt = min < 2 ? 'Atualizado agora' : 'Atualizado há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h');
+    $('#quando span').textContent = txt; $('#quando').className = min > 3 ? 'old' : '';
     $('#aviso').style.display = min > 3 ? 'block' : 'none';
     $('#aviso').textContent = 'O Bilbao do PC não responde há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h') + ' (PC desligado ou Bilbao fechado). O que você vê é a última leitura.';
-    if (!aberta) desenhar();
+    if (!aberta && !$('#veu').classList.contains('on')) desenhar(primeira ? 'f' : undefined);
   } catch (e) {
-    $('#quando').textContent = 'Sem conexão'; $('#quando').className = 'old';
+    $('#quando span').textContent = 'Sem conexão'; $('#quando').className = 'old';
   }
 }
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => { aba = b.dataset.aba; aberta = null; localStorage.setItem('bilbao_aba', aba); desenhar(); window.scrollTo(0, 0); });
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => ir(b.dataset.aba));
+$('#quando').onclick = () => { vibra(6); carregar(true); };
 marcarCfg(); desenhar(); carregar();
 setInterval(carregar, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) carregar(); });
