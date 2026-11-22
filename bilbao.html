@@ -20,25 +20,54 @@
   document.head.appendChild(_l);
 </script>
 <style>
-  :root { --bg:#162528; --tile:#213538; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --red:#ff8a7a; }
+  :root { --bg:#162528; --tile:#213538; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --blue:#a4c9ff; --red:#ff8a7a; }
   * { box-sizing:border-box; margin:0; }
   body { background:var(--bg); color:var(--ink); font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
-    padding:max(20px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom)); min-height:100vh; }
-  h1 { font-size:15px; font-weight:600; color:var(--soft); letter-spacing:.04em; margin-bottom:14px; }
-  .card { background:var(--tile); border-radius:16px; padding:16px 18px; margin-bottom:12px; }
-  .card small { display:block; color:var(--soft); font-size:13px; margin-bottom:4px; }
-  .big { font-size:38px; font-weight:700; line-height:1.1; }
-  .sub { color:var(--soft); font-size:13px; margin-top:6px; }
-  .ok { color:var(--mint); } .warn { color:var(--gold); } .bad { color:var(--red); }
-  #status { color:var(--soft); font-size:12px; text-align:center; margin-top:8px; }
-  #status.old { color:var(--gold); }
+    padding:max(16px,env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom)); min-height:100vh; }
+  header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+  h1 { font-size:15px; font-weight:600; color:var(--soft); letter-spacing:.08em; }
+  #quando { font-size:12px; color:var(--soft); }
+  #quando.old { color:var(--gold); }
+  #aviso { background:#3a3320; color:var(--gold); border-radius:12px; padding:10px 14px; font-size:13px; margin-bottom:12px; display:none; }
+  .card { background:var(--tile); border-radius:16px; padding:14px 16px; margin-bottom:10px; }
+  .card small { display:block; color:var(--soft); font-size:12px; margin-bottom:3px; }
+  .big { font-size:30px; font-weight:700; line-height:1.15; }
+  .titulo { font-size:22px; font-weight:700; }
+  .sub { color:var(--soft); font-size:13px; margin-top:5px; white-space:pre-line; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .grid .card { margin:0; } .grid .big { font-size:22px; }
+  .ok { color:var(--mint); } .warn { color:var(--gold); } .bad { color:var(--red); } .blue { color:var(--blue); }
+  .barra { height:8px; background:#0f1c1e; border-radius:6px; overflow:hidden; margin-top:10px; }
+  .barra i { display:block; height:100%; background:var(--mint); }
+  .linha { color:var(--soft); font-size:14px; margin-top:8px; white-space:pre-line; }
+  h2 { font-size:12px; color:var(--soft); letter-spacing:.08em; text-transform:uppercase; margin:16px 2px 8px; }
+  .abas { display:flex; gap:8px; margin-bottom:12px; }
+  .abas button { flex:1; background:var(--tile); color:var(--soft); border:0; border-radius:12px; padding:9px; font:inherit; font-size:14px; }
+  .abas button.on { background:var(--mint); color:#102019; font-weight:600; }
+  .item { background:var(--tile); border-radius:14px; padding:12px 14px; margin-bottom:8px; }
+  .item .meta { font-size:11px; color:var(--mint); }
+  .item .t { font-weight:600; margin-top:2px; }
+  .item.lida .t { font-weight:400; color:var(--soft); }
+  .dia { font-size:12px; color:var(--soft); margin:14px 2px 6px; }
+  .voltar { background:none; border:0; color:var(--mint); font:inherit; font-size:15px; padding:4px 0 10px; }
+  .texto { white-space:pre-line; font-size:15px; }
+  nav { position:fixed; left:0; right:0; bottom:0; display:flex; background:#0f1c1e; border-top:1px solid #243a3d;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom)); }
+  nav button { flex:1; background:none; border:0; color:var(--soft); font:inherit; font-size:12px; padding:6px 0; position:relative; }
+  nav button b { display:block; font-size:20px; font-weight:400; }
+  nav button.on { color:var(--mint); }
+  nav .n { position:absolute; top:0; left:calc(50% + 6px); background:var(--blue); color:#102019; border-radius:9px; font-size:11px; font-weight:700; padding:0 6px; }
 </style>
 </head>
 <body>
-<h1>BILBAO</h1>
-<div class="card"><small id="hfOnde">Fator de saúde (HF)</small><div class="big" id="hf">…</div><div class="sub" id="hfSub"></div></div>
-<div class="card"><small>Taxas das últimas 24 h</small><div class="big ok" id="taxas">…</div><div class="sub" id="taxasSub"></div></div>
-<div id="status">Conectando…</div>
+<header><h1>BILBAO</h1><span id="quando">Conectando…</span></header>
+<div id="aviso"></div>
+<main id="tela"></main>
+<nav>
+  <button data-aba="fabrica"><b>▮▮▮</b>Fábrica</button>
+  <button data-aba="garimpo"><b>◆</b>Garimpo</button>
+  <button data-aba="avisos"><b>●</b>Avisos</button>
+</nav>
 <script>
 // Mesma configuração do Tracker (localStorage sb_url / sb_key). Nada de chave no código: o repositório é público.
 let URL_ = localStorage.getItem('sb_url') || '', KEY = localStorage.getItem('sb_key') || '';
@@ -47,35 +76,119 @@ if (!URL_ || !KEY) {
   KEY = (prompt('Cole a chave anon do Supabase (a mesma do Tracker):') || '').trim();
   if (URL_ && KEY) { localStorage.setItem('sb_url', URL_); localStorage.setItem('sb_key', KEY); }
 }
-const $ = id => document.getElementById(id);
-const fmt = (v, p) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const $ = s => document.querySelector(s);
+const fmt = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// h('div', {class:'x'}, 'texto', filho...) monta DOM sem innerHTML: o texto das notificações nunca vira HTML.
+function h(tag, attrs, ...filhos) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) k === 'onclick' ? e.onclick = v : e.setAttribute(k, v);
+  for (const f of filhos.flat()) if (f != null && f !== false) e.append(f.nodeType ? f : document.createTextNode(f));
+  return e;
+}
+const card = (rotulo, valor, sub, cls) => h('div', { class: 'card' }, h('small', {}, rotulo), h('div', { class: 'big ' + (cls || '') }, valor), sub ? h('div', { class: 'sub' }, sub) : null);
+
+let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = null, verLidas = false;
+let lidas = new Set(JSON.parse(localStorage.getItem('bilbao_lidas') || 'null') || []);
+const salvarLidas = () => localStorage.setItem('bilbao_lidas', JSON.stringify([...lidas]));
+
+function fabrica() {
+  const t = E.trading || {}, p = t.progresso;
+  const filhos = [h('div', { class: 'card' }, h('small', {}, 'Máquina da Fábrica'), h('div', { class: 'titulo ' + (t.cor === 'ativo' ? 'ok' : '') }, t.estado || '—'),
+    p ? h('div', { class: 'sub' }, `${p[0]} de ${p[1]} ${p[2]}`) : null,
+    p ? h('div', { class: 'barra' }, h('i', { style: `width:${Math.min(100, 100 * p[0] / (p[1] || 1))}%` })) : null,
+    (t.linhas || []).map(l => h('div', { class: 'linha' }, l)))];
+  const dec = Object.entries(t.decisoes || {});
+  if (dec.length) {
+    filhos.push(h('h2', {}, 'Por decidir · ' + dec.length));
+    dec.forEach(([, texto]) => filhos.push(h('div', { class: 'card' }, h('div', { class: 'texto' }, texto))));
+    filhos.push(h('div', { class: 'sub' }, 'Aceitar e recusar ainda só no PC.'));
+  }
+  return filhos;
+}
+
+function garimpo() {
+  const g = E.garimpo || {}, m = g.metricas || {}, hf = m.hf, tx = E.taxas;
+  const f = [h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
+  f.push(h('div', { class: 'grid' },
+    card('Saldo total', m.saldo || '—'),
+    card('Taxas a recolher', m.taxas || '—', null, 'ok'),
+    card('Pools para recalibrar', String(m.fora ?? '—'), null, m.fora > 0 ? 'warn' : ''),
+    card('Pools dentro da faixa', String(m.dentro ?? '—'))));
+  if (hf) f.push(card('Fator de saúde (HF) · ' + hf.onde, fmt(hf.valor), hf.antigo ? 'Leitura antiga: a coleta não atualizou.' : '', hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok'));
+  if (tx) f.push(card('Taxas das últimas 24 h', 'US$ ' + fmt(tx.taxas_usd),
+    (tx.taxas_brl != null ? 'R$ ' + fmt(tx.taxas_brl) + ' · ' : '') + `${tx.lidas} de ${tx.pools} pools lidas` + (tx.janela_h < 23 ? ` · menor janela: ${Math.round(tx.janela_h)} h` : ''), 'ok'));
+  if (m.horario) f.push(h('div', { class: 'sub' }, 'Carteira · ' + m.horario + (m.parcial ? ' · algumas fontes parciais ou da coleta anterior' : '')));
+  const props = Object.values(g.propostas || {}).filter(p => p.estado === 'aguardando' || p.estado === 'aprovada');
+  if (props.length) {
+    f.push(h('h2', {}, 'Propostas do Engenheiro'));
+    props.forEach(p => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null)));
+    f.push(h('div', { class: 'sub' }, 'Aprovar e recusar ainda só no PC.'));
+  }
+  return f;
+}
+
+const hora = q => q.slice(11, 16), dia = q => q.slice(8, 10) + '/' + q.slice(5, 7) + '/' + q.slice(0, 4);
+function avisos() {
+  const todas = E.noticias || [];
+  if (aberta) {
+    const n = todas.find(x => x.id === aberta);
+    if (!n) { aberta = null; return avisos(); }
+    return [h('button', { class: 'voltar', onclick: () => { aberta = null; desenhar(); } }, '‹ Notificações'),
+      h('div', { class: 'item' }, h('div', { class: 'meta' }, `${n.origem} · ${dia(n.quando)} às ${hora(n.quando)}`),
+        h('div', { class: 't', style: 'font-size:19px;margin:6px 0 12px' }, n.titulo.replace('Bilhete da manhã · ', '')), h('div', { class: 'texto' }, n.texto))];
+  }
+  const nao = todas.filter(n => !lidas.has(n.id));
+  const lista = verLidas ? todas.filter(n => lidas.has(n.id)) : nao;
+  const f = [h('div', { class: 'abas' },
+    h('button', { class: verLidas ? '' : 'on', onclick: () => { verLidas = false; desenhar(); } }, 'Por ler ' + nao.length),
+    h('button', { class: verLidas ? 'on' : '', onclick: () => { verLidas = true; desenhar(); } }, 'Lidas'))];
+  if (!lista.length) f.push(h('div', { class: 'sub', style: 'text-align:center;margin-top:24px' }, 'Nenhuma notificação nesta lista.'));
+  let ult = '';
+  const agora = new Date(), hoje = dia(`${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`);
+  lista.forEach(n => {
+    const d = dia(n.quando) === hoje ? 'Hoje' : dia(n.quando);
+    if (d !== ult) { f.push(h('div', { class: 'dia' }, d)); ult = d; }
+    f.push(h('div', { class: 'item' + (lidas.has(n.id) ? ' lida' : ''), onclick: () => { aberta = n.id; lidas.add(n.id); salvarLidas(); desenhar(); } },
+      h('div', { class: 'meta' }, n.origem + ' · ' + hora(n.quando)), h('div', { class: 't' }, n.titulo.replace('Bilhete da manhã · ', ''))));
+  });
+  return f;
+}
+
+function desenhar() {
+  const t = $('#tela'); t.replaceChildren();
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
+  const nb = document.querySelector('nav [data-aba=avisos]'); nb.querySelector('.n')?.remove();
+  if (!E) return;
+  const nao = (E.noticias || []).filter(n => !lidas.has(n.id)).length;
+  if (nao) nb.append(h('span', { class: 'n' }, String(nao)));
+  t.append(...(aba === 'fabrica' ? fabrica() : aba === 'garimpo' ? garimpo() : avisos()));
+}
+
 async function carregar() {
   try {
-    const r = await fetch(URL_ + '/rest/v1/tracker_data?key=eq.bilbao_celular&select=value',
-      { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY }, cache: 'no-store' });
+    const r = await fetch(URL_ + '/rest/v1/tracker_data?key=eq.bilbao_estado&select=value', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY }, cache: 'no-store' });
     if (!r.ok) throw new Error(r.status);
     const v = ((await r.json())[0] || {}).value;
     if (!v) throw new Error('sem dados');
-    const hf = v.hf;
-    if (hf) {
-      $('hf').textContent = fmt(hf.valor);
-      $('hf').className = 'big ' + (hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok');
-      $('hfOnde').textContent = 'Fator de saúde (HF) · ' + hf.onde;
-      $('hfSub').textContent = hf.antigo ? 'Leitura antiga: a coleta não atualizou.' : '';
-    } else { $('hf').textContent = '—'; $('hfSub').textContent = 'Sem dívida lida na Aave.'; }
-    $('taxas').textContent = 'US$ ' + fmt(v.taxas_usd);
-    $('taxasSub').textContent = (v.taxas_brl != null ? 'R$ ' + fmt(v.taxas_brl) + ' · ' : '') + v.lidas + ' de ' + v.pools + ' pools lidas'
-      + (v.janela_h < 23 ? ' · menor janela: ' + Math.round(v.janela_h) + ' h' : '');
-    const idade = (Date.now() - Date.parse(v.em)) / 3600000;
-    const quando = new Date(v.em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-    $('status').textContent = (idade > 3 ? 'Dados antigos (PC desligado?) · coleta de ' : 'Coleta de ') + quando;
-    $('status').className = idade > 3 ? 'old' : '';
+    if (!E && !localStorage.getItem('bilbao_lidas')) {   // 1ª vez: o que tem mais de 1 dia já nasce lido
+      const corte = Date.now() - 864e5;
+      (v.noticias || []).forEach(n => { if (new Date(n.quando).getTime() < corte) lidas.add(n.id); });
+      salvarLidas();
+    }
+    E = v;
+    const min = (Date.now() - Date.parse(v.em)) / 60000;
+    $('#quando').textContent = min < 2 ? 'Atualizado agora' : 'Atualizado há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h');
+    $('#quando').className = min > 3 ? 'old' : '';
+    $('#aviso').style.display = min > 3 ? 'block' : 'none';
+    $('#aviso').textContent = 'O Bilbao do PC não responde há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h') + ' (PC desligado ou Bilbao fechado). O que você vê é a última leitura.';
+    if (!aberta) desenhar();
   } catch (e) {
-    $('status').textContent = 'Sem conexão. Tentando de novo em 1 min.'; $('status').className = 'old';
+    $('#quando').textContent = 'Sem conexão'; $('#quando').className = 'old';
   }
 }
-carregar();
-setInterval(carregar, 60000);
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => { aba = b.dataset.aba; aberta = null; localStorage.setItem('bilbao_aba', aba); desenhar(); window.scrollTo(0, 0); });
+desenhar(); carregar();
+setInterval(carregar, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) carregar(); });
 </script>
 </body>
