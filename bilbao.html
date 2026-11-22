@@ -57,12 +57,39 @@
   nav button b { display:block; font-size:20px; font-weight:400; }
   nav button.on { color:var(--mint); }
   nav .n { position:absolute; top:0; left:calc(50% + 6px); background:var(--blue); color:#102019; border-radius:9px; font-size:11px; font-weight:700; padding:0 6px; }
+  header .dir { display:flex; gap:12px; align-items:baseline; }
+  #cfg { background:none; border:1px solid #3a5558; color:var(--soft); border-radius:10px; font:inherit; font-size:12px; padding:4px 10px; min-height:32px; }
+  #cfg.ok { color:var(--mint); border-color:var(--mint); }
+  .acoes { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .btn { min-height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--mint); background:none; color:var(--mint); font:inherit; font-size:14px; font-weight:600; }
+  .btn.cheio { background:var(--mint); color:#102019; }
+  .btn.perigo { border-color:var(--red); color:var(--red); }
+  .btn.cinza { border-color:#3a5558; color:var(--soft); }
+  .btn:disabled { opacity:.4; }
+  .btn:active:not(:disabled) { transform:scale(.97); }
+  .btn:focus-visible, #cfg:focus-visible, input:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+  .veu { position:fixed; inset:0; background:rgba(5,12,13,.72); display:none; align-items:flex-end; z-index:20; }
+  .veu.on { display:flex; }
+  .folha { width:100%; background:#1b2e31; border-radius:20px 20px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom)); max-height:85vh; overflow:auto; animation:sobe .18s ease-out; }
+  @keyframes sobe { from { transform:translateY(24px); opacity:0 } to { transform:none; opacity:1 } }
+  @media (prefers-reduced-motion:reduce) { .folha { animation:none } .btn:active { transform:none } }
+  .folha h3 { font-size:19px; margin-bottom:8px; }
+  .folha .aviso { background:#3a3320; color:var(--gold); border-radius:10px; padding:10px 12px; font-size:13px; margin:10px 0; }
+  .folha .estado { margin-top:12px; font-size:15px; white-space:pre-line; }
+  .folha input { width:100%; min-height:48px; background:#0f1c1e; border:1px solid #3a5558; border-radius:12px; color:var(--ink); font:inherit; font-size:16px; padding:0 12px; margin-top:10px; letter-spacing:.06em; }
+  .mes { display:flex; justify-content:space-between; gap:10px; font-size:14px; padding:9px 0; border-top:1px solid #2c4548; }
+  .mes:first-of-type { border-top:0; }
+  .mes b { white-space:nowrap; }
+  .mes .sub { margin:0; }
+  .mbar { height:6px; background:#0f1c1e; border-radius:4px; overflow:hidden; margin-top:6px; }
+  .mbar i { display:block; height:100%; background:var(--mint); }
 </style>
 </head>
 <body>
-<header><h1>BILBAO</h1><span id="quando">Conectando…</span></header>
+<header><h1>BILBAO</h1><span class="dir"><span id="quando">Conectando…</span><button id="cfg" type="button">Controle</button></span></header>
 <div id="aviso"></div>
 <main id="tela"></main>
+<div class="veu" id="veu"><div class="folha" role="dialog" aria-modal="true" aria-labelledby="ftitulo"><h3 id="ftitulo"></h3><div id="fcorpo"></div><div class="estado" id="festado" role="status" aria-live="polite"></div><div class="acoes" id="fbotoes"></div></div></div>
 <nav>
   <button data-aba="fabrica"><b>▮▮▮</b>Fábrica</button>
   <button data-aba="garimpo"><b>◆</b>Garimpo</button>
@@ -91,19 +118,122 @@ let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = nu
 let lidas = new Set(JSON.parse(localStorage.getItem('bilbao_lidas') || 'null') || []);
 const salvarLidas = () => localStorage.setItem('bilbao_lidas', JSON.stringify([...lidas]));
 
+// ---------- Controle: comandos assinados para o PC (bilbao_comandos.py) ----------
+const pcOk = () => !!E && (Date.now() - Date.parse(E.em)) / 60000 < 3;
+const seg = () => localStorage.getItem('bilbao_seg') || '';
+const hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+async function assinar(nonce, acao, alvo) {   // HMAC-SHA256 hex de "nonce|acao|alvo", igual ao PC
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(seg()), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return hex(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(`${nonce}|${acao}|${alvo}`)));
+}
+const cab = () => ({ apikey: KEY, Authorization: 'Bearer ' + KEY });
+async function lerChave(chave) {
+  const r = await fetch(URL_ + '/rest/v1/tracker_data?select=value&key=eq.' + chave, { headers: cab(), cache: 'no-store' });
+  if (!r.ok) throw new Error('Supabase ' + r.status);
+  return ((await r.json())[0] || {}).value;
+}
+async function gravarChave(chave, value) {
+  const r = await fetch(URL_ + '/rest/v1/tracker_data?on_conflict=key', { method: 'POST', body: JSON.stringify({ key: chave, value }),
+    headers: { ...cab(), 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' } });
+  if (!r.ok) throw new Error('Supabase ' + r.status);
+}
+const espera = ms => new Promise(r => setTimeout(r, ms));
+
+let folhaOcupada = false, folhaFoco = null;
+function folha(titulo, corpo, botoes, estado) {
+  $('#ftitulo').textContent = titulo;
+  $('#fcorpo').replaceChildren(...[].concat(corpo || []));
+  $('#festado').textContent = estado || '';
+  $('#fbotoes').replaceChildren(...botoes);
+  if (!$('#veu').classList.contains('on')) folhaFoco = document.activeElement;
+  $('#veu').classList.add('on');
+  ($('#fcorpo input') || $('#fbotoes .cheio, #fbotoes button'))?.focus();
+}
+function fechar() { if (folhaOcupada) return; $('#veu').classList.remove('on'); folhaFoco?.focus?.(); }
+$('#veu').onclick = e => { if (e.target === $('#veu')) fechar(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
+const fecharBtn = (rotulo = 'Fechar') => h('button', { class: 'btn cinza', onclick: fechar }, rotulo);
+
+// Pede confirmação (folha inferior), assina e envia o comando, acompanha o resultado.
+function comandar({ acao, alvo = '', titulo, texto, aviso, rotulo = 'Confirmar', perigo = false, direto = false }) {
+  if (!seg()) return pareamento('Pareie o celular primeiro: a senha é mostrada no PC (python bilbao_comandos.py parear).');
+  if (!pcOk()) return folha('PC sem resposta', h('div', { class: 'sub' }, 'O Bilbao do PC não atualiza há mais de 3 minutos (PC desligado ou Bilbao fechado). Ligue e tente de novo.'), [fecharBtn()]);
+  const corpo = [texto ? h('div', { class: 'texto' }, texto) : null, aviso ? h('div', { class: 'aviso' }, aviso) : null];
+  const go = () => enviar(acao, alvo, titulo);
+  if (direto) return go();
+  folha(titulo, corpo, [h('button', { class: 'btn ' + (perigo ? 'perigo' : 'cheio'), onclick: go }, rotulo), fecharBtn('Cancelar')]);
+}
+async function enviar(acao, alvo, titulo) {
+  folhaOcupada = true;
+  const fim = (txt, cls) => { folhaOcupada = false; folha(titulo, [], [fecharBtn()], txt); $('#festado').className = 'estado ' + (cls || ''); setTimeout(carregar, 2500); };
+  folha(titulo, [], [h('button', { class: 'btn cinza', disabled: '' }, 'Enviando…')], 'Enviando ao PC…');
+  try {
+    const ctl = await lerChave('bilbao_ctl');
+    if (!ctl || !ctl.nonce) return fim('O Bilbao do PC ainda não publicou o desafio de segurança. Ele está aberto?', 'warn');
+    const id = hex(crypto.getRandomValues(new Uint8Array(12)));
+    await gravarChave('bilbao_cmd', { id, acao, alvo, nonce: ctl.nonce, mac: await assinar(ctl.nonce, acao, alvo), em: new Date().toISOString() });
+    let visto = false;
+    for (let i = 0; i < 30; i++) {
+      await espera(1500);
+      const r = ((await lerChave('bilbao_ctl')) || {}).resultado;
+      if (!r || r.id !== id) { $('#festado').textContent = 'Aguardando o PC…'; continue; }
+      visto = true;
+      if (r.estado === 'executando') { $('#festado').textContent = r.texto || 'Executando…'; continue; }
+      return fim(r.texto || 'Feito.', r.estado === 'ok' ? 'ok' : 'bad');
+    }
+    fim(visto ? 'Ainda em andamento no PC. Acompanhe pelos cartões; o resultado aparece aqui na próxima vez que você pedir.' : 'O PC não respondeu em 45 s. O comando perde a validade quando o Bilbao reinicia.', 'warn');
+  } catch (e) { fim('Falha de conexão: ' + e.message, 'bad'); }
+}
+function pareamento(msg) {
+  const inp = h('input', { type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', placeholder: 'XXXX-XXXX-XXXX-…', 'aria-label': 'Senha de pareamento' });
+  const corpo = [h('div', { class: 'texto' }, msg || (seg() ? 'Este celular está pareado. Cole uma senha nova para trocar.' : 'Digite a senha de pareamento mostrada no PC (python bilbao_comandos.py parear). Ela fica só neste aparelho.')), inp];
+  folha('Controle do Bilbao', corpo, [
+    h('button', { class: 'btn cheio', onclick: () => {
+      const s = inp.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (s.length !== 28) return ($('#festado').textContent = 'A senha tem 28 letras e números.');
+      localStorage.setItem('bilbao_seg', s); marcarCfg(); desenhar(); fechar();
+    } }, 'Salvar'),
+    seg() ? h('button', { class: 'btn perigo', onclick: () => { localStorage.removeItem('bilbao_seg'); marcarCfg(); desenhar(); fechar(); } }, 'Esquecer') : null, fecharBtn('Cancelar')].filter(Boolean));
+}
+function marcarCfg() { $('#cfg').classList.toggle('ok', !!seg()); $('#cfg').textContent = seg() ? 'Controle ✓' : 'Controle'; }
+$('#cfg').onclick = () => pareamento();
+const AVISO_CLAUDE = 'Abre o Claude Code no PC, que passa a mexer em arquivos do projeto.';
+const botao = (rotulo, cls, fn) => { const a = { class: 'btn ' + cls, onclick: fn }; if (!pcOk()) a.disabled = ''; return h('button', a, rotulo); };
+
 function fabrica() {
   const t = E.trading || {}, p = t.progresso;
   const filhos = [h('div', { class: 'card' }, h('small', {}, 'Máquina da Fábrica'), h('div', { class: 'titulo ' + (t.cor === 'ativo' ? 'ok' : '') }, t.estado || '—'),
     p ? h('div', { class: 'sub' }, `${p[0]} de ${p[1]} ${p[2]}`) : null,
     p ? h('div', { class: 'barra' }, h('i', { style: `width:${Math.min(100, 100 * p[0] / (p[1] || 1))}%` })) : null,
-    (t.linhas || []).map(l => h('div', { class: 'linha' }, l)))];
+    (t.linhas || []).map(l => h('div', { class: 'linha' }, l)),
+    t.bloco ? h('div', { class: 'acoes' },
+      botao('Parar mineração', 'perigo', () => comandar({ acao: 'mineracao.parar', titulo: 'Parar a mineração?', texto: 'Pede à Máquina que pare nos dois PCs. Cada um termina a candidata em andamento.', rotulo: 'Parar', perigo: true })),
+      botao('Continuar mineração', 'cheio', () => comandar({ acao: 'mineracao.continuar', titulo: 'Continuar a mineração?', texto: 'Pede à Máquina que retome a mineração nos dois PCs.', rotulo: 'Continuar' }))) : null)];
   const dec = Object.entries(t.decisoes || {});
   if (dec.length) {
     filhos.push(h('h2', {}, 'Por decidir · ' + dec.length));
-    dec.forEach(([, texto]) => filhos.push(h('div', { class: 'card' }, h('div', { class: 'texto' }, texto))));
-    filhos.push(h('div', { class: 'sub' }, 'Aceitar e recusar ainda só no PC.'));
+    dec.forEach(([id, texto]) => filhos.push(h('div', { class: 'card' }, h('div', { class: 'texto' }, texto), h('div', { class: 'acoes' },
+      botao('Detalhes', 'cinza', () => comandar({ acao: 'mesa.detalhes', alvo: id, titulo: 'Detalhes da decisão', direto: true })),
+      botao('Recusar', 'perigo', () => comandar({ acao: 'mesa.recusado', alvo: id, titulo: 'Recusar esta decisão?', texto, rotulo: 'Recusar', perigo: true })),
+      botao('Aceitar', 'cheio', () => comandar({ acao: 'mesa.aceito', alvo: id, titulo: 'Aceitar esta decisão?', texto, aviso: 'A resposta é gravada e aplicada pelo Chefe da mesa, como no pop-up do PC.', rotulo: 'Aceitar' }))))));
   }
   return filhos;
+}
+
+function taxasMes(tx) {
+  const mes = tx && tx.mes;
+  if (!mes || !mes.atual) return [];
+  const a = mes.atual, max = Math.max(...mes.meses.map(m => m.usd), 1);
+  const d = s => s.slice(8, 10) + '/' + s.slice(5, 7);
+  const f = [card('Taxas em ' + a.nome, 'US$ ' + fmt(a.usd),
+    `R$ ${fmt(a.brl)} · ${a.dias} de ${a.decorridos} dias lidos · média US$ ${fmt(a.media_usd)}/dia\nContagem a partir de ${d(a.desde)}${mes.provisorio_hoje ? ' · inclui hoje (leitura de 24 h, provisória)' : ''}`, 'ok')];
+  if (mes.meses.length) {
+    f.push(h('h2', {}, 'Taxas por mês'));
+    f.push(h('div', { class: 'card' }, mes.meses.map(m => h('div', {}, h('div', { class: 'mes' }, h('span', {}, m.nome, h('div', { class: 'sub' }, `${m.dias} de ${m.no_mes} dias lidos`)), h('b', {}, `US$ ${fmt(m.usd)} · R$ ${fmt(m.brl)}`)),
+      h('div', { class: 'mbar' }, h('i', { style: `width:${Math.round(100 * m.usd / max)}%` })))),
+      h('div', { class: 'sub' }, 'Só há leitura desde o primeiro retrato diário de taxas; meses sem leitura não são estimados.')));
+  }
+  return f;
 }
 
 function garimpo() {
@@ -117,12 +247,17 @@ function garimpo() {
   if (hf) f.push(card('Fator de saúde (HF) · ' + hf.onde, fmt(hf.valor), hf.antigo ? 'Leitura antiga: a coleta não atualizou.' : '', hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok'));
   if (tx) f.push(card('Taxas das últimas 24 h', 'US$ ' + fmt(tx.taxas_usd),
     (tx.taxas_brl != null ? 'R$ ' + fmt(tx.taxas_brl) + ' · ' : '') + `${tx.lidas} de ${tx.pools} pools lidas` + (tx.janela_h < 23 ? ` · menor janela: ${Math.round(tx.janela_h)} h` : ''), 'ok'));
+  f.push(...taxasMes(tx));
   if (m.horario) f.push(h('div', { class: 'sub' }, 'Carteira · ' + m.horario + (m.parcial ? ' · algumas fontes parciais ou da coleta anterior' : '')));
-  const props = Object.values(g.propostas || {}).filter(p => p.estado === 'aguardando' || p.estado === 'aprovada');
+  f.push(h('div', { class: 'acoes', style: 'margin-bottom:10px' }, botao('Atualizar carteira', 'cinza', () => comandar({ acao: 'carteira.atualizar', titulo: 'Atualizar a carteira?', texto: 'O PC consulta as fontes de novo. Pode levar vários minutos.', rotulo: 'Atualizar' }))));
+  const props = Object.entries(g.propostas || {}).filter(([, p]) => p.estado === 'aguardando' || p.estado === 'aprovada');
   if (props.length) {
     f.push(h('h2', {}, 'Propostas do Engenheiro'));
-    props.forEach(p => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null)));
-    f.push(h('div', { class: 'sub' }, 'Aprovar e recusar ainda só no PC.'));
+    props.forEach(([id, p]) => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null,
+      h('div', { class: 'acoes' }, p.estado === 'aprovada'
+        ? [botao('Implementar agora', 'cheio', () => comandar({ acao: 'proposta.implementar', alvo: id, titulo: 'Implementar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE, rotulo: 'Implementar' }))]
+        : [botao('Recusar', 'perigo', () => comandar({ acao: 'proposta.recusar', alvo: id, titulo: 'Recusar a proposta?', texto: p.titulo, rotulo: 'Recusar', perigo: true })),
+           botao('Aprovar', 'cheio', () => comandar({ acao: 'proposta.aprovar', alvo: id, titulo: 'Aprovar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE + ' Aprovar já dispara a implementação.', rotulo: 'Aprovar' }))]))));
   }
   return f;
 }
@@ -135,7 +270,10 @@ function avisos() {
     if (!n) { aberta = null; return avisos(); }
     return [h('button', { class: 'voltar', onclick: () => { aberta = null; desenhar(); } }, '‹ Notificações'),
       h('div', { class: 'item' }, h('div', { class: 'meta' }, `${n.origem} · ${dia(n.quando)} às ${hora(n.quando)}`),
-        h('div', { class: 't', style: 'font-size:19px;margin:6px 0 12px' }, n.titulo.replace('Bilhete da manhã · ', '')), h('div', { class: 'texto' }, n.texto))];
+        h('div', { class: 't', style: 'font-size:19px;margin:6px 0 12px' }, n.titulo.replace('Bilhete da manhã · ', '')), h('div', { class: 'texto' }, n.texto),
+      n.id.includes('/bilhete/') && /problema/i.test(n.titulo)
+        ? h('div', { class: 'acoes' }, botao('Conferir', 'cheio', () => comandar({ acao: 'automacoes.conferir', titulo: 'Conferir as automações?', texto: 'O PC confere as automações agora.', aviso: 'Se ainda houver falhas, abre o Claude Code no PC para corrigir.', rotulo: 'Conferir' })))
+        : null)];
   }
   const nao = todas.filter(n => !lidas.has(n.id));
   const lista = verLidas ? todas.filter(n => lidas.has(n.id)) : nao;
@@ -187,7 +325,7 @@ async function carregar() {
   }
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => { aba = b.dataset.aba; aberta = null; localStorage.setItem('bilbao_aba', aba); desenhar(); window.scrollTo(0, 0); });
-desenhar(); carregar();
+marcarCfg(); desenhar(); carregar();
 setInterval(carregar, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) carregar(); });
 </script>
