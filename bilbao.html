@@ -228,7 +228,7 @@ const card = (rotulo, valor, sub, cls) => h('div', { class: 'card' }, h('small',
 const ORDEM = ['fabrica', 'garimpo', 'avisos'];
 let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = null, verLidas = false, animando = false;
 const cacheBilbao = 'bilbao_ultima_leitura:' + URL_;
-try { E = JSON.parse(sessionStorage.getItem(cacheBilbao) || 'null'); } catch {}
+try { E = JSON.parse(localStorage.getItem(cacheBilbao) || 'null'); } catch {}   // sobrevive a fechar o app: com o Supabase fora, ainda mostra a última leitura
 let carregando = false, conexaoOk = false;
 if (!ORDEM.includes(aba)) aba = 'fabrica';
 let moeda = localStorage.getItem('bilbao_moeda') === 'USD' ? 'USD' : 'BRL', moedaAnt = moeda;
@@ -501,7 +501,7 @@ async function carregar() {
     const primeira = !E;
     if (!E || Date.parse(v.em) >= Date.parse(E.em)) {
       E = v;
-      try { sessionStorage.setItem(cacheBilbao, JSON.stringify(E)); } catch {}
+      try { localStorage.setItem(cacheBilbao, JSON.stringify(E)); } catch {}
     }
     const min = Math.max(0, (Date.now() - Date.parse(E.em)) / 60000);
     const txt = min < 2 ? 'Atualizado agora' : 'Atualizado há ' + (min < 90 ? Math.round(min) + ' min' : Math.round(min / 60) + ' h');
@@ -513,8 +513,9 @@ async function carregar() {
     conexaoOk = false;
     $('#quando span').textContent = 'Sem conexão'; $('#quando').className = 'old';
     $('#aviso').style.display = 'block';
-    $('#aviso').textContent = E ? 'Falha ao atualizar. Exibindo a leitura de ' + new Date(E.em).toLocaleString('pt-BR') + '.' :
-      'A primeira leitura está indisponível. O Bilbao vai tentar de novo automaticamente.';
+    const servidor = /Supabase 5\d\d|abort/i.test(String(e && (e.message || e.name)));
+    $('#aviso').textContent = (servidor ? 'O servidor (Supabase) está fora do ar; o PC segue normal. ' : 'Falha ao atualizar. ') +
+      (E ? 'Exibindo a leitura de ' + new Date(E.em).toLocaleString('pt-BR') + '. Volta sozinho.' : 'A primeira leitura está indisponível. O Bilbao vai tentar de novo automaticamente.');
   } finally {
     carregando = false;
   }
