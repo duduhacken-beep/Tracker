@@ -380,10 +380,34 @@ function seletorMoeda() {
   return w;
 }
 
+// Timoneiro: prévia das 7h00 (chave timoneiro_previa, gravada pelo motor no PC), com Cancelar por posição até o plano das 7h15.
+let TIM = null;
+const n6 = x => typeof x === 'number' ? x.toLocaleString('pt-BR', { maximumSignificantDigits: 6 }) : '—';
+function timoneiro() {
+  const t = TIM, hojeBR = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
+  if (!t || t.plano_id !== hojeBR) return [];
+  const ref = (t.posicoes || []).filter(p => p.acao === 'refazer'), canc = new Set(t.cancelados || []), aberto = t.estado === 'previa' && !t.pausado;
+  const sub = t.pausado ? (t.pausa_so_hoje ? 'Pausado hoje: ' + (t.motivo_pausa || '') + '. Volta sozinho amanhã.' : 'Pausado: ' + (t.motivo_pausa || 'perda acima do limite') + '. Libera só no PC.')
+    : t.estado === 'plano_gerado' ? 'Plano das 7h15 gerado; o executor segue daqui.'
+    : t.estado === 'sem_canal' ? 'Sem canal do Cancelar às 7h15: hoje o robô não executa.'
+    : ref.length ? 'Cancele o que não quiser até 7h15.' : 'Nada a fazer hoje.';
+  const f = [h('h2', {}, 'Timoneiro · hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
+    h('div', { class: 'titulo' }, ref.length ? ref.length + (ref.length > 1 ? ' ajustes' : ' ajuste') : 'Nenhum ajuste'), h('div', { class: 'sub' }, sub))];
+  ref.forEach(p => {
+    const fx = p.faixa_sugerida, cancelado = canc.has(p.passo_id);
+    f.push(h('div', { class: 'card' }, h('small', {}, (p.ritmo === 'semanal' ? 'Semanal' : 'Diária') + ' · US$ ' + fmt(p.valor_usd || 0)),
+      h('div', { class: 'texto' }, p.par + ': ' + p.motivo),
+      fx ? h('div', { class: 'sub' }, `Faixa sugerida: ${n6(fx.min)} – ${n6(fx.max)} (${fx.regra}). Preço final às 7h15.`) : null,
+      cancelado ? h('div', { class: 'sub' }, 'Cancelado: o robô não mexe nesta posição hoje.')
+        : aberto ? h('div', { class: 'acoes' }, botao('Cancelar ajuste', 'perigo', () => comandar({ acao: 'cancelar_ajuste', alvo: p.passo_id, titulo: 'Cancelar este ajuste?',
+            texto: p.par + ': o robô não refaz esta posição hoje.', rotulo: 'Cancelar ajuste', perigo: true }))) : null));
+  });
+  return f;
+}
 function garimpo() {
   const g = E.garimpo || {}, m = g.metricas || {}, hf = m.hf, tx = E.taxas, mes = tx && tx.mes;
   const fx = m.fx;
-  const f = [seletorMoeda(), h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
+  const f = [seletorMoeda(), ...timoneiro(), h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
   // saldo e taxas a receber: o PC manda US$ e o câmbio; sem isso (leitura antiga) cai no texto em reais
   const saldoOk = typeof m.saldo_usd === 'number' && fx;
   f.push(h('div', { class: 'card' }, h('small', {}, 'Saldo total'), h('div', { class: 'big' }, saldoOk ? dinNum(m.saldo_usd, m.saldo_usd * fx) : (m.saldo || '—'))));
@@ -493,6 +517,7 @@ async function carregar() {
     const v = await lerChave('bilbao_estado');
     if (!v || !Number.isFinite(Date.parse(v.em))) throw new Error('sem dados');
     conexaoOk = true;
+    try { TIM = (await lerChave('timoneiro_previa')) || null; } catch {}   // sem a chave, a seção do Timoneiro só não aparece
     if (!E && !localStorage.getItem('bilbao_lidas')) {   // 1ª vez: o que tem mais de 1 dia já nasce lido
       const corte = Date.now() - 864e5;
       (v.noticias || []).forEach(n => { if (new Date(n.quando).getTime() < corte) lidas.add(n.id); });
