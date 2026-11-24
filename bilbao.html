@@ -175,6 +175,9 @@
   @media (max-width:420px) { .tab { font-size:10px; letter-spacing:0; } .tab svg { width:30px; height:30px; } }
   .item[data-o=Timoneiro] { --cor:var(--violet); }
   .chip.alerta { color:var(--gold); background:rgba(255,204,121,.12); } .chip.alerta i { background:var(--gold); }
+  /* rodadas do Timoneiro (24/11/2026): ajuste dentro da rodada e aviso de custo acima de 0,3% (texto + cor, não só cor) */
+  .ajuste-rod { margin-top:12px; padding-top:12px; border-top:1px solid var(--linha); }
+  .custo-aviso { margin-top:6px; padding:6px 10px; border-radius:10px; font-size:13px; font-weight:700; color:var(--gold); background:rgba(255,204,121,.12); border:1px solid rgba(255,204,121,.4); }
 
   /* ranking do Garimpo: uma linha por pool, barra fina do APY (uma série, sem legenda: o título do cartão diz o que é) */
   .rk { display:grid; grid-template-columns:28px 1fr auto; align-items:center; gap:4px 10px; padding:12px 0 10px; border-top:1px solid var(--linha); }
@@ -294,7 +297,7 @@ const espera = ms => new Promise(r => setTimeout(r, ms));
 let folhaOcupada = false, folhaFoco = null;
 function folha(titulo, corpo, botoes, estado) {
   $('#ftitulo').textContent = titulo;
-  $('#fcorpo').replaceChildren(...[].concat(corpo || []));
+  $('#fcorpo').replaceChildren(...[].concat(corpo || []).filter(Boolean));   // sem filtro, um aviso ausente (null) aparecia como o texto "null"
   $('#festado').textContent = estado || '';
   $('#fbotoes').replaceChildren(...botoes);
   if (!$('#veu').classList.contains('on')) folhaFoco = document.activeElement;
@@ -405,23 +408,63 @@ function seletorMoeda() {
 let TIM = null;
 const n6 = x => typeof x === 'number' ? x.toLocaleString('pt-BR', { maximumSignificantDigits: 6 }) : '—';
 function timoneiro() {
+  // plano_id: v1 'AAAA-MM-DD' (uma rodada por dia, 7h) ou v2 'AAAA-MM-DD_HH' (rodada das HH h; prévia em HH:00, plano em HH:15)
   const t = TIM, hojeBR = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
-  if (!t || t.plano_id !== hojeBR) return [];
+  if (!t || String(t.plano_id).slice(0, 10) !== hojeBR) return [];
+  const hh = +((/_(\d\d)$/.exec(t.plano_id) || [])[1] ?? 7), por = /_\d\d$/.test(t.plano_id) ? ' na rodada das ' + String(hh).padStart(2, '0') + ':00' : ' hoje';
   const ref = (t.posicoes || []).filter(p => p.acao === 'refazer'), canc = new Set(t.cancelados || []), aberto = t.estado === 'previa' && !t.pausado;
   const sub = t.pausado ? (t.pausa_so_hoje ? 'Pausado hoje: ' + (t.motivo_pausa || '') + '. Volta sozinho amanhã.' : 'Pausado: ' + (t.motivo_pausa || 'perda acima do limite') + '. Libera só no PC.')
-    : t.estado === 'plano_gerado' ? 'Plano das 7h15 gerado; o executor segue daqui.'
-    : t.estado === 'sem_canal' ? 'Sem canal do Cancelar às 7h15: hoje o robô não executa.'
-    : ref.length ? 'Cancele o que não quiser até 7h15.' : 'Nada a fazer hoje.';
-  const f = [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
+    : t.estado === 'plano_gerado' ? `Plano das ${hh}h15 gerado; o executor segue daqui.`
+    : t.estado === 'sem_canal' ? `Sem canal do Cancelar às ${hh}h15: o robô não executa${por}.`
+    : ref.length ? `Cancele o que não quiser até ${hh}h15.` : 'Nada a fazer' + por + '.';
+  const f = [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, `Prévia das ${hh}h00`),
     h('div', { class: 'titulo' }, ref.length ? ref.length + (ref.length > 1 ? ' ajustes' : ' ajuste') : 'Nenhum ajuste'), h('div', { class: 'sub' }, sub))];
   ref.forEach(p => {
     const fx = p.faixa_sugerida, cancelado = canc.has(p.passo_id);
     f.push(h('div', { class: 'card' }, h('small', {}, (p.ritmo === 'semanal' ? 'Semanal' : 'Diária') + ' · US$ ' + fmt(p.valor_usd || 0)),
       h('div', { class: 'texto' }, p.par + ': ' + p.motivo),
-      fx ? h('div', { class: 'sub' }, `Faixa sugerida: ${n6(fx.min)} – ${n6(fx.max)} (${fx.regra}). Preço final às 7h15.`) : null,
-      cancelado ? h('div', { class: 'sub' }, 'Cancelado: o robô não mexe nesta posição hoje.')
+      fx ? h('div', { class: 'sub' }, `Faixa sugerida: ${n6(fx.min)} – ${n6(fx.max)} (${fx.regra}). Preço final às ${hh}h15.`) : null,
+      cancelado ? h('div', { class: 'sub' }, 'Cancelado: o robô não mexe nesta posição' + por + '.')
         : aberto ? h('div', { class: 'acoes' }, botao('Cancelar ajuste', 'perigo', () => comandar({ acao: 'cancelar_ajuste', alvo: p.passo_id, titulo: 'Cancelar este ajuste?',
-            texto: p.par + ': o robô não refaz esta posição hoje.', rotulo: 'Cancelar ajuste', perigo: true }))) : null));
+            texto: p.par + ': o robô não refaz esta posição' + por + '.', rotulo: 'Cancelar ajuste', perigo: true }))) : null));
+  });
+  return f;
+}
+// Rodadas (24/11/2026): E.timoneiro.rodadas = [{hora, ligada, veto, estado, plano_id, ajustes: [{passo_id, pool, rede, dex, acao, cancelado, custo_usd, custo_pct}]}].
+// Sem a chave, a aba segue no formato de uma rodada por dia (função timoneiro() acima). Parar/Continuar valem para todas as rodadas.
+const RODADA_ROT = { feita: 'Feita', proxima: 'Próxima', aguardando: 'Aguardando', cancelada: 'Cancelada', pausada: 'Pausada', desligada: 'Desligada', sem_ajuste: 'Sem ajuste' };
+const LIMITE_CUSTO_PCT = 0.3;   // aviso quando o custo do reajuste passa de 0,3% do valor da posição
+const numOk = v => typeof v === 'number' && Number.isFinite(v);
+function custoTxt(a) {
+  const u = a.custo_usd, p = a.custo_pct, partes = [];
+  if (numOk(u)) partes.push(u > 0 && u < 0.01 ? 'menos de US$ 0,01' : 'US$ ' + fmt(u));
+  if (numOk(p)) partes.push((p > 0 && p < 0.01 ? 'menos de 0,01' : fmt(p)) + '% da posição');
+  return { txt: partes.length ? partes.join(' · ') : 'ainda não medido', aviso: numOk(p) && p > LIMITE_CUSTO_PCT };
+}
+// Cancelar só onde o motor ainda aceita (rodada próxima, com veto, ajuste vivo, prévia dela ainda aberta); depois do plano o PC recusa de qualquer jeito.
+const podeCancelar = (r, a) => !!a.passo_id && !a.cancelado && r.ligada !== false && r.veto !== false && r.estado === 'proxima'
+  && !(TIM && TIM.plano_id === r.plano_id && (TIM.estado !== 'previa' || TIM.pausado));
+function rodadasCards(tm, lista) {
+  const rs = lista.filter(r => r && typeof r === 'object'), n = x => (x.ajustes || []).length;
+  const avisos = rs.flatMap(r => (r.ajustes || []).filter(a => custoTxt(a).aviso).map(a => (a.pool || 'posição') + ' às ' + r.hora));
+  const f = [h('h2', {}, 'Rodadas de hoje'), h('div', { class: 'card' }, h('small', {}, 'Próxima rodada'),
+    h('div', { class: 'titulo' }, tm.proxima_rodada || (rs.length ? 'Nenhuma hoje' : 'Sem rodadas')),
+    h('div', { class: 'sub' }, 'Parar e Continuar valem para todas as rodadas do dia.'))];
+  if (avisos.length) f.push(h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Custo alto'), h('span', { class: 'chip alerta' }, h('i', {}), 'Atenção')),
+    h('div', { class: 'texto' }, avisos.length + ' reajuste(s) com custo acima de 0,3% do valor da posição.'), h('div', { class: 'sub' }, avisos.join('; ') + '.')));
+  rs.forEach(r => {
+    const rot = RODADA_ROT[r.estado] || String(r.estado || 'Sem estado');
+    f.push(h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Rodada das ' + r.hora),
+        h('span', { class: 'chip' + (r.estado === 'feita' || r.estado === 'proxima' ? ' on' : r.estado === 'pausada' ? ' alerta' : '') }, h('i', {}), rot)),
+      r.ligada !== false && r.veto === false ? h('div', { class: 'sub' }, 'Sem veto nesta rodada: não dá para cancelar.') : null,
+      n(r) ? (r.ajustes || []).map(a => {
+        const c = custoTxt(a);
+        return h('div', { class: 'ajuste-rod' }, h('div', { class: 'texto' }, (a.pool || 'Posição') + (a.cancelado ? ' · cancelado' : '')),
+          h('div', { class: 'sub' }, [a.rede, a.dex, a.acao === 'refazer' ? 'refazer faixa' : a.acao].filter(Boolean).join(' · ')),
+          c.aviso ? h('div', { class: 'custo-aviso' }, 'Atenção: custo acima de 0,3% da posição · ' + c.txt) : h('div', { class: 'sub' }, 'Custo do reajuste: ' + c.txt),
+          podeCancelar(r, a) ? h('div', { class: 'acoes' }, botao('Cancelar ajuste', 'perigo', () => comandar({ acao: 'cancelar_ajuste', alvo: a.passo_id, titulo: 'Cancelar este ajuste?',
+            texto: (a.pool || 'Posição') + ': o robô não refaz esta posição na rodada das ' + r.hora + '. As outras rodadas não mudam.', rotulo: 'Cancelar ajuste', perigo: true }))) : null);
+      }) : h('div', { class: 'sub' }, r.estado === 'desligada' ? 'Rodada desligada: o robô não age neste horário.' : r.estado === 'sem_ajuste' ? 'Nada a ajustar: as posições do robô estavam dentro da faixa.' : 'Sem ajustes nesta rodada.')));
   });
   return f;
 }
@@ -463,15 +506,16 @@ function cardT24(tx) {   // parcial: mostra o que foi lido e quantas posições 
 }
 function timoneiroAba() {
   const tm = E.timoneiro || {}, m = tm.metricas || (E.garimpo || {}).metricas || {}, hf = m.hf, tx = E.taxas, mes = tx && tx.mes, fx = m.fx;
-  const sit = tm.situacao, ref = tm.refeitas, cls = tm.cor === 'alerta' ? 'warn' : tm.cor === 'ativo' ? 'ok' : '';
+  const rod = Array.isArray(tm.rodadas) ? tm.rodadas : null, todas = rod ? ' (todas as rodadas)' : '';   // sem lista, tudo como antes (uma rodada por dia)
+  const sit = tm.situacao, ref = tm.refeitas, cls =tm.cor === 'alerta' ? 'warn' : tm.cor === 'ativo' ? 'ok' : '';
   const f = [seletorMoeda(), h('div', { class: 'card' },
     h('small', {}, 'Robô da carteira de teste'),
     h('div', { class: 'titulo ' + cls }, tm.estado || 'Sem dados do robô'),
     tm.motivo_pausa ? h('div', { class: 'sub' }, tm.motivo_pausa) : null,
     (tm.linhas || []).map(l => h('div', { class: 'sub' }, l)),
     sit && sit !== 'sem_carteira' ? h('div', { class: 'acoes' }, sit === 'parado'
-      ? botao('Continuar', 'cheio', () => comandar({ acao: 'timoneiro_continuar', titulo: 'Continuar o Timoneiro?', texto: 'Desfaz só o Parar: o robô volta a ajustar a partir da próxima prévia.', aviso: 'Pausa por perda e parada por falha continuam até a liberação no PC.', rotulo: 'Continuar' }))
-      : botao('Parar', 'perigo', () => comandar({ acao: 'timoneiro_parar', titulo: 'Parar o Timoneiro?', texto: 'Pausa os próximos ajustes e para o executor na hora.', aviso: 'Uma ordem CoW já aberta ainda pode ser liquidada depois do Parar.', rotulo: 'Parar', perigo: true }))) : null)];
+      ? botao('Continuar' + todas, 'cheio', () => comandar({ acao: 'timoneiro_continuar', titulo: 'Continuar o Timoneiro?', texto: 'Desfaz só o Parar: o robô volta a ajustar a partir da próxima prévia' + (rod ? ', em todas as rodadas ligadas' : '') + '.', aviso: 'Pausa por perda e parada por falha continuam até a liberação no PC.', rotulo: 'Continuar' }))
+      : botao('Parar' + todas, 'perigo', () => comandar({ acao: 'timoneiro_parar', titulo: 'Parar o Timoneiro?', texto: 'Pausa os próximos ajustes' + (rod ? ' de todas as rodadas' : '') + ' e para o executor na hora.', aviso: 'Uma ordem CoW já aberta ainda pode ser liquidada depois do Parar.', rotulo: 'Parar', perigo: true }))) : null)];
   const saldoOk = typeof m.saldo_usd === 'number' && fx, pendOk = typeof m.pend_usd === 'number' && fx;
   f.push(h('div', { class: 'card' }, h('small', {}, 'Saldo total'), h('div', { class: 'big' }, saldoOk ? dinNum(m.saldo_usd, m.saldo_usd * fx) : (m.saldo || '—'))));
   f.push(h('div', { class: 'grid' },
@@ -488,7 +532,11 @@ function timoneiroAba() {
     f.push(h('div', { class: 'card' }, h('small', {}, 'Fator de saúde (HF) · ' + hf.onde), h('div', { class: 'big ' + c }, num(hf.valor, fmt)),
       h('div', { class: 'hf' }, marca), hf.antigo ? h('div', { class: 'sub' }, 'Leitura antiga: a coleta não atualizou.') : null));
   }
-  const pv = timoneiro();
+  const gas = (Array.isArray(tm.alertas) ? tm.alertas : []).filter(x => x && x.tipo === 'gas_baixo');   // reserva de gás da carteira de teste (motor.estado().alertas)
+  if (gas.length) f.push(h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Reserva de gás'), h('span', { class: 'chip alerta' }, h('i', {}), 'Atenção')),
+    gas.map(x => h('div', { class: 'texto' }, 'Gás baixo na rede ' + String(x.rede || '').replace(/^./, c => c.toUpperCase()) + ': US$ ' + (numOk(x.saldo_usd) ? fmt(x.saldo_usd) : '?') + ' (mínimo US$ ' + (numOk(x.minimo_usd) ? fmt(x.minimo_usd) : '?') + ').')),
+    h('div', { class: 'sub' }, 'Mande mais gás para a carteira de teste antes da próxima rodada.')));
+  const pv = rod ? rodadasCards(tm, rod) : timoneiro();
   f.push(...(pv.length ? pv : [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
     h('div', { class: 'titulo' }, 'Sem prévia hoje'), h('div', { class: 'sub' }, 'Quando sair, os ajustes do dia aparecem aqui com o botão Cancelar.'))]));
   if (tm.modo_taxas) {
