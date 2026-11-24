@@ -36,7 +36,7 @@
 </script>
 <style>
   :root { --bg:#162528; --bg2:#0f1c1e; --tile:#213538; --tile2:#2a4346; --ink:#f2f4e8; --soft:#b1c6c2; --mint:#93e9ba; --gold:#ffcc79; --blue:#a4c9ff; --red:#ff8a7a;
-    --linha:rgba(255,255,255,.06); --mola:cubic-bezier(.34,1.45,.5,1); --suave:cubic-bezier(.2,.8,.2,1); }
+    --violet:#b9a3ff; --rose:#ff9fb8; --linha:rgba(255,255,255,.06); --mola:cubic-bezier(.34,1.45,.5,1); --suave:cubic-bezier(.2,.8,.2,1); }
   * { box-sizing:border-box; margin:0; -webkit-tap-highlight-color:transparent; }
   html { background:var(--bg); }
   body { color:var(--ink); font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; min-height:100dvh; overflow-x:hidden;
@@ -144,10 +144,10 @@
   @keyframes fundir { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:none } }
 
   /* dock (igual ao do PC) */
-  nav { position:fixed; left:50%; bottom:max(16px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:6; display:flex; padding:6px; border-radius:32px; --idx:0;
+  nav { position:fixed; left:50%; bottom:max(16px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:6; display:flex; padding:6px; border-radius:32px; --idx:0; --tw:min(92px,calc((100vw - 44px) / 5));
     background:linear-gradient(180deg,#14282b,#0f1c1e); border:1px solid #2c4548; box-shadow:0 14px 34px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.05) inset; }
-  nav .foco { position:absolute; left:6px; top:6px; width:92px; height:60px; border-radius:26px; background:var(--tile); box-shadow:0 0 0 1px rgba(255,255,255,.05) inset; transform:translateX(calc(var(--idx)*100%)); transition:transform .5s var(--mola); }
-  .tab { position:relative; width:92px; height:60px; background:none; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--soft); font-size:11px; font-weight:600; letter-spacing:.02em; transition:color .3s,transform .15s; }
+  nav .foco { position:absolute; left:6px; top:6px; width:var(--tw); height:60px; border-radius:26px; background:var(--tile); box-shadow:0 0 0 1px rgba(255,255,255,.05) inset; transform:translateX(calc(var(--idx)*100%)); transition:transform .5s var(--mola); }
+  .tab { position:relative; width:var(--tw); height:60px; background:none; border:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:var(--soft); font-size:11px; font-weight:600; letter-spacing:.02em; transition:color .3s,transform .15s; }
   .tab:active { transform:scale(.93); }
   .tab svg { width:34px; height:34px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; opacity:.62; transition:opacity .3s,transform .4s var(--mola); }
   .tab[data-aba=fabrica] { --c:var(--mint); } .tab[data-aba=garimpo] { --c:var(--gold); } .tab[data-aba=avisos] { --c:var(--blue); }
@@ -162,6 +162,34 @@
   @keyframes sobe { from { transform:scaleY(.1) } to { transform:none } }
   @keyframes balanca { 0% { transform:rotate(0) } 30% { transform:rotate(-26deg) } 65% { transform:rotate(14deg) } 100% { transform:none } }
   @keyframes toca { 0%,100% { transform:rotate(0) } 15% { transform:rotate(15deg) } 35% { transform:rotate(-12deg) } 55% { transform:rotate(8deg) } 75% { transform:rotate(-3deg) } }
+
+  /* abas novas (24/11/2026): Timoneiro (violeta, leme que gira) e Engenheiros (rosa, lâmpada que acende) */
+  .tab[data-aba=timoneiro] { --c:var(--violet); } .tab[data-aba=engenheiros] { --c:var(--rose); }
+  .leme, .lamp { transform-box:view-box; } .leme { transform-origin:27px 26px; } .lamp { transform-origin:27px 24px; }
+  .raio { opacity:0; }
+  .tab.tocar .leme { animation:leme .9s var(--mola); } .tab.tocar .lamp { animation:lamp .7s ease-out; } .tab.tocar .raio { animation:raio .8s ease-out; }
+  @keyframes leme { 0% { transform:rotate(0) } 65% { transform:rotate(200deg) } 100% { transform:rotate(180deg) } }
+  @keyframes lamp { 0%,100% { transform:none } 30% { transform:scale(1.12) } 60% { transform:scale(.97) } }
+  @keyframes raio { 0% { opacity:0 } 30%,60% { opacity:1 } 100% { opacity:0 } }
+  .tab .n.eng { background:var(--rose); }
+  @media (max-width:420px) { .tab { font-size:10px; letter-spacing:0; } .tab svg { width:30px; height:30px; } }
+  .item[data-o=Timoneiro] { --cor:var(--violet); }
+  .chip.alerta { color:var(--gold); background:rgba(255,204,121,.12); } .chip.alerta i { background:var(--gold); }
+
+  /* ranking do Garimpo: uma linha por pool, barra fina do APY (uma série, sem legenda: o título do cartão diz o que é) */
+  .rk { display:grid; grid-template-columns:28px 1fr auto; align-items:center; gap:4px 10px; padding:12px 0 10px; border-top:1px solid var(--linha); }
+  .rk:first-of-type { border-top:0; padding-top:4px; }
+  .rk .pos { width:26px; height:26px; border-radius:50%; background:rgba(255,204,121,.12); color:var(--gold); font-size:12px; font-weight:700; display:grid; place-items:center; }
+  .rk b { font-weight:600; font-size:15px; } .rk .sub { margin-top:2px; font-size:12px; }
+  .rk .apy { text-align:right; font-size:18px; font-weight:700; } .rk .apy .rot { margin:0; font-size:11px; }
+  .rk .mbar { grid-column:2 / 4; margin:2px 0 0; height:5px; } .rk .mbar i { background:linear-gradient(90deg,#d9a24a,var(--gold)); }
+
+  /* modo das taxas do Timoneiro: três opções, a atual marcada */
+  .opc { display:flex; align-items:center; gap:12px; width:100%; text-align:left; min-height:56px; padding:10px 14px; margin-top:8px; border-radius:14px; border:1px solid #3a5558; background:rgba(0,0,0,.14); font-size:14px; font-weight:600; transition:border-color .25s,background .25s,transform .15s,opacity .2s; }
+  .opc i { width:18px; height:18px; border-radius:50%; border:2px solid #6c7f7c; flex:none; transition:border-color .25s,box-shadow .35s var(--mola); }
+  .opc small { display:block; color:var(--soft); font-weight:500; font-size:12px; margin-top:2px; }
+  .opc.on { border-color:rgba(185,163,255,.7); background:rgba(185,163,255,.10); } .opc.on i { border-color:var(--violet); box-shadow:inset 0 0 0 3px #1f3336,inset 0 0 0 9px var(--violet); }
+  .opc:disabled { opacity:.45; } .opc:active:not(:disabled) { transform:scale(.98); } .opc:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
 
   /* folha de confirmação */
   .veu { position:fixed; inset:0; background:rgba(5,12,13,.66); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); display:flex; align-items:flex-end; z-index:20; opacity:0; visibility:hidden; transition:opacity .25s,visibility 0s .45s; }
@@ -191,6 +219,8 @@
   <i class="foco"></i>
   <button class="tab" data-aba="fabrica" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g stroke-width="3"><path class="b" style="--k:0" d="M17 35V28"/><path class="b" style="--k:1" d="M24 35V21"/><path class="b" style="--k:2" d="M31 35V25"/><path class="b" style="--k:3" d="M38 35V15"/></g></svg>Fábrica</button>
   <button class="tab" data-aba="garimpo" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g class="pica"><path d="M19 37L32 20" stroke-width="4"/><path d="M20 16Q31 19 38 28" stroke-width="3"/></g></svg>Garimpo</button>
+  <button class="tab" data-aba="timoneiro" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g class="leme" stroke-width="2.4"><circle cx="27" cy="26" r="8"/><circle cx="27" cy="26" r="2.2" fill="currentColor" stroke="none"/><path d="M27 13V39M14 26H40M17.8 16.8L36.2 35.2M36.2 16.8L17.8 35.2"/></g></svg>Timoneiro</button>
+  <button class="tab" data-aba="engenheiros" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g stroke-width="2.4"><g class="lamp"><path d="M23 31Q18 27 18 21.5Q18 14 27 14Q36 14 36 21.5Q36 27 31 31Z"/><path d="M23.5 35H30.5M25 39H29"/></g><path class="raio" d="M27 8.6V10.6M15 12.8L16.4 14.2M39 12.8L37.6 14.2M11.6 22H13.6M40.4 22H42.4"/></g></svg>Engenheiros</button>
   <button class="tab" data-aba="avisos" type="button"><svg viewBox="9 8 36 36" aria-hidden="true"><g class="sino" stroke-width="2.2"><path d="M17 33L20 29V19Q20 13 27 13Q34 13 34 19V29L37 33Z"/><path d="M23 35A4 4 0 0 0 31 35"/></g></svg>Avisos</button>
 </nav>
 <div class="veu" id="veu"><div class="folha" role="dialog" aria-modal="true" aria-labelledby="ftitulo"><i class="alca"></i><h3 id="ftitulo"></h3><div id="fcorpo"></div><div class="estado" id="festado" role="status" aria-live="polite"></div><div class="acoes" id="fbotoes"></div></div></div>
@@ -225,7 +255,7 @@ function contar() {
 }
 const card = (rotulo, valor, sub, cls) => h('div', { class: 'card' }, h('small', {}, rotulo), h('div', { class: 'big ' + (cls || '') }, valor), sub ? h('div', { class: 'sub' }, sub) : null);
 
-const ORDEM = ['fabrica', 'garimpo', 'avisos'];
+const ORDEM = ['fabrica', 'garimpo', 'timoneiro', 'engenheiros', 'avisos'];
 let E = null, aba = localStorage.getItem('bilbao_aba') || 'fabrica', aberta = null, verLidas = false, animando = false;
 const cacheBilbao = 'bilbao_ultima_leitura:' + URL_;
 try { E = JSON.parse(localStorage.getItem(cacheBilbao) || 'null'); } catch {}   // sobrevive a fechar o app: com o Supabase fora, ainda mostra a última leitura
@@ -353,16 +383,7 @@ function fabrica() {
   if (t.bloco) corpo.push(h('div', { class: 'acoes' },
     botao('Parar mineração', 'perigo', () => comandar({ acao: 'mineracao.parar', titulo: 'Parar a mineração?', texto: 'Pede à Máquina que pare nos dois PCs. Cada um termina a candidata em andamento.', rotulo: 'Parar', perigo: true })),
     botao('Continuar mineração', 'cheio', () => comandar({ acao: 'mineracao.continuar', titulo: 'Continuar a mineração?', texto: 'Pede à Máquina que retome a mineração nos dois PCs.', rotulo: 'Continuar' }))));
-  const filhos = [h('div', { class: 'card' }, corpo)];
-  const dec = Object.entries(t.decisoes || {});
-  if (dec.length) {
-    filhos.push(h('h2', {}, 'Por decidir · ' + dec.length));
-    dec.forEach(([id, texto]) => filhos.push(h('div', { class: 'card' }, h('div', { class: 'texto' }, texto), h('div', { class: 'acoes' },
-      botao('Detalhes', 'cinza', () => comandar({ acao: 'mesa.detalhes', alvo: id, titulo: 'Detalhes da decisão', direto: true })),
-      botao('Recusar', 'perigo', () => comandar({ acao: 'mesa.recusado', alvo: id, titulo: 'Recusar esta decisão?', texto, rotulo: 'Recusar', perigo: true })),
-      botao('Aceitar', 'cheio', () => comandar({ acao: 'mesa.aceito', alvo: id, titulo: 'Aceitar esta decisão?', texto, aviso: 'A resposta é gravada e aplicada pelo Chefe da mesa, como no pop-up do PC.', rotulo: 'Aceitar' }))))));
-  }
-  return filhos;
+  return [h('div', { class: 'card' }, corpo)];   // as decisões do Engenheiro ficam na aba Engenheiros
 }
 
 // Moeda: o PC manda USD e BRL; o seletor só escolhe qual mostrar.
@@ -391,7 +412,7 @@ function timoneiro() {
     : t.estado === 'plano_gerado' ? 'Plano das 7h15 gerado; o executor segue daqui.'
     : t.estado === 'sem_canal' ? 'Sem canal do Cancelar às 7h15: hoje o robô não executa.'
     : ref.length ? 'Cancele o que não quiser até 7h15.' : 'Nada a fazer hoje.';
-  const f = [h('h2', {}, 'Timoneiro · hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
+  const f = [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
     h('div', { class: 'titulo' }, ref.length ? ref.length + (ref.length > 1 ? ' ajustes' : ' ajuste') : 'Nenhum ajuste'), h('div', { class: 'sub' }, sub))];
   ref.forEach(p => {
     const fx = p.faixa_sugerida, cancelado = canc.has(p.passo_id);
@@ -404,26 +425,82 @@ function timoneiro() {
   });
   return f;
 }
+// ---------- Garimpo (24/11/2026): só o estado da coleta e as 5 melhores do Ranking ----------
+const linhaPool = p => [p.rede === 'bsc' ? 'BSC' : String(p.rede || '').replace(/^./, c => c.toUpperCase()),
+  typeof p.taxa === 'number' ? (p.taxa * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%' : null,
+  typeof p.tvl === 'number' ? 'TVL US$ ' + (p.tvl / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' mi' : null].filter(Boolean).join(' · ');
+const dataHora = iso => new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 function garimpo() {
-  const g = E.garimpo || {}, m = g.metricas || {}, hf = m.hf, tx = E.taxas, mes = tx && tx.mes;
-  const fx = m.fx;
-  const f = [seletorMoeda(), ...timoneiro(), h('div', { class: 'card' }, h('small', {}, 'Coleta'), h('div', { class: 'titulo' }, g.estado || '—'))];
-  // saldo e taxas a receber: o PC manda US$ e o câmbio; sem isso (leitura antiga) cai no texto em reais
-  const saldoOk = typeof m.saldo_usd === 'number' && fx;
+  const g = E.garimpo || {}, rk = g.ranking, ativo = g.cor === 'ativo';
+  const f = [h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Coleta do Garimpo'),
+      h('span', { class: 'chip' + (ativo ? ' on' : '') }, h('i', {}), ativo ? 'Coletando' : g.coleta_concluida ? 'Concluída' : 'Em espera')),
+    h('div', { class: 'titulo' + (ativo ? ' ok' : '') }, g.estado || '—'))];
+  f.push(h('h2', {}, 'Ranking · 5 melhores'));
+  const pools = (rk && rk.pools) || [];
+  if (!pools.length) return [...f, h('div', { class: 'card' }, h('div', { class: 'sub', style: 'margin:0' }, 'Ranking indisponível nesta leitura.'))];
+  const max = Math.max(...pools.map(p => p.apy), 1);
+  f.push(h('div', { class: 'card' }, h('small', {}, 'Pools grandes · ritmo diário · APY teste'), pools.map((p, i) => {
+    const w = Math.max(2, Math.round(100 * p.apy / max)), bar = h('i', {});
+    if (animando) requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = w + '%'; })); else { bar.style.transition = 'none'; bar.style.width = w + '%'; }
+    return h('div', { class: 'rk' }, h('span', { class: 'pos', 'aria-label': (i + 1) + 'º' }, String(i + 1)),
+      h('div', {}, h('b', {}, p.par), h('div', { class: 'sub' }, linhaPool(p))),
+      h('div', { class: 'apy' }, num(p.apy, v => inteiro(v) + '%'), h('small', { class: 'rot' }, 'APY teste')),
+      h('div', { class: 'mbar', 'aria-hidden': 'true' }, bar));
+  }), rk.em ? h('div', { class: 'sub', style: 'margin-top:12px' }, 'Da coleta de ' + dataHora(rk.em)) : null));
+  return f;
+}
+
+// ---------- Timoneiro (24/11/2026): robô + métricas da carteira (vieram do Garimpo) ----------
+const MODOS = [['reinvestir', 'Reinvestir tudo', 'As taxas voltam para a posição.'],
+  ['so_principal', 'Reinvestir só o principal', 'Só o principal volta para a posição.'],
+  ['enviar_taxas', 'Enviar as taxas', 'Vão para a EVM principal (endereço fixo no PC).']];
+function cardT24(tx) {   // parcial: mostra o que foi lido e quantas posições (≈ R$ 53,34 · 14 de 19 posições)
+  if (!tx || tx.pools == null) return card('Taxas · 24 h', '—', 'Aguardando leitura');
+  if (!tx.lidas || tx.taxas_usd == null) return card('Taxas · 24 h', '—', `0 de ${tx.pools} posições lidas`);
+  const parcial = tx.lidas !== tx.pools;
+  return card('Taxas · 24 h', [parcial || tx.estimada ? '≈ ' : '', dinNum(tx.taxas_usd, tx.taxas_brl)],
+    parcial ? `${tx.lidas} de ${tx.pools} posições` : `${tx.lidas} de ${tx.pools} posições lidas` + (tx.estimada ? ' · inclui estimativa' : ''), 'ok');
+}
+function timoneiroAba() {
+  const tm = E.timoneiro || {}, m = tm.metricas || (E.garimpo || {}).metricas || {}, hf = m.hf, tx = E.taxas, mes = tx && tx.mes, fx = m.fx;
+  const sit = tm.situacao, ref = tm.refeitas, cls = tm.cor === 'alerta' ? 'warn' : tm.cor === 'ativo' ? 'ok' : '';
+  const f = [seletorMoeda(), h('div', { class: 'card' },
+    h('small', {}, 'Robô da carteira de teste'),
+    h('div', { class: 'titulo ' + cls }, tm.estado || 'Sem dados do robô'),
+    tm.motivo_pausa ? h('div', { class: 'sub' }, tm.motivo_pausa) : null,
+    (tm.linhas || []).map(l => h('div', { class: 'sub' }, l)),
+    sit && sit !== 'sem_carteira' ? h('div', { class: 'acoes' }, sit === 'parado'
+      ? botao('Continuar', 'cheio', () => comandar({ acao: 'timoneiro_continuar', titulo: 'Continuar o Timoneiro?', texto: 'Desfaz só o Parar: o robô volta a ajustar a partir da próxima prévia.', aviso: 'Pausa por perda e parada por falha continuam até a liberação no PC.', rotulo: 'Continuar' }))
+      : botao('Parar', 'perigo', () => comandar({ acao: 'timoneiro_parar', titulo: 'Parar o Timoneiro?', texto: 'Pausa os próximos ajustes e para o executor na hora.', aviso: 'Uma ordem CoW já aberta ainda pode ser liquidada depois do Parar.', rotulo: 'Parar', perigo: true }))) : null)];
+  const saldoOk = typeof m.saldo_usd === 'number' && fx, pendOk = typeof m.pend_usd === 'number' && fx;
   f.push(h('div', { class: 'card' }, h('small', {}, 'Saldo total'), h('div', { class: 'big' }, saldoOk ? dinNum(m.saldo_usd, m.saldo_usd * fx) : (m.saldo || '—'))));
-  const pendOk = typeof m.pend_usd === 'number' && fx;
   f.push(h('div', { class: 'grid' },
     card('Taxas a recolher', pendOk ? dinNum(m.pend_usd, m.pend_usd * fx) : (m.taxas || '—'), null, 'ok'),
-    tx?.pools != null ? card('Taxas · 24 h', tx.lidas === tx.pools ? dinNum(tx.taxas_usd, tx.taxas_brl) : '—',
-      `${tx.lidas} de ${tx.pools} posições lidas${tx.estimada ? ' · inclui estimativa' : ''}`, 'ok') : card('Taxas · 24 h', '—', 'Aguardando leitura'),
+    cardT24(tx),
     card('Para recalibrar', String(m.fora ?? '—'), null, m.fora > 0 ? 'warn' : ''),
-    card('Dentro da faixa', String(m.dentro ?? '—'))));
+    card('Dentro da faixa', String(m.dentro ?? '—')),
+    card('Pools automatizadas', tm.automatizadas != null ? num(tm.automatizadas, inteiro) : '—', 'Na carteira de teste'),
+    card('Pools refeitas', ref ? num(ref.hoje || 0, inteiro) : '—', ref ? `hoje · ${inteiro(ref.total || 0)} no total` : null)));
   if (hf) {
     const c = hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok', pos = Math.max(2, Math.min(98, (hf.valor - 1) / 2 * 100));
     const marca = h('i', {}); marca.style.left = animando ? '2%' : pos + '%';
     if (animando) requestAnimationFrame(() => requestAnimationFrame(() => { marca.style.left = pos + '%'; }));
     f.push(h('div', { class: 'card' }, h('small', {}, 'Fator de saúde (HF) · ' + hf.onde), h('div', { class: 'big ' + c }, num(hf.valor, fmt)),
       h('div', { class: 'hf' }, marca), hf.antigo ? h('div', { class: 'sub' }, 'Leitura antiga: a coleta não atualizou.') : null));
+  }
+  const pv = timoneiro();
+  f.push(...(pv.length ? pv : [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
+    h('div', { class: 'titulo' }, 'Sem prévia hoje'), h('div', { class: 'sub' }, 'Quando sair, os ajustes do dia aparecem aqui com o botão Cancelar.'))]));
+  if (tm.modo_taxas) {
+    f.push(h('h2', {}, 'Taxas coletadas'), h('div', { class: 'card', role: 'radiogroup', 'aria-label': 'O que o robô faz com as taxas' },
+      h('small', {}, 'O que o robô faz com as taxas ao refazer uma posição'),
+      MODOS.map(([id, nome, desc]) => {
+        const on = id === tm.modo_taxas, bloq = id === 'enviar_taxas' && !tm.enviar_taxas_disponivel;
+        const a = { class: 'opc' + (on ? ' on' : ''), type: 'button', role: 'radio', 'aria-checked': String(on), onclick: () => on || comandar({ acao: 'timoneiro_taxas', alvo: id,
+          titulo: 'Trocar o modo das taxas?', texto: nome + '. Vale a partir do próximo plano.', aviso: id === 'enviar_taxas' ? 'As taxas vão para a EVM principal, no endereço fixo do PC.' : null, rotulo: 'Trocar' }) };
+        if (bloq || (!on && !pcOk())) a.disabled = '';
+        return h('button', a, h('i', {}), h('span', {}, nome, h('small', {}, bloq ? 'Indisponível: destino das taxas não configurado no PC.' : desc)));
+      })));
   }
   if (mes && mes.atual) {
     const a = mes.atual, max = Math.max(...mes.meses.map(x => x.usd), 1);
@@ -439,15 +516,31 @@ function garimpo() {
   }
   f.push(h('div', { class: 'acoes', style: 'margin:2px 0 10px' }, botao('Atualizar carteira', 'cinza', () => comandar({ acao: 'carteira.atualizar', titulo: 'Atualizar a carteira?', texto: 'O PC consulta as fontes de novo. Pode levar vários minutos.', rotulo: 'Atualizar' }))));
   if (m.horario) f.push(h('div', { class: 'sub' }, 'Carteira · ' + m.horario));
+  return f;
+}
+
+// ---------- Engenheiros (24/11/2026): o que espera o sim do Eduardo, por engenheiro, e a próxima rodada ----------
+const pendEng = () => !E ? 0 : Object.keys((E.trading || {}).decisoes || {}).length +
+  Object.values((E.garimpo || {}).propostas || {}).filter(p => p.estado === 'aguardando').length;
+function engenheiros() {
+  const pr = (E.engenheiros || {}).proximas || {}, t = E.trading || {}, g = E.garimpo || {};
   const props = Object.entries(g.propostas || {}).filter(([, p]) => p.estado === 'aguardando' || p.estado === 'aprovada');
-  if (props.length) {
-    f.push(h('h2', {}, 'Propostas do Engenheiro'));
-    props.forEach(([id, p]) => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null,
-      h('div', { class: 'acoes' }, p.estado === 'aprovada'
-        ? [botao('Implementar agora', 'cheio', () => comandar({ acao: 'proposta.implementar', alvo: id, titulo: 'Implementar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE, rotulo: 'Implementar' }))]
-        : [botao('Recusar', 'perigo', () => comandar({ acao: 'proposta.recusar', alvo: id, titulo: 'Recusar a proposta?', texto: p.titulo, rotulo: 'Recusar', perigo: true })),
-           botao('Aprovar', 'cheio', () => comandar({ acao: 'proposta.aprovar', alvo: id, titulo: 'Aprovar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE + ' Aprovar já dispara a implementação.', rotulo: 'Aprovar' }))]))));
-  }
+  const dec = Object.entries(t.decisoes || {});
+  const cab = (nome, prox, n, txt) => h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Engenheiro · ' + nome),
+      n ? h('span', { class: 'chip alerta' }, h('i', {}), n + ' por decidir') : h('span', { class: 'chip' }, h('i', {}), txt || 'Nada por decidir')),
+    h('div', { class: 'sub', style: 'margin-top:2px' }, prox || 'Próxima rodada: sem informação nesta leitura.'));
+  const f = [h('h2', {}, 'Garimpo'), cab('Garimpo', pr.garimpo, props.filter(([, p]) => p.estado === 'aguardando').length)];
+  props.forEach(([id, p]) => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null,
+    h('div', { class: 'acoes' }, p.estado === 'aprovada'
+      ? [botao('Implementar agora', 'cheio', () => comandar({ acao: 'proposta.implementar', alvo: id, titulo: 'Implementar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE, rotulo: 'Implementar' }))]
+      : [botao('Recusar', 'perigo', () => comandar({ acao: 'proposta.recusar', alvo: id, titulo: 'Recusar a proposta?', texto: p.titulo, rotulo: 'Recusar', perigo: true })),
+         botao('Aprovar', 'cheio', () => comandar({ acao: 'proposta.aprovar', alvo: id, titulo: 'Aprovar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE + ' Aprovar já dispara a implementação.', rotulo: 'Aprovar' }))]))));
+  f.push(h('h2', {}, 'Fábrica (Trading)'), cab('Trading', pr.trading, dec.length));
+  dec.forEach(([id, texto]) => f.push(h('div', { class: 'card' }, h('small', {}, 'Aguardando decisão'), h('div', { class: 'texto' }, texto), h('div', { class: 'acoes' },
+    botao('Detalhes', 'cinza', () => comandar({ acao: 'mesa.detalhes', alvo: id, titulo: 'Detalhes da decisão', direto: true })),
+    botao('Recusar', 'perigo', () => comandar({ acao: 'mesa.recusado', alvo: id, titulo: 'Recusar esta decisão?', texto, rotulo: 'Recusar', perigo: true })),
+    botao('Aceitar', 'cheio', () => comandar({ acao: 'mesa.aceito', alvo: id, titulo: 'Aceitar esta decisão?', texto, aviso: 'A resposta é gravada e aplicada pelo Chefe da mesa, como no pop-up do PC.', rotulo: 'Aceitar' }))))));
+  f.push(h('h2', {}, 'Timoneiro'), cab('Timoneiro', pr.timoneiro || 'Avaliador ainda não criado.', 0, 'Ainda não existe'));
   return f;
 }
 
@@ -487,13 +580,15 @@ function desenhar(modo) {
   const t = $('#tela');
   document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.aba === aba));
   const nav = $('nav'); nav.style.setProperty('--idx', ORDEM.indexOf(aba));
-  nav.querySelector('[data-aba=avisos] .n')?.remove();
+  nav.querySelectorAll('.tab .n').forEach(x => x.remove());
   if (!E) { t.className = ''; t.replaceChildren(h('div', { class: 'sk' }), h('div', { class: 'sk', style: 'height:150px' }), h('div', { class: 'sk' })); return; }
   const nao = (E.noticias || []).filter(n => !lidas.has(n.id)).length;
   if (nao) nav.querySelector('[data-aba=avisos]').append(h('span', { class: 'n' }, String(nao)));
+  const pend = pendEng();
+  if (pend) nav.querySelector('[data-aba=engenheiros]').append(h('span', { class: 'n eng' }, String(pend)));
   animando = !!modo;
   t.className = modo || '';
-  const filhos = aba === 'fabrica' ? fabrica() : aba === 'garimpo' ? garimpo() : avisos();
+  const filhos = { fabrica, garimpo, timoneiro: timoneiroAba, engenheiros, avisos }[aba]();
   t.replaceChildren(...filhos);
   [...t.children].forEach((c, i) => c.style.setProperty('--i', Math.min(i, 9)));
   if (modo) contar();
