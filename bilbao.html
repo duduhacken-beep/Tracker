@@ -572,23 +572,26 @@ const pendEng = () => !E ? 0 : Object.keys((E.trading || {}).decisoes || {}).len
   Object.values((E.garimpo || {}).propostas || {}).filter(p => p.estado === 'aguardando').length;
 function engenheiros() {
   const pr = (E.engenheiros || {}).proximas || {}, t = E.trading || {}, g = E.garimpo || {};
-  const props = Object.entries(g.propostas || {}).filter(([, p]) => p.estado === 'aguardando' || p.estado === 'aprovada');
+  const todas = Object.entries(g.propostas || {}).filter(([, p]) => p.estado === 'aguardando' || p.estado === 'aprovada');
+  const props = todas.filter(([id]) => !id.startsWith('tm-')), tim = todas.filter(([id]) => id.startsWith('tm-'));
   const dec = Object.entries(t.decisoes || {});
   const cab = (nome, prox, n, txt) => h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Engenheiro · ' + nome),
       n ? h('span', { class: 'chip alerta' }, h('i', {}), n + ' por decidir') : h('span', { class: 'chip' }, h('i', {}), txt || 'Nada por decidir')),
     h('div', { class: 'sub', style: 'margin-top:2px' }, prox || 'Próxima rodada: sem informação nesta leitura.'));
   const f = [h('h2', {}, 'Garimpo'), cab('Garimpo', pr.garimpo, props.filter(([, p]) => p.estado === 'aguardando').length)];
-  props.forEach(([id, p]) => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null,
+  const cartao = ([id, p]) => f.push(h('div', { class: 'card' }, h('small', {}, p.estado === 'aprovada' ? 'Aprovada, falta implementar' : 'Aguardando decisão'), h('div', { class: 'texto' }, p.titulo), p.resumo ? h('div', { class: 'sub' }, p.resumo) : null,
     h('div', { class: 'acoes' }, p.estado === 'aprovada'
       ? [botao('Implementar agora', 'cheio', () => comandar({ acao: 'proposta.implementar', alvo: id, titulo: 'Implementar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE, rotulo: 'Implementar' }))]
       : [botao('Recusar', 'perigo', () => comandar({ acao: 'proposta.recusar', alvo: id, titulo: 'Recusar a proposta?', texto: p.titulo, rotulo: 'Recusar', perigo: true })),
-         botao('Aprovar', 'cheio', () => comandar({ acao: 'proposta.aprovar', alvo: id, titulo: 'Aprovar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE + ' Aprovar já dispara a implementação.', rotulo: 'Aprovar' }))]))));
+         botao('Aprovar', 'cheio', () => comandar({ acao: 'proposta.aprovar', alvo: id, titulo: 'Aprovar a proposta?', texto: p.titulo, aviso: AVISO_CLAUDE + ' Aprovar já dispara a implementação.', rotulo: 'Aprovar' }))])));
+  props.forEach(cartao);
   f.push(h('h2', {}, 'Fábrica (Trading)'), cab('Trading', pr.trading, dec.length));
   dec.forEach(([id, texto]) => f.push(h('div', { class: 'card' }, h('small', {}, 'Aguardando decisão'), h('div', { class: 'texto' }, texto), h('div', { class: 'acoes' },
     botao('Detalhes', 'cinza', () => comandar({ acao: 'mesa.detalhes', alvo: id, titulo: 'Detalhes da decisão', direto: true })),
     botao('Recusar', 'perigo', () => comandar({ acao: 'mesa.recusado', alvo: id, titulo: 'Recusar esta decisão?', texto, rotulo: 'Recusar', perigo: true })),
     botao('Aceitar', 'cheio', () => comandar({ acao: 'mesa.aceito', alvo: id, titulo: 'Aceitar esta decisão?', texto, aviso: 'A resposta é gravada e aplicada pelo Chefe da mesa, como no pop-up do PC.', rotulo: 'Aceitar' }))))));
-  f.push(h('h2', {}, 'Timoneiro'), cab('Timoneiro', pr.timoneiro || 'Avaliador ainda não criado.', 0, 'Ainda não existe'));
+  f.push(h('h2', {}, 'Timoneiro'), cab('Timoneiro', pr.timoneiro, tim.filter(([, p]) => p.estado === 'aguardando').length));
+  tim.forEach(cartao);
   return f;
 }
 
