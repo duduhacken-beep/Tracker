@@ -509,7 +509,7 @@ function timoneiroAba() {
   const rod = Array.isArray(tm.rodadas) ? tm.rodadas : null, todas = rod ? ' (todas as rodadas)' : '';   // sem lista, tudo como antes (uma rodada por dia)
   const sit = tm.situacao, ref = tm.refeitas, cls =tm.cor === 'alerta' ? 'warn' : tm.cor === 'ativo' ? 'ok' : '';
   const f = [seletorMoeda(), h('div', { class: 'card' },
-    h('small', {}, 'Robô da carteira de teste'),
+    h('small', {}, 'Carteiras do robô'),
     h('div', { class: 'titulo ' + cls }, tm.estado || 'Sem dados do robô'),
     tm.motivo_pausa ? h('div', { class: 'sub' }, tm.motivo_pausa) : null,
     (tm.linhas || []).map(l => h('div', { class: 'sub' }, l)),
@@ -523,7 +523,7 @@ function timoneiroAba() {
     cardT24(tx),
     card('Para recalibrar', String(m.fora ?? '—'), null, m.fora > 0 ? 'warn' : ''),
     card('Dentro da faixa', String(m.dentro ?? '—')),
-    card('Pools automatizadas', tm.automatizadas != null ? num(tm.automatizadas, inteiro) : '—', 'Na carteira de teste'),
+    card('Pools automatizadas', tm.automatizadas != null ? num(tm.automatizadas, inteiro) : '—', 'Na carteira do robô'),
     card('Pools refeitas', ref ? num(ref.hoje || 0, inteiro) : '—', ref ? `hoje · ${inteiro(ref.total || 0)} no total` : null)));
   if (hf) {
     const c = hf.valor < 1.5 ? 'bad' : hf.valor < 2 ? 'warn' : 'ok', pos = Math.max(2, Math.min(98, (hf.valor - 1) / 2 * 100));
@@ -532,10 +532,10 @@ function timoneiroAba() {
     f.push(h('div', { class: 'card' }, h('small', {}, 'Fator de saúde (HF) · ' + hf.onde), h('div', { class: 'big ' + c }, num(hf.valor, fmt)),
       h('div', { class: 'hf' }, marca), hf.antigo ? h('div', { class: 'sub' }, 'Leitura antiga: a coleta não atualizou.') : null));
   }
-  const gas = (Array.isArray(tm.alertas) ? tm.alertas : []).filter(x => x && x.tipo === 'gas_baixo');   // reserva de gás da carteira de teste (motor.estado().alertas)
+  const gas = (Array.isArray(tm.alertas) ? tm.alertas : []).filter(x => x && x.tipo === 'gas_baixo');   // reserva de gás da carteira do robô (motor.estado().alertas)
   if (gas.length) f.push(h('div', { class: 'card' }, h('div', { class: 'topo-card' }, h('small', { style: 'margin:0' }, 'Reserva de gás'), h('span', { class: 'chip alerta' }, h('i', {}), 'Atenção')),
     gas.map(x => h('div', { class: 'texto' }, 'Gás baixo na rede ' + String(x.rede || '').replace(/^./, c => c.toUpperCase()) + ': US$ ' + (numOk(x.saldo_usd) ? fmt(x.saldo_usd) : '?') + ' (mínimo US$ ' + (numOk(x.minimo_usd) ? fmt(x.minimo_usd) : '?') + ').')),
-    h('div', { class: 'sub' }, 'Mande mais gás para a carteira de teste antes da próxima rodada.')));
+    h('div', { class: 'sub' }, 'Mande mais gás para a carteira do robô antes da próxima rodada.')));
   const pv = rod ? rodadasCards(tm, rod) : timoneiro();
   f.push(...(pv.length ? pv : [h('h2', {}, 'Prévia de hoje'), h('div', { class: 'card' }, h('small', {}, 'Prévia das 7h00'),
     h('div', { class: 'titulo' }, 'Sem prévia hoje'), h('div', { class: 'sub' }, 'Quando sair, os ajustes do dia aparecem aqui com o botão Cancelar.'))]));
